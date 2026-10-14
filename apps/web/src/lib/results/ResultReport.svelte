@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { buildProfile } from '@sqwer/fingermap';
-	import { qwertyAnsi } from '@sqwer/layouts';
+	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
 	import { examById } from '#lib/exams.ts';
-	import { fingerMap } from '#lib/fingermap/store.svelte.ts';
 	import { guidance } from '#lib/guidance.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import ResultChart from './ResultChart.svelte';
@@ -42,16 +40,14 @@
 
 	const advice = $derived.by(() => {
 		const earlier = results.forExam(record.exam).filter((r) => r.id !== record.id && r.at < record.at);
-		const profile = buildProfile(fingerMap.observations, qwertyAnsi('pc'));
-		return guidance(
-			{ wpm: record.wpm, raw: record.raw ?? record.wpm, accuracy: record.accuracy, consistency: record.consistency ?? 0 },
-			{
-				coverage: profile.core.mapped / profile.core.total,
-				hasPlacement: results.forExam('placement').length > 0,
-				hasAssessment: results.forExam('finger-speed').length > 0,
-				previousBest: earlier.length ? Math.max(...earlier.map((r) => r.wpm)) : null
-			}
-		);
+		return {
+			insights: guidance(
+				{ wpm: record.wpm, raw: record.raw ?? record.wpm, accuracy: record.accuracy, consistency: record.consistency ?? 0 },
+				{ previousBest: earlier.length ? Math.max(...earlier.map((r) => r.wpm)) : null }
+			),
+			// The same next step the rest of the site shows: getting started, then the course.
+			next: learnerNextStep()
+		};
 	});
 
 	const keyName = (k: string) => (k === ' ' ? 'Space' : k);

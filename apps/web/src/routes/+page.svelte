@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { buildProfile } from '@sqwer/fingermap';
-	import { qwertyAnsi, type Finger } from '@sqwer/layouts';
-	import { fingerMap } from '#lib/fingermap/store.svelte.ts';
+	import { FINGERS } from '@sqwer/layouts';
+	import { CHAPTERS, LESSONS } from '#lib/courses/catalog.ts';
+	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
+	import { RANKS } from '#lib/courses/progression.ts';
+	import RankBadge from '#lib/courses/RankBadge.svelte';
+	import { courses } from '#lib/courses/store.svelte.ts';
 	import Hands from '#lib/hands/Hands.svelte';
-	import { buildJourney } from '#lib/journey.ts';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
 	import { results } from '#lib/results/store.svelte.ts';
 	import Seo from '#lib/site/Seo.svelte';
@@ -15,35 +17,34 @@
 
 	let ready = $state(false);
 	onMount(() => {
-		fingerMap.load();
 		results.load();
 		ready = true;
 	});
 
-	// Returning typists are offered their next step instead of starting again.
-	const steps = $derived(buildJourney(results.list, buildProfile(fingerMap.observations, qwertyAnsi('pc'))));
-	const started = $derived(ready && (results.list.length > 0 || fingerMap.observations.length > 0));
-	const nextIndex = $derived(steps.findIndex((s) => s.status === 'current' || s.status === 'in-progress'));
-	const next = $derived(started ? steps[nextIndex === -1 ? steps.length - 1 : nextIndex]! : null);
+	// Returning learners are offered their next step instead of starting again.
+	const next = $derived(ready && courses.loaded ? learnerNextStep() : null);
+	const returning = $derived(next !== null && next.stage !== 'welcome');
 
-	// An illustrative result of the finger speed assessment for the hero figure.
-	const SPEEDS: Record<Finger, number> = { lp: 41, lr: 48, lm: 66, li: 78, lt: 92, rt: 95, ri: 81, rm: 63, rr: 52, rp: 38 };
-	const heroTone = Object.fromEntries(Object.entries(SPEEDS).map(([f, v]) => [f, 0.25 + 0.75 * (v / 95)])) as Record<Finger, number>;
-	const heroLegend = Object.fromEntries(Object.entries(SPEEDS).map(([f, v]) => [f, { value: String(v), strong: f === 'rt' }]));
-
-	const JOURNEY = [
-		{ title: 'Establish your baseline', body: 'A placement test records your speed, accuracy and rhythm.', meta: '1 minute', icon: 'flag' },
-		{ title: 'Map your technique', body: 'Indicate which finger presses each key, including habits that depend on the neighbouring key.', meta: 'About 10 minutes, in sessions', icon: 'hand' },
-		{ title: 'Assess each finger', body: 'Four short stages measure the speed and accuracy of every finger separately.', meta: '80 seconds', icon: 'gauge' },
-		{ title: 'Measure your progress', body: 'Retake the placement test under the same conditions to see what has changed.', meta: 'Whenever you are ready', icon: 'chart' }
-	] as const;
-
-	const SAMPLE = [
-		{ label: 'WPM', value: '78', hint: 'Counts only words typed correctly.' },
-		{ label: 'Accuracy', value: '96%', hint: 'Counts every incorrect keystroke, including corrected ones.' },
-		{ label: 'Raw', value: '83', hint: 'Counts all typed characters, including errors.' },
-		{ label: 'Consistency', value: '81%', hint: 'Measures how evenly speed was maintained.' }
+	// The hero hands show where each finger rests: the home row and the space bar.
+	const HOME: Record<string, string> = { lp: 'A', lr: 'S', lm: 'D', li: 'F', lt: '␣', rt: '␣', ri: 'J', rm: 'K', rr: 'L', rp: ';' };
+	const heroLegend = Object.fromEntries(FINGERS.map((f) => [f, { value: HOME[f]!, strong: f === 'li' || f === 'ri' }]));
+	const heroTone = Object.fromEntries(FINGERS.map((f) => [f, f === 'li' || f === 'ri' ? 1 : 0.7]));
+	const FLOAT = [
+		{ k: 'F', x: -4, y: 6, d: 0 },
+		{ k: 'J', x: 94, y: 2, d: 0.8 },
+		{ k: 'E', x: -8, y: 46, d: 1.6 },
+		{ k: 'I', x: 98, y: 40, d: 0.4 }
 	];
+
+	// Ranks shown on the road, at the chapter where a steady learner reaches them.
+	const RANK_AT: Record<number, number> = { 1: 2, 3: 3, 4: 4, 7: 5, 9: 6, 10: 7, 12: 9 };
+
+	const GAMES = [
+		{ kind: 'falling', title: 'Falling letters', body: 'Letters drop from the top. Type each one before it lands.' },
+		{ kind: 'rhythm', title: 'Rhythm keys', body: 'Notes travel down like piano keys. Press each on the beat.' },
+		{ kind: 'listen', title: 'Listen and type', body: 'Hear a word and type it, without seeing it first.' },
+		{ kind: 'drill', title: 'Guided drills', body: 'The next key and the finger to use are shown until you no longer need them.' }
+	] as const;
 
 	const site = $derived(page.data.siteUrl ?? '');
 	const jsonLd = $derived([
@@ -51,85 +52,144 @@
 		{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'sqwer', url: site },
 		{
 			'@context': 'https://schema.org',
-			'@type': 'WebApplication',
-			name: 'sqwer',
-			url: site,
-			applicationCategory: 'EducationalApplication',
-			operatingSystem: 'Any',
-			offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-			description: 'A guided typing course that measures speed, maps which finger is used for each key and assesses each finger.'
+			'@type': 'Course',
+			name: 'The sqwer typing course',
+			description: `A free touch-typing course of ${LESSONS.length} lessons in ${CHAPTERS.length} chapters, from the home row to fluent typing.`,
+			provider: { '@type': 'Organization', name: 'sqwer', url: site },
+			isAccessibleForFree: true
 		}
 	]);
 </script>
 
 <Seo
-	description="Learn to type better by understanding how you type now: a guided journey of placement tests, finger mapping and per-finger assessment."
+	description={`Learn to type properly, one key at a time: a free course of ${LESSONS.length} short lessons with games, from your first two keys to fluent typing.`}
 	{jsonLd}
 />
 
 <div class="landing">
-	<section class="hero" aria-labelledby="hero-title">
+	<!-- Hero: a dot grid that fades out, a soft glow and keys floating around the hands. -->
+	<section class="hero band" aria-labelledby="hero-title">
 		<div class="hero-copy">
-			<h1 id="hero-title" class="rise">Understand how your hands <span class="mark">really</span> type.</h1>
-			<p class="lede rise" style:--d="80ms">
-				sqwer measures your speed, records which finger you use for each key and identifies the fingers that hold you
-				back. Then it shows you what to practise.
+			<p class="kicker rise">A typing course for everyone</p>
+			<h1 id="hero-title" class="rise" style:--d="60ms">Learn to type <span class="mark">properly</span>, one key at a time.</h1>
+			<p class="lede rise" style:--d="120ms">
+				Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and
+				for self-taught typists who want to do it right.
 			</p>
-			<div class="hero-action rise" style:--d="160ms">
-				{#if next}
-					<p class="resume"><span class="step-no">Step {nextIndex === -1 ? steps.length : nextIndex + 1} of {steps.length}</span> {next.title}</p>
+			<div class="hero-action rise" style:--d="180ms">
+				{#if returning && next}
+					<p class="resume"><Icon name="route" size={16} /> {next.title}</p>
 					<a class="btn btn-primary btn-lg" href={next.href}>{next.action} <Icon name="arrow" size={18} /></a>
 				{:else}
-					<a class="btn btn-primary btn-lg" href="/test?exam=placement">Take the placement test <Icon name="arrow" size={18} /></a>
+					<a class="btn btn-primary btn-lg" href="/start">Get started <Icon name="arrow" size={18} /></a>
 				{/if}
-				<a class="link-arrow quiet" href="#journey">How the journey works <Icon name="chevron" size={16} class="down" /></a>
+				<a class="link-arrow quiet" href="#road">See the whole course <Icon name="chevron" size={16} class="down" /></a>
 			</div>
 			<ul class="facts rise" style:--d="240ms" aria-label="Key facts">
-				<li><Icon name="clock" size={16} /> One minute to begin</li>
-				<li><Icon name="user" size={16} /> No account required</li>
-				<li><Icon name="lock" size={16} /> No tracking</li>
+				<li><Icon name="check" size={16} /> Free</li>
+				<li><Icon name="flag" size={16} /> Starts from zero</li>
+				<li><Icon name="lock" size={16} /> No ads or tracking</li>
 			</ul>
 		</div>
 		<figure class="hero-figure">
-			<Hands label="Illustration of two hands with the typing speed of each finger" tone={heroTone} legend={heroLegend} animate />
-			<figcaption>Words per minute for each finger, from the finger speed assessment. Illustrative example.</figcaption>
+			<div class="glow" aria-hidden="true"></div>
+			{#each FLOAT as f, i (i)}
+				<span class="float" aria-hidden="true" style:left={`${f.x}%`} style:top={`${f.y}%`} style:--d={`${f.d}s`}>{f.k}</span>
+			{/each}
+			<Hands label="Two hands resting on the home row: A, S, D and F on the left, J, K, L and semicolon on the right, thumbs on the space bar" tone={heroTone} legend={heroLegend} legendSize={13} animate />
+			<figcaption>Where your fingers rest; ␣ is the space bar. Lesson 1 starts with F and J.</figcaption>
 		</figure>
 	</section>
 
-	<section id="journey" class="journey" aria-labelledby="journey-title">
+	<!-- The course road: a timeline of every chapter, with ranks along the way. -->
+	<section id="road" class="road band" aria-labelledby="road-title">
 		<header class="section-head" use:reveal>
-			<p class="kicker">Your journey</p>
-			<h2 id="journey-title">Four steps, from your first test to your weakest finger.</h2>
-			<p>Each step builds on the one before. Your progress is saved as you go, so you can stop and return at any time.</p>
+			<p class="kicker">The course</p>
+			<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
+			<p>
+				Each chapter adds a few keys or one skill, and gives you everything the next chapter needs. Start at the beginning, or
+				let a one-minute test find your chapter.
+			</p>
 		</header>
-		<ol class="steps">
-			{#each JOURNEY as step, i (step.title)}
-				<li class="step" use:reveal={{ delay: i * 90 }}>
-					<div class="step-top">
-						<span class="num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-						<Icon name={step.icon} size={22} />
+		<ol class="timeline">
+			{#each CHAPTERS as c, i (c.number)}
+				<li class="milestone" class:right={i % 2 === 1} use:reveal={{ delay: (i % 2) * 80 }}>
+					<span class="dot" aria-hidden="true">{c.number}</span>
+					<div class="card">
+						<p class="ch">Chapter {c.number} · {c.lessons.length} lessons</p>
+						<h3>{c.title}</h3>
+						<p>{c.summary}</p>
+						{#if RANK_AT[c.number]}
+							{@const rank = RANKS[RANK_AT[c.number]! - 1]!}
+							<p class="rank-on"><RankBadge {rank} size={26} /> Around here: <b>{rank.name}</b></p>
+						{/if}
 					</div>
-					<h3>{step.title}</h3>
-					<p>{step.body}</p>
-					<p class="meta"><Icon name="clock" size={14} /> {step.meta}</p>
 				</li>
+			{/each}
+		</ol>
+		<p class="road-end" use:reveal><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
+	</section>
+
+	<!-- Games: a dark band with live previews. -->
+	<section class="games band" aria-labelledby="games-title">
+		<header class="section-head" use:reveal>
+			<p class="kicker">Learn by playing</p>
+			<h2 id="games-title">Practice that feels like a game.</h2>
+			<p>Every lesson mixes short drills with games, so repetition never feels like repetition.</p>
+		</header>
+		<div class="game-grid">
+			{#each GAMES as g, i (g.kind)}
+				<article class="game" use:reveal={{ delay: i * 80 }}>
+					<div class={`preview p-${g.kind}`} aria-hidden="true">
+						{#if g.kind === 'falling'}
+							{#each ['f', 'j', 'k', 'd'] as l, n (l)}<span class="fl" style:left={`${14 + n * 22}%`} style:--n={n}>{l}</span>{/each}
+							<span class="floor"></span>
+						{:else if g.kind === 'rhythm'}
+							{#each [0, 1, 2] as lane (lane)}
+								<span class="lane">{#each [0, 1] as n (n)}<span class="note" style:--n={lane * 0.45 + n * 1.2}></span>{/each}</span>
+							{/each}
+							<span class="hit"></span>
+						{:else if g.kind === 'listen'}
+							<span class="wave">{#each [0, 1, 2, 3, 4, 5, 6] as n (n)}<span style:--n={n}></span>{/each}</span>
+							<span class="typed">steady<span class="caret"></span></span>
+						{:else}
+							<span class="keys">{#each ['F', 'J', 'F', 'J'] as k, n (n)}<span class="k" style:--n={n}>{k}</span>{/each}</span>
+						{/if}
+					</div>
+					<h3>{g.title}</h3>
+					<p>{g.body}</p>
+				</article>
+			{/each}
+		</div>
+	</section>
+
+	<!-- Ranks: motivation without competition. -->
+	<section class="ranks band" aria-labelledby="ranks-title">
+		<header class="section-head center" use:reveal>
+			<p class="kicker">Ranks and streaks</p>
+			<h2 id="ranks-title">Watch yourself grow.</h2>
+			<p>Earn stars in every lesson and climb ten ranks, from Fresh Fingers to Keyboard Legend. Your progress is measured against yourself, never against others.</p>
+		</header>
+		<ol class="ladder" use:reveal>
+			{#each RANKS as r, i (r.level)}
+				<li style:--i={i}><RankBadge rank={r} size={i === RANKS.length - 1 ? 64 : 48} /><span>{r.name}</span></li>
 			{/each}
 		</ol>
 	</section>
 
-	<section class="split" aria-labelledby="map-title">
+	<!-- For typists who already type. -->
+	<section class="split band technique" aria-labelledby="map-title">
 		<div class="copy" use:reveal>
-			<p class="kicker">Finger mapping</p>
-			<h2 id="map-title">A finger map based on your own technique.</h2>
+			<p class="kicker">Already type?</p>
+			<h2 id="map-title">See how your hands really type.</h2>
 			<p>
-				Conventional typing tutors assume standard touch-typing technique. sqwer asks which finger you used after each
-				keystroke and builds a map of how you actually type.
+				Self-taught typists often use their own fingering. The finger map records which finger you use for every key, and
+				the finger speed assessment measures each finger, so you know exactly what to retrain.
 			</p>
 			<ul class="checks">
 				<li><Icon name="check" size={18} /> Keys you type with a non-standard finger</li>
 				<li><Icon name="check" size={18} /> Habits that depend on the neighbouring key</li>
-				<li><Icon name="check" size={18} /> Which Shift key you use, and with which hand</li>
-				<li><Icon name="check" size={18} /> A file you can export at any time</li>
+				<li><Icon name="check" size={18} /> The speed and accuracy of each finger</li>
 			</ul>
 		</div>
 		<div class="visual card" use:reveal={{ delay: 120 }}>
@@ -137,35 +197,12 @@
 		</div>
 	</section>
 
-	<section class="split reverse" aria-labelledby="stats-title">
-		<div class="copy" use:reveal>
-			<p class="kicker">Examinations</p>
-			<h2 id="stats-title">Results that explain your performance.</h2>
-			<p>
-				Each examination reports speed, accuracy and rhythm separately, shows how they changed second by second and
-				recommends what to work on next.
-			</p>
-		</div>
-		<div class="visual" use:reveal={{ delay: 120 }}>
-			<dl class="sample" aria-label="Illustrative example of a test result">
-				{#each SAMPLE as m (m.label)}
-					<div class="tile">
-						<dt>{m.label}</dt>
-						<dd>{m.value}</dd>
-						<dd class="hint">{m.hint}</dd>
-					</div>
-				{/each}
-			</dl>
-			<p class="sample-note">Illustrative example</p>
-		</div>
-	</section>
-
 	<section class="principles" aria-labelledby="principles-title" use:reveal>
 		<h2 id="principles-title" class="sr-only">Commitments</h2>
 		<div class="principle">
 			<Icon name="user" size={22} />
-			<h3>Free, without an account</h3>
-			<p>Every examination works in your browser. An account only adds saving across devices.</p>
+			<h3>Free to learn</h3>
+			<p>The whole course is free. An account saves your progress, stars and rank on every device.</p>
 		</div>
 		<div class="principle">
 			<Icon name="shield" size={22} />
@@ -184,18 +221,48 @@
 	.landing {
 		display: flex;
 		flex-direction: column;
-		gap: clamp(88px, 12vw, 148px);
-		padding-bottom: clamp(24px, 4vw, 48px);
+	}
+	.kicker {
+		font-size: 13px;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--ink-2);
+	}
+	h2 {
+		margin-top: 10px;
+		font-size: clamp(30px, 4vw, 48px);
+		line-height: 1.08;
+		letter-spacing: -0.015em;
+	}
+	.section-head {
+		max-width: 680px;
+	}
+	.section-head.center {
+		margin: 0 auto;
+		text-align: center;
+	}
+	.section-head > p:last-child {
+		margin-top: 14px;
+		font-size: 17px;
+		line-height: 1.6;
+		color: var(--ink-2);
 	}
 
 	/* ---------- Hero ---------- */
 	.hero {
+		--band: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 13%, transparent) 1px, transparent 0) 0 0 / 26px 26px;
 		display: grid;
 		grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
 		align-items: center;
 		gap: clamp(32px, 5vw, 72px);
-		min-height: min(calc(100dvh - 160px), 720px);
-		padding-top: clamp(8px, 3vh, 32px);
+		min-height: min(calc(100dvh - 120px), 760px);
+		padding: clamp(24px, 6vh, 64px) 0 clamp(56px, 9vh, 96px);
+	}
+	/* The dot grid fades out towards the edges of the hero. */
+	.hero::before {
+		-webkit-mask-image: radial-gradient(ellipse 70% 75% at 60% 45%, #000 20%, transparent 75%);
+		mask-image: radial-gradient(ellipse 70% 75% at 60% 45%, #000 20%, transparent 75%);
 	}
 	.hero-copy {
 		display: flex;
@@ -203,17 +270,18 @@
 		align-items: flex-start;
 	}
 	h1 {
-		font-size: clamp(42px, 5.2vw, 72px);
+		margin-top: 14px;
+		font-size: clamp(42px, 5.4vw, 74px);
 		line-height: 1;
 		letter-spacing: -0.025em;
-		max-width: 12ch;
+		max-width: 13ch;
 	}
 	/* Emphasis is carried by weight alone. */
 	.mark {
 		font-weight: 800;
 	}
 	.lede {
-		margin-top: 24px;
+		margin-top: 22px;
 		max-width: 520px;
 		font-size: clamp(17px, 1.5vw, 19px);
 		line-height: 1.6;
@@ -224,16 +292,15 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 14px;
-		margin-top: 32px;
+		margin-top: 30px;
 	}
 	.resume {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
 		font-size: 14.5px;
+		font-weight: 600;
 		color: var(--ink-2);
-	}
-	.step-no {
-		font-weight: 700;
-		color: var(--ink);
-		margin-right: 4px;
 	}
 	.quiet {
 		font-size: 15px;
@@ -252,8 +319,8 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 8px 20px;
-		margin-top: 36px;
-		padding-top: 20px;
+		margin-top: 34px;
+		padding-top: 18px;
 		border-top: 1px solid var(--line);
 		font-size: 14px;
 		color: var(--ink-2);
@@ -264,17 +331,49 @@
 		gap: 7px;
 	}
 	.hero-figure {
+		position: relative;
 		width: 100%;
-		max-width: 560px;
+		max-width: 540px;
 		justify-self: center;
+		padding: 40px 34px 20px;
+	}
+	.glow {
+		position: absolute;
+		inset: 10% 8% 18%;
+		z-index: -1;
+		background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 55%, transparent), transparent);
+		filter: blur(30px);
+		opacity: 0.7;
+	}
+	.float {
+		position: absolute;
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		border-radius: 3px;
+		border: 1px solid var(--key-edge);
+		border-bottom-width: 3px;
+		background: var(--key);
+		font-family: var(--font-mono);
+		font-size: 16px;
+		font-weight: 600;
+		color: var(--ink-2);
+		box-shadow: var(--shadow);
+		animation: float 6s ease-in-out infinite;
+		animation-delay: calc(var(--d) * -1);
+	}
+	@keyframes float {
+		50% {
+			transform: translateY(-10px) rotate(4deg);
+		}
 	}
 	.hero-figure figcaption {
 		margin-top: 14px;
 		text-align: center;
 		font-size: 13px;
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
-	/* Hero copy rises in on first paint; this needs no script. */
 	.rise {
 		animation: rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 		animation-delay: var(--d, 0ms);
@@ -286,106 +385,356 @@
 		}
 	}
 
-	/* ---------- Sections ---------- */
-	.kicker {
-		font-size: 13px;
-		font-weight: 600;
-		letter-spacing: 0.08em;
+	/* ---------- The road ---------- */
+	.road {
+		padding: clamp(64px, 9vw, 112px) 0;
+	}
+	.road::before {
+		background:
+			repeating-linear-gradient(135deg, color-mix(in srgb, var(--ink) 3%, transparent) 0 1px, transparent 1px 14px),
+			var(--surface);
+		border-block: 1px solid var(--line);
+	}
+	.timeline {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		column-gap: 64px;
+		margin-top: 44px;
+	}
+	/* The road itself: a dashed line down the middle. */
+	.timeline::before {
+		content: '';
+		position: absolute;
+		left: 50%;
+		top: 0;
+		bottom: 0;
+		width: 3px;
+		margin-left: -1.5px;
+		background: repeating-linear-gradient(to bottom, var(--ink) 0 10px, transparent 10px 20px);
+		opacity: 0.25;
+	}
+	.milestone {
+		position: relative;
+		grid-column: 1;
+		padding: 0 0 28px;
+	}
+	.milestone.right {
+		grid-column: 2;
+		margin-top: 70px;
+	}
+	.dot {
+		position: absolute;
+		top: 18px;
+		right: -50px;
+		z-index: 1;
+		display: grid;
+		place-items: center;
+		width: 36px;
+		height: 36px;
+		border-radius: 3px;
+		background: var(--bg);
+		border: 2px solid var(--ink);
+		font-family: var(--font-serif);
+		font-size: 17px;
+	}
+	.milestone.right .dot {
+		right: auto;
+		left: -50px;
+	}
+	.milestone:first-child .dot {
+		background: var(--accent);
+		border-color: var(--accent);
+		color: var(--on-accent);
+	}
+	.card {
+		padding: 18px 20px;
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--bg);
+		transition:
+			transform 220ms ease,
+			box-shadow 220ms ease;
+	}
+	.card:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--lift);
+	}
+	.ch {
+		font-size: 12.5px;
+		font-weight: 700;
+		letter-spacing: 0.06em;
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
-	h2 {
-		margin-top: 10px;
-		font-size: clamp(30px, 4vw, 48px);
-		line-height: 1.08;
-		letter-spacing: -0.015em;
+	.card h3 {
+		margin-top: 4px;
+		font-size: 19px;
+		font-weight: 700;
 	}
-	.section-head {
-		max-width: 680px;
-	}
-	.section-head > p:last-child {
-		margin-top: 14px;
-		font-size: 17px;
-		line-height: 1.6;
+	.card p:not(.ch):not(.rank-on) {
+		margin-top: 4px;
+		font-size: 15px;
+		line-height: 1.5;
 		color: var(--ink-2);
 	}
+	.rank-on {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-top: 10px;
+		padding-top: 10px;
+		border-top: 1px solid var(--line);
+		font-size: 13.5px;
+		color: var(--ink-2);
+	}
+	.rank-on b {
+		color: var(--ink);
+	}
+	.road-end {
+		margin-top: 28px;
+		text-align: center;
+	}
 
-	/* ---------- Journey ---------- */
-	.steps {
+	/* ---------- Games ---------- */
+	.games {
+		padding: clamp(64px, 9vw, 112px) 0;
+		color: #f2f2ee;
+	}
+	.games::before {
+		background:
+			radial-gradient(ellipse 50% 60% at 85% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+			radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.06) 1px, transparent 0) 0 0 / 24px 24px,
+			#0b0b0b;
+	}
+	.games .kicker {
+		color: var(--accent);
+	}
+	.games .section-head > p:last-child {
+		color: #b9b9b3;
+	}
+	.game-grid {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 12px;
-		margin-top: 36px;
-		counter-reset: step;
+		gap: 14px;
+		margin-top: 40px;
 	}
-	.step {
-		position: relative;
+	.game {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
-		padding: 22px 20px 20px;
+		gap: 8px;
+		padding: 14px 14px 20px;
 		border-radius: 3px;
-		border: 1px solid var(--line);
-		background: var(--surface);
+		border: 1px solid #262626;
+		background: #121212;
+		transition:
+			transform 220ms ease,
+			border-color 220ms ease;
 	}
-	/* A connecting line between consecutive steps on wide screens. */
-	.step:not(:last-child)::after {
-		content: '';
+	.game:hover {
+		transform: translateY(-3px);
+		border-color: #3a3a3a;
+	}
+	.game h3 {
+		margin-top: 8px;
+		font-size: 18px;
+		font-weight: 700;
+	}
+	.game p {
+		font-size: 14.5px;
+		line-height: 1.5;
+		color: #b9b9b3;
+	}
+	.preview {
+		position: relative;
+		height: 150px;
+		overflow: hidden;
+		border-radius: 3px;
+		background: #0b0b0b;
+		border: 1px solid #1f1f1f;
+	}
+	.fl {
 		position: absolute;
-		top: 36px;
-		right: -13px;
-		width: 14px;
-		height: 1px;
-		background: var(--line-strong);
+		top: -36px;
+		display: grid;
+		place-items: center;
+		width: 30px;
+		height: 30px;
+		border-radius: 3px;
+		background: #f2f2ee;
+		color: #111;
+		font-family: var(--font-mono);
+		font-weight: 700;
+		animation: fall 3.2s linear infinite;
+		animation-delay: calc(var(--n) * -0.8s);
 	}
-	.step-top {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		color: var(--ink-2);
-		margin-bottom: 8px;
+	@keyframes fall {
+		to {
+			transform: translateY(170px);
+		}
 	}
-	.num {
-		font-family: var(--font-serif);
-		font-size: 30px;
-		line-height: 1;
-		color: var(--ink);
+	.floor {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 14px;
+		background: color-mix(in srgb, var(--accent) 30%, #0b0b0b);
+		border-top: 2px solid var(--accent);
 	}
-	.step:first-child .num {
-		padding: 2px 6px;
+	.p-rhythm {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+	}
+	.lane {
+		position: relative;
+		border-right: 1px solid #1f1f1f;
+	}
+	.note {
+		position: absolute;
+		top: -20px;
+		left: 20%;
+		right: 20%;
+		height: 16px;
 		border-radius: 3px;
 		background: var(--accent);
-		color: var(--on-accent);
+		animation: fall 2.4s linear infinite;
+		animation-delay: calc(var(--n) * -1s);
 	}
-	.step h3 {
-		font-size: 18px;
-		font-weight: 600;
+	.hit {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 26px;
+		height: 2px;
+		background: #f2f2ee;
 	}
-	.step p {
-		font-size: 15px;
-		line-height: 1.55;
-		color: var(--ink-2);
-	}
-	.step .meta {
-		display: inline-flex;
+	.p-listen {
+		display: flex;
+		flex-direction: column;
 		align-items: center;
-		gap: 6px;
-		margin-top: auto;
-		padding-top: 10px;
-		font-size: 13px;
-		font-weight: 600;
-		color: var(--ink);
+		justify-content: center;
+		gap: 16px;
+	}
+	.wave {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		height: 40px;
+	}
+	.wave span {
+		width: 5px;
+		height: 100%;
+		border-radius: 2px;
+		background: var(--accent);
+		animation: wave 1.1s ease-in-out infinite;
+		animation-delay: calc(var(--n) * -0.15s);
+	}
+	@keyframes wave {
+		0%,
+		100% {
+			transform: scaleY(0.25);
+		}
+		50% {
+			transform: scaleY(1);
+		}
+	}
+	.typed {
+		font-family: var(--font-mono);
+		font-size: 20px;
+		color: #f2f2ee;
+	}
+	.caret {
+		display: inline-block;
+		width: 2px;
+		height: 1em;
+		margin-left: 2px;
+		vertical-align: -0.12em;
+		background: var(--accent);
+		animation: blink 1s steps(1) infinite;
+	}
+	@keyframes blink {
+		50% {
+			opacity: 0;
+		}
+	}
+	.p-drill {
+		display: grid;
+		place-items: center;
+	}
+	.keys {
+		display: flex;
+		gap: 8px;
+	}
+	.k {
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		border-radius: 3px;
+		border: 1px solid #3a3a3a;
+		border-bottom-width: 3px;
+		background: #181818;
+		color: #f2f2ee;
+		font-family: var(--font-mono);
+		font-weight: 700;
+		animation: press 2.4s ease-in-out infinite;
+		animation-delay: calc(var(--n) * 0.6s);
+	}
+	@keyframes press {
+		0%,
+		20%,
+		100% {
+			background: #181818;
+			color: #f2f2ee;
+			transform: none;
+		}
+		8% {
+			background: var(--accent);
+			color: #111;
+			transform: translateY(2px);
+		}
 	}
 
-	/* ---------- Feature splits ---------- */
+	/* ---------- Ranks ---------- */
+	.ranks {
+		--band: radial-gradient(ellipse 60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
+		padding: clamp(64px, 9vw, 112px) 0;
+	}
+	.ladder {
+		display: flex;
+		justify-content: center;
+		align-items: flex-end;
+		flex-wrap: wrap;
+		gap: 18px 10px;
+		margin-top: 40px;
+	}
+	.ladder li {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 96px;
+		text-align: center;
+		font-size: 12.5px;
+		font-weight: 700;
+		line-height: 1.25;
+		transform: translateY(calc(var(--i) * -3px));
+	}
+
+	/* ---------- Technique ---------- */
 	.split {
 		display: grid;
 		grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
 		gap: clamp(28px, 5vw, 64px);
 		align-items: center;
 	}
-	.split.reverse .copy {
-		order: 2;
+	.technique {
+		--band: var(--surface);
+		padding: clamp(64px, 9vw, 112px) 0;
+	}
+	.technique::before {
+		border-block: 1px solid var(--line);
 	}
 	.copy {
 		display: flex;
@@ -418,64 +767,16 @@
 		background: var(--accent);
 		color: var(--on-accent);
 	}
-	.card {
-		background: var(--surface);
-		border: 1px solid var(--line);
-		border-radius: 3px;
+	.visual.card {
+		background: var(--bg);
 		padding: clamp(18px, 2.4vw, 28px);
-	}
-	.sample {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 12px;
-	}
-	.tile {
-		background: var(--surface);
-		border: 1px solid var(--line);
-		border-radius: 3px;
-		padding: 20px;
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		transition:
-			transform 220ms ease,
-			box-shadow 220ms ease;
-	}
-	.tile:hover {
-		transform: translateY(-2px);
-		box-shadow: var(--lift);
-	}
-	dt {
-		font-size: 13.5px;
-		font-weight: 500;
-		color: var(--ink-2);
-	}
-	dd {
-		font-size: clamp(38px, 4.4vw, 52px);
-		font-weight: 600;
-		letter-spacing: -0.03em;
-		line-height: 1.1;
-		font-variant-numeric: tabular-nums;
-	}
-	.tile .hint {
-		margin-top: 6px;
-		font-weight: 400;
-		letter-spacing: 0;
-		font-size: 14px;
-		line-height: 1.45;
-		color: var(--ink-2);
-	}
-	.sample-note {
-		margin-top: 10px;
-		font-size: 13px;
-		color: var(--ink-3);
-		text-align: right;
 	}
 
 	/* ---------- Commitments ---------- */
 	.principles {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
+		margin: clamp(56px, 8vw, 96px) 0 clamp(24px, 4vw, 48px);
 		border-top: 1px solid var(--line);
 		border-bottom: 1px solid var(--line);
 	}
@@ -501,11 +802,8 @@
 	}
 
 	@media (max-width: 1000px) {
-		.steps {
+		.game-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-		.step:nth-child(2)::after {
-			display: none;
 		}
 	}
 	@media (max-width: 900px) {
@@ -514,13 +812,10 @@
 			min-height: 0;
 		}
 		.hero-figure {
-			max-width: 480px;
+			max-width: 460px;
 		}
 		.split {
 			grid-template-columns: 1fr;
-		}
-		.split.reverse .copy {
-			order: 0;
 		}
 		.principles {
 			grid-template-columns: 1fr;
@@ -529,20 +824,51 @@
 			border-left: 0;
 			border-top: 1px solid var(--line);
 		}
+		/* The road becomes a single column with the line on the left. */
+		.timeline {
+			grid-template-columns: 1fr;
+			padding-left: 52px;
+		}
+		.timeline::before {
+			left: 17px;
+		}
+		.milestone,
+		.milestone.right {
+			grid-column: 1;
+			margin-top: 0;
+		}
+		.dot,
+		.milestone.right .dot {
+			left: -52px;
+			right: auto;
+		}
 	}
 	@media (max-width: 560px) {
-		.steps {
+		.game-grid {
 			grid-template-columns: 1fr;
-		}
-		.step::after {
-			display: none;
 		}
 		.hero-action,
 		.hero-action :global(.btn) {
 			width: 100%;
 		}
-		.tile {
-			padding: 14px;
+		.float {
+			display: none;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.float,
+		.fl,
+		.note,
+		.wave span,
+		.caret,
+		.k {
+			animation: none;
+		}
+		.fl {
+			top: 40px;
+		}
+		.note {
+			top: 50px;
 		}
 	}
 </style>

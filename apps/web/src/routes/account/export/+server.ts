@@ -14,6 +14,9 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	const [avatar] = await d.select().from(schema.avatars).where(eq(schema.avatars.userId, user.id));
 	const savedResults = await d.select({ data: schema.results.data }).from(schema.results).where(eq(schema.results.userId, user.id));
 	const usageRows = await d.select({ deviceId: schema.usageStats.deviceId, data: schema.usageStats.data }).from(schema.usageStats).where(eq(schema.usageStats.userId, user.id));
+	const courseRows = await d.select().from(schema.courseProgress).where(eq(schema.courseProgress.userId, user.id));
+	const courseDays = await d.select({ day: schema.courseDays.day }).from(schema.courseDays).where(eq(schema.courseDays.userId, user.id));
+	const [courseState] = await d.select().from(schema.courseState).where(eq(schema.courseState.userId, user.id));
 	const body = {
 		exportedAt: new Date().toISOString(),
 		account: { email: user.email, createdAt: user.createdAt },
@@ -22,6 +25,12 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		fingerMap: fingerMap ? { updatedAt: fingerMap.updatedAt, observations: fingerMap.observations } : null,
 		results: savedResults.map((r) => r.data),
 		usageStatistics: usageRows.map((r) => r.data),
+		course: {
+			level: courseState?.level ?? null,
+			startLesson: courseState?.startLesson ?? null,
+			lessons: courseRows.map((r) => ({ ...r, userId: undefined })),
+			practiceDays: courseDays.map((r) => r.day)
+		},
 		profilePicture: avatar ? { type: avatar.mime, base64: avatar.data, updatedAt: avatar.updatedAt } : null
 	};
 	return new Response(JSON.stringify(body, null, 2), {

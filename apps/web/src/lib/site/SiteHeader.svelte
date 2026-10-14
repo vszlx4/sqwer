@@ -2,6 +2,9 @@
 	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import LogoMark from '#lib/brand/LogoMark.svelte';
+	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
+	import RankBadge from '#lib/courses/RankBadge.svelte';
+	import { courses } from '#lib/courses/store.svelte.ts';
 	import LogoWordmark from '#lib/brand/LogoWordmark.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import ThemeToggle from '#lib/ui/ThemeToggle.svelte';
@@ -25,6 +28,12 @@
 	}
 
 	const user = $derived(page.data.user as App.PageData['user'] | undefined);
+	// Signed-in learners on the course see their next lesson from every page.
+	const resume = $derived.by(() => {
+		if (!user || !courses.loaded || page.url.pathname.startsWith('/learn/')) return null;
+		const next = learnerNextStep();
+		return next.stage === 'course' && next.lesson ? next : null;
+	});
 	const isCurrent = (href: string) => page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
 </script>
 
@@ -44,6 +53,12 @@
 		</nav>
 
 		<div class="actions">
+			{#if resume}
+				<a class="resume" href={resume.href} title={resume.title}>
+					<RankBadge rank={courses.rank.rank} size={22} />
+					<span>Continue <b>Lesson {resume.lesson!.order}</b></span>
+				</a>
+			{/if}
 			<ThemeToggle />
 			{#if user}
 				<AccountMenu {user} />
@@ -159,6 +174,27 @@
 		gap: 8px;
 		margin-left: auto;
 	}
+	.resume {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		height: 38px;
+		padding: 0 12px 0 8px;
+		border-radius: 3px;
+		border: 1px solid var(--line-strong);
+		background: var(--surface);
+		font-size: 14px;
+		color: var(--ink-2);
+		text-decoration: none;
+		white-space: nowrap;
+		transition: border-color 140ms ease;
+	}
+	.resume b {
+		color: var(--ink);
+	}
+	.resume:hover {
+		border-color: var(--ink);
+	}
 	.signin {
 		padding: 8px 12px;
 		font-size: 14.5px;
@@ -240,6 +276,14 @@
 		margin-top: 8px;
 		padding-top: 10px;
 		border-top: 1px solid var(--line);
+	}
+	@media (max-width: 1080px) {
+		.resume span {
+			display: none;
+		}
+		.resume {
+			padding: 0 8px;
+		}
 	}
 	@media (max-width: 900px) {
 		.desktop,

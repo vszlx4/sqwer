@@ -1,8 +1,11 @@
 export const CONTACT_EMAIL = 'info@mughram.com';
 
-/** The four areas of the product, in the order a new typist uses them. */
+/**
+ * The four areas of the product. Getting started is used once, so it is reached from the
+ * home page and the course rather than kept in the navigation.
+ */
 export const NAV_LINKS = [
-	{ href: '/journey', label: 'Your journey' },
+	{ href: '/learn', label: 'Courses' },
 	{ href: '/exams', label: 'Examinations' },
 	{ href: '/map', label: 'Finger map' },
 	{ href: '/history', label: 'History' }
@@ -21,7 +24,7 @@ export const ACCOUNT_LINKS = [
 export const FOOTER_GROUPS = [
 	{
 		title: 'Product',
-		links: [...NAV_LINKS]
+		links: [{ href: '/start', label: 'Get started' }, ...NAV_LINKS]
 	},
 	{
 		title: 'Help',
