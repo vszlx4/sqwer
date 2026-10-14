@@ -32,7 +32,7 @@
 		<h2 id="export-title">Download your data</h2>
 		<p class="text">
 			Download a copy of everything sqwer stores about your account: your email address, profile, profile picture,
-			signed-in devices, results and finger map, in JSON format.
+			signed-in devices, results, usage statistics and finger map, in JSON format.
 		</p>
 		<a class="btn" href="/account/export" download>Download my data</a>
 	</section>

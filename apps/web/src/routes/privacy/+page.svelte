@@ -28,7 +28,22 @@
 			the time of the entry, in IndexedDB storage.
 		</li>
 	</ul>
-	<p>This information is not transmitted to our servers. Test and assessment results are also kept in your browser so that your progress can be shown.</p>
+	<ul>
+		<li>
+			<strong>Results</strong> — for each test or assessment, including attempts that were not completed: speed,
+			accuracy, a per-second timeline, the words shown, the time taken for each word and the sequence of keystrokes, so
+			that the result can be replayed.
+		</li>
+		<li>
+			<strong>Usage statistics</strong> — active time on each section of the site, active days and hours, the number of
+			tests started, completed and not completed, keystroke and word counts, and per-word counts and speeds.
+		</li>
+	</ul>
+	<p>
+		This information is not transmitted to our servers unless you are signed in. Usage statistics describe how sqwer is
+		used; they do not identify you and are not shared with anyone. Time is counted only while the page is visible and
+		has been used within the previous minute.
+	</p>
 
 	<h2>3. Data processed when you create an account</h2>
 	<dl>
@@ -39,7 +54,9 @@
 		<dt>Profile picture</dt>
 		<dd>If you upload one: a 256 × 256 pixel image, cropped and re-encoded in your browser before upload, which removes embedded information such as location.</dd>
 		<dt>Results</dt>
-		<dd>The results of tests and assessments you complete while signed in, including speed, accuracy and, for the finger assessment, the scores of each finger.</dd>
+		<dd>The results described in section 2, for tests taken while signed in, including the keystroke sequence used for replays.</dd>
+		<dt>Usage statistics</dt>
+		<dd>The usage statistics described in section 2, stored separately for each device so that totals can be combined. They can be deleted at any time from Account → Statistics.</dd>
 		<dt>Recovery codes</dt>
 		<dd>One-way hashes of your recovery codes and whether each code has been used.</dd>
 		<dt>Sessions</dt>

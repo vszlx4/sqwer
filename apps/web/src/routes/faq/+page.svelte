@@ -28,6 +28,14 @@
 			a: 'Each of the 32 core keys needs three entries to be considered mapped. The time required depends on your pace; you can stop at any point and continue later.'
 		},
 		{
+			q: 'How do I restart a test?',
+			a: 'Press Tab at any time during a test to restart it with new words. On the results page, Tab returns to a new test, which starts when you type the first letter. Results are saved before the page changes.'
+		},
+		{
+			q: 'Where can I see my previous results?',
+			a: 'The History page lists every test, including attempts that were not completed. Each result opens a full report with a chart, word speeds and a replay.'
+		},
+		{
 			q: 'Which keyboards are supported?',
 			a: 'The QWERTY layout with ANSI key positions, in Mac and PC variants. You can switch between them below the typing test.'
 		},

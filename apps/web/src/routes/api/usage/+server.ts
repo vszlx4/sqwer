@@ -7,11 +7,12 @@ import { mergeUsage, type Usage } from '#lib/usage/types.ts';
 import type { RequestHandler } from './$types';
 
 const count = z.number().min(0).max(1e12);
+const time = z.number().int().min(0).max(8.64e15);
 const exam = z.object({ started: count, completed: count, abandoned: count, ms: count });
 const usageSchema = z.object({
 	version: z.literal(1),
-	firstSeen: count,
-	lastSeen: count,
+	firstSeen: time,
+	lastSeen: time,
 	activeMs: count,
 	visits: count,
 	sections: z.record(z.string().max(30), count),

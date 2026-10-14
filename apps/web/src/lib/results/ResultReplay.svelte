@@ -24,6 +24,7 @@
 
 	/** The keystroke shown on the keyboard: the latest one within 150 ms. */
 	const flash = $derived.by(() => {
+		if (t <= 0) return { ok: null, error: null };
 		const recent = session.keystrokes.filter((k) => k.kind === 'insert' && t - k.t < 150);
 		const k = recent[recent.length - 1];
 		if (!k) return { ok: null, error: null };

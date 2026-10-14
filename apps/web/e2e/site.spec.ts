@@ -14,7 +14,7 @@ test('home page: headline and calls to action above the fold', async ({ page }) 
 test('the main navigation leads with the journey, not the speed test', async ({ page }) => {
 	await page.goto('/');
 	const nav = page.getByRole('navigation', { name: 'Main' }).first();
-	await expect(nav.getByRole('link')).toHaveText(['Your journey', 'Examinations', 'Finger map', 'How it works']);
+	await expect(nav.getByRole('link')).toHaveText(['Your journey', 'Examinations', 'Finger map', 'History']);
 });
 
 for (const [path, heading] of [
@@ -69,7 +69,7 @@ for (const scheme of ['light', 'dark'] as const) {
 		const context = await browser.newContext({ colorScheme: scheme });
 		const page = await context.newPage();
 		const failures: string[] = [];
-		for (const path of ['/', '/journey', '/exams', '/exams/finger-speed', '/test?exam=placement', '/map', '/about', '/faq', '/privacy', '/terms', '/cookies', '/signin', '/signup', '/reset-password', '/missing']) {
+		for (const path of ['/', '/journey', '/exams', '/exams/finger-speed', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/privacy', '/terms', '/cookies', '/signin', '/signup', '/reset-password', '/missing']) {
 			await page.goto(path);
 			await page.waitForTimeout(300);
 			const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();

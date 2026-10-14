@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { TypingSession } from '@sqwer/engine';
 import { buildProfile, type FingerObservation } from '@sqwer/fingermap';
 import { kindOf, qwertyAnsi } from '@sqwer/layouts';
-import { fingerForChar, fingerScores, stageWords, standouts } from './assessment.ts';
+import { fingerForChar, fingerScores, stagesFor, stageWords, standouts } from './assessment.ts';
 
 const layout = qwertyAnsi('pc');
 
@@ -72,5 +72,11 @@ describe('stageWords', () => {
 				return f && kindOf(f) === 'pinky';
 			}).length / words.join('').length;
 		expect(pinkyShare).toBeGreaterThan(0.4);
+	});
+
+	it('returns no words, and skips the stage, when no letter uses that finger', () => {
+		// "t" and "g" are typed with the index finger, so there is nothing for the ring fingers.
+		expect(stageWords('ring', layout, null, ['tt', 'gg'], () => 0.1, 20)).toEqual([]);
+		expect(stagesFor(layout, null, ['tt', 'gg']).map((s) => s.kind)).toEqual(['index']);
 	});
 });

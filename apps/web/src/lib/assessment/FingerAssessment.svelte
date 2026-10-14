@@ -4,7 +4,7 @@
 	import { ENGLISH_WORDS, MAPPING_WORDS } from '@sqwer/content';
 	import { buildProfile } from '@sqwer/fingermap';
 	import { FINGERS, fingerLabel, kindOf, qwertyAnsi, type Finger } from '@sqwer/layouts';
-	import { fingerScores, STAGE_SECONDS, STAGES, stageWords, standouts } from '#lib/assessment.ts';
+	import { fingerScores, STAGE_SECONDS, STAGES, stagesFor, stageWords, standouts, type Stage } from '#lib/assessment.ts';
 	import { ASSESSMENT_COVERAGE } from '#lib/exams.ts';
 	import { fingerMap } from '#lib/fingermap/store.svelte.ts';
 	import { results } from '#lib/results/store.svelte.ts';
@@ -12,6 +12,7 @@
 	import type { ResultRecord } from '#lib/results/types.ts';
 	import { resolvedPlatform } from '#lib/settings.svelte.ts';
 	import Words from '#lib/test/Words.svelte';
+	import Hands from '#lib/hands/Hands.svelte';
 	import FingerScores from './FingerScores.svelte';
 
 	const VOCAB = [...ENGLISH_WORDS, ...MAPPING_WORDS];
@@ -19,10 +20,19 @@
 	const profile = $derived(buildProfile(fingerMap.observations, layout));
 	const coverage = $derived(profile.core.mapped / profile.core.total);
 	const ready = $derived(coverage >= ASSESSMENT_COVERAGE);
+	const mapped = $derived(profile.samples ? profile : null);
+	// Stages whose fingers type no letter in this typist's map are skipped.
+	const plan = $derived(ready ? stagesFor(layout, mapped, VOCAB) : STAGES);
+	const skipped = $derived(STAGES.filter((s) => !plan.includes(s)));
+	const COUNT = ['no', 'one', 'two', 'three', 'four'];
+	const stagesText = (n: number) => `${COUNT[n] ?? n} ${n === 1 ? 'stage' : 'stages'}`;
+	const titles = (list: Stage[]) => list.map((s) => s.title.toLowerCase()).join(' and ');
 
 	type Phase = 'intro' | 'stage' | 'between' | 'done';
 	let phase = $state<Phase>('intro');
 	let stageIndex = $state(0);
+	/** The stages of the assessment in progress, fixed when it begins. */
+	let stages = $state.raw<Stage[]>([]);
 	let session = $state.raw<TypingSession | null>(null);
 	let rev = $state(0);
 	let remaining = $state(STAGE_SECONDS);
@@ -42,7 +52,7 @@
 
 	function startStage(i: number) {
 		stageIndex = i;
-		const words = stageWords(STAGES[i]!.kind, layout, profile.samples ? profile : null, VOCAB);
+		const words = stageWords(stages[i]!.kind, layout, mapped, VOCAB);
 		session = new TypingSession(words, { kind: 'time', seconds: STAGE_SECONDS });
 		remaining = STAGE_SECONDS;
 		phase = 'stage';
@@ -50,7 +60,9 @@
 	}
 
 	function begin() {
+		if (!plan.length) return;
 		usage.testStarted('finger-speed');
+		stages = plan;
 		completed.length = 0;
 		record = null;
 		startStage(0);
@@ -69,7 +81,7 @@
 		timer = undefined;
 		session.finish(performance.now());
 		completed.push(session);
-		if (stageIndex < STAGES.length - 1) {
+		if (stageIndex < stages.length - 1) {
 			phase = 'between';
 			breakAt = Date.now();
 		} else {
@@ -78,7 +90,7 @@
 	}
 
 	async function finishAssessment() {
-		const scores = fingerScores(completed, layout, profile.samples ? profile : null);
+		const scores = fingerScores(completed, layout, mapped);
 		const r: ResultRecord = {
 			id: crypto.randomUUID(),
 			exam: 'finger-speed',
@@ -86,8 +98,8 @@
 			at: Date.now(),
 			wpm: scores.wpm,
 			accuracy: scores.accuracy,
-			seconds: STAGE_SECONDS * STAGES.length,
-			label: `${STAGES.length} stages of ${STAGE_SECONDS} seconds`,
+			seconds: STAGE_SECONDS * stages.length,
+			label: `${stages.length} ${stages.length === 1 ? 'stage' : 'stages'} of ${STAGE_SECONDS} seconds`,
 			fingers: scores.fingers
 		};
 		record = r;
@@ -118,15 +130,20 @@
 		const first = !session.started;
 		if (session.type(e.key, now, e.code) === 'ignored') return;
 		if (first) timer = setInterval(tick, 100);
-		if (session.targets.length - session.wordIndex < 20) session.appendWords(stageWords(STAGES[stageIndex]!.kind, layout, profile, VOCAB, Math.random, 40));
+		if (session.targets.length - session.wordIndex < 20) session.appendWords(stageWords(stages[stageIndex]!.kind, layout, mapped, VOCAB, Math.random, 40));
 		rev++;
 	}
 
 	const shown = $derived(record ?? latest);
 	const marks = $derived(shown?.fingers ? standouts(shown.fingers) : null);
 	const practiceWords = $derived(
-		marks ? stageWords(kindOf(marks.slowest[0]) === 'thumb' ? 'index' : (kindOf(marks.slowest[0]) as 'pinky'), layout, profile, VOCAB).slice(0, 10) : []
+		marks ? stageWords(kindOf(marks.slowest[0]) === 'thumb' ? 'index' : (kindOf(marks.slowest[0]) as 'pinky'), layout, mapped, VOCAB).slice(0, 10) : []
 	);
+	// During a stage, the fingers being measured are coloured; thumbs are measured on the space bar throughout.
+	const stageTone = $derived.by(() => {
+		const kind = stages[stageIndex]?.kind;
+		return Object.fromEntries(FINGERS.map((f) => [f, kindOf(f) === kind ? 1 : kindOf(f) === 'thumb' ? 0.35 : 0])) as Record<Finger, number>;
+	});
 	const lower = (f: Finger) => fingerLabel(f).toLowerCase().replace('pinky', 'little finger');
 </script>
 
@@ -139,7 +156,7 @@
 		<header class="intro">
 			<h1>Finger speed assessment</h1>
 			<p class="lede">
-				This assessment measures the speed and accuracy of each finger separately. It consists of four stages of
+				This assessment measures the speed and accuracy of each finger separately. It consists of {stagesText(plan.length)} of
 				{STAGE_SECONDS} seconds, each built from words that rely on one pair of fingers according to your own finger
 				map. Thumbs are measured through the space bar.
 			</p>
@@ -158,14 +175,30 @@
 					{profile.samples ? 'Continue mapping' : 'Start mapping'}
 				</a>
 			</section>
+		{:else if !plan.length}
+			<section class="card locked">
+				<h2>No stages are available</h2>
+				<p>
+					Your finger map does not assign any letters to your little, ring, middle or index fingers, so there is nothing
+					to measure. Review your finger map, then return to the assessment.
+				</p>
+				<a class="btn btn-primary" href="/map">Review your finger map</a>
+			</section>
 		{:else}
 			<section class="card">
 				<h2>Before you begin</h2>
 				<ol class="stages">
-					{#each STAGES as s, i (s.kind)}
+					{#each plan as s, i (s.kind)}
 						<li><span class="num">{i + 1}</span>{s.title} · {STAGE_SECONDS} seconds</li>
 					{/each}
 				</ol>
+				{#if skipped.length}
+					<p class="muted skipped">
+						Your finger map does not use your {titles(skipped)} for any letter, so {skipped.length === 1
+							? 'that stage is'
+							: 'those stages are'} not included. They are shown as having no data in the results.
+					</p>
+				{/if}
 				<ul class="notes">
 					<li>Type at a comfortable, steady pace. Accuracy matters as much as speed.</li>
 					<li>Each stage starts when you type the first character.</li>
@@ -184,17 +217,20 @@
 		{/if}
 	{:else if phase === 'stage' && session}
 		<div class="stage-head">
-			<p class="stage-label">Stage {stageIndex + 1} of {STAGES.length} · <b>{STAGES[stageIndex]!.title}</b></p>
+			<p class="stage-label">Stage {stageIndex + 1} of {stages.length} · <b>{stages[stageIndex]!.title}</b></p>
 			<p class="timer" aria-live="off">{remaining}</p>
 		</div>
 		<div class="stage-text">
 			<Words {session} {rev} idle={!session.started} />
 		</div>
 		<p class="muted center">{session.started ? 'Keep a steady rhythm.' : 'Begin typing to start the stage.'}</p>
+		<div class="stage-hands">
+			<Hands label={`This stage measures your ${stages[stageIndex]!.title.toLowerCase()}.`} tone={stageTone} />
+		</div>
 	{:else if phase === 'between'}
 		<section class="card center-card" aria-live="polite">
 			<h2>Stage {stageIndex + 1} complete</h2>
-			<p>Next: <strong>{STAGES[stageIndex + 1]!.title}</strong>. Rest your hands briefly if needed.</p>
+			<p>Next: <strong>{stages[stageIndex + 1]!.title}</strong>. Rest your hands briefly if needed.</p>
 			<button type="button" class="btn btn-primary" onclick={() => startStage(stageIndex + 1)}>Continue to stage {stageIndex + 2}</button>
 			<p class="muted">Or press Enter.</p>
 		</section>
@@ -202,7 +238,7 @@
 		<header class="intro">
 			<h1>Your finger speed results</h1>
 			<p class="lede">
-				Average speed {Math.round(shown.wpm)} WPM at {Math.round(shown.accuracy)}% accuracy across all four stages.
+				Average speed {Math.round(shown.wpm)} WPM at {Math.round(shown.accuracy)}% accuracy across {stages.length === 1 ? 'the stage' : `all ${stagesText(stages.length)}`}.
 			</p>
 		</header>
 
@@ -320,6 +356,9 @@
 		background: var(--surface-2);
 		font-size: 14px;
 	}
+	.skipped {
+		font-size: 15px;
+	}
 	.notes,
 	.findings ul {
 		display: flex;
@@ -329,6 +368,10 @@
 		list-style: disc;
 		font-size: 15px;
 		color: var(--ink-2);
+	}
+	.stage-hands {
+		width: min(100%, 280px);
+		margin: 4px auto 0;
 	}
 	.stage-head {
 		display: flex;

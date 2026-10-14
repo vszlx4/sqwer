@@ -65,7 +65,7 @@
 	<header>
 		<h1>Statistics</h1>
 		<p class="lede">
-			Usage statistics recorded across {data.devices || 1} {data.devices === 1 ? 'device' : 'devices'} since {date(u.firstSeen)}.
+			Usage statistics recorded across {Math.max(1, data.devices)} {data.devices > 1 ? 'devices' : 'device'} since {date(u.firstSeen)}.
 			They describe how sqwer is used and do not include personal information.
 		</p>
 	</header>

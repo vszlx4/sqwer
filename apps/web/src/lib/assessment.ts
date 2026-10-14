@@ -38,7 +38,8 @@ export function fingerForChar(
 
 /**
  * Picks words in which most letters are typed by the given finger kind,
- * according to the typist's own map.
+ * according to the typist's own map. Returns no words when the typist
+ * does not use that kind of finger for any letter in the vocabulary.
  */
 export function stageWords(
 	kind: Stage['kind'],
@@ -60,6 +61,7 @@ export function stageWords(
 		.filter((x) => x.share > 0)
 		.sort((a, b) => b.share - a.share);
 	const pool = scored.slice(0, Math.max(30, Math.floor(scored.length * 0.15))).map((x) => x.w);
+	if (!pool.length) return [];
 	const out: string[] = [];
 	for (let i = 0; i < count; i++) {
 		let index = Math.floor(rand() * pool.length);
@@ -68,6 +70,11 @@ export function stageWords(
 		out.push(pool[index]!);
 	}
 	return out;
+}
+
+/** The stages this typist can take: those whose fingers type at least one letter in their map. */
+export function stagesFor(layout: KeyboardLayout, profile: FingerProfile | null, vocabulary: readonly string[]): Stage[] {
+	return STAGES.filter((s) => stageWords(s.kind, layout, profile, vocabulary, Math.random, 1).length > 0);
 }
 
 interface Tally {
