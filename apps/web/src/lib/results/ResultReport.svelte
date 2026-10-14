@@ -168,7 +168,6 @@
 		{/if}
 		<a class="btn" href="/history"><Icon name="history" size={16} /> View all results</a>
 	</div>
-	{#if onnext}<p class="hint"><kbd>Tab</kbd> New test</p>{/if}
 </section>
 
 <style>
@@ -344,7 +343,6 @@
 		gap: 8px;
 		flex-wrap: wrap;
 	}
-	.hint,
 	.muted {
 		font-size: 13px;
 		color: var(--ink-2);

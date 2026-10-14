@@ -16,7 +16,7 @@
 	<TypingTest {exam} />
 {/key}
 
-<p class="keys"><kbd>Tab</kbd> + <kbd>Enter</kbd> Restart · <kbd>Esc</kbd> Restart</p>
+<p class="keys"><kbd>Tab</kbd> Restart with new words</p>
 
 <style>
 	.keys {

@@ -42,6 +42,11 @@ test('the placement test feeds the journey, results guidance and examination sta
 
 	await page.goto('/journey');
 	await expect(page.getByText('1 of 4 steps completed')).toBeVisible();
+
+	await page.goto('/history');
+	await page.getByRole('row').nth(1).getByRole('link').click();
+	await expect(page.getByRole('heading', { name: 'Placement test' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Play the replay' })).toBeVisible();
 });
 
 const CORE: [string, string][] = [
@@ -53,12 +58,8 @@ const CORE: [string, string][] = [
 	['Slash', 'rp'], ['Space', 'rt']
 ];
 
-test('the finger speed assessment unlocks with a mapped finger map and shows per-finger results', async ({ page }) => {
-	test.setTimeout(180_000);
-	await page.goto('/exams/finger-speed');
-	await expect(page.getByText('Your finger map is not ready yet')).toBeVisible();
-
-	// Seed a complete finger map, as if the typist had mapped every core key three times.
+/** Stores a complete finger map, as if the typist had mapped every core key three times. */
+async function seedFingerMap(page: Page, map: [string, string][]) {
 	await page.evaluate(async (core) => {
 		const observations = core.flatMap(([code, finger], i) =>
 			[0, 1, 2].map((n) => ({ code, prev: null, next: null, finger, at: i * 10 + n + 1 }))
@@ -76,8 +77,16 @@ test('the finger speed assessment unlocks with a mapped finger map and shows per
 				tx.onerror = () => reject(tx.error);
 			};
 		});
-	}, CORE);
+	}, map);
 	await page.reload();
+}
+
+test('the finger speed assessment unlocks with a mapped finger map and shows per-finger results', async ({ page }) => {
+	test.setTimeout(180_000);
+	await page.goto('/exams/finger-speed');
+	await expect(page.getByText('Your finger map is not ready yet')).toBeVisible();
+
+	await seedFingerMap(page, CORE);
 
 	await page.getByRole('button', { name: 'Begin the assessment' }).click();
 	for (let stage = 1; stage <= 4; stage++) {
@@ -93,8 +102,22 @@ test('the finger speed assessment unlocks with a mapped finger map and shows per
 	}
 
 	await expect(page.getByRole('heading', { name: 'Your finger speed results' })).toBeVisible();
-	await expect(page.getByRole('img', { name: /Speed and accuracy of each finger/ })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'What this assessment shows' })).toBeVisible();
-	await page.getByText('View the results as a table').click();
-	await expect(page.getByRole('rowheader', { name: 'Left little finger' })).toBeVisible();
+	await expect(page.getByRole('table', { name: 'Left hand' })).toBeVisible();
+	await expect(page.getByRole('rowheader', { name: /Little finger/ }).first()).toBeVisible();
+});
+
+test('the finger speed assessment skips stages for fingers the map does not use', async ({ page }) => {
+	await page.goto('/exams/finger-speed');
+	// This typist presses the ring-finger keys with their middle fingers.
+	await seedFingerMap(
+		page,
+		CORE.map(([code, finger]) => [code, finger === 'lr' ? 'lm' : finger === 'rr' ? 'rm' : finger])
+	);
+	await expect(page.getByText('It consists of three stages')).toBeVisible();
+	await expect(page.getByText(/does not use your ring fingers for any letter/)).toBeVisible();
+
+	await page.getByRole('button', { name: 'Begin the assessment' }).click();
+	await expect(page.getByText('Stage 1 of 3')).toBeVisible();
+	expect(await page.locator('[data-word]').count()).toBeGreaterThan(10);
 });

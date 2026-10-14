@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { FINGERS, handOf, kindOf, type Finger } from '@sqwer/layouts';
 	import { standouts } from '#lib/assessment.ts';
+	import Hands, { type LegendItem } from '#lib/hands/Hands.svelte';
 	import type { FingerScore } from '#lib/results/types.ts';
 
 	let { fingers }: { fingers: Partial<Record<Finger, FingerScore>> } = $props();
@@ -12,8 +13,27 @@
 		{ name: 'Left hand', list: FINGERS.filter((f) => handOf(f) === 'left') },
 		{ name: 'Right hand', list: FINGERS.filter((f) => handOf(f) === 'right').reverse() }
 	];
+	// Colour strength follows speed relative to the fastest finger; fingers without data stay uncoloured.
+	const tone = $derived(
+		Object.fromEntries(FINGERS.map((f) => [f, fingers[f] ? 0.2 + 0.8 * (fingers[f]!.wpm / max) : 0])) as Record<Finger, number>
+	);
+	const legend = $derived(
+		Object.fromEntries(
+			FINGERS.map((f): [Finger, LegendItem] => [f, { value: fingers[f] ? String(Math.round(fingers[f]!.wpm)) : '–', strong: marks?.fastest[0] === f }])
+		) as Record<Finger, LegendItem>
+	);
+	const summary = $derived(
+		`Speed of each finger: ${FINGERS.map((f) => `${handOf(f)} ${NAMES[kindOf(f)]!.toLowerCase()} ${fingers[f] ? `${Math.round(fingers[f]!.wpm)} words per minute` : 'no data'}`).join(', ')}.`
+	);
 	const tag = (f: Finger) => (marks?.fastest[0] === f ? 'Fastest' : marks?.slowest[0] === f ? 'Slowest' : null);
 </script>
+
+<figure class="figure">
+	<Hands label={summary} {tone} {legend} />
+	<figcaption>
+		Words per minute for each finger. A stronger colour means a faster finger, and the fastest finger is shown in bold.
+	</figcaption>
+</figure>
 
 <div class="scores">
 	{#each hands as hand (hand.name)}
@@ -49,6 +69,16 @@
 <p class="note">Speed is calculated from the time between keystrokes made by each finger. Thumbs are measured on the space bar.</p>
 
 <style>
+	.figure {
+		max-width: 540px;
+		margin: 0 auto 24px;
+	}
+	figcaption {
+		margin-top: 10px;
+		text-align: center;
+		font-size: 13.5px;
+		color: var(--ink-2);
+	}
 	.scores {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));

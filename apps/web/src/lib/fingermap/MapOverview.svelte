@@ -16,6 +16,7 @@
 	import type { ZoneInfo } from '#lib/keyboard/types.ts';
 	import Dialog from '#lib/ui/Dialog.svelte';
 	import FingerScores from '#lib/assessment/FingerScores.svelte';
+	import Hands from '#lib/hands/Hands.svelte';
 	import { ASSESSMENT_COVERAGE } from '#lib/exams.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import Icon from '#lib/ui/Icon.svelte';
@@ -55,6 +56,13 @@
 	const corePct = $derived(Math.round((profile.core.mapped / profile.core.total) * 100));
 	const differs = $derived(Object.values(profile.keys).filter((k) => k.mapped && k.differs && !k.code.startsWith('Shift')));
 	const maxLoad = $derived(Math.max(1, ...FINGERS.map((f) => profile.load[f])));
+	const loadTone = $derived(Object.fromEntries(FINGERS.map((f) => [f, profile.load[f] ? 0.2 + 0.8 * (profile.load[f] / maxLoad) : 0])));
+	const loadLegend = $derived(
+		Object.fromEntries(FINGERS.map((f) => [f, { value: String(profile.load[f]), strong: profile.load[f] === maxLoad && maxLoad > 1 }]))
+	);
+	const loadSummary = $derived(
+		`Mapped keys per finger: ${FINGERS.map((f) => `${handOf(f)} ${kindOf(f)} ${profile.load[f]}`).join(', ')}.`
+	);
 
 	const detail = $derived(selectedKey ? profile.keys[selectedKey] : undefined);
 	const detailRules = $derived(selectedKey ? profile.rules.filter((r) => r.code === selectedKey) : []);
@@ -293,15 +301,9 @@
 			<section class="card">
 				<h3>Finger load</h3>
 				<p class="muted small-p">The number of mapped keys assigned to each finger.</p>
-				<ul class="bars load">
-					{#each FINGERS as f (f)}
-						<li>
-							<span class="bar-label">{handOf(f) === 'left' ? 'L' : 'R'} {kindOf(f)}</span>
-							<span class="bar-track"><span style:width={`${(profile.load[f] / maxLoad) * 100}%`} style:background={`var(--f-${kindOf(f)})`}></span></span>
-							<span class="bar-value">{profile.load[f]}</span>
-						</li>
-					{/each}
-				</ul>
+				<div class="load-hands">
+					<Hands label={loadSummary} tone={loadTone} legend={loadLegend} legendSize={16} />
+				</div>
 			</section>
 
 			<section class="card">
@@ -689,6 +691,9 @@
 		color: var(--on-accent);
 		font-size: 12px;
 		font-weight: 600;
+	}
+	.load-hands {
+		margin-top: 14px;
 	}
 	.bars {
 		display: flex;

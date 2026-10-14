@@ -17,8 +17,9 @@ export interface JourneyStep {
 }
 
 export function buildJourney(results: ResultRecord[], profile: FingerProfile): JourneyStep[] {
-	const placements = results.filter((r) => r.exam === 'placement');
-	const assessments = results.filter((r) => r.exam === 'finger-speed');
+	const done = results.filter((r) => r.status !== 'abandoned');
+	const placements = done.filter((r) => r.exam === 'placement');
+	const assessments = done.filter((r) => r.exam === 'finger-speed');
 	const coverage = profile.core.mapped / profile.core.total;
 	const lastPlacement = placements[placements.length - 1];
 	const firstPlacement = placements[0];

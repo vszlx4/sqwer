@@ -3,7 +3,8 @@
 	import { goto } from '$app/navigation';
 	import { buildProfile, pickPrompt, predictFinger, type FingerObservation } from '@sqwer/fingermap';
 	import { ENGLISH_WORDS, MAPPING_WORDS } from '@sqwer/content';
-	import { FINGERS, fingerLabel, kindOf, qwertyAnsi, type Finger } from '@sqwer/layouts';
+	import { FINGERS, fingerLabel, fingerShortcut, kindOf, qwertyAnsi, type Finger } from '@sqwer/layouts';
+	import Hands from '#lib/hands/Hands.svelte';
 	import Keyboard from '#lib/keyboard/Keyboard.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import { resolvedPlatform, settings } from '#lib/settings.svelte.ts';
@@ -51,6 +52,12 @@
 		if (phase === 'shift' && shiftCode) return new Set([shiftCode]);
 		return new Set<string>();
 	});
+
+	// The hands show each finger's shortcut above it and highlight the suggested finger.
+	const shortcuts = Object.fromEntries(FINGERS.map((f) => [f, { value: String(fingerShortcut(f)) }]));
+	const handTone = $derived(
+		Object.fromEntries(FINGERS.map((f) => [f, phase === 'type' ? 0.3 : suggestion === f ? 1 : 0.55])) as Record<Finger, number>
+	);
 
 	const coverage = $derived(Math.round((profile.core.mapped / profile.core.total) * 100));
 
@@ -220,6 +227,18 @@
 	</div>
 
 
+	<div class="hands" class:waiting={phase === 'type'}>
+		<Hands
+			label={suggestion ? `Hands. The suggested finger is the ${fingerLabel(suggestion).toLowerCase()}.` : 'Hands, with the shortcut for each finger.'}
+			tone={handTone}
+			active={phase === 'type' ? null : suggestion}
+			legend={shortcuts}
+			onselect={pick}
+			disabled={phase === 'type'}
+			pointerOnly
+		/>
+	</div>
+
 	<FingerChips disabled={phase === 'type'} suggested={suggestion} onpick={pick} />
 
 	<div class="picker" class:waiting={phase === 'type'}>
@@ -240,6 +259,14 @@
 </div>
 
 <style>
+	.hands {
+		width: min(100%, 400px);
+		margin: 0 auto -6px;
+		transition: opacity 160ms ease;
+	}
+	.hands.waiting {
+		opacity: 0.7;
+	}
 	.session {
 		display: flex;
 		flex-direction: column;
