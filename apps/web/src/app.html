@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="color-scheme" content="light dark" />
+		<meta name="theme-color" content="#FBFAF4" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
+		<script>
+			// Apply the theme before first paint to avoid a flash. Light is the default;
+			// "system" follows the operating system setting.
+			try {
+				const t = localStorage.getItem('sqwer:theme');
+				if (t !== 'system') document.documentElement.dataset.theme = t === 'dark' ? 'dark' : 'light';
+			} catch {
+				document.documentElement.dataset.theme = 'light';
+			}
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

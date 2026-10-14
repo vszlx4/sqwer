@@ -1,0 +1,13 @@
+node_modules
+.DS_Store
+build
+.svelte-kit
+dist
+test-results
+playwright-report
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+.data
+.data-e2e
