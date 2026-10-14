@@ -94,10 +94,29 @@
 		complete = null;
 	}
 
+	let restarted = $state(0);
+
+	/** Starts the current exercise again: what was typed is cleared and timers restart. Earlier steps are kept. */
+	function restartStep() {
+		attempt++;
+		restarted++;
+	}
+
 	function onkeydown(e: KeyboardEvent) {
-		if (outcome && e.key === 'Enter' && !(e.target as HTMLElement | null)?.closest('button, a')) {
+		const target = e.target as HTMLElement | null;
+		if (outcome && e.key === 'Enter' && !target?.closest('button, a')) {
 			e.preventDefault();
 			void proceed();
+			return;
+		}
+		// Tab restarts the exercise in progress, as in the typing test. Elsewhere (the header,
+		// buttons, dialogs) Tab keeps moving focus, and Shift+Tab always does.
+		if (e.key === 'Tab' && !e.shiftKey && !outcome && !complete && !leaving) {
+			const inExercise = !target || target === document.body || target === document.documentElement || !!target.closest('[data-tab-restart]');
+			if (inExercise) {
+				e.preventDefault();
+				restartStep();
+			}
 		}
 	}
 
@@ -167,6 +186,10 @@
 					{/if}
 				</section>
 			{/key}
+			<p class="restart-hint">
+				<kbd>Tab</kbd> Restart this exercise
+				<span class="sr-only" aria-live="polite">{restarted ? `Exercise restarted (${restarted})` : ''}</span>
+			</p>
 		{/if}
 	</div>
 </div>
@@ -271,6 +294,12 @@
 			opacity: 0;
 			transform: translateY(10px);
 		}
+	}
+	.restart-hint {
+		margin-top: 22px;
+		text-align: center;
+		font-size: 13.5px;
+		color: var(--ink-2);
 	}
 	.step-title {
 		font-size: 26px;

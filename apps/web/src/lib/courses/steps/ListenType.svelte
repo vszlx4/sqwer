@@ -150,6 +150,7 @@
 				disabled={phase === 'over' || !!feedback}
 				placeholder="Type what you hear…"
 				data-testid="listen-input"
+				data-tab-restart
 			/>
 		</label>
 		<p class="help">Press <kbd>Enter</kbd> to check your answer. With an empty answer, <kbd>Enter</kbd> plays the word again.</p>
