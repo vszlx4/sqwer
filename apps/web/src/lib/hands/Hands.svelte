@@ -6,6 +6,8 @@
 		value: string;
 		/** Shown in bold, for example the fastest finger. */
 		strong?: boolean;
+		/** Briefly raised and highlighted, as if the key were being pressed. */
+		lit?: boolean;
 	}
 
 	interface Props {
@@ -145,6 +147,7 @@
 						style:--i={FINGERS.indexOf(f)}
 						class="value"
 						class:strong={item.strong}
+						class:lit={item.lit}
 						class:dim={tone !== undefined && strength(f) === 0 && active !== f}
 						text-anchor="middle">{item.value}</text
 					>
@@ -191,6 +194,19 @@
 	}
 	.value.dim {
 		fill: var(--ink-3);
+	}
+	.value {
+		transform-box: fill-box;
+		transform-origin: center bottom;
+		transition:
+			transform 180ms cubic-bezier(0.3, 1.6, 0.5, 1),
+			fill 180ms ease;
+	}
+	/* A pressed key's label lifts and turns to full ink. */
+	.value.lit {
+		fill: var(--ink);
+		font-weight: 800;
+		transform: translateY(-3px) scale(1.3);
 	}
 	/* Entrance: fingers fill from left to right, then each value's line draws up to its label. */
 	.animate .finger {
