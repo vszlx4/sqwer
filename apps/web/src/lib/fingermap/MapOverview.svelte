@@ -354,10 +354,10 @@
 	{/snippet}
 </Dialog>
 
-<Dialog open={confirmReset} title="Clear your finger map?" onclose={() => (confirmReset = false)}>
+<Dialog open={confirmReset} title="Clear your finger map?" alert onclose={() => (confirmReset = false)}>
 	This permanently deletes all {fingerMap.observations.length} entries{fingerMap.synced ? ' from this browser and from your account' : ' stored in this browser'}. Export the map first if you wish to keep a copy.
 	{#snippet actions()}
-		<button type="button" class="btn" onclick={() => (confirmReset = false)}>Cancel</button>
+		<button type="button" class="btn" data-autofocus onclick={() => (confirmReset = false)}>Cancel</button>
 		<button type="button" class="btn danger solid" onclick={reset}>Clear map</button>
 	{/snippet}
 </Dialog>

@@ -166,7 +166,7 @@
 		{#if onrepeat}
 			<button type="button" class="btn" onclick={onrepeat}><Icon name="repeat" size={16} /> Repeat with the same words</button>
 		{/if}
-		<a class="btn" href="/history"><Icon name="history" size={16} /> View all results</a>
+		<a class="link-arrow all" href="/history">View all results <Icon name="arrow" size={16} /></a>
 	</div>
 </section>
 
@@ -340,8 +340,13 @@
 	}
 	.actions {
 		display: flex;
+		align-items: center;
 		gap: 8px;
 		flex-wrap: wrap;
+	}
+	.actions .all {
+		margin-left: auto;
+		padding: 8px 0;
 	}
 	.muted {
 		font-size: 13px;

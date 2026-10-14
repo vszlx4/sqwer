@@ -68,7 +68,20 @@ test('signs out and signs back in', async ({ page }) => {
 	await page.getByRole('button', { name: 'Sign in' }).click();
 	await expect(page).toHaveURL(/\/account$/);
 
-	await page.getByRole('navigation', { name: 'Account sections' }).getByRole('button', { name: 'Sign out' }).click();
+	// Signing out asks for confirmation; cancelling keeps the session.
+	await page.getByRole('button', { name: /Account menu/ }).click();
+	await page.getByRole('button', { name: 'Sign out' }).click();
+	const dialog = page.getByRole('alertdialog', { name: 'Sign out of sqwer?' });
+	await expect(dialog).toBeVisible();
+	await expect(dialog.getByRole('button', { name: 'Stay signed in' })).toBeFocused();
+	await dialog.getByRole('button', { name: 'Stay signed in' }).click();
+	await expect(dialog).toBeHidden();
+	await page.reload();
+	await expect(page).toHaveURL(/\/account$/);
+
+	await page.getByRole('button', { name: /Account menu/ }).click();
+	await page.getByRole('button', { name: 'Sign out' }).click();
+	await page.getByRole('alertdialog').getByRole('button', { name: 'Sign out' }).click();
 	await expect(page).toHaveURL(/\/signin\?signedOut=1$/);
 	await expect(page.getByText('You have been signed out.')).toBeVisible();
 });

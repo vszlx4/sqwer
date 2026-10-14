@@ -18,14 +18,26 @@
 		settings.theme = value;
 		saveSettings();
 	}
+
+	// Radio group keyboard behaviour: arrow keys move the selection; the group is a single tab stop.
+	function onkeydown(e: KeyboardEvent, index: number) {
+		const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+		if (!step) return;
+		e.preventDefault();
+		const next = (index + step + OPTIONS.length) % OPTIONS.length;
+		choose(OPTIONS[next]!.value);
+		((e.currentTarget as HTMLElement).parentElement?.children[next] as HTMLElement | undefined)?.focus();
+	}
 </script>
 
 <div class="toggle" role="radiogroup" aria-label="Colour theme">
-	{#each OPTIONS as o (o.value)}
+	{#each OPTIONS as o, i (o.value)}
 		<button
 			type="button"
 			role="radio"
 			aria-checked={current === o.value}
+			tabindex={current === o.value ? 0 : -1}
+			onkeydown={(e) => onkeydown(e, i)}
 			aria-label={o.label}
 			title={o.label}
 			onclick={() => choose(o.value)}

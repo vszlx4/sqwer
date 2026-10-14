@@ -49,6 +49,14 @@ function load(): Settings {
 
 export const settings = $state<Settings>(load());
 
+/** Keeps the browser interface colour in line with the chosen theme rather than only the system setting. */
+function syncThemeColor(theme: ThemePref) {
+	for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) {
+		const darkSlot = meta.media.includes('dark');
+		meta.content = theme === 'dark' || (theme === 'system' && darkSlot) ? '#000000' : '#FBFAF4';
+	}
+}
+
 export function saveSettings() {
 	if (!browser) return;
 	try {
@@ -56,6 +64,7 @@ export function saveSettings() {
 		localStorage.setItem('sqwer:theme', settings.theme);
 		if (settings.theme === 'system') delete document.documentElement.dataset.theme;
 		else document.documentElement.dataset.theme = settings.theme;
+		syncThemeColor(settings.theme);
 	} catch {
 		// Storage can be unavailable (private mode); settings still apply for this visit.
 	}

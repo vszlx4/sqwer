@@ -3,13 +3,16 @@
 	import { buildProfile } from '@sqwer/fingermap';
 	import { fingerLabel, qwertyAnsi } from '@sqwer/layouts';
 	import { standouts } from '#lib/assessment.ts';
+	import ExamVisual from '#lib/exams/ExamVisual.svelte';
 	import { ASSESSMENT_COVERAGE, CATEGORIES, EXAMS, type Exam } from '#lib/exams.ts';
 	import { fingerMap } from '#lib/fingermap/store.svelte.ts';
+	import { buildJourney } from '#lib/journey.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import type { ExamId } from '#lib/results/types.ts';
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
+	import { reveal } from '#lib/ui/reveal.ts';
 
 	let mounted = $state(false);
 	onMount(() => {
@@ -21,35 +24,61 @@
 	const profile = $derived(buildProfile(fingerMap.observations, qwertyAnsi('pc')));
 	const coverage = $derived(profile.core.mapped / profile.core.total);
 
-	function stats(exam: Exam): { label: string; value: string }[] {
-		if (!mounted) return [];
+	// The examination the journey recommends next; a new typist starts with the placement test.
+	const STEP_EXAM: Record<string, Exam['id']> = { placement: 'placement', 'finger-map': 'finger-map', 'finger-speed': 'finger-speed', progress: 'placement' };
+	const recommended = $derived.by<Exam['id']>(() => {
+		if (!mounted) return 'placement';
+		const step = buildJourney(results.list, profile).find((s) => s.status === 'current' || s.status === 'in-progress');
+		return step ? STEP_EXAM[step.id]! : 'placement';
+	});
+
+	interface Status {
+		/** Short facts from previous attempts, if any. */
+		facts: { label: string; value: string }[];
+		action: string;
+		href: string;
+		locked: boolean;
+	}
+
+	function status(exam: Exam): Status {
+		const locked = mounted && exam.id === 'finger-speed' && coverage < ASSESSMENT_COVERAGE;
+		if (locked) return { facts: [], action: 'Continue mapping', href: profile.samples ? '/map' : '/map/session', locked };
 		if (exam.id === 'finger-map') {
-			return profile.samples
-				? [
-						{ label: 'Core keys mapped', value: `${Math.round(coverage * 100)}%` },
-						{ label: 'Entries', value: String(profile.samples) }
-					]
-				: [];
+			const started = mounted && profile.samples > 0;
+			return {
+				facts: started ? [{ label: 'Core keys mapped', value: `${Math.round(coverage * 100)}%` }, { label: 'Entries', value: String(profile.samples) }] : [],
+				action: started ? 'Continue mapping' : 'Start mapping',
+				href: started ? '/map' : '/map/session',
+				locked
+			};
 		}
-		const list = results.forExam(exam.id as ExamId);
-		if (!list.length) return [];
+		const list = mounted ? results.forExam(exam.id as ExamId) : [];
+		const start = exam.id === 'finger-speed' ? 'Begin the assessment' : 'Start test';
+		if (!list.length) return { facts: [], action: exam.id === 'placement' ? 'Take the placement test' : start, href: exam.href, locked };
 		const last = list[list.length - 1]!;
 		if (exam.id === 'finger-speed') {
 			const s = last.fingers ? standouts(last.fingers) : null;
-			return [
-				{ label: 'Average', value: `${Math.round(last.wpm)} WPM` },
-				...(s ? [{ label: 'Slowest finger', value: fingerLabel(s.slowest[0]).replace('pinky', 'little') }] : [])
-			];
+			return {
+				facts: [
+					{ label: 'Average', value: `${Math.round(last.wpm)} WPM` },
+					...(s ? [{ label: 'Slowest', value: fingerLabel(s.slowest[0]).replace('pinky', 'little') }] : [])
+				],
+				action: 'Retake the assessment',
+				href: exam.href,
+				locked
+			};
 		}
-		const best = Math.max(...list.map((r) => r.wpm));
-		return [
-			{ label: 'Best', value: `${Math.round(best)} WPM` },
-			{ label: 'Last', value: `${Math.round(last.wpm)} WPM · ${Math.round(last.accuracy)}%` },
-			{ label: 'Attempts', value: String(list.length) }
-		];
+		return {
+			facts: [
+				{ label: 'Best', value: `${Math.round(Math.max(...list.map((r) => r.wpm)))} WPM` },
+				{ label: 'Last', value: `${Math.round(last.wpm)} WPM · ${Math.round(last.accuracy)}%` },
+				{ label: 'Attempts', value: String(list.length) }
+			],
+			action: 'Take it again',
+			href: exam.href,
+			locked
+		};
 	}
-
-	const locked = (exam: Exam) => mounted && exam.id === 'finger-speed' && coverage < ASSESSMENT_COVERAGE;
 </script>
 
 <Seo
@@ -60,51 +89,53 @@
 <Breadcrumbs items={[{ href: '/exams', label: 'Examinations' }]} />
 
 <div class="exams">
-	<header>
+	<header class="intro">
 		<h1>Examinations</h1>
 		<p class="lede">
-			Each examination measures something specific. Choose one by its purpose, or follow <a href="/journey">your
-			journey</a> for a recommended order.
+			Each examination measures one thing and explains its result. The one marked <b>Recommended</b> is the next step in
+			your journey.
 		</p>
 	</header>
 
-	{#each CATEGORIES as category (category.name)}
-		<section aria-labelledby={`cat-${category.name}`}>
-			<div class="cat-head">
-				<h2 id={`cat-${category.name}`}>{category.name}</h2>
+	{#each CATEGORIES as category, ci (category.name)}
+		{@const exams = EXAMS.filter((e) => e.category === category.name)}
+		<section aria-labelledby={`cat-${ci}`} class={`category cat-${ci}`}>
+			<div class="cat-head" use:reveal>
+				<h2 id={`cat-${ci}`}>{category.name}</h2>
 				<p>{category.description}</p>
 			</div>
-			<div class="cards">
-				{#each EXAMS.filter((e) => e.category === category.name) as exam (exam.id)}
-					{@const s = stats(exam)}
-					<article class="card" class:locked={locked(exam)}>
-						<h3>{exam.title}</h3>
-						<p class="purpose">{exam.purpose}</p>
-						<ul class="measures" aria-label="Measures">
-							{#each exam.measures as m (m)}<li>{m}</li>{/each}
-						</ul>
-						<p class="duration"><Icon name="clock" size={15} /> {exam.duration}</p>
-						{#if s.length}
-							<dl class="stats">
-								{#each s as item (item.label)}
-									<div><dt>{item.label}</dt><dd>{item.value}</dd></div>
-								{/each}
-							</dl>
-						{:else}
-							<p class="empty">{locked(exam) ? '' : 'You have not taken this examination yet.'}</p>
-						{/if}
-						{#if locked(exam)}
-							<p class="requirement">
-								Available once {Math.round(ASSESSMENT_COVERAGE * 100)}% of core keys are mapped. Currently
-								{Math.round(coverage * 100)}%.
+			<div class="cards" class:single={exams.length === 1} class:pair={exams.length === 2}>
+				{#each exams as exam, i (exam.id)}
+					{@const s = status(exam)}
+					{@const isNext = recommended === exam.id && !s.locked}
+					<article class="exam-card" class:locked={s.locked} class:next={isNext} use:reveal={{ delay: i * 70 }}>
+						<div class="art">
+							<ExamVisual exam={exam.id} />
+							{#if isNext}<span class="badge">Recommended</span>{/if}
+							{#if s.locked}<span class="badge muted"><Icon name="lock" size={13} /> Locked</span>{/if}
+						</div>
+						<div class="body">
+							<h3><a href={s.href} class="stretched">{exam.title}</a></h3>
+							<p class="purpose">{exam.purpose}</p>
+							<p class="meta">
+								<span><Icon name="clock" size={14} /> {exam.duration}</span>
+								<span class="measures">{exam.measures.join(' · ')}</span>
 							</p>
-							<a class="btn" href="/map">Continue mapping</a>
-						{:else}
-							<a class="btn btn-primary" href={exam.href}>
-								{exam.id === 'finger-map' ? (s.length ? 'Continue mapping' : 'Start mapping') : s.length ? 'Take again' : 'Start'}
-								<span class="sr-only">{exam.title}</span>
-							</a>
-						{/if}
+							{#if s.locked}
+								<div class="unlock">
+									<p>
+										Unlocks at {Math.round(ASSESSMENT_COVERAGE * 100)}% of core keys mapped. You have mapped
+										<b>{Math.round(coverage * 100)}%</b>.
+									</p>
+									<span class="meter" aria-hidden="true"><span style:width={`${Math.min(100, (coverage / ASSESSMENT_COVERAGE) * 100)}%`}></span></span>
+								</div>
+							{:else if s.facts.length}
+								<dl class="facts">
+									{#each s.facts as f (f.label)}<div><dt>{f.label}</dt><dd>{f.value}</dd></div>{/each}
+								</dl>
+							{/if}
+							<span class="go" aria-hidden="true">{s.action} <Icon name="arrow" size={16} /></span>
+						</div>
 					</article>
 				{/each}
 			</div>
@@ -116,94 +147,173 @@
 	.exams {
 		display: flex;
 		flex-direction: column;
-		gap: 40px;
+		gap: clamp(44px, 6vw, 64px);
 	}
 	h1 {
-		font-size: clamp(36px, 5vw, 56px);
+		font-size: clamp(38px, 5vw, 60px);
 		line-height: 1.05;
 	}
 	.lede {
-		margin-top: 12px;
-		max-width: 680px;
+		margin-top: 14px;
+		max-width: 640px;
 		font-size: 18px;
 		line-height: 1.6;
 		color: var(--ink-2);
 	}
-	.lede a {
+	.lede b {
 		color: var(--ink);
-		font-weight: 600;
-		text-decoration: none;
 	}
 	.cat-head {
 		display: flex;
 		align-items: baseline;
-		gap: 14px;
+		justify-content: space-between;
+		gap: 8px 20px;
 		flex-wrap: wrap;
-		margin-bottom: 14px;
-		padding-bottom: 10px;
-		border-bottom: 1px solid var(--line);
+		margin-bottom: 16px;
 	}
 	h2 {
-		font-size: 28px;
+		font-size: clamp(26px, 3vw, 34px);
 	}
 	.cat-head p {
 		font-size: 15px;
 		color: var(--ink-2);
 	}
+
+	/* ---------- Grid ---------- */
 	.cards {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-		gap: 12px;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 14px;
 	}
-	.card {
+	.cards.pair {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.cards.single {
+		grid-template-columns: 1fr;
+	}
+
+	/* ---------- Card ---------- */
+	.exam-card {
+		position: relative;
 		display: flex;
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 10px;
-		padding: 20px;
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
+		overflow: hidden;
+		transition:
+			transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1),
+			box-shadow 240ms ease,
+			border-color 240ms ease;
 	}
-	.card.locked {
+	.exam-card:hover {
+		transform: translateY(-3px);
+		box-shadow: var(--lift);
+		border-color: var(--line-strong);
+	}
+	.exam-card:focus-within {
+		border-color: var(--ink);
+	}
+	.exam-card.next {
+		border-color: var(--ink);
+		box-shadow: inset 0 3px 0 var(--accent);
+	}
+	.exam-card.next:hover {
+		box-shadow:
+			inset 0 3px 0 var(--accent),
+			var(--lift);
+	}
+	.exam-card.locked {
 		background: var(--bg);
 		border-style: dashed;
+	}
+	.art {
+		position: relative;
+		height: 150px;
+		background: var(--bg);
+		border-bottom: 1px solid var(--line);
+	}
+	.locked .art {
+		opacity: 0.55;
+		filter: grayscale(0.6);
+	}
+	.badge {
+		position: absolute;
+		top: 12px;
+		left: 12px;
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 3px 8px;
+		border-radius: 3px;
+		background: var(--accent);
+		color: var(--on-accent);
+		font-size: 12px;
+		font-weight: 700;
+	}
+	.badge.muted {
+		background: var(--surface-2);
+		color: var(--ink-2);
+	}
+	.body {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		flex: 1;
+		padding: 18px 20px 20px;
 	}
 	h3 {
 		font-size: 19px;
 		font-weight: 600;
+		line-height: 1.25;
+	}
+	h3 a {
+		color: inherit;
+		text-decoration: none;
+	}
+	/* The whole card is the link target; the title remains the accessible name. */
+	.stretched::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+	}
+	.stretched:focus-visible {
+		outline: none;
+		box-shadow: none;
+	}
+	.stretched:focus-visible::after {
+		outline: 2px solid var(--ink);
+		outline-offset: -2px;
+		box-shadow: inset 0 0 0 5px var(--accent);
+		border-radius: 3px;
 	}
 	.purpose {
 		font-size: 15px;
 		line-height: 1.55;
 		color: var(--ink-2);
 	}
-	.measures {
+	.meta {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
-	}
-	.measures li {
-		padding: 3px 8px;
-		border-radius: 3px;
-		border: 1px solid var(--line-strong);
-		font-size: 12.5px;
-		font-weight: 600;
+		gap: 4px 14px;
+		font-size: 13px;
 		color: var(--ink-2);
 	}
-	.duration {
+	.meta span {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		font-size: 13.5px;
-		color: var(--ink-2);
+		gap: 5px;
 	}
-	.stats {
+	.measures {
+		font-weight: 600;
+		color: var(--ink);
+	}
+	.facts {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 16px;
-		width: 100%;
-		padding-top: 10px;
+		gap: 8px 18px;
+		padding-top: 12px;
 		border-top: 1px solid var(--line);
 	}
 	dt {
@@ -213,14 +323,101 @@
 	dd {
 		font-size: 15px;
 		font-weight: 700;
+		font-variant-numeric: tabular-nums;
 	}
-	.empty,
-	.requirement {
+	.unlock {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
 		font-size: 13.5px;
 		color: var(--ink-2);
-		flex: 1;
 	}
-	.card .btn {
+	.unlock b {
+		color: var(--ink);
+	}
+	.meter {
+		height: 6px;
+		border-radius: 3px;
+		background: var(--surface-2);
+		overflow: hidden;
+	}
+	.meter span {
+		display: block;
+		height: 100%;
+		background: var(--ink);
+	}
+	.go {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
 		margin-top: auto;
+		padding-top: 6px;
+		font-size: 15px;
+		font-weight: 700;
+	}
+	.go :global(svg) {
+		transition: transform 200ms ease;
+	}
+	.exam-card:hover .go :global(svg) {
+		transform: translateX(4px);
+	}
+	.exam-card.next .go {
+		align-self: flex-start;
+		padding: 9px 14px;
+		border-radius: 3px;
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+
+	/* A single examination is shown as a wide feature card. */
+	.single .exam-card {
+		display: grid;
+		grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+	}
+	.single .art {
+		height: auto;
+		min-height: 220px;
+		border-bottom: 0;
+		border-right: 1px solid var(--line);
+	}
+	.single .body {
+		padding: 28px 32px;
+		justify-content: center;
+	}
+	.single h3 {
+		font-family: var(--font-serif);
+		font-weight: 400;
+		font-size: clamp(26px, 3vw, 34px);
+	}
+	.pair .art {
+		height: 180px;
+	}
+
+	@media (max-width: 1100px) {
+		.cards {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	@media (max-width: 720px) {
+		.cards,
+		.cards.pair {
+			grid-template-columns: 1fr;
+		}
+		.single .exam-card {
+			grid-template-columns: 1fr;
+		}
+		.single .art {
+			min-height: 160px;
+			border-right: 0;
+			border-bottom: 1px solid var(--line);
+		}
+		.single .body {
+			padding: 20px;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.exam-card:hover {
+			transform: none;
+		}
 	}
 </style>

@@ -187,6 +187,8 @@
 	--f-thumb: #e87ba4;
 
 	--shadow: 0 1px 0 rgb(20 20 20 / 0.04), 0 8px 24px -12px rgb(60 50 20 / 0.18);
+	--shadow-lg: 0 1px 0 rgb(20 20 20 / 0.04), 0 24px 60px -24px rgb(60 50 20 / 0.35);
+	--lift: 0 1px 0 rgb(20 20 20 / 0.04), 0 14px 32px -18px rgb(60 50 20 / 0.32);
 	--glass-shine: rgb(255 255 255 / 0.7);
 	--glass-shadow: rgb(60 50 20 / 0.28);
 }
@@ -227,6 +229,8 @@
 		--f-index: #3987e5;
 		--f-thumb: #d55181;
 		--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
+		--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
+		--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
 		--glass-shine: rgb(255 255 255 / 0.07);
 		--glass-shadow: rgb(0 0 0 / 0.9);
 	}
@@ -267,6 +271,8 @@
 	--f-index: #3987e5;
 	--f-thumb: #d55181;
 	--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
+	--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
+	--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
 	--glass-shine: rgb(255 255 255 / 0.07);
 	--glass-shadow: rgb(0 0 0 / 0.9);
 }
@@ -308,6 +314,33 @@ h2 {
 	font-weight: 400;
 }
 
+h1,
+h2,
+h3 {
+	text-wrap: balance;
+}
+
+p,
+li,
+dd {
+	text-wrap: pretty;
+}
+
+/* Anchored sections stay clear of the sticky header. */
+[id] {
+	scroll-margin-top: 96px;
+}
+
+a,
+button,
+summary,
+label,
+input,
+select {
+	touch-action: manipulation;
+	-webkit-tap-highlight-color: transparent;
+}
+
 body {
 	background: var(--bg);
 	min-height: 100dvh;
@@ -335,6 +368,13 @@ body {
 }
 
 /* ---------- Shared form and button styles ---------- */
+/*
+ * Action hierarchy, used the same way on every page:
+ * - .btn-primary: the single most important action in a view (at most one per screen region);
+ * - .btn: a secondary alternative;
+ * - .link-arrow: navigation to related content, at most one per section;
+ * - .btn-danger: an irreversible action, always behind a confirmation.
+ */
 .btn {
 	display: inline-flex;
 	align-items: center;
@@ -350,17 +390,30 @@ body {
 	font-size: 15px;
 	font-weight: 600;
 	text-decoration: none;
+	white-space: nowrap;
 	cursor: pointer;
 	transition:
-		background 120ms ease,
-		filter 120ms ease;
+		background-color 140ms ease,
+		border-color 140ms ease,
+		filter 140ms ease,
+		transform 140ms ease;
 }
 .btn:hover {
 	background: var(--surface-2);
+	border-color: var(--ink-3);
+}
+.btn:active:not(:disabled) {
+	transform: translateY(1px) scale(0.985);
 }
 .btn:disabled {
 	opacity: 0.55;
 	cursor: not-allowed;
+}
+.btn :where(svg) {
+	transition: transform 180ms ease;
+}
+.btn:hover :where(svg.icon-arrow) {
+	transform: translateX(3px);
 }
 .btn-primary {
 	background: var(--accent);
@@ -369,7 +422,8 @@ body {
 }
 .btn-primary:hover {
 	background: var(--accent);
-	filter: brightness(0.95);
+	border-color: transparent;
+	filter: brightness(0.94);
 }
 .btn-danger {
 	background: var(--error);
@@ -378,7 +432,27 @@ body {
 }
 .btn-danger:hover {
 	background: var(--error);
-	filter: brightness(0.95);
+	border-color: transparent;
+	filter: brightness(0.94);
+}
+.btn-lg {
+	min-height: 52px;
+	padding: 0 24px;
+	font-size: 16px;
+}
+.link-arrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 600;
+	color: var(--ink);
+	text-decoration: none;
+}
+.link-arrow :where(svg) {
+	transition: transform 180ms ease;
+}
+.link-arrow:hover :where(svg) {
+	transform: translateX(3px);
 }
 .btn-block {
 	width: 100%;
@@ -428,4 +502,53 @@ body {
 	width: 1px;
 	height: 1px;
 	overflow: hidden;
+}
+
+/* ---------- Motion ---------- */
+/* Sections below the fold rise into view once; see lib/ui/reveal.ts. */
+[data-reveal='hidden'] {
+	opacity: 0;
+	transform: translateY(18px);
+}
+[data-reveal='shown'] {
+	opacity: 1;
+	transform: none;
+	transition:
+		opacity 700ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms),
+		transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms);
+}
+
+/* Page changes cross-fade, with the new page rising slightly. */
+::view-transition-old(root) {
+	animation: 160ms ease both page-out;
+}
+::view-transition-new(root) {
+	animation: 260ms cubic-bezier(0.2, 0.7, 0.2, 1) both page-in;
+}
+::view-transition-old(site-header),
+::view-transition-new(site-header) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+@keyframes page-out {
+	to {
+		opacity: 0;
+	}
+}
+@keyframes page-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
+	}
+	[data-reveal='hidden'] {
+		opacity: 1;
+		transform: none;
+	}
 }

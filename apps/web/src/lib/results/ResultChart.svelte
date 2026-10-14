@@ -189,7 +189,7 @@
 		</div>
 	{/if}
 
-	<details class="table">
+	<details class="data-table">
 		<summary>View the chart data as a table</summary>
 		<table>
 			<thead>
@@ -350,11 +350,11 @@
 		padding-left: 8px;
 		font-variant-numeric: tabular-nums;
 	}
-	.table {
+	.data-table {
 		margin-top: 8px;
 		font-size: 13px;
 	}
-	.table summary {
+	.data-table summary {
 		cursor: pointer;
 		color: var(--ink-2);
 	}

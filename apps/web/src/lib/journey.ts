@@ -2,7 +2,8 @@ import type { FingerProfile } from '@sqwer/fingermap';
 import { ASSESSMENT_COVERAGE } from './exams.ts';
 import type { ResultRecord } from './results/types.ts';
 
-export type StepStatus = 'complete' | 'current' | 'in-progress' | 'locked';
+/** `available` steps can be started now, although an earlier step is recommended first. */
+export type StepStatus = 'complete' | 'current' | 'in-progress' | 'available' | 'locked';
 
 export interface JourneyStep {
 	id: string;
@@ -26,7 +27,7 @@ export function buildJourney(results: ResultRecord[], profile: FingerProfile): J
 
 	const step1: StepStatus = placements.length ? 'complete' : 'current';
 	const step2: StepStatus =
-		coverage >= ASSESSMENT_COVERAGE ? 'complete' : profile.samples > 0 ? 'in-progress' : placements.length ? 'current' : 'locked';
+		coverage >= ASSESSMENT_COVERAGE ? 'complete' : profile.samples > 0 ? 'in-progress' : placements.length ? 'current' : 'available';
 	const step3: StepStatus = assessments.length ? 'complete' : coverage >= ASSESSMENT_COVERAGE ? 'current' : 'locked';
 	const step4: StepStatus = placements.length >= 2 ? 'complete' : assessments.length ? 'current' : 'locked';
 
@@ -53,7 +54,7 @@ export function buildJourney(results: ResultRecord[], profile: FingerProfile): J
 			detail: profile.samples ? `${Math.round(coverage * 100)}% of core keys mapped` : null,
 			href: profile.samples ? '/map' : '/map/session',
 			action: profile.samples ? 'Continue mapping' : 'Start mapping',
-			requirement: 'Complete the placement test first, or begin mapping at any time.'
+			requirement: 'Recommended after the placement test, but you can begin at any time.'
 		},
 		{
 			id: 'finger-speed',

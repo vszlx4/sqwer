@@ -1,17 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
+	import { ACCOUNT_LINKS } from '#lib/site/links.ts';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
 
-	const TABS = [
-		{ href: '/account', label: 'Overview' },
-		{ href: '/account/profile', label: 'Profile' },
-		{ href: '/account/statistics', label: 'Statistics' },
-		{ href: '/account/security', label: 'Security' },
-		{ href: '/account/data', label: 'Your data' }
-	];
+	const TABS = ACCOUNT_LINKS;
 	const current = $derived(TABS.find((t) => t.href === page.url.pathname));
 	const setup = $derived(page.url.pathname === '/account/setup');
 </script>
@@ -25,9 +20,6 @@
 			{#each TABS as tab (tab.href)}
 				<a href={tab.href} aria-current={page.url.pathname === tab.href ? 'page' : undefined}>{tab.label}</a>
 			{/each}
-			<form method="POST" action="/signout">
-				<button type="submit">Sign out</button>
-			</form>
 		</nav>
 		<div class="content">
 			{@render children()}
@@ -49,8 +41,7 @@
 		flex-direction: column;
 		gap: 2px;
 	}
-	.tabs a,
-	.tabs button {
+	.tabs a {
 		display: block;
 		width: 100%;
 		padding: 10px 12px;
@@ -65,8 +56,7 @@
 		border: 0;
 		cursor: pointer;
 	}
-	.tabs a:hover,
-	.tabs button:hover {
+	.tabs a:hover {
 		color: var(--ink);
 		background: var(--surface);
 	}
@@ -75,11 +65,6 @@
 		background: var(--surface);
 		box-shadow: inset 3px 0 0 var(--accent);
 		font-weight: 600;
-	}
-	.tabs form {
-		margin-top: 12px;
-		padding-top: 12px;
-		border-top: 1px solid var(--line);
 	}
 	@media (max-width: 760px) {
 		.account {
@@ -91,14 +76,14 @@
 			flex-direction: row;
 			flex-wrap: wrap;
 		}
-		.tabs a,
-		.tabs button {
-			width: auto;
+		.tabs {
+			flex-wrap: nowrap;
+			overflow-x: auto;
+			scrollbar-width: none;
 		}
-		.tabs form {
-			margin: 0;
-			padding: 0;
-			border: 0;
+		.tabs a {
+			width: auto;
+			white-space: nowrap;
 		}
 	}
 </style>
