@@ -25,8 +25,11 @@
 	</p>
 	<div class="links">
 		<a class="btn btn-primary" href="/">Return to the home page</a>
-		<a class="btn" href="/test">Start the typing test</a>
-		<a class="btn" href="/faq">Read the FAQ</a>
+		{#if notFound}
+			<a class="btn" href="/exams">Browse examinations</a>
+		{:else}
+			<button type="button" class="btn" onclick={() => location.reload()}>Try again</button>
+		{/if}
 	</div>
 </section>
 

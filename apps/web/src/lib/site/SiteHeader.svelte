@@ -9,16 +9,29 @@
 	import { NAV_LINKS } from './links.ts';
 
 	let open = $state(false);
+	let scrolled = $state(false);
+	let menuButton: HTMLButtonElement | undefined = $state();
+	let bar: HTMLElement | undefined = $state();
 	afterNavigate(() => (open = false));
+
+	function onkeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && open) {
+			open = false;
+			menuButton?.focus();
+		}
+	}
+	function onclick(e: MouseEvent) {
+		if (open && bar && !bar.contains(e.target as Node)) open = false;
+	}
 
 	const user = $derived(page.data.user as App.PageData['user'] | undefined);
 	const isCurrent = (href: string) => page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
 </script>
 
-<svelte:window onkeydown={(e) => e.key === 'Escape' && open && (open = false)} />
+<svelte:window {onkeydown} {onclick} onscroll={() => (scrolled = window.scrollY > 8)} />
 
-<header class="site-header">
-	<div class="bar">
+<header class="site-header" class:scrolled>
+	<div class="bar" bind:this={bar}>
 		<a href="/" class="brand" aria-label="sqwer home">
 			<LogoWordmark class="wordmark" />
 			<LogoMark class="mark" />
@@ -39,6 +52,7 @@
 				<a class="cta" href="/signup">Create account</a>
 			{/if}
 			<button
+				bind:this={menuButton}
 				type="button"
 				class="menu-button"
 				aria-expanded={open}
@@ -51,15 +65,19 @@
 		</div>
 
 		{#if open}
-			<nav id="mobile-menu" class="mobile" aria-label="Main">
-				{#each NAV_LINKS as link (link.href)}
-					<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>
-				{/each}
+			<div id="mobile-menu" class="mobile">
+				<nav aria-label="Main">
+					{#each NAV_LINKS as link (link.href)}
+						<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>
+					{/each}
+				</nav>
 				{#if !user}
-					<a href="/signin">Sign in</a>
-					<a class="cta wide" href="/signup">Create account</a>
+					<div class="mobile-account">
+						<a class="btn" href="/signin">Sign in</a>
+						<a class="btn" href="/signup">Create account</a>
+					</div>
 				{/if}
-			</nav>
+			</div>
 		{/if}
 	</div>
 </header>
@@ -67,13 +85,21 @@
 <style>
 	/* Frosted glass bar that stays at the top while the page scrolls under it */
 	.site-header {
+		view-transition-name: site-header;
 		position: sticky;
 		top: 0;
 		z-index: 40;
 		background: color-mix(in srgb, var(--bg) 68%, transparent);
 		-webkit-backdrop-filter: blur(18px) saturate(170%);
 		backdrop-filter: blur(18px) saturate(170%);
-		border-bottom: 1px solid color-mix(in srgb, var(--line-strong) 55%, transparent);
+		border-bottom: 1px solid transparent;
+		transition:
+			border-color 200ms ease,
+			box-shadow 200ms ease;
+	}
+	/* The bar separates from the page only once content scrolls beneath it. */
+	.site-header.scrolled {
+		border-bottom-color: color-mix(in srgb, var(--line-strong) 55%, transparent);
 		box-shadow:
 			inset 0 1px 0 var(--glass-shine),
 			0 10px 30px -18px var(--glass-shadow);
@@ -114,9 +140,13 @@
 		color: var(--ink-2);
 		text-decoration: none;
 		white-space: nowrap;
+		transition:
+			color 140ms ease,
+			background-color 140ms ease;
 	}
 	nav a:hover {
 		color: var(--ink);
+		background: color-mix(in srgb, var(--surface) 70%, transparent);
 	}
 	nav a[aria-current='page'] {
 		color: var(--ink);
@@ -137,6 +167,7 @@
 		text-decoration: none;
 		white-space: nowrap;
 	}
+	/* Secondary weight: the accent is reserved for the main action of each page. */
 	.cta {
 		display: inline-flex;
 		align-items: center;
@@ -145,15 +176,19 @@
 		height: 38px;
 		padding: 0 16px;
 		border-radius: 3px;
-		background: var(--accent);
-		color: var(--on-accent);
+		border: 1px solid var(--ink);
+		color: var(--ink);
 		font-size: 14.5px;
 		font-weight: 600;
 		text-decoration: none;
 		white-space: nowrap;
+		transition:
+			background-color 140ms ease,
+			color 140ms ease;
 	}
 	.cta:hover {
-		filter: brightness(0.95);
+		background: var(--ink);
+		color: var(--bg);
 	}
 	.menu-button {
 		display: none;
@@ -179,16 +214,32 @@
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
-		box-shadow: var(--shadow);
+		box-shadow: var(--shadow-lg);
+		transform-origin: top center;
+		animation: menu-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
 	}
-	.mobile a {
+	@keyframes menu-in {
+		from {
+			opacity: 0;
+			transform: translateY(-6px);
+		}
+	}
+	.mobile nav {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+	.mobile nav a {
 		padding: 12px 14px;
 		font-size: 16px;
 	}
-	.mobile .cta.wide {
-		margin-top: 6px;
-		height: 46px;
-		color: var(--on-accent);
+	.mobile-account {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
+		margin-top: 8px;
+		padding-top: 10px;
+		border-top: 1px solid var(--line);
 	}
 	@media (max-width: 900px) {
 		.desktop,

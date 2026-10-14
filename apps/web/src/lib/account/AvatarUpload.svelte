@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import ConfirmForm from '#lib/ui/ConfirmForm.svelte';
 	import Avatar from './Avatar.svelte';
 
 	interface Props {
@@ -87,9 +88,12 @@
 				{/if}
 			</form>
 			{#if src && !prepared}
-				<form method="POST" action="?/removeAvatar" use:enhance>
-					<button class="btn" type="submit">Remove picture</button>
-				</form>
+				<ConfirmForm action="?/removeAvatar" title="Remove your profile picture?" confirmLabel="Remove picture" pendingLabel="Removing…" danger>
+					{#snippet trigger()}Remove picture{/snippet}
+					{#snippet message()}
+						<p>Your initials will be shown instead. You can upload a new picture at any time.</p>
+					{/snippet}
+				</ConfirmForm>
 			{/if}
 		</div>
 	</div>

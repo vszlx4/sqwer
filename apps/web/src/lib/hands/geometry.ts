@@ -52,11 +52,14 @@ export const SHADING_STOPS: Record<FingerKind, { start: number; end: number }> =
 	pinky: { start: 0.269231, end: 0.509615 }
 };
 
-/** Finger colours from the illustration. They read well on both the light and the dark background. */
+/**
+ * Finger colours: the site's finger palette, so the hands pair with the finger map's keys
+ * and adapt to the light and dark themes.
+ */
 export const SHADING_COLOURS: Record<FingerKind, string> = {
-	thumb: '#FF8CB0',
-	index: '#6EB1FF',
-	middle: '#F08E65',
-	ring: '#6DEDBA',
-	pinky: '#A593FF'
+	thumb: 'var(--f-thumb)',
+	index: 'var(--f-index)',
+	middle: 'var(--f-middle)',
+	ring: 'var(--f-ring)',
+	pinky: 'var(--f-pinky)'
 };

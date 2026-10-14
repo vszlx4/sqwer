@@ -1,5 +1,6 @@
 <script lang="ts">
 	import '../app.css';
+	import { onNavigate } from '$app/navigation';
 	import SiteFooter from '#lib/site/SiteFooter.svelte';
 	import SiteHeader from '#lib/site/SiteHeader.svelte';
 	import FingerMapSync from '#lib/fingermap/FingerMapSync.svelte';
@@ -7,6 +8,19 @@
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
+
+	// Cross-fade between pages where the browser supports view transitions.
+	onNavigate((navigation) => {
+		if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		// Changing only the query (filters, test settings) keeps the page in place.
+		if (navigation.from?.url.pathname === navigation.to?.url.pathname) return;
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
+	});
 </script>
 
 <a class="skip" href="#content">Skip to content</a>

@@ -1,14 +1,31 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test('home page: headline and calls to action above the fold', async ({ page }) => {
+test('home page: one primary action above the fold, leading straight to the placement test', async ({ page }) => {
 	await page.goto('/');
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('Understand how your hands');
-	const cta = page.getByRole('main').getByRole('link', { name: 'Begin your journey' }).first();
+	const main = page.getByRole('main');
+	// A single, specific primary action; the journey is explained on the page itself.
+	await expect(main.locator('.btn-primary')).toHaveCount(1);
+	const cta = main.getByRole('link', { name: 'Take the placement test' });
 	await expect(cta).toBeInViewport();
+
+	await main.getByRole('link', { name: 'How the journey works' }).click();
+	await expect(page).toHaveURL(/#journey$/);
+	await expect(page.getByRole('heading', { name: /Four steps/ })).toBeInViewport();
+
 	await cta.click();
-	await expect(page).toHaveURL(/\/journey$/);
-	await expect(page.getByRole('heading', { level: 1 })).toContainText('Your learning journey');
+	await expect(page).toHaveURL(/\/test\?exam=placement$/);
+});
+
+test('examination cards are single links with a recommended next step', async ({ page }) => {
+	await page.goto('/exams');
+	const placement = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Placement test' }) });
+	await expect(placement.getByText('Recommended')).toBeVisible();
+	await expect(placement.getByRole('link')).toHaveCount(1);
+	const timed = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Timed test' }) });
+	await timed.click({ position: { x: 30, y: 30 } });
+	await expect(page).toHaveURL(/\/test\?exam=timed$/);
 });
 
 test('the main navigation leads with the journey, not the speed test', async ({ page }) => {
@@ -55,10 +72,14 @@ test('every page has a unique title', async ({ page }) => {
 	expect(titles.size).toBe(paths.length);
 });
 
-test('mobile: menu navigates and the sticky call to action is shown', async ({ page }) => {
+test('mobile: menu navigates and nothing fixed covers the content', async ({ page }) => {
 	await page.setViewportSize({ width: 390, height: 800 });
 	await page.goto('/');
-	await expect(page.locator('.sticky-cta')).toBeVisible();
+	// Only the header may stay on screen while scrolling.
+	const fixed = await page.evaluate(() =>
+		[...document.querySelectorAll('body *')].filter((el) => getComputedStyle(el).position === 'fixed' && (el as HTMLElement).offsetHeight > 0).length
+	);
+	expect(fixed).toBe(0);
 	await page.getByRole('button', { name: 'Open menu' }).click();
 	await page.locator('#mobile-menu').getByRole('link', { name: 'Finger map' }).click();
 	await expect(page).toHaveURL(/\/map$/);
@@ -72,6 +93,10 @@ for (const scheme of ['light', 'dark'] as const) {
 		for (const path of ['/', '/journey', '/exams', '/exams/finger-speed', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/privacy', '/terms', '/cookies', '/signin', '/signup', '/reset-password', '/missing']) {
 			await page.goto(path);
 			await page.waitForTimeout(300);
+			// Measure the settled page: entrance animations fade content in over a moment.
+			await page.waitForFunction(() =>
+				document.getAnimations().every((a) => a.effect?.getTiming().iterations === Infinity || a.playState !== 'running')
+			);
 			const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
 			for (const v of results.violations) {
 				failures.push(`${path}: ${v.id} — ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(', ')}`);

@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import RecoveryCodes from '#lib/account/RecoveryCodes.svelte';
 	import Seo from '#lib/site/Seo.svelte';
+	import ConfirmForm from '#lib/ui/ConfirmForm.svelte';
 	import Field from '#lib/ui/Field.svelte';
 	import { PASSWORD_RULE } from '#lib/profile.ts';
 	import type { PageProps } from './$types';
@@ -61,18 +62,35 @@
 						<p class="when">Signed in {fmt(s.createdAt)} · Last active {fmt(s.lastSeenAt)}</p>
 					</div>
 					{#if !s.current}
-						<form method="POST" action="?/revoke" use:enhance>
-							<input type="hidden" name="id" value={s.id} />
-							<button class="btn" type="submit" aria-label={`Sign out ${s.device}`}>Sign out</button>
-						</form>
+						<ConfirmForm
+							action="?/revoke"
+							title="Sign out this device?"
+							triggerLabel={`Sign out ${s.device}`}
+							confirmLabel="Sign out device"
+							pendingLabel="Signing out…"
+						>
+							{#snippet trigger()}Sign out{/snippet}
+							{#snippet message()}
+								<p><strong>{s.device}</strong> will need to sign in again to use your account.</p>
+							{/snippet}
+							{#snippet fields()}<input type="hidden" name="id" value={s.id} />{/snippet}
+						</ConfirmForm>
 					{/if}
 				</li>
 			{/each}
 		</ul>
 		{#if data.sessions.length > 1}
-			<form method="POST" action="?/revokeOthers" use:enhance>
-				<button class="btn" type="submit">Sign out all other devices</button>
-			</form>
+			<ConfirmForm
+				action="?/revokeOthers"
+				title="Sign out all other devices?"
+				confirmLabel="Sign out other devices"
+				pendingLabel="Signing out…"
+			>
+				{#snippet trigger()}Sign out all other devices{/snippet}
+				{#snippet message()}
+					<p>Every device except this one will need to sign in again. Use this if you signed in on a shared or lost device.</p>
+				{/snippet}
+			</ConfirmForm>
 		{/if}
 	</section>
 

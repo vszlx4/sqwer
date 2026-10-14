@@ -166,10 +166,10 @@
 	</section>
 </div>
 
-<Dialog open={confirmDelete} title="Delete usage statistics?" onclose={() => (confirmDelete = false)}>
+<Dialog open={confirmDelete} title="Delete usage statistics?" alert onclose={() => (confirmDelete = false)}>
 	This permanently deletes the usage statistics stored in your account and in this browser.
 	{#snippet actions()}
-		<button type="button" class="btn" onclick={() => (confirmDelete = false)}>Cancel</button>
+		<button type="button" class="btn" data-autofocus onclick={() => (confirmDelete = false)}>Cancel</button>
 		<button type="button" class="btn btn-danger" onclick={remove}>Delete statistics</button>
 	{/snippet}
 </Dialog>
