@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { FINGERS } from '@sqwer/layouts';
+	import { FINGERS, type Finger } from '@sqwer/layouts';
 	import { CHAPTERS, LESSONS } from '#lib/courses/catalog.ts';
 	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
 	import { RANKS } from '#lib/courses/progression.ts';
@@ -19,6 +19,7 @@
 	onMount(() => {
 		results.load();
 		ready = true;
+		return startTyping();
 	});
 
 	// Returning learners are offered their next step instead of starting again.
@@ -27,14 +28,34 @@
 
 	// The hero hands show where each finger rests: the home row and the space bar.
 	const HOME: Record<string, string> = { lp: 'A', lr: 'S', lm: 'D', li: 'F', lt: '␣', rt: '␣', ri: 'J', rm: 'K', rr: 'L', rp: ';' };
-	const heroLegend = Object.fromEntries(FINGERS.map((f) => [f, { value: HOME[f]!, strong: f === 'li' || f === 'ri' }]));
-	const heroTone = Object.fromEntries(FINGERS.map((f) => [f, f === 'li' || f === 'ri' ? 1 : 0.7]));
-	const FLOAT = [
-		{ k: 'F', x: -4, y: 6, d: 0 },
-		{ k: 'J', x: 94, y: 2, d: 0.8 },
-		{ k: 'E', x: -8, y: 46, d: 1.6 },
-		{ k: 'I', x: 98, y: 40, d: 0.4 }
-	];
+	// Every few seconds the hands type a short home-row word: each finger and its key label light up in turn.
+	const KEY_FINGER: Record<string, Finger> = { a: 'lp', s: 'lr', d: 'lm', f: 'li', j: 'ri', k: 'rm', l: 'rr', ';': 'rp', ' ': 'rt' };
+	// Real words made only from the labelled keys: A, S, D, F, J, K, L and the space bar.
+	const WORDS = ['flask', 'salad', 'fall', 'ask', 'lad', 'sad', 'all', 'dad'];
+	let lit = $state<Finger | null>(null);
+	const heroLegend = $derived(
+		Object.fromEntries(FINGERS.map((f) => [f, { value: HOME[f]!, strong: f === 'li' || f === 'ri', lit: lit === f }]))
+	);
+	const heroTone = $derived(Object.fromEntries(FINGERS.map((f) => [f, lit ? (f === lit ? 1 : 0.45) : f === 'li' || f === 'ri' ? 1 : 0.7])));
+
+	function startTyping() {
+		if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		const timers: ReturnType<typeof setTimeout>[] = [];
+		let word = 0;
+		const play = () => {
+			if (document.visibilityState !== 'visible') return void timers.push(setTimeout(play, 2000));
+			const keys = [...WORDS[word % WORDS.length]!, ' '];
+			word++;
+			keys.forEach((k, i) => {
+				timers.push(setTimeout(() => (lit = KEY_FINGER[k] ?? null), i * 260));
+				timers.push(setTimeout(() => (lit = null), i * 260 + 190));
+			});
+			timers.push(setTimeout(play, keys.length * 260 + 2600));
+		};
+		// Begin once the entrance animation has finished.
+		timers.push(setTimeout(play, 2200));
+		return () => timers.forEach(clearTimeout);
+	}
 
 	// Ranks shown on the road, at the chapter where a steady learner reaches them.
 	const RANK_AT: Record<number, number> = { 1: 2, 3: 3, 4: 4, 7: 5, 9: 6, 10: 7, 12: 9 };
@@ -67,7 +88,7 @@
 />
 
 <div class="landing">
-	<!-- Hero: a dot grid that fades out, a soft glow and keys floating around the hands. -->
+	<!-- Hero: a dot grid that fades out behind the hands. -->
 	<section class="hero band" aria-labelledby="hero-title">
 		<div class="hero-copy">
 			<p class="kicker rise">A typing course for everyone</p>
@@ -92,10 +113,6 @@
 			</ul>
 		</div>
 		<figure class="hero-figure">
-			<div class="glow" aria-hidden="true"></div>
-			{#each FLOAT as f, i (i)}
-				<span class="float" aria-hidden="true" style:left={`${f.x}%`} style:top={`${f.y}%`} style:--d={`${f.d}s`}>{f.k}</span>
-			{/each}
 			<Hands label="Two hands resting on the home row: A, S, D and F on the left, J, K, L and semicolon on the right, thumbs on the space bar" tone={heroTone} legend={heroLegend} legendSize={13} animate />
 			<figcaption>Where your fingers rest; ␣ is the space bar. Lesson 1 starts with F and J.</figcaption>
 		</figure>
@@ -336,37 +353,6 @@
 		max-width: 540px;
 		justify-self: center;
 		padding: 40px 34px 20px;
-	}
-	.glow {
-		position: absolute;
-		inset: 10% 8% 18%;
-		z-index: -1;
-		background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 55%, transparent), transparent);
-		filter: blur(30px);
-		opacity: 0.7;
-	}
-	.float {
-		position: absolute;
-		display: grid;
-		place-items: center;
-		width: 40px;
-		height: 40px;
-		border-radius: 3px;
-		border: 1px solid var(--key-edge);
-		border-bottom-width: 3px;
-		background: var(--key);
-		font-family: var(--font-mono);
-		font-size: 16px;
-		font-weight: 600;
-		color: var(--ink-2);
-		box-shadow: var(--shadow);
-		animation: float 6s ease-in-out infinite;
-		animation-delay: calc(var(--d) * -1);
-	}
-	@keyframes float {
-		50% {
-			transform: translateY(-10px) rotate(4deg);
-		}
 	}
 	.hero-figure figcaption {
 		margin-top: 14px;
@@ -851,12 +837,8 @@
 		.hero-action :global(.btn) {
 			width: 100%;
 		}
-		.float {
-			display: none;
-		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.float,
 		.fl,
 		.note,
 		.wave span,
