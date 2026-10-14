@@ -53,10 +53,16 @@ let ready: Promise<Database> | null = null;
 
 /** The database, connected and migrated on first use. */
 export function db(): Promise<Database> {
-	ready ??= connect().then(async (d) => {
-		await migrate(d);
-		return d;
-	});
+	ready ??= connect()
+		.then(async (d) => {
+			await migrate(d);
+			return d;
+		})
+		.catch((e) => {
+			// Retry on the next request instead of failing every request until a restart.
+			ready = null;
+			throw e;
+		});
 	return ready;
 }
 

@@ -35,6 +35,12 @@
 		<dd>Your chosen colour theme, applied before the page is displayed (local storage).</dd>
 		<dt>finger-observations</dt>
 		<dd>Your finger map entries (IndexedDB). When you are signed in, they are also synchronised to your account.</dd>
+		<dt>results</dt>
+		<dd>Your test and assessment results (IndexedDB). Synchronised to your account when you are signed in.</dd>
+		<dt>usage</dt>
+		<dd>Usage statistics for this browser (IndexedDB). Synchronised to your account when you are signed in.</dd>
+		<dt>sqwer:device</dt>
+		<dd>A random identifier for this browser, used only to keep its usage statistics separate from those of your other devices (local storage).</dd>
 	</dl>
 
 	<h2>Bot protection</h2>

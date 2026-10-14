@@ -71,11 +71,25 @@ test('wrong keys are not tagged and backspace undoes a tag', async ({ page }) =>
 	await expect(page.locator('.ch.done')).toHaveCount(before - 1);
 });
 
-test('typing test can follow the mapped fingers', async ({ page }) => {
-	await page.goto('/map/session');
+
+test('picks a finger by clicking it on the hands', async ({ page }) => {
+	await page.getByTestId('start-mapping').click();
 	await expect(page.locator('.ch.current')).toBeVisible();
-	await tagChars(page, 6, '3');
-	await page.goto('/test');
-	await page.getByRole('radio', { name: 'My fingers' }).click();
-	await expect(page.getByRole('radio', { name: 'My fingers' })).toHaveAttribute('aria-checked', 'true');
+	const prompt = await promptText(page);
+	const ch = prompt[0]!;
+	const fingers = page.locator('.session .hands path.finger');
+	await expect(fingers).toHaveCount(10);
+
+	if (/[A-Z]/.test(ch)) {
+		await page.keyboard.down('Shift');
+		await page.keyboard.press(ch);
+		await page.keyboard.up('Shift');
+		await fingers.nth(3).click(); // left index
+		await fingers.nth(9).click(); // right little finger on Shift
+	} else {
+		await page.keyboard.press(ch === ' ' ? 'Space' : ch);
+		await fingers.nth(3).click(); // left index
+	}
+	await expect(page.locator('.meta')).toContainText(/[12] new entr/);
+	await expect(page.locator('.ch').first()).toHaveClass(/done/);
 });

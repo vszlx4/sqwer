@@ -143,6 +143,33 @@ test('the public profile is visible and the email address is not', async ({ page
 	await expect(page.locator('body')).not.toContainText(email);
 });
 
+test('saves usage statistics to the account and shows them on the statistics page', async ({ page }) => {
+	await page.goto('/signin');
+	await page.getByLabel('Email address').fill(email);
+	await page.getByLabel('Password').fill(newPassword);
+	await solveCaptcha(page);
+	await page.getByRole('button', { name: 'Sign in' }).click();
+	await expect(page).toHaveURL(/\/account$/);
+
+	await page.goto('/test?exam=words');
+	await page.getByTestId('typing-input').focus();
+	const words = await page.$$eval('[data-word]', (els) => els.map((e) => e.textContent));
+	await page.keyboard.type(words.join(' '), { delay: 20 });
+	await expect(page.getByTestId('result-wpm')).toBeVisible();
+
+	const saved = page.waitForResponse((r) => r.url().endsWith('/api/usage') && r.request().method() === 'PUT');
+	await page.goto('/account/statistics');
+	expect((await saved).status()).toBe(200);
+
+	const res = await page.request.get('/api/usage');
+	const { usage, devices } = await res.json();
+	// Each earlier test signed in from a fresh browser, which counts as its own device.
+	expect(devices).toBeGreaterThanOrEqual(1);
+	expect(usage.tests.completed).toBe(1);
+	expect(usage.typing.words).toBe(words.length);
+	await expect(page.getByText(`recorded across ${devices} ${devices > 1 ? 'devices' : 'device'} since`)).toBeVisible();
+});
+
 test('exports the account data and deletes the account', async ({ page }) => {
 	await page.goto('/signin');
 	await page.getByLabel('Email address').fill(email);
