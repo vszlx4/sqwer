@@ -1,0 +1,72 @@
+import { browser } from '$app/env';
+import type { Platform } from '@sqwer/layouts';
+
+export type ThemePref = 'system' | 'light' | 'dark';
+
+export const TIME_OPTIONS = [15, 30, 60, 120] as const;
+export const WORD_OPTIONS = [10, 25, 50, 100] as const;
+
+export interface Settings {
+	theme: ThemePref;
+	mode: 'time' | 'words';
+	time: (typeof TIME_OPTIONS)[number];
+	words: (typeof WORD_OPTIONS)[number];
+	punctuation: boolean;
+	numbers: boolean;
+	showKeyboard: boolean;
+	showZones: boolean;
+	liveWpm: boolean;
+	platform: Platform | 'auto';
+	/** Include the number row when mapping fingers. */
+	mapExtended: boolean;
+}
+
+const DEFAULTS: Settings = {
+	theme: 'light',
+	mode: 'time',
+	time: 30,
+	words: 25,
+	punctuation: false,
+	numbers: false,
+	showKeyboard: true,
+	showZones: false,
+	liveWpm: true,
+	platform: 'auto',
+	mapExtended: false
+};
+
+const KEY = 'sqwer:settings';
+
+function load(): Settings {
+	if (!browser) return { ...DEFAULTS };
+	try {
+		const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}');
+		return { ...DEFAULTS, ...saved };
+	} catch {
+		return { ...DEFAULTS };
+	}
+}
+
+export const settings = $state<Settings>(load());
+
+export function saveSettings() {
+	if (!browser) return;
+	try {
+		localStorage.setItem(KEY, JSON.stringify(settings));
+		localStorage.setItem('sqwer:theme', settings.theme);
+		if (settings.theme === 'system') delete document.documentElement.dataset.theme;
+		else document.documentElement.dataset.theme = settings.theme;
+	} catch {
+		// Storage can be unavailable (private mode); settings still apply for this visit.
+	}
+}
+
+export function detectPlatform(): Platform {
+	if (!browser) return 'pc';
+	const ua = navigator.userAgent;
+	return /Mac|iPhone|iPad/.test(ua) ? 'mac' : 'pc';
+}
+
+export function resolvedPlatform(): Platform {
+	return settings.platform === 'auto' ? detectPlatform() : settings.platform;
+}

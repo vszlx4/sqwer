@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791973422105,
+      "tag": "0000_abnormal_veda",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791973827872,
+      "tag": "0001_famous_vengeance",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791976115953,
+      "tag": "0002_handy_black_widow",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791980335264,
+      "tag": "0003_tranquil_boom_boom",
+      "breakpoints": true
+    }
+  ]
+}

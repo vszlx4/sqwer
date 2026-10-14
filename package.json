@@ -1,0 +1,22 @@
+{
+	"name": "sqwer",
+	"private": true,
+	"type": "module",
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"scripts": {
+		"dev": "npm run dev -w web",
+		"build": "npm run build -w web",
+		"preview": "npm run preview -w web",
+		"start": "BODY_SIZE_LIMIT=6M node apps/web/build",
+		"test": "vitest run",
+		"test:e2e": "npm run test:e2e -w web",
+		"check": "npm run check -w web"
+	},
+	"devDependencies": {
+		"@sveltejs/kit": "^3.0.1",
+		"vitest": "^4.0.0"
+	}
+}
