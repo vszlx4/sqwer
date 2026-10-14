@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { FINGERS, fingerLabel, kindOf, type Finger } from '@sqwer/layouts';
-	import { FINGER_SHAPES, OUTLINES, TIPS, VIEW } from './geometry.ts';
+	import { FINGERS, fingerLabel, handOf, kindOf, type Finger } from '@sqwer/layouts';
+	import { FINGER_SHAPES, OUTLINES, SHADING, SHADING_COLOURS, SHADING_STOPS, TIPS, VIEW } from './geometry.ts';
 
 	export interface LegendItem {
 		value: string;
@@ -61,11 +61,11 @@
 >
 	<defs>
 		{#each FINGERS as f (f)}
-			{@const t = TIPS[f]}
-			<linearGradient id={`${uid}-${f}`} gradientUnits="userSpaceOnUse" x1={t.x} y1={t.y} x2={t.x} y2={t.y + t.length * 0.95}>
-				<stop offset="0" style:stop-color={`var(--f-${kindOf(f)})`} />
-				<stop offset="0.55" style:stop-color={`var(--f-${kindOf(f)})`} stop-opacity="0.35" />
-				<stop offset="1" style:stop-color={`var(--f-${kindOf(f)})`} stop-opacity="0" />
+			{@const d = SHADING[handOf(f)]}
+			{@const stops = SHADING_STOPS[kindOf(f)]}
+			<linearGradient id={`${uid}-${f}`} gradientUnits="userSpaceOnUse" x1={d.x1} y1={d.y1} x2={d.x2} y2={d.y2}>
+				<stop offset={stops.start} stop-color={SHADING_COLOURS[kindOf(f)]} />
+				<stop offset={stops.end} stop-color={SHADING_COLOURS[kindOf(f)]} stop-opacity="0" />
 			</linearGradient>
 		{/each}
 	</defs>

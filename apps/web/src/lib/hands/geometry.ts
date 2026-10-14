@@ -1,6 +1,6 @@
 // Hand outlines and finger shapes, from the hand illustration in ./assets/in-rgb.svg (viewBox 0 0 300 197).
 // Both hands are seen from above, as they rest on a keyboard.
-import type { Finger } from '@sqwer/layouts';
+import type { Finger, FingerKind } from '@sqwer/layouts';
 
 export const VIEW = { width: 300, height: 197 };
 
@@ -23,16 +23,40 @@ export const FINGER_SHAPES: Record<Finger, string> = {
 	rp: 'M276.535 94.8632C278.566 99.9187 280.481 110.669 282.505 122.066C282.639 122.851 282.777 123.641 282.916 124.434L264 124.627L258.688 89.5081C259.613 89.3569 260.238 88.449 260.087 87.5241L253.34 47.6889C253 44.9801 254.903 42.4748 257.634 42.0971C260.146 41.7457 262.511 43.3648 263.133 45.8049C263.567 47.4263 273.619 85.5396 274.988 90.2896C275.461 91.933 275.961 93.4402 276.535 94.8632Z'
 };
 
-/** The top of each fingertip and the finger's length, for labels and colour gradients. */
-export const TIPS: Record<Finger, { x: number; y: number; length: number }> = {
-	lp: { x: 41.5, y: 42.1, length: 82.6 },
-	lr: { x: 60.4, y: 23.5, length: 101.2 },
-	lm: { x: 78.5, y: 12.8, length: 111.9 },
-	li: { x: 94.6, y: 27.7, length: 96.9 },
-	lt: { x: 118, y: 94.5, length: 55.9 },
-	rt: { x: 182, y: 94.5, length: 55.9 },
-	ri: { x: 205.4, y: 27.7, length: 96.9 },
-	rm: { x: 221.5, y: 12.8, length: 111.9 },
-	rr: { x: 239.6, y: 23.5, length: 101.2 },
-	rp: { x: 258.5, y: 42.1, length: 82.6 }
+/** The top of each fingertip, where legend lines end. */
+export const TIPS: Record<Finger, { x: number; y: number }> = {
+	lp: { x: 41.5, y: 42.1 },
+	lr: { x: 60.4, y: 23.5 },
+	lm: { x: 78.5, y: 12.8 },
+	li: { x: 94.6, y: 27.7 },
+	lt: { x: 118, y: 94.5 },
+	rt: { x: 182, y: 94.5 },
+	ri: { x: 205.4, y: 27.7 },
+	rm: { x: 221.5, y: 12.8 },
+	rr: { x: 239.6, y: 23.5 },
+	rp: { x: 258.5, y: 42.1 }
+};
+
+/** Direction of each hand's shading, as in the illustration: diagonal from the fingertips towards the wrist. */
+export const SHADING = {
+	left: { x1: 96.5076, y1: 13.7487, x2: 51.3109, y2: 182.425 },
+	right: { x1: 203.492, y1: 13.7487, x2: 248.689, y2: 182.425 }
+};
+
+/** Where each finger's colour is solid and where it has fully faded, as offsets along the hand's shading. */
+export const SHADING_STOPS: Record<FingerKind, { start: number; end: number }> = {
+	thumb: { start: 0.394231, end: 0.653846 },
+	index: { start: 0.144231, end: 0.456731 },
+	middle: { start: 0.00480769, end: 0.466346 },
+	ring: { start: 0.120192, end: 0.475962 },
+	pinky: { start: 0.269231, end: 0.509615 }
+};
+
+/** Finger colours from the illustration. They read well on both the light and the dark background. */
+export const SHADING_COLOURS: Record<FingerKind, string> = {
+	thumb: '#FF8CB0',
+	index: '#6EB1FF',
+	middle: '#F08E65',
+	ring: '#6DEDBA',
+	pinky: '#A593FF'
 };
