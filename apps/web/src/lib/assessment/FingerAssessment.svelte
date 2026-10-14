@@ -271,7 +271,7 @@
 
 
 		<div class="row">
-			<a class="btn btn-primary" href="/journey">Return to your journey</a>
+			<a class="btn btn-primary" href="/learn">Continue the course</a>
 			<button type="button" class="btn" onclick={begin}>Retake the assessment</button>
 		</div>
 	{/if}

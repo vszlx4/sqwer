@@ -22,10 +22,11 @@ test.beforeEach(async ({ page }) => {
 	);
 });
 
-test('the placement test feeds the journey, results guidance and examination statistics', async ({ page }) => {
+test('getting started leads a typist through the placement test to a recommended chapter', async ({ page }) => {
 	test.setTimeout(120_000);
-	await page.goto('/journey');
-	await expect(page.getByText('0 of 4 steps completed')).toBeVisible();
+	await page.goto('/start');
+	await page.getByRole('button', { name: /I type, but not properly/ }).click();
+	await expect(page.getByRole('heading', { name: 'One minute of typing shows your level.' })).toBeVisible();
 	await page.getByRole('link', { name: 'Take the placement test' }).click();
 	await expect(page).toHaveURL(/exam=placement/);
 	await expect(page.getByText('Establishes your starting speed')).toBeVisible();
@@ -34,19 +35,25 @@ test('the placement test feeds the journey, results guidance and examination sta
 	await typeUntilDone(page, async () => (await page.getByTestId('result-wpm').count()) > 0);
 
 	await expect(page.getByRole('heading', { name: 'What this result shows' })).toBeVisible();
-	await expect(page.getByRole('heading', { name: 'Map your technique' })).toBeVisible();
+	// The result now points into the course, at the chapter the placement recommends.
+	await expect(page.locator('section.next').getByRole('link', { name: /^Start lesson \d+/ })).toBeVisible();
 
 	await page.goto('/exams');
 	const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Placement test' }) });
 	await expect(card.getByText('Attempts')).toBeVisible();
 
-	await page.goto('/journey');
-	await expect(page.getByText('1 of 4 steps completed')).toBeVisible();
+	await page.goto('/start');
+	await expect(page.getByRole('heading', { name: /^Begin at chapter \d+/ })).toBeVisible();
 
 	await page.goto('/history');
 	await page.getByRole('row').nth(1).getByRole('link').click();
 	await expect(page.getByRole('heading', { name: 'Placement test' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Play the replay' })).toBeVisible();
+});
+
+test('the old journey address leads to getting started', async ({ page }) => {
+	await page.goto('/journey');
+	await expect(page).toHaveURL(/\/start$/);
 });
 
 const CORE: [string, string][] = [

@@ -86,6 +86,46 @@ export const usageStats = pgTable(
 	(t) => [primaryKey({ columns: [t.userId, t.deviceId] })]
 );
 
+/** Best result for each course lesson. Points and ranks are derived from these rows. */
+export const courseProgress = pgTable(
+	'course_progress',
+	{
+		userId: text('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		lessonId: text('lesson_id').notNull(),
+		stars: integer('stars').notNull().default(0),
+		bestAccuracy: integer('best_accuracy').notNull().default(0),
+		bestWpm: integer('best_wpm').notNull().default(0),
+		attempts: integer('attempts').notNull().default(0),
+		completedAt: timestamp('completed_at', { withTimezone: true }),
+		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => [primaryKey({ columns: [t.userId, t.lessonId] })]
+);
+
+/** Calendar days (in the learner's time zone) on which a lesson was completed, for streaks. */
+export const courseDays = pgTable(
+	'course_days',
+	{
+		userId: text('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		day: text('day').notNull()
+	},
+	(t) => [primaryKey({ columns: [t.userId, t.day] })]
+);
+
+/** The learner's self-described level and chosen starting lesson. */
+export const courseState = pgTable('course_state', {
+	userId: text('user_id')
+		.primaryKey()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	level: text('level'),
+	startLesson: text('start_lesson'),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});
+
 /** Profile pictures, re-encoded in the browser and validated on the server. */
 export const avatars = pgTable('avatars', {
 	userId: text('user_id')

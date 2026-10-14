@@ -169,7 +169,8 @@ export const usage = new UsageStore();
 /** Section of the site a path belongs to, for time statistics. */
 export function sectionOf(path: string): string {
 	if (path === '/') return 'Home';
-	if (path.startsWith('/journey')) return 'Journey';
+	if (path.startsWith('/start') || path.startsWith('/journey')) return 'Getting started';
+	if (path.startsWith('/learn')) return 'Courses';
 	if (path.startsWith('/exams') || path.startsWith('/test')) return 'Examinations';
 	if (path.startsWith('/map')) return 'Finger map';
 	if (path.startsWith('/history')) return 'History';

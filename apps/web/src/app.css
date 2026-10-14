@@ -344,6 +344,24 @@ select {
 body {
 	background: var(--bg);
 	min-height: 100dvh;
+	/* Full-width background bands extend past the content column without causing sideways scrolling. */
+	overflow-x: clip;
+}
+
+/*
+ * A section whose background runs the full width of the window while its content
+ * stays in the column. Set --band to a background (colour, gradient or pattern).
+ */
+.band {
+	position: relative;
+	isolation: isolate;
+}
+.band::before {
+	content: '';
+	position: absolute;
+	inset: 0 calc(50% - 50vw);
+	z-index: -1;
+	background: var(--band, transparent);
 }
 
 ::selection {

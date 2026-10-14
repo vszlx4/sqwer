@@ -41,6 +41,12 @@
 		<dd>Usage statistics for this browser (IndexedDB). Synchronised to your account when you are signed in.</dd>
 		<dt>sqwer:device</dt>
 		<dd>A random identifier for this browser, used only to keep its usage statistics separate from those of your other devices (local storage).</dd>
+		<dt>sqwer:level and sqwer:start</dt>
+		<dd>How you described your typing when getting started, and the course lesson you chose to start from (local storage). Copied to your account when you sign in.</dd>
+		<dt>sqwer:pending-lesson</dt>
+		<dd>The result of the first course lesson taken without an account, kept until you create one and then saved to it (local storage).</dd>
+		<dt>sqwer:sound</dt>
+		<dd>Whether sound is on in the rhythm game (local storage).</dd>
 	</dl>
 
 	<h2>Bot protection</h2>
