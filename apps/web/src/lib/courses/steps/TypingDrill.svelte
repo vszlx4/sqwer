@@ -127,6 +127,10 @@
 		if (seconds) return session.startedAt === null ? 0 : Math.min(1, (now - session.startedAt) / (seconds * 1000));
 		return session.wordIndex / tokens.length;
 	});
+	const wordsDone = $derived.by(() => {
+		rev;
+		return Math.min(session.wordIndex, tokens.length);
+	});
 	const remaining = $derived(seconds ? Math.max(0, Math.ceil(seconds - progress * seconds)) : 0);
 
 	// The next key and the finger that presses it, for learners who are still finding keys.
@@ -148,7 +152,7 @@
 		{#if seconds}
 			<span class="time"><b>{remaining}</b> s</span>
 		{:else}
-			<span>{Math.min(session.wordIndex, tokens.length)} / {tokens.length}</span>
+			<span>{wordsDone} / {tokens.length}</span>
 		{/if}
 		<span class="goal">Goal: {minWpm ? `${minWpm} WPM, ` : ''}{minAccuracy}% accuracy</span>
 		<label class="hint-toggle"><input type="checkbox" bind:checked={hints} /> Show the next key</label>
@@ -164,8 +168,9 @@
 			autocomplete="off"
 			autocapitalize="off"
 			spellcheck="false"
-			aria-label="Typing input. Type the text shown."
+			aria-label="Typing input. Type the text shown. Press Tab to restart this exercise."
 			data-testid="typing-input"
+			data-tab-restart
 			{onkeydown}
 			{onbeforeinput}
 		/>

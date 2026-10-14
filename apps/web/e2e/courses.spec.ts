@@ -103,3 +103,24 @@ test('leaving a lesson part-way asks for confirmation', async ({ page }) => {
 	await page.getByRole('alertdialog').getByRole('link', { name: 'Leave lesson' }).click();
 	await expect(page).toHaveURL(/\/learn$/);
 });
+
+test('Tab restarts only the current exercise', async ({ page }) => {
+	await page.goto('/learn/l01');
+	await expect(page.getByText('Press F with your left index finger.')).toBeVisible();
+	for (const k of 'fffjjj') await page.keyboard.press(k);
+	await proceed(page);
+
+	await page.waitForSelector('[data-word]');
+	await expect(page.getByTestId('typing-input')).toBeFocused();
+	await page.keyboard.type('fff jjj ', { delay: 20 });
+	await expect(page.locator('.status')).toContainText('2 / 14');
+	await expect(page.locator('[data-word] .correct').first()).toBeVisible();
+
+	await page.keyboard.press('Tab');
+	// The drill starts again with nothing typed; the completed introduction stays completed.
+	await expect(page.locator('.status')).toContainText('0 / 14');
+	await expect(page.locator('[data-word] .correct')).toHaveCount(0);
+	await expect(page.getByTestId('typing-input')).toBeFocused();
+	await expect(page.getByRole('list', { name: 'Lesson steps' }).getByRole('listitem').first()).toHaveClass(/done/);
+	await expect(page.getByRole('heading', { name: 'Get to know F and J' })).toBeVisible();
+});
