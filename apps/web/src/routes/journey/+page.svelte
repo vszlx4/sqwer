@@ -9,6 +9,7 @@
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
+	import { reveal } from '#lib/ui/reveal.ts';
 
 	onMount(() => {
 		fingerMap.load();
@@ -19,7 +20,13 @@
 	const done = $derived(steps.filter((s) => s.status === 'complete').length);
 	const signedIn = $derived(!!page.data.user);
 
-	const STATUS_LABEL = { complete: 'Completed', current: 'Next step', 'in-progress': 'In progress', locked: 'Not yet available' };
+	const STATUS_LABEL = {
+		complete: 'Completed',
+		current: 'Next step',
+		'in-progress': 'In progress',
+		available: 'Available now',
+		locked: 'Not yet available'
+	};
 
 	const PRINCIPLES = [
 		{
@@ -61,7 +68,7 @@
 
 	<ol class="steps">
 		{#each steps as step, i (step.id)}
-			<li class={`step ${step.status}`}>
+			<li class={`step ${step.status}`} use:reveal={{ delay: i * 60 }}>
 				<div class="marker" aria-hidden="true">
 					{#if step.status === 'complete'}<Icon name="check" size={18} />{:else}{i + 1}{/if}
 				</div>
@@ -72,8 +79,10 @@
 					<p class="learn"><b>You will learn:</b> {step.learn}</p>
 					{#if step.detail}<p class="detail">{step.detail}</p>{/if}
 					{#if step.status === 'locked'}
+						<p class="requirement"><Icon name="lock" size={14} /> {step.requirement}</p>
+					{:else if step.status === 'available'}
 						<p class="requirement">{step.requirement}</p>
-						{#if step.id === 'finger-map'}<a class="btn" href={step.href}>{step.action}</a>{/if}
+						<a class="btn" href={step.href}>{step.action}</a>
 					{:else}
 						<a class={`btn ${step.status === 'current' || step.status === 'in-progress' ? 'btn-primary' : ''}`} href={step.href}>
 							{step.action}
@@ -94,7 +103,6 @@
 				</div>
 			{/each}
 		</div>
-		<p class="more">Read more in <a href="/about">How it works</a>, or browse all <a href="/exams">examinations</a>.</p>
 	</section>
 </div>
 
@@ -133,6 +141,7 @@
 		display: block;
 		height: 100%;
 		background: var(--accent);
+		transition: width 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
 	}
 	.count {
 		font-size: 14.5px;
@@ -219,7 +228,9 @@
 		font-weight: 600;
 	}
 	.requirement {
-		font-style: italic;
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
 	}
 	.body .btn {
 		margin-top: 6px;
@@ -244,8 +255,7 @@
 		font-weight: 600;
 		margin-bottom: 6px;
 	}
-	.principle p,
-	.more {
+	.principle p {
 		font-size: 15px;
 		line-height: 1.55;
 		color: var(--ink-2);

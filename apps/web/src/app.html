@@ -12,7 +12,11 @@
 			// "system" follows the operating system setting.
 			try {
 				const t = localStorage.getItem('sqwer:theme');
-				if (t !== 'system') document.documentElement.dataset.theme = t === 'dark' ? 'dark' : 'light';
+				if (t !== 'system') {
+					const theme = t === 'dark' ? 'dark' : 'light';
+					document.documentElement.dataset.theme = theme;
+					for (const m of document.querySelectorAll('meta[name="theme-color"]')) m.content = theme === 'dark' ? '#000000' : '#FBFAF4';
+				}
 			} catch {
 				document.documentElement.dataset.theme = 'light';
 			}

@@ -24,11 +24,13 @@
 		disabled?: boolean;
 		/** Legend text size in figure units (the hands are 300 units wide); larger suits narrow layouts. */
 		legendSize?: number;
+		/** Draws the fingers and legend in one after another when the figure first appears. */
+		animate?: boolean;
 		/** Selection by pointer only, when equivalent keyboard controls are shown next to the figure. */
 		pointerOnly?: boolean;
 	}
 
-	let { label, tone, active = null, legend, onselect, fingerName = fingerLabel, disabled = false, pointerOnly = false, legendSize = 10 }: Props = $props();
+	let { label, tone, active = null, legend, onselect, fingerName = fingerLabel, disabled = false, pointerOnly = false, legendSize = 10, animate = false }: Props = $props();
 
 	const uid = $props.id();
 	const legendY = $derived(-8 - legendSize);
@@ -55,6 +57,7 @@
 <svg
 	class="hands"
 	class:interactive={!!onselect && !disabled}
+	class:animate
 	{viewBox}
 	role={onselect && !pointerOnly ? 'group' : 'img'}
 	aria-label={label}
@@ -64,8 +67,8 @@
 			{@const d = SHADING[handOf(f)]}
 			{@const stops = SHADING_STOPS[kindOf(f)]}
 			<linearGradient id={`${uid}-${f}`} gradientUnits="userSpaceOnUse" x1={d.x1} y1={d.y1} x2={d.x2} y2={d.y2}>
-				<stop offset={stops.start} stop-color={SHADING_COLOURS[kindOf(f)]} />
-				<stop offset={stops.end} stop-color={SHADING_COLOURS[kindOf(f)]} stop-opacity="0" />
+				<stop offset={stops.start} style:stop-color={SHADING_COLOURS[kindOf(f)]} stop-opacity="0.92" />
+				<stop offset={stops.end} style:stop-color={SHADING_COLOURS[kindOf(f)]} stop-opacity="0" />
 			</linearGradient>
 		{/each}
 	</defs>
@@ -103,7 +106,14 @@
 				onpointerleave={() => (hovered = hovered === f ? null : hovered)}
 			/>
 		{:else}
-			<path d={FINGER_SHAPES[f]} class="finger" class:active={emphasis} fill={`url(#${uid}-${f})`} fill-opacity={emphasis ? 1 : s} />
+			<path
+				d={FINGER_SHAPES[f]}
+				class="finger"
+				class:active={emphasis}
+				fill={`url(#${uid}-${f})`}
+				fill-opacity={emphasis ? 1 : s}
+				style:--i={FINGERS.indexOf(f)}
+			/>
 		{/if}
 	{/each}
 
@@ -121,11 +131,20 @@
 				{#if item}
 					{@const t = TIPS[f]}
 					{@const lx = LABEL_X[f]}
-					<line x1={lx} y1={legendY + 4} x2={t.x} y2={t.y - (kindOf(f) === 'thumb' ? 4 : 6)} class="leader" />
+					<line
+						x1={lx}
+						y1={legendY + 4}
+						x2={t.x}
+						y2={t.y - (kindOf(f) === 'thumb' ? 4 : 6)}
+						class="leader"
+						pathLength="1"
+						style:--i={FINGERS.indexOf(f)}
+					/>
 					<text
 						x={lx}
 						y={legendY}
 						font-size={legendSize}
+						style:--i={FINGERS.indexOf(f)}
 						class="value"
 						class:strong={item.strong}
 						class:dim={tone !== undefined && strength(f) === 0 && active !== f}
@@ -181,9 +200,45 @@
 	.value.dim {
 		fill: var(--ink-3);
 	}
+	/* Entrance: fingers fill from left to right, then each value's line draws up to its label. */
+	.animate .finger {
+		animation: finger-in 700ms ease both;
+		animation-delay: calc(240ms + var(--i) * 70ms);
+	}
+	.animate .leader {
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+		animation: leader-draw 520ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		animation-delay: calc(700ms + var(--i) * 70ms);
+	}
+	.animate .value {
+		animation: value-in 420ms ease both;
+		animation-delay: calc(1000ms + var(--i) * 70ms);
+	}
+	@keyframes finger-in {
+		from {
+			opacity: 0;
+		}
+	}
+	@keyframes leader-draw {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+	@keyframes value-in {
+		from {
+			opacity: 0;
+		}
+	}
 	@media (prefers-reduced-motion: reduce) {
 		.finger {
 			transition: none;
+		}
+		.animate .finger,
+		.animate .leader,
+		.animate .value {
+			animation: none;
+			stroke-dashoffset: 0;
 		}
 	}
 </style>

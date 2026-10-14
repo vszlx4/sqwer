@@ -2,6 +2,7 @@
 	import Avatar from '#lib/account/Avatar.svelte';
 	import { EXPERIENCE, GOALS, labelOf, PLATFORMS } from '#lib/profile.ts';
 	import Seo from '#lib/site/Seo.svelte';
+	import Icon from '#lib/ui/Icon.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -40,7 +41,7 @@
 			{:else}
 				<p>No finger map data is saved to your account yet. Data you record while signed in is saved automatically.</p>
 			{/if}
-			<a class="btn" href="/map">Open the finger map</a>
+			<a class="link-arrow" href="/map">Open the finger map <Icon name="arrow" size={16} /></a>
 		</section>
 		<section class="card">
 			<h2>Security</h2>
@@ -49,14 +50,14 @@
 				{data.sessionCount === 1 ? 'device' : 'devices'}
 			</p>
 			{#if data.recoveryCodes <= 2}<p class="warn">Few recovery codes remain. Generate a new set to keep access to your account.</p>{/if}
-			<a class="btn" href="/account/security">Manage security</a>
+			<a class="link-arrow" href="/account/security">Manage security <Icon name="arrow" size={16} /></a>
 		</section>
 		<section class="card">
 			<h2>Profile visibility</h2>
 			<p>{p.isPublic ? 'Your profile is public.' : 'Your profile is private. Only you can see it.'}</p>
 			<div class="row">
-				<a class="btn" href="/account/profile">Edit profile</a>
-				{#if p.isPublic}<a class="btn" href={`/u/${p.username}`}>View public profile</a>{/if}
+				<a class="link-arrow" href="/account/profile">Edit profile <Icon name="arrow" size={16} /></a>
+				{#if p.isPublic}<a class="link-arrow" href={`/u/${p.username}`}>View public profile <Icon name="arrow" size={16} /></a>{/if}
 			</div>
 		</section>
 	</div>
@@ -137,7 +138,7 @@
 	}
 	.row {
 		display: flex;
-		gap: 8px;
+		gap: 18px;
 		flex-wrap: wrap;
 	}
 	@media (max-width: 960px) {

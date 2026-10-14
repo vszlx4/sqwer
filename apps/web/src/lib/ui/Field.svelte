@@ -15,6 +15,8 @@
 
 	const uid = $props.id();
 	const fieldId = $derived(id ?? `${name}-${uid}`);
+	// Addresses, usernames and codes are not prose: no spelling marks or automatic capitals.
+	const literal = $derived(rest.type === 'email' || ['username', 'code', 'confirm'].includes(name));
 	const describedBy = $derived([hint && `${fieldId}-hint`, error && `${fieldId}-error`].filter(Boolean).join(' ') || undefined);
 </script>
 
@@ -33,7 +35,16 @@
 			placeholder={rest.placeholder}
 		></textarea>
 	{:else}
-		<input id={fieldId} {name} bind:value aria-invalid={error ? 'true' : undefined} aria-describedby={describedBy} {...rest} />
+		<input
+			id={fieldId}
+			{name}
+			bind:value
+			aria-invalid={error ? 'true' : undefined}
+			aria-describedby={describedBy}
+			spellcheck={literal ? false : undefined}
+			autocapitalize={literal ? 'none' : undefined}
+			{...rest}
+		/>
 	{/if}
 	{#if hint}<p class="hint" id={`${fieldId}-hint`}>{hint}</p>{/if}
 	{#if error}<p class="error" id={`${fieldId}-error`}>{error}</p>{/if}

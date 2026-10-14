@@ -26,7 +26,16 @@
 		check: 'M5 12.5 10 17 19 7',
 		play: 'M7 5l12 7-12 7z',
 		pause: 'M8 5v14M16 5v14',
-		history: 'M3 12a9 9 0 1 0 3-6.7M3 4v5h5M12 7v5l3 2'
+		history: 'M3 12a9 9 0 1 0 3-6.7M3 4v5h5M12 7v5l3 2',
+		signout: 'M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10',
+		target: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM12 12h.01',
+		flag: 'M5 21V4M5 4h11l-2 4 2 4H5',
+		gauge: 'M4 18a8 8 0 1 1 16 0M12 18l4-6',
+		route: 'M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM6 15V9a4 4 0 0 1 4-4h6M18 9v6a4 4 0 0 1-4 4H8',
+		user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21a8 8 0 0 1 16 0',
+		shield: 'M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Z',
+		info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 11v5M12 8h.01',
+		chevron: 'M9 6l6 6-6 6'
 	} as const;
 	export type IconName = keyof typeof ICONS;
 </script>
@@ -36,7 +45,7 @@
 </script>
 
 <svg
-	class={className}
+	class={`icon-${name} ${className}`}
 	width={size}
 	height={size}
 	viewBox="0 0 24 24"

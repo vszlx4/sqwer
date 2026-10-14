@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Prose from '#lib/site/Prose.svelte';
 	import Seo from '#lib/site/Seo.svelte';
+	import { CONTACT_EMAIL } from '#lib/site/links.ts';
 
 	const FAQS = [
 		{
@@ -80,10 +81,7 @@
 			</details>
 		{/each}
 	</div>
-	<p>
-		If your question is not answered here, read <a href="/about">How it works</a> or the
-		<a href="/privacy">Privacy Policy</a>.
-	</p>
+	<p>If your question is not answered here, write to <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
 </Prose>
 
 <style>
