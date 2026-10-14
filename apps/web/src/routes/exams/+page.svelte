@@ -6,7 +6,8 @@
 	import ExamVisual from '#lib/exams/ExamVisual.svelte';
 	import { ASSESSMENT_COVERAGE, CATEGORIES, EXAMS, type Exam } from '#lib/exams.ts';
 	import { fingerMap } from '#lib/fingermap/store.svelte.ts';
-	import { buildJourney } from '#lib/journey.ts';
+	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
+	import { courses } from '#lib/courses/store.svelte.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import type { ExamId } from '#lib/results/types.ts';
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
@@ -24,12 +25,11 @@
 	const profile = $derived(buildProfile(fingerMap.observations, qwertyAnsi('pc')));
 	const coverage = $derived(profile.core.mapped / profile.core.total);
 
-	// The examination the journey recommends next; a new typist starts with the placement test.
-	const STEP_EXAM: Record<string, Exam['id']> = { placement: 'placement', 'finger-map': 'finger-map', 'finger-speed': 'finger-speed', progress: 'placement' };
-	const recommended = $derived.by<Exam['id']>(() => {
-		if (!mounted) return 'placement';
-		const step = buildJourney(results.list, profile).find((s) => s.status === 'current' || s.status === 'in-progress');
-		return step ? STEP_EXAM[step.id]! : 'placement';
+	// The placement test is recommended while it is the learner's next step; afterwards the course leads.
+	const recommended = $derived.by<Exam['id'] | null>(() => {
+		if (!mounted || !courses.loaded) return null;
+		const stage = learnerNextStep().stage;
+		return stage === 'placement' || stage === 'welcome' ? 'placement' : null;
 	});
 
 	interface Status {
@@ -92,8 +92,8 @@
 	<header class="intro">
 		<h1>Examinations</h1>
 		<p class="lede">
-			Each examination measures one thing and explains its result. The one marked <b>Recommended</b> is the next step in
-			your journey.
+			Courses teach; examinations measure. Each one measures one thing and explains its result, so you can see your
+			progress at any point in the course.
 		</p>
 	</header>
 
@@ -159,9 +159,6 @@
 		font-size: 18px;
 		line-height: 1.6;
 		color: var(--ink-2);
-	}
-	.lede b {
-		color: var(--ink);
 	}
 	.cat-head {
 		display: flex;

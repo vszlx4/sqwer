@@ -9,11 +9,11 @@
 	}
 
 	interface Props {
-		/** Accessible description of the figure. */
+		/** Accessible description of the figure. Leave empty for a decorative figure, which is hidden from assistive technology. */
 		label: string;
 		/** Strength of each finger's colour, from 0 (no colour) to 1. Fingers left out are not coloured. Defaults to all fingers at full strength. */
 		tone?: Partial<Record<Finger, number>>;
-		/** A finger to emphasise with a stronger outline. */
+		/** A finger to emphasise: it is shown at full colour strength. */
 		active?: Finger | null;
 		/** Values shown in a row above the hands, each connected to its fingertip. */
 		legend?: Partial<Record<Finger, LegendItem>>;
@@ -59,8 +59,9 @@
 	class:interactive={!!onselect && !disabled}
 	class:animate
 	{viewBox}
-	role={onselect && !pointerOnly ? 'group' : 'img'}
-	aria-label={label}
+	role={!label ? undefined : onselect && !pointerOnly ? 'group' : 'img'}
+	aria-label={label || undefined}
+	aria-hidden={label ? undefined : 'true'}
 >
 	<defs>
 		{#each FINGERS as f (f)}
@@ -120,9 +121,6 @@
 	<path d={OUTLINES.left} class="hand-outline" />
 	<path d={OUTLINES.right} class="hand-outline" />
 
-	{#if active}
-		<path d={FINGER_SHAPES[active]} class="finger-ring" />
-	{/if}
 
 	{#if legend}
 		<g class="legend" aria-hidden="true">
@@ -176,12 +174,6 @@
 		outline: none;
 		stroke: var(--ink);
 		stroke-width: 2;
-	}
-	.finger-ring {
-		fill: none;
-		stroke: var(--ink);
-		stroke-width: 1.6;
-		pointer-events: none;
 	}
 	.leader {
 		stroke: var(--ink-3);

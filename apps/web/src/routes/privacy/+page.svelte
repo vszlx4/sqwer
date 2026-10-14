@@ -57,6 +57,8 @@
 		<dd>The results described in section 2, for tests taken while signed in, including the keystroke sequence used for replays.</dd>
 		<dt>Usage statistics</dt>
 		<dd>The usage statistics described in section 2, stored separately for each device so that totals can be combined. They can be deleted at any time from Account → Statistics.</dd>
+		<dt>Course progress</dt>
+		<dd>For each course lesson you complete: the best number of stars, best accuracy and speed, the number of attempts and when it was first completed; the calendar days on which you completed a lesson, used for your streak; and the level and starting lesson you chose. Points and ranks are calculated from these and are not stored separately.</dd>
 		<dt>Recovery codes</dt>
 		<dd>One-way hashes of your recovery codes and whether each code has been used.</dd>
 		<dt>Sessions</dt>

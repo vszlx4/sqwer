@@ -1,0 +1,105 @@
+import { expect, test, type Page } from '@playwright/test';
+
+/** Types every word of the current drill. */
+async function typeDrill(page: Page) {
+	await page.waitForSelector('[data-word]');
+	const words = await page.$$eval('[data-word]', (els) => els.map((e) => e.textContent ?? ''));
+	await page.keyboard.type(words.join(' '), { delay: 20 });
+}
+
+/** Continues from a passed step. */
+async function proceed(page: Page) {
+	const button = page.locator('.outcome').getByRole('button');
+	await expect(button).toBeVisible({ timeout: 60_000 });
+	await expect(page.locator('.outcome')).toHaveClass(/passed/);
+	await page.keyboard.press('Enter');
+}
+
+/** Plays the rhythm game by pressing each lane's key as a note reaches the line. */
+async function playRhythm(page: Page) {
+	await page.evaluate(() => {
+		const lanes = [...document.querySelectorAll('.lane')];
+		const keys = lanes.map((l) => l.querySelector('.key')!.textContent!.trim().toLowerCase());
+		const line = document.querySelector('.line')!.getBoundingClientRect().top;
+		const pressed = new Set<Element>();
+		const frame = () => {
+			lanes.forEach((lane, i) => {
+				for (const note of lane.querySelectorAll('.note:not(.missed)')) {
+					const r = note.getBoundingClientRect();
+					if (Math.abs(r.top + r.height / 2 - line) < 6 && !pressed.has(note)) {
+						pressed.add(note);
+						document.body.dispatchEvent(new KeyboardEvent('keydown', { key: keys[i], bubbles: true }));
+					}
+				}
+			});
+			if (document.querySelector('.lane')) requestAnimationFrame(frame);
+		};
+		requestAnimationFrame(frame);
+	});
+	await page.keyboard.press('Space');
+}
+
+test('a guest can take the whole first lesson and is invited to keep it', async ({ page }) => {
+	test.setTimeout(120_000);
+	await page.goto('/learn/l01');
+	await expect(page.getByRole('heading', { level: 1, name: 'F and J' })).toBeVisible();
+	await expect(page.getByText('Press F with your left index finger.')).toBeVisible();
+
+	// A wrong key is explained, not counted.
+	await page.keyboard.press('k');
+	await expect(page.getByRole('alert')).toContainText('That was K. Find F');
+	for (const k of 'fffjjj') await page.keyboard.press(k);
+	await proceed(page);
+
+	await expect(page.getByRole('heading', { name: 'Get to know F and J' })).toBeVisible();
+	await typeDrill(page);
+	await proceed(page);
+	await typeDrill(page);
+	await proceed(page);
+
+	await expect(page.getByText('Rhythm keys')).toBeVisible();
+	await playRhythm(page);
+	await proceed(page);
+
+	await expect(page.getByText('Lesson 1 complete')).toBeVisible();
+	await expect(page.getByRole('img', { name: /of 3 stars/ })).toBeVisible();
+	await expect(page.getByRole('link', { name: 'Create an account' })).toBeFocused();
+});
+
+test('later lessons need an account, but show what they teach', async ({ page }) => {
+	await page.goto('/learn');
+	await page.getByRole('link', { name: /Lesson 2: D and K/ }).click();
+	await expect(page.getByRole('heading', { level: 1, name: 'D and K' })).toBeVisible();
+	await expect(page.getByText('New keys:')).toContainText('D and K');
+	await expect(page.getByRole('link', { name: 'Create a free account' })).toBeVisible();
+});
+
+test('the course offers three ways to start, and chapters say who they suit', async ({ page }) => {
+	await page.goto('/learn');
+	await expect(page.getByRole('heading', { name: 'From your first two keys to fluent typing.' })).toBeVisible();
+	for (const name of ['Start from the beginning', 'Choose a chapter', 'Find my level']) {
+		await expect(page.getByRole('link', { name: new RegExp(name) })).toBeVisible();
+	}
+	await page.getByRole('link', { name: /Choose a chapter/ }).click();
+	await expect(page.getByRole('button', { name: /^Start chapter \d+:/ })).toHaveCount(12);
+	await expect(page.getByText('Suits you if: You can type the home row without looking at the keyboard.')).toBeVisible();
+
+	await page.getByRole('button', { name: 'Start chapter 2: Reaching up' }).click();
+	await expect(page).toHaveURL(/\/learn\/l\d+$/);
+	await expect(page.getByRole('heading', { level: 1, name: 'E and I' })).toBeVisible();
+});
+
+test('leaving a lesson part-way asks for confirmation', async ({ page }) => {
+	await page.goto('/learn/l01');
+	await expect(page.getByText('Press F with your left index finger.')).toBeVisible();
+	for (const k of 'fffjjj') await page.keyboard.press(k);
+	await expect(page.locator('.outcome')).toBeVisible();
+	await page.getByRole('button', { name: 'Leave lesson' }).click();
+	const dialog = page.getByRole('alertdialog', { name: 'Leave this lesson?' });
+	await expect(dialog).toBeVisible();
+	await dialog.getByRole('button', { name: 'Keep going' }).click();
+	await expect(dialog).toBeHidden();
+	await page.getByRole('button', { name: 'Leave lesson' }).click();
+	await page.getByRole('alertdialog').getByRole('link', { name: 'Leave lesson' }).click();
+	await expect(page).toHaveURL(/\/learn$/);
+});

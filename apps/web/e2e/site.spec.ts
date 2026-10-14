@@ -1,21 +1,22 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test('home page: one primary action above the fold, leading straight to the placement test', async ({ page }) => {
+test('home page: one primary action above the fold, leading to getting started', async ({ page }) => {
 	await page.goto('/');
-	await expect(page.getByRole('heading', { level: 1 })).toContainText('Understand how your hands');
+	await expect(page.getByRole('heading', { level: 1 })).toContainText('Learn to type');
 	const main = page.getByRole('main');
-	// A single, specific primary action; the journey is explained on the page itself.
+	// A single, specific primary action; the course is explained on the page itself.
 	await expect(main.locator('.btn-primary')).toHaveCount(1);
-	const cta = main.getByRole('link', { name: 'Take the placement test' });
+	const cta = main.getByRole('link', { name: 'Get started' });
 	await expect(cta).toBeInViewport();
 
-	await main.getByRole('link', { name: 'How the journey works' }).click();
-	await expect(page).toHaveURL(/#journey$/);
-	await expect(page.getByRole('heading', { name: /Four steps/ })).toBeInViewport();
+	await main.getByRole('link', { name: 'See the whole course' }).click();
+	await expect(page).toHaveURL(/#road$/);
+	await expect(page.getByRole('heading', { name: /One long road/ })).toBeInViewport();
 
 	await cta.click();
-	await expect(page).toHaveURL(/\/test\?exam=placement$/);
+	await expect(page).toHaveURL(/\/start$/);
+	await expect(page.getByRole('heading', { name: 'How would you describe your typing today?' })).toBeVisible();
 });
 
 test('examination cards are single links with a recommended next step', async ({ page }) => {
@@ -28,10 +29,10 @@ test('examination cards are single links with a recommended next step', async ({
 	await expect(page).toHaveURL(/\/test\?exam=timed$/);
 });
 
-test('the main navigation leads with the journey, not the speed test', async ({ page }) => {
+test('the main navigation leads with the course; getting started is not a permanent item', async ({ page }) => {
 	await page.goto('/');
 	const nav = page.getByRole('navigation', { name: 'Main' }).first();
-	await expect(nav.getByRole('link')).toHaveText(['Your journey', 'Examinations', 'Finger map', 'History']);
+	await expect(nav.getByRole('link')).toHaveText(['Courses', 'Examinations', 'Finger map', 'History']);
 });
 
 for (const [path, heading] of [
@@ -63,7 +64,7 @@ test('robots.txt and the sitemap are served', async ({ request }) => {
 
 test('every page has a unique title', async ({ page }) => {
 	const titles = new Set<string>();
-	const paths = ['/', '/journey', '/exams', '/test', '/map', '/about', '/faq', '/privacy', '/terms', '/cookies', '/signin', '/signup', '/reset-password'];
+	const paths = ['/', '/start', '/learn', '/learn/start', '/exams', '/test', '/map', '/about', '/faq', '/privacy', '/terms', '/cookies', '/signin', '/signup', '/reset-password'];
 	for (const path of paths) {
 		await page.goto(path);
 		await page.waitForFunction(() => document.title.length > 0);
@@ -90,7 +91,7 @@ for (const scheme of ['light', 'dark'] as const) {
 		const context = await browser.newContext({ colorScheme: scheme });
 		const page = await context.newPage();
 		const failures: string[] = [];
-		for (const path of ['/', '/journey', '/exams', '/exams/finger-speed', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/privacy', '/terms', '/cookies', '/signin', '/signup', '/reset-password', '/missing']) {
+		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l01', '/learn/l05', '/exams', '/exams/finger-speed', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/privacy', '/terms', '/cookies', '/signin', '/signup', '/reset-password', '/missing']) {
 			await page.goto(path);
 			await page.waitForTimeout(300);
 			// Measure the settled page: entrance animations fade content in over a moment.
