@@ -31,8 +31,9 @@
 	<section class="card" aria-labelledby="export-title">
 		<h2 id="export-title">Download your data</h2>
 		<p class="text">
-			Download a copy of everything sqwer stores about your account: your email address, profile, profile picture,
-			signed-in devices, results, usage statistics and finger map, in JSON format.
+			Download a copy of everything sqwer stores about your account, in JSON format: your email address, profile, profile
+			picture, examination results, course progress, finger map, usage statistics, signed-in devices, security activity and
+			which recovery codes have been used.
 		</p>
 		<a class="btn" href="/account/export" download>Download my data</a>
 	</section>
@@ -40,8 +41,9 @@
 	<section class="card danger" aria-labelledby="delete-title">
 		<h2 id="delete-title">Delete your account</h2>
 		<p class="text">
-			Deleting your account permanently removes your profile, profile picture, results, recovery codes, signed-in devices
-			and the finger map stored in your account. This cannot be undone. Data stored only in this browser is not affected.
+			Deleting your account permanently removes everything stored with it: profile, profile picture, examination results,
+			course progress, finger map, usage statistics, recovery codes, signed-in devices and security activity. Copies in
+			backups disappear within 14 days. This cannot be undone. Data stored only in this browser is not affected.
 		</p>
 		{#if confirming || form?.errors}
 			<form method="POST" action="?/delete" class="form" use:enhance novalidate>

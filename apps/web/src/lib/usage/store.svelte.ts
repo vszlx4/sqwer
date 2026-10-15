@@ -24,7 +24,10 @@ function deviceId(): string {
 	}
 }
 
-/** Usage statistics for this browser, synced per device to the account when signed in. */
+/**
+ * Usage statistics, recorded only while signed in: they are part of the account's Statistics page,
+ * so nothing is stored for visitors without an account. Synced per device to the account.
+ */
 class UsageStore {
 	data = $state.raw<Usage>(emptyUsage());
 	loaded = $state(false);
@@ -49,6 +52,7 @@ class UsageStore {
 	}
 
 	private update(fn: (u: Usage) => void) {
+		if (!this.account) return;
 		const next = structuredClone($state.snapshot(this.data)) as Usage;
 		fn(next);
 		next.lastSeen = Date.now();
@@ -126,7 +130,7 @@ class UsageStore {
 	}
 
 	async save() {
-		if (!this.dirty) return;
+		if (!this.dirty || !this.account) return;
 		try {
 			await idbSet(KEY, $state.snapshot(this.data));
 		} catch {

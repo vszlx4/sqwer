@@ -1,6 +1,6 @@
 /*
  * Sound for the course activities: short synthesised tones for the rhythm game and
- * the browser's own speech synthesis for dictation. Nothing is downloaded or recorded.
+ * the device's own speech synthesis for dictation. Nothing is downloaded, recorded or sent anywhere.
  */
 
 let context: AudioContext | null = null;
@@ -44,7 +44,29 @@ export function tick(accent = false) {
 /** Notes of a pentatonic scale, which sound pleasant in any order. */
 export const LANE_NOTES = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25];
 
-export const canSpeak = () => typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+const speechAvailable = () => typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+
+/** English voices that run on the device itself. */
+function localVoices(): SpeechSynthesisVoice[] {
+	if (!speechAvailable()) return [];
+	return speechSynthesis.getVoices().filter((v) => v.localService && v.lang.toLowerCase().startsWith('en'));
+}
+
+/**
+ * Whether words can be spoken without sending them anywhere. Voices may load after the page;
+ * call again once `voiceschanged` has fired.
+ */
+export const canSpeak = () => localVoices().length > 0;
+
+/** Resolves once the browser has listed its voices, or after a short wait. */
+export function voicesReady(): Promise<void> {
+	if (!speechAvailable() || speechSynthesis.getVoices().length) return Promise.resolve();
+	return new Promise((resolve) => {
+		const done = () => resolve();
+		speechSynthesis.addEventListener('voiceschanged', done, { once: true });
+		setTimeout(done, 1500);
+	});
+}
 
 /** Speaks a word with an English voice where one is available. */
 export function speak(text: string, rate = 0.85): Promise<void> {
@@ -52,8 +74,10 @@ export function speak(text: string, rate = 0.85): Promise<void> {
 		if (!canSpeak()) return resolve();
 		speechSynthesis.cancel();
 		const u = new SpeechSynthesisUtterance(text);
-		const voices = speechSynthesis.getVoices();
-		u.voice = voices.find((v) => v.lang === 'en-GB') ?? voices.find((v) => v.lang.startsWith('en')) ?? null;
+		// Only voices built into the device: online voices would send the text to the browser's vendor.
+		const voices = localVoices();
+		u.voice = voices.find((v) => v.lang === 'en-GB') ?? voices[0] ?? null;
+		if (!u.voice) return resolve();
 		u.lang = u.voice?.lang ?? 'en-GB';
 		u.rate = rate;
 		u.onend = () => resolve();

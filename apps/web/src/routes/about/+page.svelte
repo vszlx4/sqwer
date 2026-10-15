@@ -12,9 +12,17 @@
 <Prose
 	kicker="How it works"
 	title="Built around your hands, not a textbook."
-	lede="sqwer consists of a typing test and a finger mapper. This page explains what each part does, how the results are calculated and how your data is handled."
+	lede="sqwer is a place to learn and practise typing: a course of short lessons and games, examinations that measure your progress, and a finger map of your own technique. This page explains how each part works, how results are calculated and how your data is handled."
 	crumbs={[{ href: '/about', label: 'How it works' }]}
 >
+	<h2>The course</h2>
+	<p>
+		The <a href="/learn">Courses</a> are one long road of short lessons in twelve chapters, from the first two keys,
+		F and J, to fluent typing. Each lesson adds a little, using guided drills, falling letters, rhythm keys and
+		listening exercises, so that every chapter prepares you for the next. Lessons earn stars; stars earn points and
+		ranks, which measure your own progress. <a href="/start">Getting started</a> recommends where to begin.
+	</p>
+
 	<h2>The keyboard</h2>
 	<p>
 		A keyboard is displayed below every test. Each key lights up as you press it: in the accent colour when the
@@ -75,9 +83,10 @@
 
 	<h2>Your data</h2>
 	<p>
-		No account is required. Without an account, your settings and finger map are stored only in your browser. With an
-		account, your finger map is also stored on our server so that it is available on every device you use. You can
-		export your data or delete your account at any time. The <a href="/privacy">Privacy Policy</a> provides full details.
+		You can begin without an account: your settings, results and finger map are then stored only in your browser. An
+		account, required for the Courses after the first lesson, also stores them in a database in the European Union so
+		that they are available on every device. You can download your data or delete your account at any time. The
+		<a href="/privacy">Privacy Policy</a> and <a href="/cookies">Cookie Policy</a> provide full details.
 	</p>
 </Prose>
 

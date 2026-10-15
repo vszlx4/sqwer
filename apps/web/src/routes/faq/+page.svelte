@@ -6,11 +6,11 @@
 	const FAQS = [
 		{
 			q: 'Is sqwer free to use?',
-			a: 'Yes. The typing test, the finger map and accounts are free of charge.'
+			a: 'Yes. The Courses, the Examinations, the Finger map and accounts are free of charge. Everything needed to learn and practise will remain free.'
 		},
 		{
 			q: 'Do I need an account?',
-			a: 'No. The typing test and the finger map work without an account. An account saves your finger map on our server so that it is available on every device, and lets you build a typing profile.'
+			a: 'Not to begin. The Examinations, the Finger map and the first course lesson work without an account. The rest of the Courses needs a free account, which saves your progress, stars and rank on every device.'
 		},
 		{
 			q: 'How is words per minute calculated?',
@@ -50,11 +50,15 @@
 		},
 		{
 			q: 'What happens to my data if I delete my account?',
-			a: 'Your account, profile, recovery codes, signed-in devices, security activity and the finger map stored in your account are deleted immediately. Data stored only in your browser is not affected.'
+			a: 'Your account and everything stored with it are deleted immediately: profile, profile picture, examination results, course progress, finger map, usage statistics, recovery codes, signed-in devices and security activity. Copies in backups disappear within 14 days. Data kept only in your browser is not affected; you can clear it in your browser settings.'
 		},
 		{
 			q: 'Does sqwer use cookies or tracking?',
-			a: 'sqwer uses a single strictly necessary cookie to keep you signed in. It does not use advertising, analytics or tracking technologies.'
+			a: 'sqwer sets one strictly necessary cookie to keep you signed in, and stores your settings and practice data in your browser. It does not use advertising, analytics or tracking technologies. The Cookie Policy lists everything.'
+		},
+		{
+			q: 'Where is my data stored?',
+			a: 'Without an account, only in your browser. With an account, in a database in the European Union (Ireland). You can download or delete it at any time from Account → Your data. The Privacy Policy explains the details.'
 		}
 	];
 
