@@ -74,6 +74,15 @@ export function db(): Promise<Database> {
 		.catch((e) => {
 			// Retry on the next request instead of failing every request until a restart.
 			ready = null;
+			const host = process.env.DATABASE_URL ? new URL(process.env.DATABASE_URL).hostname : '';
+			if (/ENOTFOUND/.test(String(e?.cause ?? e)) && /^db\..+\.supabase\.co$/.test(host)) {
+				// Supabase's direct host has only an IPv6 address; networks without IPv6 cannot reach it.
+				console.error(
+					`Cannot resolve ${host}: Supabase's direct connection needs IPv6. Use the session pooler instead ` +
+						'(Supabase dashboard: Connect, then Session pooler), for example ' +
+						'postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres'
+				);
+			}
 			throw e;
 		});
 	return ready;
