@@ -3,9 +3,8 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import { CONTACT_EMAIL, LEGAL } from '#lib/site/links.ts';
 
-	const operator = LEGAL.operatorName
-		? `${LEGAL.operatorName}${LEGAL.operatorAddress ? `, ${LEGAL.operatorAddress}` : ''}`
-		: `its operator, based in ${LEGAL.operatorCountry}`;
+	// sqwer is a free, non-commercial project run by an individual.
+	const operator = `${LEGAL.operatorName || 'an individual'}, based in ${LEGAL.operatorCountry}, as a free, non-commercial project`;
 	const host = LEGAL.webHost ? `${LEGAL.webHost}, on servers in ${LEGAL.webHostLocation}` : `our hosting provider, on servers in ${LEGAL.webHostLocation}`;
 </script>
 
@@ -23,7 +22,7 @@
 		<ul>
 			<li>You can practise without an account. Without one, your settings and practice data stay in your browser.</li>
 			<li>An account stores your email address, profile, results and course progress so that they are available on every device.</li>
-			<li>We do not show advertising, use analytics or tracking tools, sell data or share it for marketing.</li>
+			<li>sqwer is free and non-commercial. We never ask for payment details, show advertising, use analytics or tracking tools, sell data or share it for marketing.</li>
 			<li>Account data is stored in the European Union (Ireland). Only the providers that host sqwer receive it, and only to run the service.</li>
 			<li>You can download or delete everything at any time from <strong>Account → Your data</strong>.</li>
 		</ul>
@@ -127,9 +126,10 @@
 		</table>
 	</div>
 	<p>
-		Providing your email address and a password is necessary to create an account. Everything else is optional or arises
-		from your use of the features you choose. We do not ask for, and you should not provide, sensitive information such as
-		health data.
+		The only information we ask you for is what the sign-up and profile forms request: your email address and a password
+		to create the account, and the optional profile details listed above. Everything else arises from your use of the
+		features you choose. We never ask for payment details, identity documents or sensitive information such as health
+		data.
 	</p>
 
 	<h2 id="purposes">5. Purposes and legal bases</h2>
