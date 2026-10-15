@@ -91,14 +91,80 @@
 		color: var(--ink);
 		font-weight: 600;
 	}
+	/* Links are carried by weight alone, without a block behind the text. */
 	.prose :global(a) {
 		color: var(--ink);
-		font-weight: 500;
 		font-weight: 600;
 		text-decoration: none;
-		padding: 0 3px;
+		overflow-wrap: anywhere;
+	}
+	.prose :global(a:hover) {
+		color: var(--ink-2);
+	}
+	.prose :global(ol) {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		padding-left: 22px;
+		list-style: decimal;
+	}
+	.prose :global(.table-wrap) {
+		overflow-x: auto;
 		border-radius: 3px;
-		background: var(--surface-2);
+		border: 1px solid var(--line);
+	}
+	.prose :global(table) {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 15px;
+		line-height: 1.55;
+	}
+	.prose :global(th),
+	.prose :global(td) {
+		padding: 10px 14px;
+		text-align: left;
+		vertical-align: top;
+		border-bottom: 1px solid var(--line);
+	}
+	.prose :global(thead th) {
+		background: var(--surface);
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--ink);
+		white-space: nowrap;
+	}
+	.prose :global(tbody th) {
+		font-weight: 600;
+		color: var(--ink);
+	}
+	.prose :global(tr:last-child td),
+	.prose :global(tr:last-child th) {
+		border-bottom: 0;
+	}
+	.prose :global(code) {
+		font-family: var(--font-mono);
+		font-size: 14px;
+		color: var(--ink);
+	}
+	.prose :global(.toc) {
+		padding: 18px 22px;
+		border-radius: 3px;
+		background: var(--surface);
+		border: 1px solid var(--line);
+		font-size: 15px;
+	}
+	.prose :global(.toc ol) {
+		gap: 4px;
+	}
+	.prose :global(.summary) {
+		padding: 18px 22px;
+		border-radius: 3px;
+		border: 1px solid var(--ink);
+		box-shadow: inset 4px 0 0 var(--accent);
+	}
+	.prose :global(.summary h2) {
+		margin-top: 0;
+		font-size: 22px;
 	}
 	.prose :global(ul) {
 		display: flex;

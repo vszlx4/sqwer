@@ -102,3 +102,27 @@ test('the light theme is the default and the theme choice persists', async ({ pa
 	await page.getByRole('radio', { name: 'Use the system theme' }).click();
 	await expect(page.locator('html')).not.toHaveAttribute('data-theme', /./);
 });
+
+test('a visitor without an account leaves no usage statistics or device identifier', async ({ page }) => {
+	await page.getByRole('radio', { name: 'Words' }).click();
+	await page.getByRole('radio', { name: '10 words' }).click();
+	await page.getByTestId('typing-input').focus();
+	await page.keyboard.type((await visibleWords(page)).join(' '), { delay: 20 });
+	await expect(page.getByTestId('result-wpm')).toBeVisible();
+	await page.waitForTimeout(500);
+
+	expect(await page.evaluate(() => localStorage.getItem('sqwer:device'))).toBeNull();
+	const usage = await page.evaluate(
+		() =>
+			new Promise((resolve) => {
+				const open = indexedDB.open('sqwer', 1);
+				open.onsuccess = () => {
+					const req = open.result.transaction('kv').objectStore('kv').get('usage');
+					req.onsuccess = () => resolve(req.result ?? null);
+					req.onerror = () => resolve(null);
+				};
+				open.onerror = () => resolve(null);
+			})
+	);
+	expect(usage).toBeNull();
+});

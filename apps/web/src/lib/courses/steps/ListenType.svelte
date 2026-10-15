@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy, onMount, untrack } from 'svelte';
 	import Icon from '#lib/ui/Icon.svelte';
-	import { canSpeak, speak } from '../audio.ts';
+	import { canSpeak, speak, voicesReady } from '../audio.ts';
 	import { activityWords, seeded } from '../generate.ts';
 	import type { StepResult } from '../types.ts';
 
@@ -18,8 +18,8 @@
 
 	// Each attempt is a new component, so the words are chosen once.
 	const list = untrack(() => activityWords(pool, focus, words, seeded(Date.now() % 100000)).slice(0, count));
-	// Without speech synthesis, the word is shown briefly and typed from memory instead.
-	const speech = canSpeak();
+	// Without a voice built into the device, the word is shown briefly and typed from memory instead.
+	let speech = $state(canSpeak());
 
 	let phase = $state<'ready' | 'playing' | 'over'>('ready');
 	let index = $state(0);
@@ -34,8 +34,10 @@
 		if (speech) speechSynthesis.cancel();
 	});
 	onMount(() => {
-		// Voices load asynchronously in some browsers.
-		if (speech) speechSynthesis.getVoices();
+		// Voices load asynchronously in some browsers; the mode is settled before the exercise starts.
+		void voicesReady().then(() => {
+			if (phase === 'ready') speech = canSpeak();
+		});
 	});
 
 	const word = $derived(list[index] ?? '');
@@ -113,7 +115,7 @@
 					You will hear {list.length} words, one at a time. Type each word, then press <kbd>Enter</kbd>. Press
 					<kbd>Enter</kbd> with an empty answer to hear the word again.
 				{:else}
-					Your browser cannot speak words aloud, so each word is shown for a moment instead. Type it from memory, then press
+					No voice is built into this device, so each word is shown for a moment instead. Type it from memory, then press
 					<kbd>Enter</kbd>.
 				{/if}
 			</p>

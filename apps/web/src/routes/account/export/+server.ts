@@ -17,6 +17,12 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	const courseRows = await d.select().from(schema.courseProgress).where(eq(schema.courseProgress.userId, user.id));
 	const courseDays = await d.select({ day: schema.courseDays.day }).from(schema.courseDays).where(eq(schema.courseDays.userId, user.id));
 	const [courseState] = await d.select().from(schema.courseState).where(eq(schema.courseState.userId, user.id));
+	const security = await d
+		.select({ type: schema.securityEvents.type, device: schema.securityEvents.device, at: schema.securityEvents.createdAt })
+		.from(schema.securityEvents)
+		.where(eq(schema.securityEvents.userId, user.id));
+	// Recovery codes are stored only as hashes, so their use is exported rather than the codes.
+	const codes = await d.select({ usedAt: schema.recoveryCodes.usedAt }).from(schema.recoveryCodes).where(eq(schema.recoveryCodes.userId, user.id));
 	const body = {
 		exportedAt: new Date().toISOString(),
 		account: { email: user.email, createdAt: user.createdAt },
@@ -31,6 +37,8 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			lessons: courseRows.map((r) => ({ ...r, userId: undefined })),
 			practiceDays: courseDays.map((r) => r.day)
 		},
+		securityActivity: security,
+		recoveryCodes: { total: codes.length, used: codes.filter((c) => c.usedAt).map((c) => c.usedAt) },
 		profilePicture: avatar ? { type: avatar.mime, base64: avatar.data, updatedAt: avatar.updatedAt } : null
 	};
 	return new Response(JSON.stringify(body, null, 2), {
