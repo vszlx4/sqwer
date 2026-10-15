@@ -64,7 +64,9 @@
 		{ kind: 'falling', title: 'Falling letters', body: 'Letters drop from the top. Type each one before it lands.' },
 		{ kind: 'rhythm', title: 'Rhythm keys', body: 'Notes travel down like piano keys. Press each on the beat.' },
 		{ kind: 'listen', title: 'Listen and type', body: 'Hear a word and type it, without seeing it first.' },
-		{ kind: 'drill', title: 'Guided drills', body: 'The next key and the finger to use are shown until you no longer need them.' }
+		{ kind: 'keyhunt', title: 'Key hunt', body: 'A key lights up. Find it by touch before its light runs out.' },
+		{ kind: 'race', title: 'Race', body: 'Type a passage before the pacer reaches the finish line.' },
+		{ kind: 'echo', title: 'Echo', body: 'Watch a sequence of keys, then repeat it from memory. It grows each round.' }
 	] as const;
 
 	const site = $derived(page.data.siteUrl ?? '');
@@ -169,8 +171,13 @@
 						{:else if g.kind === 'listen'}
 							<span class="wave">{#each [0, 1, 2, 3, 4, 5, 6] as n (n)}<span style:--n={n}></span>{/each}</span>
 							<span class="typed">steady<span class="caret"></span></span>
+						{:else if g.kind === 'keyhunt'}
+							<span class="hunt-row">{#each ['A', 'S', 'D', 'F', 'J', 'K', 'L'] as k, n (k)}<span class="hk" style:--d={`${[3, 0, 5, 1, 6, 2, 4][n]! * 0.6}s`}>{k}</span>{/each}</span>
+						{:else if g.kind === 'race'}
+							<span class="road"><span class="runner me"></span></span>
+							<span class="road"><span class="runner pace"></span></span>
 						{:else}
-							<span class="keys">{#each ['F', 'J', 'F', 'J'] as k, n (n)}<span class="k" style:--n={n}>{k}</span>{/each}</span>
+							<span class="echo-row">{#each [0, 1, 2, 3] as n (n)}<span class="ek" style:--n={n}></span>{/each}</span>
 						{/if}
 					</div>
 					<h3>{g.title}</h3>
@@ -185,7 +192,7 @@
 		<header class="section-head center" use:reveal>
 			<p class="kicker">Ranks and streaks</p>
 			<h2 id="ranks-title">Watch yourself grow.</h2>
-			<p>Earn stars in every lesson and climb ten ranks, from Fresh Fingers to Keyboard Legend. Your progress is measured against yourself, never against others.</p>
+			<p>Earn stars in every lesson and climb ten ranks, from Novice to Legend. Your progress is measured against yourself, never against others.</p>
 		</header>
 		<ol class="ladder" use:reveal>
 			{#each RANKS as r, i (r.level)}
@@ -501,7 +508,7 @@
 	}
 	.game-grid {
 		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: 14px;
 		margin-top: 40px;
 	}
@@ -595,6 +602,103 @@
 		height: 2px;
 		background: #f2f2ee;
 	}
+	.p-keyhunt,
+	.p-echo,
+	.p-race {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 16px;
+		padding: 0 18px;
+	}
+	.hunt-row,
+	.echo-row {
+		display: flex;
+		gap: 6px;
+	}
+	.hk,
+	.ek {
+		display: grid;
+		place-items: center;
+		width: 30px;
+		height: 32px;
+		border-radius: 3px;
+		border: 1px solid #333;
+		border-bottom-width: 3px;
+		background: #161616;
+		color: #b9b9b3;
+		font-family: var(--font-mono);
+		font-size: 13px;
+		font-weight: 700;
+	}
+	/* One key at a time lights up, in a hunting order. */
+	.hk {
+		animation: hunt 4.2s steps(1) infinite;
+		animation-delay: var(--d);
+	}
+	@keyframes hunt {
+		0%,
+		14% {
+			background: var(--accent);
+			border-color: var(--accent);
+			color: #111;
+		}
+		15%,
+		100% {
+			background: #161616;
+		}
+	}
+	.ek {
+		width: 38px;
+		height: 38px;
+		animation: echo 3.2s ease infinite;
+		animation-delay: calc(var(--n) * 0.4s);
+	}
+	@keyframes echo {
+		0%,
+		22% {
+			background: #161616;
+		}
+		8% {
+			background: var(--accent);
+			border-color: var(--accent);
+		}
+		60%,
+		100% {
+			background: color-mix(in srgb, var(--green) 40%, #161616);
+			border-color: var(--green);
+		}
+	}
+	.road {
+		position: relative;
+		width: 100%;
+		height: 24px;
+		border-radius: 3px;
+		background: #161616;
+		box-shadow: inset -3px 0 0 #f2f2ee;
+	}
+	.runner {
+		position: absolute;
+		top: 4px;
+		left: 4px;
+		width: 16px;
+		height: 16px;
+		border-radius: 3px;
+		animation: run 3.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
+	.runner.me {
+		background: var(--accent);
+	}
+	.runner.pace {
+		background: #9a8cf2;
+		animation-duration: 4.4s;
+	}
+	@keyframes run {
+		to {
+			left: calc(100% - 22px);
+		}
+	}
 	.p-listen {
 		display: flex;
 		flex-direction: column;
@@ -644,44 +748,6 @@
 			opacity: 0;
 		}
 	}
-	.p-drill {
-		display: grid;
-		place-items: center;
-	}
-	.keys {
-		display: flex;
-		gap: 8px;
-	}
-	.k {
-		display: grid;
-		place-items: center;
-		width: 40px;
-		height: 40px;
-		border-radius: 3px;
-		border: 1px solid #3a3a3a;
-		border-bottom-width: 3px;
-		background: #181818;
-		color: #f2f2ee;
-		font-family: var(--font-mono);
-		font-weight: 700;
-		animation: press 2.4s ease-in-out infinite;
-		animation-delay: calc(var(--n) * 0.6s);
-	}
-	@keyframes press {
-		0%,
-		20%,
-		100% {
-			background: #181818;
-			color: #f2f2ee;
-			transform: none;
-		}
-		8% {
-			background: var(--accent);
-			color: #111;
-			transform: translateY(2px);
-		}
-	}
-
 	/* ---------- Ranks ---------- */
 	.ranks {
 		--band: radial-gradient(ellipse 60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
@@ -843,7 +909,9 @@
 		.note,
 		.wave span,
 		.caret,
-		.k {
+		.hk,
+		.ek,
+		.runner {
 			animation: none;
 		}
 		.fl {

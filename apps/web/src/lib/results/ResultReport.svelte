@@ -1,4 +1,5 @@
 <script lang="ts">
+	import CountUp from '#lib/ui/CountUp.svelte';
 	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
 	import { examById } from '#lib/exams.ts';
 	import { guidance } from '#lib/guidance.ts';
@@ -55,7 +56,7 @@
 </script>
 
 <section class="report" aria-labelledby="report-title">
-	<header class="head">
+	<header class="head rise" style:--i="0">
 		<h2 id="report-title">{exam?.title ?? 'Typing test'}</h2>
 		<p class="meta">
 			{record.label} · {when}
@@ -63,16 +64,16 @@
 		</p>
 	</header>
 
-	<div class="top">
+	<div class="top rise" style:--i="1">
 		<div class="numbers">
 			<div class="big">
 				<span class="label">WPM</span>
-				<span class="value" data-testid="result-wpm">{fmt(record.wpm)}</span>
+				<span class="value" data-testid="result-wpm"><CountUp value={record.wpm} /></span>
 				{#if previous}<span class="delta">{signed(record.wpm - previous.wpm)} on previous attempt</span>{/if}
 			</div>
 			<div class="big">
 				<span class="label">Accuracy</span>
-				<span class="value" data-testid="result-acc">{fmt(record.accuracy)}<small>%</small></span>
+				<span class="value" data-testid="result-acc"><CountUp value={record.accuracy} /><small>%</small></span>
 				{#if previous}<span class="delta">{signed(record.accuracy - previous.accuracy, ' points')} on previous attempt</span>{/if}
 			</div>
 			<dl class="mini">
@@ -91,7 +92,7 @@
 	</div>
 
 	{#if d}
-		<dl class="details">
+		<dl class="details rise" style:--i="2">
 			<div>
 				<dt>Characters</dt>
 				<dd>
@@ -140,7 +141,7 @@
 		</section>
 	{/if}
 
-	<div class="guidance">
+	<div class="guidance rise" style:--i="3">
 		<section class="insights" aria-labelledby="insights-title">
 			<h3 id="insights-title">What this result shows</h3>
 			<ul>
@@ -155,7 +156,7 @@
 		</section>
 	</div>
 
-	<div class="actions">
+	<div class="actions rise" style:--i="4">
 		{#if onnext}
 			<button type="button" class="btn" onclick={onnext}>New test <Icon name="arrow" size={16} /></button>
 		{/if}

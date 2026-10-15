@@ -9,11 +9,11 @@
 	interface Props {
 		keys: string[];
 		bpm: number;
-		notes: number;
+		target: number;
 		oncomplete: (r: StepResult) => void;
 	}
 
-	let { keys, bpm, notes, oncomplete }: Props = $props();
+	let { keys, bpm, target, oncomplete }: Props = $props();
 
 	interface Note {
 		id: number;
@@ -36,6 +36,10 @@
 	const COUNT_IN = 4;
 	const SOUND_KEY = 'sqwer:sound';
 	const rand = seeded(Date.now() % 100000);
+	/** Misses allowed before the round ends; the round also ends as soon as the target is hit. */
+	const MAX_MISSES = 6;
+	// Enough notes to reach the target with every allowed miss, so the track never runs out first.
+	const notes = untrack(() => target + MAX_MISSES);
 
 	/** One note per beat, with occasional rests, never more than twice in a row on one lane. */
 	function compose(): { id: number; lane: number; beat: number }[] {
@@ -120,17 +124,22 @@
 		});
 		if (changed) track = next;
 		const last = track[track.length - 1]!;
-		if (t > last.at + GOOD + 500) return end();
+		if (missed >= MAX_MISSES || t > last.at + GOOD + 500) return end();
 		frame = requestAnimationFrame(loop);
 	}
 
 	function end() {
+		if (phase === 'over') return;
 		phase = 'over';
 		cancelAnimationFrame(frame);
-		const hitRate = ((perfect + good) / notes) * 100;
-		const accuracy = ((perfect + good * 0.8) / notes) * 100;
-		const summary = `${perfect + good} of ${notes} notes on the beat (${perfect} perfect).`;
-		timers.push(setTimeout(() => oncomplete({ passed: hitRate >= 70, accuracy, summary }), 900));
+		const hits = perfect + good;
+		const judged = hits + missed;
+		const accuracy = judged ? ((perfect + good * 0.8) / judged) * 100 : 0;
+		const passed = hits >= target;
+		const summary = passed
+			? `${target} notes on the beat, ${perfect} of them perfect.`
+			: `${hits} of ${target} notes on the beat before ${MAX_MISSES} were missed.`;
+		timers.push(setTimeout(() => oncomplete({ passed, accuracy, summary }), 900));
 	}
 
 	function onkeydown(e: KeyboardEvent) {
@@ -162,6 +171,7 @@
 		track = track.map((n) => (n === candidate ? { ...n, judged } : n));
 		mark(lane, judged === 'perfect' ? 'Perfect' : 'Good');
 		if (sound) tone(LANE_NOTES[lane % LANE_NOTES.length]!);
+		if (perfect + good >= target) timers.push(setTimeout(end, 250));
 	}
 
 	const yOf = (n: Note) => HIT_Y - ((n.at - now) / LEAD) * HIT_Y;
@@ -171,7 +181,9 @@
 
 <div class="rhythm">
 	<div class="hud">
-		<span><b>{perfect + good}</b> / {notes} on the beat</span>
+		<span class="progress" aria-hidden="true"><span style:transform={`scaleX(${Math.min(1, (perfect + good) / target)})`}></span></span>
+		<span class="misses">{missed} / {MAX_MISSES} missed</span>
+		<span><b>{perfect + good}</b> / {target} on the beat</span>
 		<button type="button" class="sound" onclick={toggleSound} aria-pressed={sound} aria-label={sound ? 'Turn sound off' : 'Turn sound on'}>
 			<Icon name={sound ? 'volume' : 'mute'} size={15} /> Sound {sound ? 'on' : 'off'}
 		</button>
@@ -197,13 +209,13 @@
 		{#if phase === 'ready'}
 			<div class="overlay">
 				<p class="title">Rhythm keys</p>
-				<p>Press each key as its note reaches the line. Four clicks count you in.</p>
-				<p>Hit <b>{Math.ceil(notes * 0.7)}</b> of {notes} notes to pass.</p>
+				<p>Press each key as its note reaches the line. Four clicks count you in. The round ends after {MAX_MISSES} missed notes.</p>
+				<p class="goal">Hit {target} notes on the beat</p>
 				<button type="button" class="btn btn-primary" onclick={begin}>Start <kbd>Space</kbd></button>
 			</div>
 		{:else if phase === 'over'}
 			<div class="overlay" aria-live="polite">
-				<p class="title">{(perfect + good) / notes >= 0.7 ? 'In time!' : 'Try once more'}</p>
+				<p class="title">{perfect + good >= target ? 'Goal reached' : 'Not this time'}</p>
 				<p>{perfect} perfect · {good} good · {missed} missed{stray ? ` · ${stray} off beat` : ''}</p>
 			</div>
 		{/if}
@@ -219,7 +231,7 @@
 	.hud {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
+		gap: 14px;
 		font-size: 14.5px;
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
@@ -227,6 +239,32 @@
 	.hud b {
 		font-size: 20px;
 		color: var(--ink);
+	}
+	.progress {
+		flex: 1;
+		height: 8px;
+		border-radius: 3px;
+		background: var(--surface-2);
+		overflow: hidden;
+	}
+	.progress span {
+		display: block;
+		height: 100%;
+		background: linear-gradient(90deg, var(--green), var(--accent));
+		transform-origin: left;
+		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.misses {
+		color: var(--rose);
+		font-weight: 600;
+	}
+	.goal {
+		padding: 6px 12px;
+		border-radius: 3px;
+		background: var(--green-soft);
+		color: var(--green);
+		font-weight: 600;
+		font-size: 14px;
 	}
 	.sound {
 		display: inline-flex;
@@ -351,9 +389,6 @@
 	.overlay .title {
 		font-family: var(--font-serif);
 		font-size: 34px;
-		color: #f2f2ee;
-	}
-	.overlay b {
 		color: #f2f2ee;
 	}
 	.overlay kbd {

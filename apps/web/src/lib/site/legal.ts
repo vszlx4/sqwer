@@ -19,7 +19,7 @@ export const LEGAL_DOCUMENTS = {
 		ref: 'SQW-LGL-001',
 		title: 'Terms and Conditions',
 		href: '/terms',
-		version: '2.0',
+		version: '2.1',
 		effective: '15 October 2026',
 		effectiveIso: '2026-10-15',
 		summary: 'The agreement between you and sqwer: accounts, acceptable use, intellectual property, liability and disputes.'
@@ -28,7 +28,7 @@ export const LEGAL_DOCUMENTS = {
 		ref: 'SQW-LGL-002',
 		title: 'Privacy Policy',
 		href: '/privacy',
-		version: '2.0',
+		version: '2.1',
 		effective: '15 October 2026',
 		effectiveIso: '2026-10-15',
 		summary: 'What personal data sqwer processes, why, on what legal basis, for how long, with whom, and your rights.'
@@ -46,7 +46,7 @@ export const LEGAL_DOCUMENTS = {
 		ref: 'SQW-LGL-004',
 		title: 'Content and Copyright Policy',
 		href: '/copyright',
-		version: '1.0',
+		version: '1.1',
 		effective: '15 October 2026',
 		effectiveIso: '2026-10-15',
 		summary: 'Rules for profile pictures and other content you provide, and how to report infringement.'

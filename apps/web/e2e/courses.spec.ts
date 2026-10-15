@@ -15,28 +15,19 @@ async function proceed(page: Page) {
 	await page.keyboard.press('Enter');
 }
 
-/** Plays the rhythm game by pressing each lane's key as a note reaches the line. */
-async function playRhythm(page: Page) {
-	await page.evaluate(() => {
-		const lanes = [...document.querySelectorAll('.lane')];
-		const keys = lanes.map((l) => l.querySelector('.key')!.textContent!.trim().toLowerCase());
-		const line = document.querySelector('.line')!.getBoundingClientRect().top;
-		const pressed = new Set<Element>();
-		const frame = () => {
-			lanes.forEach((lane, i) => {
-				for (const note of lane.querySelectorAll('.note:not(.missed)')) {
-					const r = note.getBoundingClientRect();
-					if (Math.abs(r.top + r.height / 2 - line) < 6 && !pressed.has(note)) {
-						pressed.add(note);
-						document.body.dispatchEvent(new KeyboardEvent('keydown', { key: keys[i], bubbles: true }));
-					}
-				}
-			});
-			if (document.querySelector('.lane')) requestAnimationFrame(frame);
-		};
-		requestAnimationFrame(frame);
-	});
+/** Plays Key hunt: presses each key as it lights up, until the goal is reached. */
+async function playKeyHunt(page: Page) {
+	await expect(page.getByRole('button', { name: /^Start/ })).toBeVisible();
 	await page.keyboard.press('Space');
+	await expect(page.locator('.cap .char')).toBeVisible();
+	const cap = page.locator('.cap .char');
+	while (!(await page.locator('.outcome').isVisible())) {
+		if (await cap.isVisible()) {
+			const key = ((await cap.textContent()) ?? '').trim().toLowerCase();
+			if (key) await page.keyboard.press(key);
+		}
+		await page.waitForTimeout(60);
+	}
 }
 
 test('a guest can take the whole first lesson and is invited to keep it', async ({ page }) => {
@@ -52,18 +43,17 @@ test('a guest can take the whole first lesson and is invited to keep it', async 
 	await proceed(page);
 
 	await expect(page.getByRole('heading', { name: 'Get to know F and J' })).toBeVisible();
-	await typeDrill(page);
-	await proceed(page);
+	await expect(page.getByText('Step 2 of 3')).toBeVisible();
 	await typeDrill(page);
 	await proceed(page);
 
-	await expect(page.getByText('Rhythm keys')).toBeVisible();
-	await playRhythm(page);
+	await expect(page.locator('.overlay .title')).toHaveText('Key hunt');
+	await playKeyHunt(page);
 	await proceed(page);
 
 	await expect(page.getByText('Lesson 1 complete')).toBeVisible();
 	await expect(page.getByRole('img', { name: /of 3 stars/ })).toBeVisible();
-	await expect(page.getByRole('link', { name: 'Create an account' })).toBeFocused();
+	await expect(page.locator('#content').getByRole('link', { name: 'Create an account' })).toBeFocused();
 });
 
 test('later lessons need an account, but show what they teach', async ({ page }) => {
@@ -113,12 +103,12 @@ test('Tab restarts only the current exercise', async ({ page }) => {
 	await page.waitForSelector('[data-word]');
 	await expect(page.getByTestId('typing-input')).toBeFocused();
 	await page.keyboard.type('fff jjj ', { delay: 20 });
-	await expect(page.locator('.status')).toContainText('2 / 14');
+	await expect(page.locator('.status')).toContainText('2 / 10');
 	await expect(page.locator('[data-word] .correct').first()).toBeVisible();
 
 	await page.keyboard.press('Tab');
 	// The drill starts again with nothing typed; the completed introduction stays completed.
-	await expect(page.locator('.status')).toContainText('0 / 14');
+	await expect(page.locator('.status')).toContainText('0 / 10');
 	await expect(page.locator('[data-word] .correct')).toHaveCount(0);
 	await expect(page.getByTestId('typing-input')).toBeFocused();
 	await expect(page.getByRole('list', { name: 'Lesson steps' }).getByRole('listitem').first()).toHaveClass(/done/);

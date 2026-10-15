@@ -23,10 +23,10 @@
 		{/if}
 	</div>
 	<dl class="facts">
-		<div><dt>Points</dt><dd>{status.points}</dd></div>
-		<div><dt><Icon name="star" size={14} /> Stars</dt><dd>{stars}</dd></div>
-		<div><dt>Lessons</dt><dd>{completed}<small>/{LESSONS.length}</small></dd></div>
-		<div><dt><Icon name="flame" size={14} /> Streak</dt><dd>{courses.streak}<small> {courses.streak === 1 ? 'day' : 'days'}</small></dd></div>
+		<div class="violet"><dt><Icon name="trophy" size={14} /> Points</dt><dd>{status.points.toLocaleString('en')}</dd></div>
+		<div class="amber"><dt><Icon name="star" size={14} /> Stars</dt><dd>{stars}</dd></div>
+		<div class="green"><dt><Icon name="check" size={14} /> Lessons</dt><dd>{completed}<small>/{LESSONS.length}</small></dd></div>
+		<div class="orange"><dt><Icon name="flame" size={14} /> Streak</dt><dd>{courses.streak}<small> {courses.streak === 1 ? 'day' : 'days'}</small></dd></div>
 	</dl>
 </section>
 
@@ -68,7 +68,7 @@
 	.bar span {
 		display: block;
 		height: 100%;
-		background: var(--accent);
+		background: linear-gradient(90deg, var(--violet), var(--accent));
 		transition: width 800ms cubic-bezier(0.2, 0.7, 0.2, 1);
 	}
 	.to-next {
@@ -114,5 +114,17 @@
 		.facts {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
+	}
+	.facts .violet dt :global(svg) {
+		color: var(--violet);
+	}
+	.facts .amber dt :global(svg) {
+		color: var(--amber);
+	}
+	.facts .green dt :global(svg) {
+		color: var(--green);
+	}
+	.facts .orange dt :global(svg) {
+		color: var(--orange);
 	}
 </style>

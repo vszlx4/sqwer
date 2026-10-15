@@ -1,5 +1,6 @@
 <script lang="ts">
-	import Avatar from '#lib/account/Avatar.svelte';
+	import ProfileCard from '#lib/account/ProfileCard.svelte';
+	import { courses } from '#lib/courses/store.svelte.ts';
 	import { EXPERIENCE, GOALS, labelOf, PLATFORMS } from '#lib/profile.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
@@ -17,14 +18,36 @@
 		<p class="form-alert success" role="status">Your profile is complete. Thank you for setting up your account.</p>
 	{/if}
 
-	<header class="head">
-		<Avatar name={p.displayName} color={p.avatarColor} size={72} src={data.avatar} />
-		<div>
-			<h1>{p.displayName}</h1>
-			<p class="meta">@{p.username} · Member since {since}</p>
-			{#if p.bio}<p class="bio">{p.bio}</p>{/if}
-		</div>
-	</header>
+	<div class="rise" style:--i="0">
+		<ProfileCard
+			name={p.displayName}
+			username={p.username}
+			headline={p.headline}
+			pronouns={p.pronouns}
+			bio={p.bio}
+			avatarColor={p.avatarColor}
+			avatar={data.avatar}
+			banner={p.banner}
+			rank={courses.loaded ? courses.rank.rank : null}
+			level={1}
+			stats={courses.loaded
+				? [
+						{ label: 'Points', value: courses.rank.points.toLocaleString('en'), tone: 'violet' },
+						{ label: 'Lessons', value: String(Object.values(courses.progress).filter((x) => x.stars > 0).length), tone: 'green' },
+						{ label: 'Stars', value: String(Object.values(courses.progress).reduce((t, x) => t + x.stars, 0)), tone: 'amber' },
+						{ label: 'Streak', value: `${courses.streak} ${courses.streak === 1 ? 'day' : 'days'}`, tone: 'orange' }
+					]
+				: []}
+		>
+			<div class="card-foot">
+				<p class="meta">Member since {since} · {p.isPublic ? 'Public profile' : 'Private profile'}</p>
+				<div class="row">
+					<a class="btn" href="/account/profile">Customise profile</a>
+					{#if p.isPublic}<a class="btn" href={`/u/${p.username}`}>View public profile</a>{/if}
+				</div>
+			</div>
+		</ProfileCard>
+	</div>
 
 	<dl class="tiles">
 		<div class="tile"><dt>Experience</dt><dd>{labelOf(EXPERIENCE, p.experience)}</dd></div>
@@ -52,14 +75,6 @@
 			{#if data.recoveryCodes <= 2}<p class="warn">Few recovery codes remain. Generate a new set to keep access to your account.</p>{/if}
 			<a class="link-arrow" href="/account/security">Manage security <Icon name="arrow" size={16} /></a>
 		</section>
-		<section class="card">
-			<h2>Profile visibility</h2>
-			<p>{p.isPublic ? 'Your profile is public.' : 'Your profile is private. Only you can see it.'}</p>
-			<div class="row">
-				<a class="link-arrow" href="/account/profile">Edit profile <Icon name="arrow" size={16} /></a>
-				{#if p.isPublic}<a class="link-arrow" href={`/u/${p.username}`}>View public profile <Icon name="arrow" size={16} /></a>{/if}
-			</div>
-		</section>
 	</div>
 </div>
 
@@ -69,26 +84,19 @@
 		flex-direction: column;
 		gap: 28px;
 	}
-	.head {
+	.card-foot {
 		display: flex;
-		gap: 18px;
 		align-items: center;
-	}
-	h1 {
-		font-size: clamp(30px, 4vw, 42px);
-		line-height: 1.1;
-		overflow-wrap: anywhere;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 12px;
+		margin-top: 12px;
+		padding-top: 14px;
+		border-top: 1px solid var(--line);
 	}
 	.meta {
 		margin-top: 4px;
 		font-size: 14.5px;
-		color: var(--ink-2);
-	}
-	.bio {
-		margin-top: 8px;
-		max-width: 560px;
-		font-size: 15px;
-		line-height: 1.55;
 		color: var(--ink-2);
 	}
 	.tiles {
@@ -114,7 +122,7 @@
 	}
 	.grid {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 12px;
 	}
 	.card {

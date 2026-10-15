@@ -26,7 +26,13 @@
 			targetWpm: 60,
 			platform: 'mac',
 			avatarColor: 'lime',
-			isPublic: false
+			isPublic: false,
+			headline: '',
+			pronouns: '',
+			banner: 'lime',
+			showRank: true,
+			showStats: true,
+			showStreak: true
 		}}
 	/>
 </div>

@@ -2,30 +2,27 @@
 	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { autofocus } from '#lib/ui/autofocus.ts';
+	import { swap } from '#lib/ui/transition.ts';
 	import Dialog from '#lib/ui/Dialog.svelte';
-	import Icon, { type IconName } from '#lib/ui/Icon.svelte';
+	import Icon from '#lib/ui/Icon.svelte';
 	import { chapterOf, lessonAfter } from './catalog.ts';
 	import { drillTokens, seeded } from './generate.ts';
 	import LessonComplete from './LessonComplete.svelte';
 	import { lessonStars, rankFor } from './progression.ts';
 	import FallingGame from './steps/FallingGame.svelte';
 	import KeyIntro from './steps/KeyIntro.svelte';
+	import Echo from './steps/Echo.svelte';
+	import KeyHunt from './steps/KeyHunt.svelte';
 	import ListenType from './steps/ListenType.svelte';
+	import Race from './steps/Race.svelte';
 	import RhythmGame from './steps/RhythmGame.svelte';
 	import TypingDrill from './steps/TypingDrill.svelte';
+	import { STEP_INFO } from './stepInfo.ts';
 	import { courses } from './store.svelte.ts';
-	import type { Lesson, StepKind, StepResult } from './types.ts';
+	import type { Lesson, StepResult } from './types.ts';
 
 	let { lesson }: { lesson: Lesson } = $props();
 
-	const STEP_INFO: Record<StepKind, { icon: IconName; label: string }> = {
-		intro: { icon: 'hand', label: 'Meet the keys' },
-		drill: { icon: 'keyboard', label: 'Practice' },
-		falling: { icon: 'layers', label: 'Falling game' },
-		rhythm: { icon: 'volume', label: 'Rhythm game' },
-		listen: { icon: 'volume', label: 'Listen and type' },
-		checkpoint: { icon: 'flag', label: 'Checkpoint' }
-	};
 
 	let index = $state(0);
 	let attempt = $state(0);
@@ -45,6 +42,8 @@
 	}>(null);
 
 	const step = $derived(lesson.steps[index]!);
+	/** Share of the lesson done: completed steps, counting a step as soon as it is passed. */
+	const progress = $derived(complete ? 1 : (index + (outcome?.passed ? 1 : 0)) / lesson.steps.length);
 	const chapter = $derived(chapterOf(lesson));
 	const next = $derived(lessonAfter(lesson));
 	// New text for every attempt, so a retry is practice rather than memorisation of one passage.
@@ -55,23 +54,29 @@
 	});
 
 	function done(r: StepResult) {
-		outcome = r;
+		swap(() => (outcome = r));
 	}
 
 	async function proceed() {
 		if (!outcome) return;
-		if (!outcome.passed) {
-			outcome = null;
-			attempt++;
+		const current = outcome;
+		if (!current.passed) {
+			swap(() => {
+				outcome = null;
+				attempt++;
+			});
 			return;
 		}
-		results = [...results, outcome];
-		outcome = null;
 		if (index + 1 < lesson.steps.length) {
-			index++;
-			attempt++;
+			swap(() => {
+				results = [...results, current];
+				outcome = null;
+				index++;
+				attempt++;
+			});
 			return;
 		}
+		results = [...results, current];
 		await finish();
 	}
 
@@ -83,14 +88,17 @@
 		const before = courses.rank;
 		const bestBefore = courses.progress[lesson.id]?.stars ?? 0;
 		const saved = await courses.record(lesson.id, stars, accuracy, wpm);
-		complete = { stars, accuracy, wpm, before, after: courses.rank, bestBefore, saved };
+		swap(() => {
+			outcome = null;
+			complete = { stars, accuracy, wpm, before, after: courses.rank, bestBefore, saved };
+		});
 	}
 
 	/**
 	 * Games depend on reaction time, sight or hearing. After a failed attempt they can be left out,
 	 * so that no learner is blocked by them; a skipped game does not count towards stars.
 	 */
-	const isGame = $derived(step.kind === 'falling' || step.kind === 'rhythm');
+	const isGame = $derived(['falling', 'rhythm', 'keyhunt', 'race', 'echo'].includes(step.kind));
 	function skipGame() {
 		outcome = { passed: true, graded: false, accuracy: 0, summary: 'Game skipped.' };
 		void proceed();
@@ -155,6 +163,12 @@
 				</li>
 			{/each}
 		</ol>
+		<div class="lesson-progress">
+			<div class="lesson-bar" role="progressbar" aria-label="Lesson progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}>
+				<span style:transform={`scaleX(${progress})`}></span>
+			</div>
+			<span class="lesson-count">{complete ? 'Complete' : `Step ${index + 1} of ${lesson.steps.length}`}</span>
+		</div>
 	</header>
 
 	<div class="body">
@@ -191,9 +205,15 @@
 						<h2 class="step-title">Checkpoint</h2>
 						<TypingDrill {tokens} seconds={step.seconds} minAccuracy={step.minAccuracy} minWpm={step.minWpm} bind:hints oncomplete={done} />
 					{:else if step.kind === 'falling'}
-						<FallingGame items={step.items} pool={step.pool} focus={step.focus} words={step.words} seconds={step.seconds} target={step.target} oncomplete={done} />
+						<FallingGame items={step.items} pool={step.pool} focus={step.focus} words={step.words} target={step.target} oncomplete={done} />
 					{:else if step.kind === 'rhythm'}
-						<RhythmGame keys={step.keys} bpm={step.bpm} notes={step.notes} oncomplete={done} />
+						<RhythmGame keys={step.keys} bpm={step.bpm} target={step.target} oncomplete={done} />
+					{:else if step.kind === 'keyhunt'}
+						<KeyHunt pool={step.pool} focus={step.focus} target={step.target} oncomplete={done} />
+					{:else if step.kind === 'race'}
+						<Race pool={step.pool} focus={step.focus} words={step.words} count={step.count} pacerWpm={step.pacerWpm} oncomplete={done} />
+					{:else if step.kind === 'echo'}
+						<Echo pool={step.pool} start={step.start} target={step.target} oncomplete={done} />
 					{:else if step.kind === 'listen'}
 						<ListenType pool={step.pool} focus={step.focus} words={step.words} count={step.count} target={step.target} oncomplete={done} />
 					{/if}
@@ -288,10 +308,40 @@
 		color: var(--ink);
 		font-weight: 600;
 	}
-	.track li.current .dot,
-	.track li.done .dot {
+	.track li.current .dot {
 		background: var(--accent);
 		color: var(--on-accent);
+	}
+	.track li.done .dot {
+		background: var(--green);
+		color: var(--bg);
+	}
+	.lesson-progress {
+		grid-column: 1 / -1;
+		display: flex;
+		align-items: center;
+		gap: 14px;
+	}
+	.lesson-bar {
+		flex: 1;
+		height: 8px;
+		border-radius: 3px;
+		background: var(--surface-2);
+		overflow: hidden;
+	}
+	.lesson-bar span {
+		display: block;
+		height: 100%;
+		background: linear-gradient(90deg, var(--green), var(--accent));
+		transform-origin: left;
+		transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.lesson-count {
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--ink-2);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
 	}
 	.body {
 		min-height: 420px;

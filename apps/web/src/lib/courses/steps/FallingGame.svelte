@@ -8,12 +8,11 @@
 		pool: string;
 		focus: string;
 		words?: readonly string[];
-		seconds: number;
 		target: number;
 		oncomplete: (r: StepResult) => void;
 	}
 
-	let { items, pool, focus, words, seconds, target, oncomplete }: Props = $props();
+	let { items, pool, focus, words, target, oncomplete }: Props = $props();
 
 	interface Drop {
 		id: number;
@@ -30,7 +29,7 @@
 
 	const HEIGHT = 420;
 	const GROUND = HEIGHT - 46;
-	const LIVES = 3;
+	const LIVES = 5;
 	const rand = seeded(Date.now() % 100000);
 	// Each attempt is a new component, so the content is chosen once from the initial settings.
 	const wordList = untrack(() => (items === 'words' ? activityWords(pool, focus, words, rand) : []));
@@ -46,7 +45,6 @@
 	let dropped = $state(0);
 	let presses = $state(0);
 	let correct = $state(0);
-	let elapsed = $state(0);
 	let shake = $state(false);
 	let nextId = 0;
 	let spawnIn = 0;
@@ -59,7 +57,8 @@
 		timers.forEach(clearTimeout);
 	});
 
-	const pace = $derived(Math.min(1, elapsed / seconds));
+	// The game speeds up as the learner gets closer to the target, not with time.
+	const pace = $derived(Math.min(1, cleared / target));
 
 	function nextText(): string {
 		if (items === 'letters') return letterBag[Math.floor(rand() * letterBag.length)]!;
@@ -99,7 +98,6 @@
 		if (phase !== 'playing') return;
 		const dt = Math.min(0.05, (t - last) / 1000);
 		last = t;
-		elapsed += dt;
 		spawnIn -= dt;
 		const maxOnScreen = items === 'letters' ? 6 : 4;
 		if (spawnIn <= 0 && drops.length < maxOnScreen) {
@@ -122,16 +120,19 @@
 			timers.push(setTimeout(() => (shake = false), 300));
 			if (items === 'words' && !drops.some((d) => d.text.startsWith(buffer))) buffer = '';
 		}
-		if (lives === 0 || elapsed >= seconds) return end();
+		if (lives === 0) return end();
 		frame = requestAnimationFrame(loop);
 	}
 
 	function end() {
+		if (phase === 'over') return;
 		phase = 'over';
 		cancelAnimationFrame(frame);
 		const accuracy = presses ? (correct / presses) * 100 : 0;
 		const passed = cleared >= target;
-		const summary = `${cleared} cleared${dropped ? `, ${dropped} landed` : ''}${lives === 0 ? ', no lives left' : ''}. Goal: ${target}.`;
+		const summary = passed
+			? `All ${target} cleared${dropped ? `, with ${dropped} landed` : ' without a single one landing'}.`
+			: `${cleared} of ${target} cleared before the last life was lost.`;
 		timers.push(setTimeout(() => oncomplete({ passed, accuracy, summary }), 900));
 	}
 
@@ -141,6 +142,7 @@
 		timers.push(setTimeout(() => (bursts = bursts.filter((b) => b !== burst)), 500));
 		drops = drops.filter((x) => x.id !== d.id);
 		cleared++;
+		if (cleared >= target) end();
 	}
 
 	function press(ch: string) {
@@ -207,8 +209,8 @@
 		<span class="lives" aria-label={`${lives} of ${LIVES} lives left`}>
 			{#each Array.from({ length: LIVES }) as _, i (i)}<span class="life" class:lost={i >= lives}></span>{/each}
 		</span>
+		<span class="progress" aria-hidden="true"><span style:transform={`scaleX(${Math.min(1, cleared / target)})`}></span></span>
 		<span class="score"><b>{cleared}</b> / {target} cleared</span>
-		<span class="clock"><b>{Math.max(0, Math.ceil(seconds - elapsed))}</b> s</span>
 	</div>
 
 	<div class="field" class:shake style:height={`${HEIGHT}px`} aria-hidden={phase === 'playing'}>
@@ -227,8 +229,8 @@
 		{#if phase === 'ready'}
 			<div class="overlay">
 				<p class="title">{items === 'letters' ? 'Falling letters' : 'Falling words'}</p>
-				<p>Type each {items === 'letters' ? 'letter' : 'word'} before it lands. Three may land before the game ends.</p>
-				<p>Clear <b>{target}</b> to pass.</p>
+				<p>Type each {items === 'letters' ? 'letter' : 'word'} before it lands. They fall faster as you get closer to the goal; {LIVES} may land before the game ends.</p>
+				<p class="goal">Clear {target} {items === 'letters' ? 'letters' : 'words'}</p>
 				<button type="button" class="btn btn-primary" onclick={start}>Start <kbd>Space</kbd></button>
 			</div>
 		{:else if phase === 'countdown'}
@@ -240,7 +242,7 @@
 			</div>
 		{:else if phase === 'over'}
 			<div class="overlay" aria-live="polite">
-				<p class="title">{cleared >= target ? 'Cleared!' : 'Time to try again'}</p>
+				<p class="title">{cleared >= target ? 'Goal reached' : 'Not this time'}</p>
 				<p>{cleared} of {target} cleared</p>
 			</div>
 		{/if}
@@ -270,10 +272,32 @@
 		display: inline-flex;
 		gap: 6px;
 	}
+	.progress {
+		flex: 1;
+		height: 8px;
+		border-radius: 3px;
+		background: var(--surface-2);
+		overflow: hidden;
+	}
+	.progress span {
+		display: block;
+		height: 100%;
+		background: linear-gradient(90deg, var(--green), var(--accent));
+		transform-origin: left;
+		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.goal {
+		padding: 6px 12px;
+		border-radius: 3px;
+		background: var(--green-soft);
+		color: var(--green);
+		font-weight: 600;
+		font-size: 14px;
+	}
 	.life {
-		width: 18px;
-		height: 18px;
-		background: var(--error);
+		width: 16px;
+		height: 16px;
+		background: var(--rose);
 		clip-path: polygon(50% 100%, 0 38%, 12% 8%, 34% 4%, 50% 20%, 66% 4%, 88% 8%, 100% 38%);
 		transition:
 			opacity 200ms ease,

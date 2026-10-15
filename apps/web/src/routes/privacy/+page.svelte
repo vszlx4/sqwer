@@ -152,7 +152,7 @@
 			<tbody>
 				<tr><th scope="row">Account</th><td>Your email address and a one-way hash of your password (scrypt). Your password itself is never stored.</td></tr>
 				<tr><th scope="row">Records of acceptance</th><td>The version of the Terms and Conditions and Privacy Policy you accepted at registration and the time of acceptance, and the time you confirmed that you are at least 16 years old.</td></tr>
-				<tr><th scope="row">Profile</th><td>Display name, username, biography, typing experience, goal, target speed, keyboard type, avatar colour and whether your profile is public.</td></tr>
+				<tr><th scope="row">Profile</th><td>Display name, username, and optionally a headline, pronouns and biography; typing experience, goal, target speed, keyboard type, avatar colour, banner style, which showcase items to display, and whether your profile is public. Pronouns are optional and shown only if you enter them; do not enter information you do not want others to see.</td></tr>
 				<tr><th scope="row">Profile picture</th><td>If you upload one: a 256 × 256 pixel image, cropped and re-encoded in your browser before upload, which removes embedded information such as location and camera details; and the time you confirmed that you hold the rights to it.</td></tr>
 				<tr><th scope="row">Examination results</th><td>For each test or assessment, including attempts not completed: speed, accuracy, a per-second timeline, the words shown, the time taken for each word and the sequence of keystrokes, so that the result can be replayed.</td></tr>
 				<tr><th scope="row">Course progress</th><td>For each lesson: the best stars, accuracy and speed, the number of attempts and when it was first completed; the calendar days on which you completed a lesson (for your streak); the level you described and the lesson you chose to start from. Points and ranks are calculated from these.</td></tr>
@@ -450,9 +450,11 @@
 
 	<h2 id="public">17. Public profiles</h2>
 	<p>
-		17.1. Your profile is private by default. If you make it public, your profile picture, display name, username,
-		biography, experience, goal, target speed, keyboard type, membership date and a summary of your finger map become
-		visible to anyone at your profile address. Your email address is never shown. Public profiles instruct search engines
+		17.1. Your profile is private by default. If you make it public, your profile picture, banner, display name,
+		username, headline, pronouns, biography, experience, goal, target speed, keyboard type, membership date and a summary
+		of your finger map become visible to anyone at your profile address, together with the showcase items you choose:
+		your course rank and points, your best speed and accuracy and the number of lessons completed, and your daily
+		streak. Each showcase item can be switched off. Your email address is never shown. Public profiles instruct search engines
 		not to index them. You can make your profile private again at any time from <strong>Account → Profile</strong>.
 	</p>
 
@@ -487,7 +489,8 @@
 				<tr><th scope="col">Version</th><th scope="col">Effective</th><th scope="col">Changes</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>2.0</td><td>{doc.effective}</td><td>Controller named; records of acceptance and picture rights confirmation; new verification check; principles, security, breach and regional sections expanded.</td></tr>
+				<tr><td>2.1</td><td>{doc.effective}</td><td>Profile headline, pronouns, banner and showcase choices, and what public profiles show.</td></tr>
+				<tr><td>2.0</td><td>15 October 2026</td><td>Controller named; records of acceptance and picture rights confirmation; new verification check; principles, security, breach and regional sections expanded.</td></tr>
 				<tr><td>1.0</td><td>14 October 2026</td><td>First published version.</td></tr>
 			</tbody>
 		</table>

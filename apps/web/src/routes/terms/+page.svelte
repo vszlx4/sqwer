@@ -86,7 +86,7 @@
 		<dt>“Progress”</dt>
 		<dd>Stars, points, ranks, streaks, completed lessons and similar indicators of your advancement in the Courses.</dd>
 		<dt>“Your Content”</dt>
-		<dd>Any material you provide to the Service, namely your display name, username, biography and profile picture.</dd>
+		<dd>Any material you provide to the Service, namely your display name, username, headline, pronouns, biography and profile picture.</dd>
 		<dt>“we”, “us”, “our”</dt>
 		<dd>The operator of sqwer identified in section 3.</dd>
 		<dt>“you”, “your”</dt>
