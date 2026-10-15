@@ -12,7 +12,8 @@
 | --- | --- | --- |
 | `PUBLIC_SITE_URL` | **Yes, at build time and run time** | Public origin, for example `https://sqwer.example`. Used for CSRF protection of forms, canonical URLs, the sitemap and social previews. Build with the same value you serve. |
 | `DATABASE_URL` | Yes in production | PostgreSQL connection string for the application role (see below). Without it, an embedded PostgreSQL is stored in `SQWER_DATA_DIR`. |
-| `CAPTCHA_HMAC_SECRET`, `CAPTCHA_HMAC_KEY_SECRET` | Recommended | Secrets that sign bot-check challenges. Generated and stored in `SQWER_DATA_DIR/secrets.json` when absent. |
+| `DATABASE_CA_FILE` | With a hosted database | Certificate authority of the database server (for Supabase, `supabase-ca.crt`), so the TLS connection is verified. A relative path is resolved next to the `.env` file. |
+| `CAPTCHA_HMAC_SECRET`, `CAPTCHA_HMAC_KEY_SECRET` | Recommended | Secrets that sign the verification challenges (proof of work and the typed challenge). Generated and stored in `SQWER_DATA_DIR/secrets.json` when absent. |
 | `LOG_HASH_SECRET` | Recommended | Key used to hash IP addresses in security logs. Generated when absent. |
 | `SQWER_DATA_DIR` | No | Directory for the embedded database and generated secrets. Defaults to `.data` in the working directory. |
 | `BODY_SIZE_LIMIT` | No | Maximum request body size. The start script sets `6M`, enough for a large finger map. |
@@ -68,9 +69,20 @@ tables. Run the owner role again only when deploying a version with new migratio
 - All sessions are ended when a password is changed or reset; recovery codes are single-use.
 - Generic error messages and constant-time password checks prevent account enumeration.
 - Account lock for 15 minutes after five failed sign-ins; rate limits on sign-up, sign-in, password reset and APIs.
-- Self-hosted proof-of-work bot check, hidden trap field and minimum form-fill time on account forms.
+- sqwer's own verification on account forms: a background proof-of-work check plus distorted characters to type, with a text question as an accessible alternative; every challenge is signed, expires after ten minutes and is single-use. Also a hidden trap field and a minimum form-fill time.
+- Content Security Policy limiting scripts, styles, images, fonts and connections to the site's own origin, with a nonce for inline scripts; `frame-ancestors 'none'`.
+- Acceptance of the Terms and Privacy Policy (version and time), the age confirmation, and the rights confirmation for profile pictures are recorded.
 - Input validated and sanitised (control and direction-override characters removed) before storage; output escaped.
 - Security events written as structured JSON to standard output, with IP addresses hashed; recent events shown to the user.
 - Security headers: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`.
 
 Rate limits are held in memory and apply per server process. If you run several instances, move them to a shared store.
+
+## Recurring tasks
+
+- **Backups:** schedule `npm run db:backup -w web` daily (for example with cron). It keeps 14 days of backups in
+  `apps/web/backups`, as the Privacy Policy states.
+- **security.txt:** `/.well-known/security.txt` expires one year after the security policy's effective date. Review the
+  policy and update its date in `apps/web/src/lib/site/legal.ts` before then.
+- **Legal documents:** when a document changes in substance, raise its version and effective date in
+  `apps/web/src/lib/site/legal.ts` and add a line to its version history.

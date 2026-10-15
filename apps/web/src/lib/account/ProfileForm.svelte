@@ -16,6 +16,7 @@
 	import { untrack } from 'svelte';
 	import { enhance } from '$app/forms';
 	import Field from '#lib/ui/Field.svelte';
+	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import {
 		AVATAR_COLORS,
 		EXPERIENCE,
@@ -109,6 +110,7 @@
 		{/if}
 
 		{#if errors.form}<p class="form-alert" role="alert">{errors.form}</p>{/if}
+		<RequiredNote />
 
 		<fieldset hidden={!showStep(0)}>
 			<legend>About you</legend>
@@ -125,12 +127,12 @@
 				hint={usernameStatus?.message ?? USERNAME_RULE}
 				error={errors.username ?? (usernameStatus && !usernameStatus.ok ? usernameStatus.message : null)}
 			/>
-			<Field label="Short bio (optional)" name="bio" multiline maxlength={280} rows={3} bind:value={v.bio} error={errors.bio} hint={`${String(v.bio ?? '').length}/280 characters`} />
+			<Field label="Short bio" name="bio" multiline maxlength={280} rows={3} bind:value={v.bio} error={errors.bio} hint={`${String(v.bio ?? '').length}/280 characters`} />
 		</fieldset>
 
 		<fieldset hidden={!showStep(1)}>
-			<legend>Typing experience</legend>
-			<div class="options" role="radiogroup" aria-label="Typing experience">
+			<legend>Typing experience<span class="req" aria-hidden="true"></span></legend>
+			<div class="options" role="radiogroup" aria-label="Typing experience" aria-required="true">
 				{#each EXPERIENCE as o (o.value)}
 					<label class="option" class:selected={v.experience === o.value}>
 						<input type="radio" name="experience" value={o.value} bind:group={v.experience} />
@@ -141,8 +143,8 @@
 			</div>
 			{#if errors.experience}<p class="error">{errors.experience}</p>{/if}
 
-			<p class="group-label" id="goal-label">Main goal</p>
-			<div class="options" role="radiogroup" aria-labelledby="goal-label">
+			<p class="group-label" id="goal-label">Main goal<span class="req" aria-hidden="true"></span></p>
+			<div class="options" role="radiogroup" aria-labelledby="goal-label" aria-required="true">
 				{#each GOALS as o (o.value)}
 					<label class="option" class:selected={v.goal === o.value}>
 						<input type="radio" name="goal" value={o.value} bind:group={v.goal} />
@@ -157,8 +159,8 @@
 		</fieldset>
 
 		<fieldset hidden={!showStep(2)}>
-			<legend>Keyboard</legend>
-			<div class="options two" role="radiogroup" aria-label="Keyboard type">
+			<legend>Keyboard<span class="req" aria-hidden="true"></span></legend>
+			<div class="options two" role="radiogroup" aria-label="Keyboard type" aria-required="true">
 				{#each PLATFORMS as o (o.value)}
 					<label class="option" class:selected={v.platform === o.value}>
 						<input type="radio" name="platform" value={o.value} bind:group={v.platform} />
@@ -172,9 +174,9 @@
 
 		<fieldset hidden={!showStep(3)}>
 			<legend>Visibility</legend>
-			<p class="group-label" id="color-label">Avatar colour</p>
+			<p class="group-label" id="color-label">Avatar colour<span class="req" aria-hidden="true"></span></p>
 			<p class="note">Used when you do not have a profile picture.{#if mode === 'setup'} You can upload a picture later in your profile settings.{/if}</p>
-			<div class="swatches" role="radiogroup" aria-labelledby="color-label">
+			<div class="swatches" role="radiogroup" aria-labelledby="color-label" aria-required="true">
 				{#each AVATAR_COLORS as c (c.value)}
 					<label class="swatch" class:selected={v.avatarColor === c.value} title={c.label}>
 						<input type="radio" name="avatarColor" value={c.value} bind:group={v.avatarColor} aria-label={c.label} />

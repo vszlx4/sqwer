@@ -21,7 +21,7 @@
 </script>
 
 <div class="field" class:invalid={!!error}>
-	<label for={fieldId}>{label}</label>
+	<label for={fieldId}>{label}{#if rest.required}<span class="req" aria-hidden="true"></span>{/if}</label>
 	{#if multiline}
 		<textarea
 			id={fieldId}

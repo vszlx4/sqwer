@@ -54,11 +54,23 @@
 		},
 		{
 			q: 'Does sqwer use cookies or tracking?',
-			a: 'sqwer sets one strictly necessary cookie to keep you signed in, and stores your settings and practice data in your browser. It does not use advertising, analytics or tracking technologies. The Cookie Policy lists everything.'
+			a: 'sqwer sets one strictly necessary cookie to keep you signed in, and stores your settings and practice data in your browser. It does not use advertising, analytics or tracking technologies. The Cookie and Storage Policy lists everything.'
 		},
 		{
 			q: 'Where is my data stored?',
 			a: 'Without an account, only in your browser. With an account, in a database in the European Union (Ireland). You can download or delete it at any time from Account → Your data. The Privacy Policy explains the details.'
+		},
+		{
+			q: 'Why do account forms ask me to type characters?',
+			a: 'It is a verification check that keeps automated sign-ups and password guessing away. sqwer runs it itself: no third party is involved and no cookie is set. If you cannot read the characters, choose “Use a text question” to answer a short question instead.'
+		},
+		{
+			q: 'Which pictures can I use for my profile?',
+			a: 'Only pictures you took or created yourself, or that you have permission to use. Do not upload photographs of other people without their consent, or logos, artwork or images found online. The Content and Copyright Policy explains the rules and how rights holders can report a picture.'
+		},
+		{
+			q: 'I cannot complete a game in a lesson. What can I do?',
+			a: 'Games depend on quick reactions. After an unsuccessful attempt, choose “Continue without this game” to move on; a skipped game does not count towards your stars. The Accessibility Statement describes other options.'
 		}
 	];
 

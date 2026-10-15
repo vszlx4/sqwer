@@ -9,7 +9,7 @@ import {
 	hashPassword,
 	setSessionCookie
 } from '#lib/server/auth.ts';
-import { verifyCaptcha } from '#lib/server/captcha.ts';
+import { CAPTCHA_MESSAGES, verifyCaptcha } from '#lib/server/captcha.ts';
 import { logSecurity } from '#lib/server/security-log.ts';
 import { rateLimit, rateLimitMessage } from '#lib/server/rate-limit.ts';
 import { emailSchema, passwordSchema } from '#lib/server/validation.ts';
@@ -32,8 +32,10 @@ export const actions: Actions = {
 			await logSecurity('rate_limited', { ip, detail: 'reset' });
 			return fail(429, { values, errors: { form: rateLimitMessage(Math.max(ipLimit.retryAfter, emailLimit.retryAfter)) } });
 		}
-		if (!(await verifyCaptcha(form.get('altcha')))) {
-			return fail(400, { values, errors: { captcha: 'Please complete the verification.' } });
+		const captcha = await verifyCaptcha(form);
+		if (captcha !== 'ok') {
+			await logSecurity('captcha_failed', { ip, detail: 'reset' });
+			return fail(400, { values, errors: { captcha: CAPTCHA_MESSAGES[captcha] } });
 		}
 
 		const password = String(form.get('password') ?? '');

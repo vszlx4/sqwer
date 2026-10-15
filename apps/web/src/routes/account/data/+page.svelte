@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import Seo from '#lib/site/Seo.svelte';
 	import Field from '#lib/ui/Field.svelte';
+	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -47,6 +48,7 @@
 		</p>
 		{#if confirming || form?.errors}
 			<form method="POST" action="?/delete" class="form" use:enhance novalidate>
+				<RequiredNote />
 				<Field label="Password" name="password" type="password" autocomplete="current-password" required error={errors.password} />
 				<Field label="Type DELETE to confirm" name="confirm" autocomplete="off" required error={errors.confirm} />
 				<div class="row">

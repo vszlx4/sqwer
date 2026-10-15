@@ -4,6 +4,7 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import ConfirmForm from '#lib/ui/ConfirmForm.svelte';
 	import Field from '#lib/ui/Field.svelte';
+	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import { PASSWORD_RULE } from '#lib/profile.ts';
 	import type { PageProps } from './$types';
 
@@ -27,6 +28,7 @@
 		<form method="POST" action="?/password" class="form" use:enhance novalidate>
 			{#if errorsFor('password').form}<p class="form-alert" role="alert">{errorsFor('password').form}</p>{/if}
 			{#if successFor('password')}<p class="form-alert success" role="status">{successFor('password')}</p>{/if}
+			<RequiredNote />
 			<Field label="Current password" name="currentPassword" type="password" autocomplete="current-password" required error={errorsFor('password').currentPassword} />
 			<Field label="New password" name="newPassword" type="password" autocomplete="new-password" required hint={PASSWORD_RULE} error={errorsFor('password').newPassword} />
 			<Field label="Confirm new password" name="confirmPassword" type="password" autocomplete="new-password" required error={errorsFor('password').confirmPassword} />
@@ -45,6 +47,7 @@
 		{:else}
 			<form method="POST" action="?/codes" class="form inline" use:enhance novalidate>
 				{#if errorsFor('codes').form}<p class="form-alert" role="alert">{errorsFor('codes').form}</p>{/if}
+				<RequiredNote />
 				<Field label="Confirm with your password" name="password" type="password" autocomplete="current-password" required error={errorsFor('codes').password} />
 				<button class="btn" type="submit">Generate new recovery codes</button>
 			</form>
