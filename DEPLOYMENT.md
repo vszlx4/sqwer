@@ -12,6 +12,7 @@
 | --- | --- | --- |
 | `PUBLIC_SITE_URL` | **Yes, at build time and run time** | Public origin, for example `https://sqwer.example`. Used for CSRF protection of forms, canonical URLs, the sitemap and social previews. Build with the same value you serve. |
 | `DATABASE_URL` | Yes in production | PostgreSQL connection string for the application role (see below). Without it, an embedded PostgreSQL is stored in `SQWER_DATA_DIR`. |
+| `DATABASE_URL` with Supabase | | Use the **session pooler** address (Supabase dashboard: Connect, then Session pooler), for example `postgresql://postgres.<project-ref>:<password>@aws-0-eu-west-1.pooler.supabase.com:5432/postgres`. The direct `db.<project-ref>.supabase.co` host has only an IPv6 address and fails with `ENOTFOUND` on networks without IPv6. |
 | `DATABASE_CA_FILE` | With a hosted database | Certificate authority of the database server (for Supabase, `supabase-ca.crt`), so the TLS connection is verified. A relative path is resolved next to the `.env` file. |
 | `CAPTCHA_HMAC_SECRET`, `CAPTCHA_HMAC_KEY_SECRET` | Recommended | Secrets that sign the verification challenges (proof of work and the typed challenge). Generated and stored in `SQWER_DATA_DIR/secrets.json` when absent. |
 | `LOG_HASH_SECRET` | Recommended | Key used to hash IP addresses in security logs. Generated when absent. |
