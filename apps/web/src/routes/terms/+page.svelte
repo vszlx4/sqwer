@@ -3,9 +3,8 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import { CONTACT_EMAIL, LEGAL } from '#lib/site/links.ts';
 
-	const operator = LEGAL.operatorName
-		? `${LEGAL.operatorName}${LEGAL.operatorAddress ? `, ${LEGAL.operatorAddress}` : ''}`
-		: `its operator, based in ${LEGAL.operatorCountry}`;
+	// sqwer is a free, non-commercial project run by an individual.
+	const operator = `${LEGAL.operatorName || 'an individual'}, based in ${LEGAL.operatorCountry}, as a free, non-commercial project`;
 </script>
 
 <Seo title="Terms and Conditions" description="The terms that apply when you use sqwer, its courses, examinations and accounts." />
@@ -49,9 +48,8 @@
 		the finger speed assessment), the <strong>Finger map</strong>, <strong>History</strong> and optional accounts.
 	</p>
 	<ul>
-		<li>sqwer is free of charge. Everything needed to learn and practise is, and will remain, free.</li>
+		<li>sqwer is a free, non-commercial project. Nothing on sqwer is sold, and we never ask for payment details.</li>
 		<li>The Examinations, the Finger map and the first course lesson can be used without an account. The rest of the Courses requires a free account, which saves your progress.</li>
-		<li>If we ever offer optional paid extras, they will be described before purchase and governed by additional terms you accept at that time. They will not be required to learn.</li>
 	</ul>
 
 	<h2 id="accounts">3. Accounts</h2>
@@ -127,9 +125,8 @@
 	</p>
 	<p>
 		Nothing in these terms excludes or limits liability that cannot be excluded or limited by law, including liability
-		for death or personal injury caused by negligence, for fraud, or for gross negligence or wilful misconduct. If you are
-		a consumer, you keep all the rights that the mandatory consumer law of your country gives you, and nothing in these
-		terms affects them.
+		for death or personal injury caused by negligence, for fraud, or for gross negligence or wilful misconduct. You keep
+		all the rights that the mandatory law of your country gives you, and nothing in these terms affects them.
 	</p>
 
 	<h2 id="ending">11. Suspension and ending the agreement</h2>
@@ -146,9 +143,8 @@
 		{LEGAL.operatorCountry}.
 	</p>
 	<p>
-		If you are a consumer living elsewhere, you also benefit from the mandatory provisions of the law of your country of
-		residence, and you may bring proceedings in the courts of that country where its law allows. Consumers in the
-		European Union can also use the European Commission’s list of national bodies for out-of-court dispute resolution.
+		If you live elsewhere, the mandatory provisions of the law of your country of residence that protect you continue to
+		apply, and you may bring proceedings in the courts of that country where its law allows.
 	</p>
 
 	<h2 id="general">13. General</h2>
