@@ -41,7 +41,6 @@
 		"@sqwer/engine": "*",
 		"@sqwer/fingermap": "*",
 		"@sqwer/layouts": "*",
-		"altcha": "^3.3.0",
 		"altcha-lib": "^2.6.0",
 		"drizzle-orm": "^0.45.4",
 		"pg": "^8.23.1",

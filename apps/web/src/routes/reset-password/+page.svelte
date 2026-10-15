@@ -4,6 +4,7 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import Captcha from '#lib/ui/Captcha.svelte';
 	import Field from '#lib/ui/Field.svelte';
+	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import { PASSWORD_RULE } from '#lib/profile.ts';
 	import type { PageProps } from './$types';
 
@@ -31,6 +32,7 @@
 		}}
 	>
 		{#if errors.form}<p class="form-alert" role="alert">{errors.form}</p>{/if}
+		<RequiredNote />
 		<Field label="Email address" name="email" type="email" autocomplete="email" required value={form?.values?.email ?? ''} />
 		<Field label="Recovery code" name="code" autocomplete="one-time-code" required hint="For example: ABCD-EFGH-JKMN" />
 		<Field label="New password" name="password" type="password" autocomplete="new-password" required hint={PASSWORD_RULE} error={errors.password} />

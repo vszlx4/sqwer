@@ -1,7 +1,7 @@
 import { SITE_URL } from '#lib/server/config.ts';
 import type { RequestHandler } from './$types';
 
-const PAGES = ['/', '/start', '/learn', '/learn/start', '/exams', '/map', '/about', '/faq', '/signup', '/signin', '/privacy', '/terms', '/cookies'];
+const PAGES = ['/', '/start', '/learn', '/learn/start', '/exams', '/map', '/about', '/faq', '/signup', '/signin', '/legal', '/terms', '/privacy', '/cookies', '/copyright', '/accessibility', '/security'];
 
 export const GET: RequestHandler = () => {
 	const urls = PAGES.map((p) => `  <url><loc>${SITE_URL}${p}</loc></url>`).join('\n');

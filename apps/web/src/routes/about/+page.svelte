@@ -86,7 +86,7 @@
 		You can begin without an account: your settings, results and finger map are then stored only in your browser. An
 		account, required for the Courses after the first lesson, also stores them in a database in the European Union so
 		that they are available on every device. You can download your data or delete your account at any time. The
-		<a href="/privacy">Privacy Policy</a> and <a href="/cookies">Cookie Policy</a> provide full details.
+		<a href="/privacy">Privacy Policy</a> and <a href="/cookies">Cookie and Storage Policy</a> provide full details.
 	</p>
 </Prose>
 

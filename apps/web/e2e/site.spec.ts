@@ -40,7 +40,11 @@ for (const [path, heading] of [
 	['/faq', 'Frequently asked questions'],
 	['/privacy', 'Privacy Policy'],
 	['/terms', 'Terms and Conditions'],
-	['/cookies', 'Cookie Policy']
+	['/cookies', 'Cookie and Storage Policy'],
+	['/legal', 'Legal centre'],
+	['/copyright', 'Content and Copyright Policy'],
+	['/accessibility', 'Accessibility Statement'],
+	['/security', 'Security and Vulnerability Disclosure Policy']
 ] as const) {
 	test(`${path} renders with breadcrumbs, header and footer`, async ({ page }) => {
 		await page.goto(path);
@@ -57,6 +61,23 @@ test('unknown pages show the custom 404 page', async ({ page }) => {
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('This page could not be found.');
 });
 
+test('security.txt is served in the RFC 9116 format', async ({ request }) => {
+	const res = await request.get('/.well-known/security.txt');
+	expect(res.status()).toBe(200);
+	const text = await res.text();
+	expect(text).toContain('Contact: mailto:info@mughram.com');
+	expect(Date.parse(text.match(/^Expires: (.+)$/m)![1]!)).toBeGreaterThan(Date.now());
+	expect(text).toContain('/security');
+});
+
+test('pages are served with a Content Security Policy', async ({ request }) => {
+	const res = await request.get('/');
+	const csp = res.headers()['content-security-policy'] ?? '';
+	expect(csp).toContain("default-src 'self'");
+	expect(csp).toContain("frame-ancestors 'none'");
+	expect(csp).toMatch(/script-src 'self' 'nonce-/);
+});
+
 test('robots.txt and the sitemap are served', async ({ request }) => {
 	expect(await (await request.get('/robots.txt')).text()).toContain('Sitemap:');
 	expect(await (await request.get('/sitemap.xml')).text()).toContain('<loc>');
@@ -64,7 +85,7 @@ test('robots.txt and the sitemap are served', async ({ request }) => {
 
 test('every page has a unique title', async ({ page }) => {
 	const titles = new Set<string>();
-	const paths = ['/', '/start', '/learn', '/learn/start', '/exams', '/test', '/map', '/about', '/faq', '/privacy', '/terms', '/cookies', '/signin', '/signup', '/reset-password'];
+	const paths = ['/', '/start', '/learn', '/learn/start', '/exams', '/test', '/map', '/about', '/faq', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password'];
 	for (const path of paths) {
 		await page.goto(path);
 		await page.waitForFunction(() => document.title.length > 0);
@@ -91,14 +112,14 @@ for (const scheme of ['light', 'dark'] as const) {
 		const context = await browser.newContext({ colorScheme: scheme });
 		const page = await context.newPage();
 		const failures: string[] = [];
-		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l01', '/learn/l05', '/exams', '/exams/finger-speed', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/privacy', '/terms', '/cookies', '/signin', '/signup', '/reset-password', '/missing']) {
+		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l01', '/learn/l05', '/exams', '/exams/finger-speed', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password', '/missing']) {
 			await page.goto(path);
 			await page.waitForTimeout(300);
 			// Measure the settled page: entrance animations fade content in over a moment.
 			await page.waitForFunction(() =>
 				document.getAnimations().every((a) => a.effect?.getTiming().iterations === Infinity || a.playState !== 'running')
 			);
-			const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+			const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
 			for (const v of results.violations) {
 				failures.push(`${path}: ${v.id} — ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(', ')}`);
 			}

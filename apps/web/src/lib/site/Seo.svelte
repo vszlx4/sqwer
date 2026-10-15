@@ -12,7 +12,7 @@
 	let { title, description, noindex = false, jsonLd }: Props = $props();
 
 	const site = $derived((page.data.siteUrl as string | undefined) ?? '');
-	const fullTitle = $derived(title ? `${title} — sqwer` : 'sqwer — Typing test and finger mapping');
+	const fullTitle = $derived(title ? `${title} · sqwer` : 'sqwer · Learn to type, test and map your fingers');
 	const canonical = $derived(`${site}${page.url.pathname}`);
 	const image = $derived(`${site}/og.png`);
 	// Escape "<" so structured data can never close the script element.
@@ -32,7 +32,7 @@
 	<meta property="og:image" content={image} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
-	<meta property="og:image:alt" content="sqwer — typing test and finger mapping" />
+	<meta property="og:image:alt" content="sqwer · learn to type, test and map your fingers" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={fullTitle} />
 	<meta name="twitter:description" content={description} />

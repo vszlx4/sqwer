@@ -22,10 +22,15 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		.from(schema.securityEvents)
 		.where(eq(schema.securityEvents.userId, user.id));
 	// Recovery codes are stored only as hashes, so their use is exported rather than the codes.
+	const [consent] = await d
+		.select({ termsVersion: schema.users.termsVersion, termsAcceptedAt: schema.users.termsAcceptedAt, ageConfirmedAt: schema.users.ageConfirmedAt })
+		.from(schema.users)
+		.where(eq(schema.users.id, user.id));
 	const codes = await d.select({ usedAt: schema.recoveryCodes.usedAt }).from(schema.recoveryCodes).where(eq(schema.recoveryCodes.userId, user.id));
 	const body = {
 		exportedAt: new Date().toISOString(),
 		account: { email: user.email, createdAt: user.createdAt },
+		acceptance: consent ?? null,
 		profile: profile ? { ...profile, userId: undefined } : null,
 		devices: sessions.map((s) => ({ device: s.device, signedInAt: s.createdAt, lastActiveAt: s.lastSeenAt })),
 		fingerMap: fingerMap ? { updatedAt: fingerMap.updatedAt, observations: fingerMap.observations } : null,
@@ -39,7 +44,9 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		},
 		securityActivity: security,
 		recoveryCodes: { total: codes.length, used: codes.filter((c) => c.usedAt).map((c) => c.usedAt) },
-		profilePicture: avatar ? { type: avatar.mime, base64: avatar.data, updatedAt: avatar.updatedAt } : null
+		profilePicture: avatar
+			? { type: avatar.mime, base64: avatar.data, updatedAt: avatar.updatedAt, rightsConfirmedAt: avatar.rightsConfirmedAt }
+			: null
 	};
 	return new Response(JSON.stringify(body, null, 2), {
 		headers: {

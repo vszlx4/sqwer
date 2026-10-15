@@ -18,7 +18,12 @@ export const users = pgTable('users', {
 	/** Consecutive failed sign-ins; reset on success. */
 	failedLogins: integer('failed_logins').notNull().default(0),
 	/** Sign-in is refused until this time after repeated failures. */
-	lockedUntil: timestamp('locked_until', { withTimezone: true })
+	lockedUntil: timestamp('locked_until', { withTimezone: true }),
+	/** Version of the Terms and Privacy Policy accepted at registration, and when (evidence of consent). */
+	termsVersion: text('terms_version'),
+	termsAcceptedAt: timestamp('terms_accepted_at', { withTimezone: true }),
+	/** When the person confirmed they are at least 16 years old. */
+	ageConfirmedAt: timestamp('age_confirmed_at', { withTimezone: true })
 }).enableRLS();
 
 export const profiles = pgTable('profiles', {
@@ -139,7 +144,9 @@ export const avatars = pgTable('avatars', {
 		.references(() => users.id, { onDelete: 'cascade' }),
 	mime: text('mime').notNull(),
 	data: text('data').notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+	/** When the uploader confirmed they hold the rights to the image (Content and Copyright Policy). */
+	rightsConfirmedAt: timestamp('rights_confirmed_at', { withTimezone: true }).notNull().defaultNow()
 }).enableRLS();
 
 /** Security-relevant account activity, shown to the user and kept for audit. */

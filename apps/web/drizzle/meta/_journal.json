@@ -43,6 +43,13 @@
       "when": 1792081300152,
       "tag": "0005_fine_naoko",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792086180522,
+      "tag": "0006_whole_silver_surfer",
+      "breakpoints": true
     }
   ]
 }
