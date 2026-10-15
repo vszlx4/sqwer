@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { autofocus } from '#lib/ui/autofocus.ts';
+	import Confetti from '#lib/ui/Confetti.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import { lessonPoints, type rankFor } from './progression.ts';
 	import RankBadge from './RankBadge.svelte';
@@ -37,24 +38,10 @@
 		return () => clearTimeout(t);
 	});
 
-	const COLORS = ['var(--f-pinky)', 'var(--f-ring)', 'var(--f-middle)', 'var(--f-index)', 'var(--f-thumb)', 'var(--accent)'];
-	const confetti = Array.from({ length: 28 }, (_, i) => ({
-		left: (i * 37) % 100,
-		delay: (i % 7) * 70,
-		color: COLORS[i % COLORS.length],
-		rotate: (i * 53) % 360,
-		drift: ((i * 29) % 60) - 30
-	}));
 </script>
 
 <section class="complete" aria-labelledby="complete-title">
-	{#if result.stars > 0}
-		<div class="confetti" aria-hidden="true">
-			{#each confetti as c, i (i)}
-				<span style:left={`${c.left}%`} style:background={c.color} style:--delay={`${c.delay}ms`} style:--r={`${c.rotate}deg`} style:--x={`${c.drift}px`}></span>
-			{/each}
-		</div>
-	{/if}
+	{#if result.stars > 0}<Confetti pieces={rankedUp ? 240 : result.stars === 3 ? 170 : 110} />{/if}
 
 	<p class="kicker">Lesson {lesson.order} complete</p>
 	<h2 id="complete-title">{lesson.title}</h2>
@@ -121,31 +108,6 @@
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		overflow: hidden;
-	}
-	.confetti {
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-	}
-	.confetti span {
-		position: absolute;
-		top: -12px;
-		width: 8px;
-		height: 12px;
-		border-radius: 2px;
-		opacity: 0;
-		animation: confetti 1600ms cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
-		animation-delay: var(--delay);
-	}
-	@keyframes confetti {
-		0% {
-			opacity: 1;
-			transform: translate(0, 0) rotate(0);
-		}
-		100% {
-			opacity: 0;
-			transform: translate(var(--x), 380px) rotate(calc(var(--r) + 360deg));
-		}
 	}
 	.kicker {
 		font-size: 13px;
@@ -258,10 +220,5 @@
 	.back {
 		font-size: 14.5px;
 		color: var(--ink-2);
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.confetti {
-			display: none;
-		}
 	}
 </style>

@@ -23,7 +23,6 @@
 	let { kicker, title, lede, updated, crumbs, doc, toc, children }: Props = $props();
 
 	const related = $derived(doc ? Object.values(LEGAL_DOCUMENTS).filter((d) => d.ref !== doc.ref) : []);
-	let current = $state<string | null>(null);
 
 	let body: HTMLDivElement | undefined = $state();
 
@@ -39,25 +38,6 @@
 		}
 	});
 
-	// Marks the section being read in the contents list: the last heading scrolled past the top.
-	onMount(() => {
-		if (!toc?.length) return;
-		const headings = toc.map((t) => document.getElementById(t.id)).filter((h): h is HTMLElement => !!h);
-		let frame = 0;
-		const update = () => {
-			frame = 0;
-			let id: string | null = null;
-			for (const h of headings) if (h.getBoundingClientRect().top < 140) id = h.id;
-			current = id;
-		};
-		const onscroll = () => (frame ||= requestAnimationFrame(update));
-		window.addEventListener('scroll', onscroll, { passive: true });
-		update();
-		return () => {
-			window.removeEventListener('scroll', onscroll);
-			cancelAnimationFrame(frame);
-		};
-	});
 </script>
 
 <article class="prose-page" class:with-toc={!!toc?.length}>
@@ -88,7 +68,7 @@
 				<ol>
 					{#each toc as item, i (item.id)}
 						<li>
-							<a href={`#${item.id}`} aria-current={current === item.id ? 'location' : undefined}>
+							<a href={`#${item.id}`}>
 								<span class="num">{i + 1}.</span>{item.label}
 							</a>
 						</li>
@@ -124,29 +104,10 @@
 		margin: 0 auto;
 		padding-top: clamp(8px, 3vh, 32px);
 	}
-	.prose-page.with-toc {
-		max-width: 1080px;
-	}
-	.with-toc header {
-		max-width: 760px;
-	}
 	.body {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
 		gap: 32px;
-	}
-	@media (min-width: 1040px) {
-		.with-toc .body {
-			grid-template-columns: 240px minmax(0, 760px);
-			gap: 56px;
-		}
-		.doc-toc {
-			position: sticky;
-			top: 96px;
-			align-self: start;
-			max-height: calc(100dvh - 120px);
-			overflow-y: auto;
-		}
 	}
 	.doc-toc {
 		padding: 18px 20px;
@@ -164,10 +125,11 @@
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
+	/* Contents sit at the top of the document, in two columns where there is room. */
 	.doc-toc ol {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: 2px 24px;
 	}
 	.doc-toc a {
 		display: flex;
@@ -183,12 +145,6 @@
 	}
 	.doc-toc a:hover {
 		color: var(--ink);
-	}
-	.doc-toc a[aria-current] {
-		color: var(--ink);
-		font-weight: 600;
-		background: var(--bg);
-		box-shadow: inset 3px 0 0 var(--accent);
 	}
 	.num {
 		min-width: 22px;

@@ -28,62 +28,44 @@
 {/if}
 
 <style>
+	/* Account sections are tabs across the top, not a side panel: one row that scrolls on small screens. */
 	.account {
-		display: grid;
-		grid-template-columns: 200px minmax(0, 1fr);
-		gap: 40px;
-		align-items: start;
-	}
-	.tabs {
-		position: sticky;
-		top: 96px;
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 28px;
+	}
+	.tabs {
+		display: flex;
+		gap: 4px;
+		padding: 4px;
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--surface);
+		overflow-x: auto;
+		scrollbar-width: none;
+		align-self: flex-start;
+		max-width: 100%;
 	}
 	.tabs a {
-		display: block;
-		width: 100%;
-		padding: 10px 12px;
+		flex-shrink: 0;
+		padding: 9px 16px;
 		border-radius: 3px;
-		font: inherit;
-		font-size: 15px;
+		font-size: 14.5px;
 		font-weight: 500;
-		text-align: left;
+		white-space: nowrap;
 		color: var(--ink-2);
 		text-decoration: none;
-		background: none;
-		border: 0;
-		cursor: pointer;
+		transition:
+			color 160ms ease,
+			background-color 160ms ease;
 	}
 	.tabs a:hover {
 		color: var(--ink);
-		background: var(--surface);
 	}
 	.tabs a[aria-current='page'] {
 		color: var(--ink);
-		background: var(--surface);
-		box-shadow: inset 3px 0 0 var(--accent);
+		background: var(--bg);
 		font-weight: 600;
-	}
-	@media (max-width: 760px) {
-		.account {
-			grid-template-columns: 1fr;
-			gap: 20px;
-		}
-		.tabs {
-			position: static;
-			flex-direction: row;
-			flex-wrap: wrap;
-		}
-		.tabs {
-			flex-wrap: nowrap;
-			overflow-x: auto;
-			scrollbar-width: none;
-		}
-		.tabs a {
-			width: auto;
-			white-space: nowrap;
-		}
+		box-shadow: var(--shadow);
 	}
 </style>

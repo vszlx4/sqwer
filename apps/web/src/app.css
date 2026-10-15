@@ -186,6 +186,24 @@
 	--f-index: #2a78d6;
 	--f-thumb: #e87ba4;
 
+	/*
+	 * Supporting colours, each with one job, used sparingly beside the lime accent:
+	 * blue for information and speed, green for success and accuracy, amber for stars and
+	 * rewards, orange for streaks and energy, violet for ranks and progress, rose for highlights.
+	 */
+	--blue: #2160bd;
+	--green: #0d7550;
+	--amber: #946200;
+	--orange: #bd4211;
+	--violet: #5a46d0;
+	--rose: #b3306a;
+	--blue-soft: #e4eefb;
+	--green-soft: #dff3e9;
+	--amber-soft: #fbf0d3;
+	--orange-soft: #fde6dc;
+	--violet-soft: #ebe8fb;
+	--rose-soft: #fbe3ec;
+
 	--shadow: 0 1px 0 rgb(20 20 20 / 0.04), 0 8px 24px -12px rgb(60 50 20 / 0.18);
 	--shadow-lg: 0 1px 0 rgb(20 20 20 / 0.04), 0 24px 60px -24px rgb(60 50 20 / 0.35);
 	--lift: 0 1px 0 rgb(20 20 20 / 0.04), 0 14px 32px -18px rgb(60 50 20 / 0.32);
@@ -228,6 +246,18 @@
 		--f-middle: #d95926;
 		--f-index: #3987e5;
 		--f-thumb: #d55181;
+		--blue: #5b9cf0;
+		--green: #2fc48a;
+		--amber: #f2bb3b;
+		--orange: #f07a45;
+		--violet: #9a8cf2;
+		--rose: #ec6f9f;
+		--blue-soft: #0f1d33;
+		--green-soft: #0b2419;
+		--amber-soft: #2a2008;
+		--orange-soft: #2c140a;
+		--violet-soft: #1a1633;
+		--rose-soft: #2c0f1b;
 		--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 		--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 		--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
@@ -270,6 +300,18 @@
 	--f-middle: #d95926;
 	--f-index: #3987e5;
 	--f-thumb: #d55181;
+	--blue: #5b9cf0;
+	--green: #2fc48a;
+	--amber: #f2bb3b;
+	--orange: #f07a45;
+	--violet: #9a8cf2;
+	--rose: #ec6f9f;
+	--blue-soft: #0f1d33;
+	--green-soft: #0b2419;
+	--amber-soft: #2a2008;
+	--orange-soft: #2c140a;
+	--violet-soft: #1a1633;
+	--rose-soft: #2c0f1b;
 	--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 	--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 	--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
@@ -297,6 +339,12 @@
 	--color-untyped: var(--untyped);
 	--color-error: var(--error);
 	--color-error-soft: var(--error-soft);
+	--color-blue: var(--blue);
+	--color-green: var(--green);
+	--color-amber: var(--amber);
+	--color-orange: var(--orange);
+	--color-violet: var(--violet);
+	--color-rose: var(--rose);
 }
 
 /* ---------- Base ---------- */
@@ -559,12 +607,16 @@ body {
 		transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms);
 }
 
-/* Page changes cross-fade, with the new page rising slightly. */
+/*
+ * Page changes: the old page dissolves quickly into a soft blur and the new one sharpens into
+ * place, rising slightly. The same transition is used when a view swaps in place, such as an
+ * examination turning into its results (see lib/ui/transition.ts).
+ */
 ::view-transition-old(root) {
-	animation: 160ms ease both page-out;
+	animation: 150ms cubic-bezier(0.4, 0, 1, 1) both page-out;
 }
 ::view-transition-new(root) {
-	animation: 260ms cubic-bezier(0.2, 0.7, 0.2, 1) both page-in;
+	animation: 340ms cubic-bezier(0.16, 1, 0.3, 1) 40ms both page-in;
 }
 ::view-transition-old(site-header),
 ::view-transition-new(site-header) {
@@ -574,12 +626,28 @@ body {
 @keyframes page-out {
 	to {
 		opacity: 0;
+		filter: blur(6px);
+		transform: scale(0.995);
 	}
 }
 @keyframes page-in {
 	from {
 		opacity: 0;
-		transform: translateY(8px);
+		filter: blur(10px);
+		transform: translateY(10px);
+	}
+}
+
+/* Staggered entrance for the parts of a freshly revealed view; set --i on each part. */
+.rise {
+	animation: rise 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+	animation-delay: calc(var(--i, 0) * 70ms + 60ms);
+}
+@keyframes rise {
+	from {
+		opacity: 0;
+		filter: blur(8px);
+		transform: translateY(14px);
 	}
 }
 @media (prefers-reduced-motion: reduce) {
@@ -591,6 +659,9 @@ body {
 	[data-reveal='hidden'] {
 		opacity: 1;
 		transform: none;
+	}
+	.rise {
+		animation: none;
 	}
 }
 

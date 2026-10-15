@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AVATAR_COLORS, EXPERIENCE, GOALS, PASSWORD_RULE, PLATFORMS, USERNAME_RULE } from '../profile.ts';
+import { AVATAR_COLORS, BANNERS, EXPERIENCE, GOALS, PASSWORD_RULE, PLATFORMS, USERNAME_RULE } from '../profile.ts';
 
 const values = <T extends readonly { value: string }[]>(list: T) =>
 	list.map((o) => o.value) as unknown as [T[number]['value'], ...T[number]['value'][]];
@@ -53,7 +53,21 @@ export const profileSchema = z.object({
 		.max(250, 'Enter a target of 250 WPM or less.'),
 	platform: z.enum(values(PLATFORMS), { message: 'Select your keyboard type.' }),
 	avatarColor: z.enum(values(AVATAR_COLORS), { message: 'Select an avatar colour.' }),
-	isPublic: z.boolean()
+	isPublic: z.boolean(),
+	headline: z
+		.string()
+		.transform(cleanText)
+		.pipe(z.string().trim().max(80, 'Use 80 characters or fewer.'))
+		.default(''),
+	pronouns: z
+		.string()
+		.transform(cleanText)
+		.pipe(z.string().trim().max(24, 'Use 24 characters or fewer.'))
+		.default(''),
+	banner: z.enum(values(BANNERS), { message: 'Select a banner.' }),
+	showRank: z.boolean(),
+	showStats: z.boolean(),
+	showStreak: z.boolean()
 });
 
 export type ProfileInput = z.infer<typeof profileSchema>;
@@ -78,7 +92,13 @@ export function readProfileForm(form: FormData) {
 		targetWpm: form.get('targetWpm') ?? '',
 		platform: form.get('platform') ?? '',
 		avatarColor: form.get('avatarColor') ?? '',
-		isPublic: form.get('isPublic') === 'on'
+		isPublic: form.get('isPublic') === 'on',
+		headline: form.get('headline') ?? '',
+		pronouns: form.get('pronouns') ?? '',
+		banner: form.get('banner') ?? 'lime',
+		showRank: form.get('showRank') === 'on',
+		showStats: form.get('showStats') === 'on',
+		showStreak: form.get('showStreak') === 'on'
 	});
 }
 

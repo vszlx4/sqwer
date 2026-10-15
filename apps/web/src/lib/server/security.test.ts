@@ -52,9 +52,18 @@ describe('input sanitising and validation', () => {
 			targetWpm: '90',
 			platform: 'mac',
 			avatarColor: 'lime',
-			isPublic: false
+			isPublic: false,
+			headline: ' Practising every morning ',
+			pronouns: 'they/them',
+			banner: 'ocean',
+			showRank: true,
+			showStats: false,
+			showStreak: true
 		};
 		const ok = profileSchema.parse(base);
+		expect(ok.headline).toBe('Practising every morning');
+		expect(profileSchema.safeParse({ ...base, banner: 'neon' }).success).toBe(false);
+		expect(profileSchema.safeParse({ ...base, headline: 'x'.repeat(81) }).success).toBe(false);
 		expect(ok.displayName).toBe('Test Typist');
 		expect(ok.bio).toBe('Hello\n\nthere');
 		expect(ok.targetWpm).toBe(90);

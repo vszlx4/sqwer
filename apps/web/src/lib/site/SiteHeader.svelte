@@ -82,10 +82,18 @@
 		{#if open}
 			<div id="mobile-menu" class="mobile">
 				<nav aria-label="Main">
-					{#each NAV_LINKS as link (link.href)}
-						<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>
+					{#each NAV_LINKS as link, i (link.href)}
+						<a class="m-link" href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined} style:--i={i}>
+							<span class="m-icon"><Icon name={link.icon} size={18} /></span>
+							<span class="m-text"><span class="m-label">{link.label}</span><span class="m-desc">{link.description}</span></span>
+						</a>
 					{/each}
 				</nav>
+				<div class="m-help">
+					<a href="/about">How it works</a>
+					<a href="/faq">Questions</a>
+					<a href="/legal">Legal</a>
+				</div>
 				{#if !user}
 					<div class="mobile-account">
 						<a class="btn" href="/signin">Sign in</a>
@@ -168,6 +176,7 @@
 		background: var(--surface);
 		box-shadow: inset 0 0 0 1px var(--line);
 	}
+
 	.actions {
 		display: flex;
 		align-items: center;
@@ -266,8 +275,72 @@
 		gap: 2px;
 	}
 	.mobile nav a {
-		padding: 12px 14px;
+		padding: 10px;
 		font-size: 16px;
+	}
+	.m-link {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		animation: m-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+		animation-delay: calc(var(--i) * 40ms);
+	}
+	@keyframes m-in {
+		from {
+			opacity: 0;
+			transform: translateY(-4px);
+		}
+	}
+	.m-icon {
+		display: grid;
+		place-items: center;
+		width: 38px;
+		height: 38px;
+		flex-shrink: 0;
+		border-radius: 3px;
+		background: var(--surface);
+		color: var(--ink);
+	}
+	.m-link[aria-current='page'] .m-icon {
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+	.m-text {
+		display: flex;
+		flex-direction: column;
+	}
+	.m-label {
+		font-weight: 600;
+		color: var(--ink);
+	}
+	.m-desc {
+		font-size: 13px;
+		color: var(--ink-2);
+	}
+	.m-help {
+		display: flex;
+		gap: 4px;
+		margin-top: 6px;
+		padding-top: 8px;
+		border-top: 1px solid var(--line);
+	}
+	.m-help a {
+		padding: 8px 10px;
+		border-radius: 3px;
+		font-size: 14px;
+		font-weight: 500;
+		color: var(--ink-2);
+		text-decoration: none;
+	}
+	.m-help a:hover {
+		color: var(--ink);
+		background: var(--surface);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.m-link,
+		.mobile {
+			animation: none;
+		}
 	}
 	.mobile-account {
 		display: grid;

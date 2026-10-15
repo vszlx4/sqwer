@@ -18,8 +18,9 @@
 	<h2>The course</h2>
 	<p>
 		The <a href="/learn">Courses</a> are one long road of short lessons in twelve chapters, from the first two keys,
-		F and J, to fluent typing. Each lesson adds a little, using guided drills, falling letters, rhythm keys and
-		listening exercises, so that every chapter prepares you for the next. Lessons earn stars; stars earn points and
+		F and J, to fluent typing. Each lesson adds a little, using guided drills and six games (key hunt, race, echo,
+		falling letters, rhythm and listening), so that every chapter prepares you for the next. Games end when you reach
+		their goal, not when a clock runs out. Lessons earn stars; stars earn points and
 		ranks, which measure your own progress. <a href="/start">Getting started</a> recommends where to begin.
 	</p>
 

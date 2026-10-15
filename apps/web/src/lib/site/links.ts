@@ -18,14 +18,14 @@ export const LEGAL = {
 } as const;
 
 /**
- * The four areas of the product. Getting started is used once, so it is reached from the
- * home page and the course rather than kept in the navigation.
+ * The four areas of the product, in the order a learner meets them. Getting started is used once,
+ * so it is reached from the home page and the course rather than kept in the navigation.
  */
 export const NAV_LINKS = [
-	{ href: '/learn', label: 'Courses' },
-	{ href: '/exams', label: 'Examinations' },
-	{ href: '/map', label: 'Finger map' },
-	{ href: '/history', label: 'History' }
+	{ href: '/learn', label: 'Courses', icon: 'route', description: 'Lessons, games and ranks' },
+	{ href: '/exams', label: 'Examinations', icon: 'gauge', description: 'Typing tests and finger speed' },
+	{ href: '/map', label: 'Finger map', icon: 'hand', description: 'Which finger you use for each key' },
+	{ href: '/history', label: 'History', icon: 'history', description: 'Every result, with replays' }
 ] as const;
 
 /** Account pages, listed once and shared by the account menu and the account section. */
@@ -40,15 +40,25 @@ export const ACCOUNT_LINKS = [
 /** The footer is the complete site map; other pages link only to what the reader needs next. */
 export const FOOTER_GROUPS = [
 	{
-		title: 'Product',
-		links: [{ href: '/start', label: 'Get started' }, ...NAV_LINKS]
+		title: 'Learn',
+		links: [{ href: '/start', label: 'Get started' }, ...NAV_LINKS.map(({ href, label }) => ({ href, label }))]
+	},
+	{
+		title: 'Account',
+		links: [
+			{ href: '/signup', label: 'Create an account' },
+			{ href: '/signin', label: 'Sign in' },
+			{ href: '/account/profile', label: 'Profile' },
+			{ href: '/account/data', label: 'Download or delete data' }
+		]
 	},
 	{
 		title: 'Help',
 		links: [
 			{ href: '/about', label: 'How it works' },
-			{ href: '/faq', label: 'Frequently asked questions' },
-			{ href: `mailto:${CONTACT_EMAIL}`, label: CONTACT_EMAIL }
+			{ href: '/faq', label: 'Questions and answers' },
+			{ href: '/accessibility', label: 'Accessibility' },
+			{ href: `mailto:${CONTACT_EMAIL}`, label: 'Contact us' }
 		]
 	},
 	{
@@ -57,9 +67,8 @@ export const FOOTER_GROUPS = [
 			{ href: '/legal', label: 'Legal centre' },
 			{ href: '/terms', label: 'Terms and Conditions' },
 			{ href: '/privacy', label: 'Privacy Policy' },
-			{ href: '/cookies', label: 'Cookie and Storage Policy' },
-			{ href: '/copyright', label: 'Content and Copyright' },
-			{ href: '/accessibility', label: 'Accessibility' },
+			{ href: '/cookies', label: 'Cookies and storage' },
+			{ href: '/copyright', label: 'Content and copyright' },
 			{ href: '/security', label: 'Security' }
 		]
 	}

@@ -68,7 +68,7 @@
 			<tbody>
 				<tr><th scope="row">Profile picture</th><td>Your account; your public profile, if you make it public</td></tr>
 				<tr><th scope="row">Display name and username</th><td>Your account; your public profile, if public</td></tr>
-				<tr><th scope="row">Biography</th><td>Your account; your public profile, if public</td></tr>
+				<tr><th scope="row">Headline, pronouns and biography</th><td>Your account; your public profile, if public</td></tr>
 			</tbody>
 		</table>
 	</div>

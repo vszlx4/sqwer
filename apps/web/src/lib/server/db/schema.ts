@@ -39,6 +39,15 @@ export const profiles = pgTable('profiles', {
 	targetWpm: integer('target_wpm').notNull(),
 	platform: text('platform').notNull(),
 	isPublic: boolean('is_public').notNull().default(false),
+	/** A short line under the name, for example "Learning to touch type for work". */
+	headline: text('headline').notNull().default(''),
+	pronouns: text('pronouns').notNull().default(''),
+	/** Banner style of the profile card, one of BANNERS in lib/profile.ts. */
+	banner: text('banner').notNull().default('lime'),
+	/** What a public profile shows besides the basics. */
+	showRank: boolean('show_rank').notNull().default(true),
+	showStats: boolean('show_stats').notNull().default(true),
+	showStreak: boolean('show_streak').notNull().default(true),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 }).enableRLS();
 

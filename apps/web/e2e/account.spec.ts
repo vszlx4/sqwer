@@ -231,11 +231,11 @@ test('a completed course lesson is saved and earns points and a rank', async ({ 
 	await page.locator('.outcome').getByRole('button', { name: 'See your result' }).click();
 
 	await expect(page.getByText('New rank')).toBeVisible();
-	await expect(page.getByText('Key Finder')).toBeVisible();
+	await expect(page.getByText('Learner')).toBeVisible();
 	await expect(page.getByText(/\+\d+ points/)).toBeVisible();
 
 	await page.goto('/learn');
-	await expect(page.getByRole('heading', { name: 'Key Finder' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Learner' })).toBeVisible();
 	await expect(page.getByRole('link', { name: /Lesson \d+: Right Shift, \d of 3 stars/ })).toBeVisible();
 	// The chosen start is kept: the next lesson continues chapter 4.
 	await expect(page.locator('section.next')).toContainText('Left Shift');

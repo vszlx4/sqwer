@@ -9,6 +9,12 @@
 		platform: string;
 		avatarColor: string;
 		isPublic: boolean;
+		headline: string;
+		pronouns: string;
+		banner: string;
+		showRank: boolean;
+		showStats: boolean;
+		showStreak: boolean;
 	}
 </script>
 
@@ -22,10 +28,12 @@
 		EXPERIENCE,
 		GOALS,
 		labelOf,
+		BANNERS,
 		PLATFORMS,
 		USERNAME_RULE
 	} from '#lib/profile.ts';
-	import Avatar from './Avatar.svelte';
+	import { courses } from '#lib/courses/store.svelte.ts';
+	import ProfileCard from './ProfileCard.svelte';
 
 
 	interface Props {
@@ -47,7 +55,7 @@
 		v = { ...initial };
 	});
 
-	const STEPS = ['About you', 'Experience', 'Keyboard', 'Visibility'] as const;
+	const STEPS = ['About you', 'Experience', 'Keyboard', 'Look'] as const;
 	let step = $state(0);
 	let submitting = $state(false);
 	let usernameStatus = $state<{ ok: boolean; message: string } | null>(null);
@@ -57,7 +65,7 @@
 	$effect(() => {
 		const keys = Object.keys(errors);
 		if (!keys.length || mode !== 'setup') return;
-		const stepOf: Record<string, number> = { displayName: 0, username: 0, bio: 0, experience: 1, goal: 1, targetWpm: 1, platform: 2, avatarColor: 3, isPublic: 3 };
+		const stepOf: Record<string, number> = { displayName: 0, username: 0, headline: 0, pronouns: 0, bio: 0, experience: 1, goal: 1, targetWpm: 1, platform: 2, avatarColor: 3, banner: 3, isPublic: 3 };
 		step = Math.min(...keys.map((k) => stepOf[k] ?? 0));
 	});
 
@@ -127,6 +135,8 @@
 				hint={usernameStatus?.message ?? USERNAME_RULE}
 				error={errors.username ?? (usernameStatus && !usernameStatus.ok ? usernameStatus.message : null)}
 			/>
+			<Field label="Headline" name="headline" maxlength={80} bind:value={v.headline} error={errors.headline} hint="One line under your name, for example: Learning to touch type for work." />
+			<Field label="Pronouns" name="pronouns" maxlength={24} bind:value={v.pronouns} error={errors.pronouns} hint="Optional, for example: she/her, he/him or they/them." autocomplete="off" />
 			<Field label="Short bio" name="bio" multiline maxlength={280} rows={3} bind:value={v.bio} error={errors.bio} hint={`${String(v.bio ?? '').length}/280 characters`} />
 		</fieldset>
 
@@ -173,9 +183,20 @@
 		</fieldset>
 
 		<fieldset hidden={!showStep(3)}>
-			<legend>Visibility</legend>
+			<legend>Look and visibility</legend>
+			<p class="group-label" id="banner-label">Banner<span class="req" aria-hidden="true"></span></p>
+			<div class="banners" role="radiogroup" aria-labelledby="banner-label" aria-required="true">
+				{#each BANNERS as b (b.value)}
+					<label class="banner-option" class:selected={v.banner === b.value}>
+						<input type="radio" name="banner" value={b.value} bind:group={v.banner} aria-label={b.label} />
+						<span class="banner-swatch" style:background={b.css}></span>
+						<span class="banner-name">{b.label}</span>
+					</label>
+				{/each}
+			</div>
+			{#if errors.banner}<p class="error">{errors.banner}</p>{/if}
 			<p class="group-label" id="color-label">Avatar colour<span class="req" aria-hidden="true"></span></p>
-			<p class="note">Used when you do not have a profile picture.{#if mode === 'setup'} You can upload a picture later in your profile settings.{/if}</p>
+			<p class="note">Used when you do not have a profile picture.{#if mode === 'setup'}{' '}You can upload a picture later in your profile settings.{/if}</p>
 			<div class="swatches" role="radiogroup" aria-labelledby="color-label" aria-required="true">
 				{#each AVATAR_COLORS as c (c.value)}
 					<label class="swatch" class:selected={v.avatarColor === c.value} title={c.label}>
@@ -184,11 +205,19 @@
 					</label>
 				{/each}
 			</div>
-			<label class="check">
+			<p class="group-label">Showcase</p>
+			<p class="note">Choose what your profile shows besides your name and details.</p>
+			<div class="toggles">
+				<label class="check"><input type="checkbox" name="showRank" bind:checked={v.showRank} /><span>Rank and points</span></label>
+				<label class="check"><input type="checkbox" name="showStats" bind:checked={v.showStats} /><span>Best speed, accuracy and lessons completed</span></label>
+				<label class="check"><input type="checkbox" name="showStreak" bind:checked={v.showStreak} /><span>Daily streak</span></label>
+			</div>
+			<label class="check public">
 				<input type="checkbox" name="isPublic" bind:checked={v.isPublic} />
 				<span>
-					Make my profile public. Your display name, username, bio, experience, goal and finger map coverage will be
-					visible at <strong>/u/{v.username || 'username'}</strong>. Your email address is never shown.
+					Make my profile public. Your picture, name, username, headline, pronouns, bio, experience, goal, the showcase
+					you chose and your finger map coverage will be visible at <strong>/u/{v.username || 'username'}</strong>. Your
+					email address is never shown.
 				</span>
 			</label>
 		</fieldset>
@@ -209,23 +238,30 @@
 
 	<aside class="preview" aria-label="Profile preview">
 		<p class="preview-label">Preview</p>
-		<div class="card">
-			<div class="head">
-				<Avatar name={v.displayName || 'New typist'} color={v.avatarColor} size={56} src={avatar} />
-				<div>
-					<p class="name">{v.displayName || 'Your name'}</p>
-					<p class="handle">@{v.username || 'username'}</p>
-				</div>
-			</div>
-			{#if v.bio}<p class="bio">{v.bio}</p>{/if}
-			<dl>
-				<div><dt>Experience</dt><dd>{v.experience ? labelOf(EXPERIENCE, v.experience) : '—'}</dd></div>
-				<div><dt>Goal</dt><dd>{v.goal ? labelOf(GOALS, v.goal) : '—'}</dd></div>
-				<div><dt>Target</dt><dd>{v.targetWpm || '—'} WPM</dd></div>
-				<div><dt>Keyboard</dt><dd>{v.platform ? labelOf(PLATFORMS, v.platform) : '—'}</dd></div>
+		<ProfileCard
+			name={v.displayName || 'Your name'}
+			username={v.username || 'username'}
+			headline={v.headline}
+			pronouns={v.pronouns}
+			bio={v.bio}
+			avatarColor={v.avatarColor}
+			{avatar}
+			banner={v.banner}
+			rank={v.showRank ? courses.rank.rank : null}
+			size="compact"
+			level={3}
+			stats={[
+				...(v.showStats ? [{ label: 'Target', value: `${v.targetWpm || '?'} WPM`, tone: 'blue' as const }] : []),
+				...(v.showStreak ? [{ label: 'Streak', value: `${courses.streak} ${courses.streak === 1 ? 'day' : 'days'}`, tone: 'orange' as const }] : [])
+			]}
+		>
+			<dl class="facts">
+				<div><dt>Experience</dt><dd>{v.experience ? labelOf(EXPERIENCE, v.experience) : 'Not set'}</dd></div>
+				<div><dt>Goal</dt><dd>{v.goal ? labelOf(GOALS, v.goal) : 'Not set'}</dd></div>
+				<div><dt>Keyboard</dt><dd>{v.platform ? labelOf(PLATFORMS, v.platform) : 'Not set'}</dd></div>
 			</dl>
-			<p class="visibility">{v.isPublic ? 'Public profile' : 'Private profile'}</p>
-		</div>
+			<p class="visibility" class:on={v.isPublic}>{v.isPublic ? 'Public profile' : 'Private profile'}</p>
+		</ProfileCard>
 	</aside>
 </div>
 
@@ -400,54 +436,87 @@
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
-	.card {
-		display: flex;
-		flex-direction: column;
-		gap: 14px;
-		padding: 20px;
-		border-radius: 3px;
-		border: 1px solid var(--line-strong);
-		background: var(--surface);
-	}
-	.head {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-	}
-	.name {
-		font-weight: 600;
-		font-size: 17px;
-		color: var(--ink);
-		overflow-wrap: anywhere;
-	}
-	.handle {
-		font-size: 14px;
-		color: var(--ink-2);
-		overflow-wrap: anywhere;
-	}
-	.bio {
-		font-size: 14.5px;
-		line-height: 1.5;
-		color: var(--ink-2);
-		overflow-wrap: anywhere;
-	}
-	dl {
+	.facts {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 10px;
+		margin-top: 10px;
 	}
-	dt {
-		font-size: 12.5px;
+	.facts dt {
+		font-size: 12px;
 		color: var(--ink-2);
 	}
-	dd {
-		font-size: 14.5px;
+	.facts dd {
+		font-size: 14px;
 		font-weight: 600;
 		color: var(--ink);
 	}
 	.visibility {
-		font-size: 13px;
+		margin-top: 8px;
+		align-self: flex-start;
+		padding: 2px 8px;
+		border-radius: 3px;
+		background: var(--surface-2);
+		font-size: 12.5px;
+		font-weight: 600;
 		color: var(--ink-2);
+	}
+	.visibility.on {
+		background: var(--green-soft);
+		color: var(--green);
+	}
+	.banners {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 8px;
+	}
+	.banner-option {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		padding: 6px;
+		border-radius: 3px;
+		border: 1px solid var(--line-strong);
+		cursor: pointer;
+	}
+	.banner-option input {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		cursor: pointer;
+	}
+	.banner-swatch {
+		height: 34px;
+		border-radius: 3px;
+	}
+	.banner-name {
+		font-size: 12.5px;
+		font-weight: 600;
+		color: var(--ink-2);
+	}
+	.banner-option.selected {
+		border-color: var(--ink);
+		box-shadow: inset 0 0 0 1px var(--ink);
+	}
+	.banner-option.selected .banner-name {
+		color: var(--ink);
+	}
+	.banner-option:has(input:focus-visible) {
+		outline: 2px solid var(--ink);
+		outline-offset: 2px;
+	}
+	.toggles {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+	.check.public {
+		margin-top: 6px;
+		padding: 14px;
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--surface);
 	}
 	@media (max-width: 860px) {
 		.builder {
@@ -467,6 +536,9 @@
 	@media (max-width: 520px) {
 		.options {
 			grid-template-columns: 1fr;
+		}
+		.banners {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
 	}
 </style>
