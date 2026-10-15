@@ -1,6 +1,10 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { onMount } from 'svelte';
+	import Icon from '#lib/ui/Icon.svelte';
 	import Breadcrumbs from './Breadcrumbs.svelte';
+	import { LEGAL_DOCUMENTS, type LegalDocument } from './legal.ts';
+	import { CONTACT_EMAIL, LEGAL } from './links.ts';
 
 	interface Props {
 		kicker?: string;
@@ -9,22 +13,108 @@
 		updated?: string;
 		/** Breadcrumb trail after "Home". */
 		crumbs?: { href: string; label: string }[];
+		/** For legal documents: the register entry, shown as a document control block. */
+		doc?: LegalDocument;
+		/** Numbered contents, linked to the `id` of each section heading. */
+		toc?: { id: string; label: string }[];
 		children: Snippet;
 	}
 
-	let { kicker, title, lede, updated, crumbs, children }: Props = $props();
+	let { kicker, title, lede, updated, crumbs, doc, toc, children }: Props = $props();
+
+	const related = $derived(doc ? Object.values(LEGAL_DOCUMENTS).filter((d) => d.ref !== doc.ref) : []);
+	let current = $state<string | null>(null);
+
+	let body: HTMLDivElement | undefined = $state();
+
+	// Wide tables scroll sideways on small screens; each becomes a labelled, focusable region so
+	// that keyboard users can scroll it too (WCAG 2.1.1).
+	onMount(() => {
+		for (const wrap of body?.querySelectorAll<HTMLElement>('.table-wrap') ?? []) {
+			let heading: Element | null = wrap.previousElementSibling;
+			while (heading && !/^H[23]$/.test(heading.tagName)) heading = heading.previousElementSibling;
+			wrap.tabIndex = 0;
+			wrap.setAttribute('role', 'region');
+			wrap.setAttribute('aria-label', heading?.textContent?.replace(/^\d+\.\s*/, '').trim() || 'Table');
+		}
+	});
+
+	// Marks the section being read in the contents list: the last heading scrolled past the top.
+	onMount(() => {
+		if (!toc?.length) return;
+		const headings = toc.map((t) => document.getElementById(t.id)).filter((h): h is HTMLElement => !!h);
+		let frame = 0;
+		const update = () => {
+			frame = 0;
+			let id: string | null = null;
+			for (const h of headings) if (h.getBoundingClientRect().top < 140) id = h.id;
+			current = id;
+		};
+		const onscroll = () => (frame ||= requestAnimationFrame(update));
+		window.addEventListener('scroll', onscroll, { passive: true });
+		update();
+		return () => {
+			window.removeEventListener('scroll', onscroll);
+			cancelAnimationFrame(frame);
+		};
+	});
 </script>
 
-<article class="prose-page">
+<article class="prose-page" class:with-toc={!!toc?.length}>
 	{#if crumbs}<Breadcrumbs items={crumbs} />{/if}
 	<header>
 		{#if kicker}<p class="kicker">{kicker}</p>{/if}
 		<h1>{title}</h1>
 		{#if lede}<p class="lede">{lede}</p>{/if}
-		{#if updated}<p class="updated">Last updated {updated}</p>{/if}
+		{#if doc}
+			<dl class="doc-meta">
+				<div><dt>Reference</dt><dd>{doc.ref}</dd></div>
+				<div><dt>Version</dt><dd>{doc.version}</dd></div>
+				<div><dt>Effective</dt><dd><time datetime={doc.effectiveIso}>{doc.effective}</time></dd></div>
+				<div><dt>Issued by</dt><dd>{LEGAL.operatorName}</dd></div>
+			</dl>
+			<div class="doc-actions">
+				<button type="button" class="btn" onclick={() => window.print()}><Icon name="download" size={16} /> Print or save as PDF</button>
+				<a class="btn" href="/legal">All legal documents</a>
+			</div>
+		{:else if updated}
+			<p class="updated">Last updated {updated}</p>
+		{/if}
 	</header>
-	<div class="prose">
-		{@render children()}
+	<div class="body">
+		{#if toc?.length}
+			<nav class="doc-toc" aria-label="Contents">
+				<p class="doc-toc-title">Contents</p>
+				<ol>
+					{#each toc as item, i (item.id)}
+						<li>
+							<a href={`#${item.id}`} aria-current={current === item.id ? 'location' : undefined}>
+								<span class="num">{i + 1}.</span>{item.label}
+							</a>
+						</li>
+					{/each}
+				</ol>
+			</nav>
+		{/if}
+		<div class="prose" bind:this={body}>
+			{@render children()}
+			{#if doc}
+				<footer class="doc-footer">
+					<p>
+						Questions about this document: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. This document is
+						issued in English; any translation is provided for convenience only.
+					</p>
+					<h2 class="related-title">Related documents</h2>
+					<ul class="related">
+						{#each related as d (d.ref)}
+							<li>
+								<a href={d.href}><span class="ref">{d.ref}</span><span class="name">{d.title}</span></a>
+							</li>
+						{/each}
+					</ul>
+				</footer>
+			{/if}
+		</div>
 	</div>
 </article>
 
@@ -33,6 +123,170 @@
 		max-width: 760px;
 		margin: 0 auto;
 		padding-top: clamp(8px, 3vh, 32px);
+	}
+	.prose-page.with-toc {
+		max-width: 1080px;
+	}
+	.with-toc header {
+		max-width: 760px;
+	}
+	.body {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 32px;
+	}
+	@media (min-width: 1040px) {
+		.with-toc .body {
+			grid-template-columns: 240px minmax(0, 760px);
+			gap: 56px;
+		}
+		.doc-toc {
+			position: sticky;
+			top: 96px;
+			align-self: start;
+			max-height: calc(100dvh - 120px);
+			overflow-y: auto;
+		}
+	}
+	.doc-toc {
+		padding: 18px 20px;
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--surface);
+		font-size: 14px;
+		line-height: 1.4;
+	}
+	.doc-toc-title {
+		margin-bottom: 10px;
+		font-size: 12px;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--ink-2);
+	}
+	.doc-toc ol {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+	.doc-toc a {
+		display: flex;
+		gap: 8px;
+		padding: 5px 8px;
+		margin: 0 -8px;
+		border-radius: 3px;
+		color: var(--ink-2);
+		text-decoration: none;
+		transition:
+			color 120ms ease,
+			background-color 120ms ease;
+	}
+	.doc-toc a:hover {
+		color: var(--ink);
+	}
+	.doc-toc a[aria-current] {
+		color: var(--ink);
+		font-weight: 600;
+		background: var(--bg);
+		box-shadow: inset 3px 0 0 var(--accent);
+	}
+	.num {
+		min-width: 22px;
+		font-variant-numeric: tabular-nums;
+		color: var(--ink-3);
+	}
+	.doc-meta {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		gap: 1px;
+		margin-top: 8px;
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--line);
+		overflow: hidden;
+	}
+	.doc-meta div {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		padding: 12px 14px;
+		background: var(--surface);
+	}
+	.doc-meta dt {
+		font-size: 12px;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--ink-2);
+	}
+	.doc-meta dd {
+		font-size: 15px;
+		font-weight: 600;
+		color: var(--ink);
+		font-variant-numeric: tabular-nums;
+	}
+	.doc-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+	.doc-footer {
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+		margin-top: 40px;
+		padding-top: 28px;
+		border-top: 1px solid var(--line);
+		font-size: 15px;
+	}
+	.prose .related-title {
+		margin-top: 8px;
+		font-size: 22px;
+	}
+	.prose .related {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+		gap: 8px;
+		padding: 0;
+		list-style: none;
+	}
+	.prose .related a {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		height: 100%;
+		padding: 12px 14px;
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--surface);
+		transition: border-color 120ms ease;
+	}
+	.prose .related a:hover {
+		color: var(--ink);
+		border-color: var(--ink);
+	}
+	.ref {
+		font-family: var(--font-mono);
+		font-size: 12px;
+		font-weight: 500;
+		color: var(--ink-2);
+	}
+	.name {
+		font-size: 15px;
+	}
+	@media print {
+		.doc-actions,
+		.doc-toc,
+		.prose .related,
+		.prose .related-title {
+			display: none !important;
+		}
+		.prose-page.with-toc {
+			max-width: none;
+		}
+		.with-toc .body {
+			display: block;
+		}
 	}
 	header {
 		display: flex;
@@ -108,8 +362,12 @@
 		padding-left: 22px;
 		list-style: decimal;
 	}
+	.prose :global(ol[type='a']) {
+		list-style: lower-alpha;
+	}
 	.prose :global(.table-wrap) {
 		overflow-x: auto;
+		outline-offset: 2px;
 		border-radius: 3px;
 		border: 1px solid var(--line);
 	}
@@ -141,20 +399,14 @@
 	.prose :global(tr:last-child th) {
 		border-bottom: 0;
 	}
+	.prose :global(td code),
+	.prose :global(td time) {
+		white-space: nowrap;
+	}
 	.prose :global(code) {
 		font-family: var(--font-mono);
 		font-size: 14px;
 		color: var(--ink);
-	}
-	.prose :global(.toc) {
-		padding: 18px 22px;
-		border-radius: 3px;
-		background: var(--surface);
-		border: 1px solid var(--line);
-		font-size: 15px;
-	}
-	.prose :global(.toc ol) {
-		gap: 4px;
 	}
 	.prose :global(.summary) {
 		padding: 18px 22px;

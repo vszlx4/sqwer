@@ -7,10 +7,28 @@ const password = 'correct-horse-battery';
 const newPassword = 'another-long-passphrase';
 let codes: string[] = [];
 
-/** Starts the proof-of-work check and waits until the widget has produced a payload. */
-async function solveCaptcha(page: Page) {
-	// The checkbox is styled with an overlaid tick, so it is clicked directly.
-	await page.locator('altcha-widget input[type="checkbox"]').click({ force: true });
+const NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth'];
+
+/** Answers a verification text question, as a person using a screen reader would. */
+export function answerQuestion(question: string): string {
+	let m = question.match(/the (\w+) letter of the word “(\w+)”/);
+	if (m) return m[2]![ORDINALS.indexOf(m[1]!)]!;
+	m = question.match(/What is (\w+) plus (\w+)\?/);
+	if (m) return String(NUMBERS.indexOf(m[1]!) + NUMBERS.indexOf(m[2]!));
+	m = question.match(/last word in this list: (.+)\./);
+	if (m) return m[1]!.split(', ').at(-1)!;
+	throw new Error(`Unknown question: ${question}`);
+}
+
+/** Completes the verification using its text question, and waits for the background check to finish. */
+async function solveCaptcha(page: Page, answer?: string) {
+	const toText = page.getByRole('button', { name: 'Use a text question' });
+	if (await toText.isVisible()) await toText.click();
+	const question = page.locator('.captcha .question');
+	await expect(question).toHaveText(/\?|\.$/);
+	const text = (await question.textContent())!.trim();
+	await page.getByRole('textbox', { name: 'Your answer' }).fill(answer ?? answerQuestion(text));
 	await expect.poll(async () => page.locator('input[name="altcha"]').inputValue(), { timeout: 30_000 }).not.toBe('');
 }
 
@@ -131,16 +149,27 @@ test('uploads a profile picture, which then appears on the public profile', asyn
 	});
 	const PNG = Buffer.from(dataUrl.split(',')[1]!, 'base64');
 	await page.locator('#pfp-input').setInputFiles({ name: 'me.png', mimeType: 'image/png', buffer: PNG });
+	// The upload is refused until the uploader confirms they hold the rights to the image.
+	await page.getByRole('button', { name: 'Save picture' }).click();
+	await expect(page.getByRole('alert')).toContainText('Confirm that you hold the rights to this image');
+	await page.getByLabel(/I took or created this image/).check();
 	await page.getByRole('button', { name: 'Save picture' }).click();
 	await expect(page.getByText('Your profile picture has been saved.')).toBeVisible();
 	await expect(page.locator('img.photo').first()).toHaveAttribute('src', /\/avatars\//);
 
 	// Files that are not images are refused by the server even if renamed.
 	const res = await page.request.post('/account/profile?/avatar', {
-		multipart: { avatar: { name: 'evil.png', mimeType: 'image/png', buffer: Buffer.from('<svg onload=alert(1)>') } },
+		multipart: { avatar: { name: 'evil.png', mimeType: 'image/png', buffer: Buffer.from('<svg onload=alert(1)>') }, rightsConfirm: 'on' },
 		headers: { origin: 'http://localhost:4321' }
 	});
 	expect(await res.text()).toContain('Upload a PNG, JPEG or WebP image.');
+
+	// The server also requires the confirmation, whatever the browser sends.
+	const unconfirmed = await page.request.post('/account/profile?/avatar', {
+		multipart: { avatar: { name: 'me.png', mimeType: 'image/png', buffer: PNG } },
+		headers: { origin: 'http://localhost:4321' }
+	});
+	expect(await unconfirmed.text()).toContain('Confirm that you hold the rights to this image');
 });
 
 test('the public profile is visible and the email address is not', async ({ page }) => {
@@ -226,6 +255,8 @@ test('exports the account data and deletes the account', async ({ page }) => {
 	const data = JSON.parse(await (await (await download).createReadStream()).toArray().then((c) => Buffer.concat(c).toString()));
 	expect(data.account.email).toBe(email);
 	expect(data.profile.displayName).toBe('Test Typist');
+	expect(data.acceptance.termsVersion).toMatch(/^terms-[\d.]+\+privacy-[\d.]+$/);
+	expect(Date.parse(data.acceptance.termsAcceptedAt)).toBeGreaterThan(0);
 
 	await page.getByRole('button', { name: 'Delete my account' }).click();
 	await page.getByLabel('Password').fill(newPassword);
@@ -233,6 +264,17 @@ test('exports the account data and deletes the account', async ({ page }) => {
 	await page.getByRole('button', { name: 'Permanently delete my account' }).click();
 	await expect(page).toHaveURL(/\/signin\?deleted=1$/);
 	await expect(page.getByText('Your account and its data have been deleted.')).toBeVisible();
+});
+
+test('rejects a wrong verification answer and shows a new challenge', async ({ page }) => {
+	await page.goto('/signin');
+	await page.getByLabel('Email address').fill(email);
+	await page.getByLabel('Password').fill(newPassword);
+	await solveCaptcha(page, 'definitely-wrong');
+	await submit(page, 'Sign in');
+	await expect(page.getByRole('alert')).toContainText('The answer did not match');
+	await expect(page).toHaveURL(/\/signin$/);
+	await expect(page.getByRole('textbox', { name: 'Your answer' })).toHaveValue('');
 });
 
 test('locks sign-in after five failed attempts', async ({ page }) => {

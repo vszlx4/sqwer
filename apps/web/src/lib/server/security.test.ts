@@ -89,3 +89,50 @@ describe('describeDevice', () => {
 		expect(describeDevice(null)).toBe('Unknown device');
 	});
 });
+
+describe('verification challenge', async () => {
+	const { checkAnswer, createChallenge, drawCharacters } = await import('./captcha.ts');
+
+	it('draws characters as paths, without the characters as text', () => {
+		const svg = drawCharacters('AC347');
+		expect(svg.startsWith('<svg')).toBe(true);
+		expect(svg).not.toMatch(/<text|AC347/);
+		expect(svg.match(/<path/g)!.length).toBeGreaterThan(5 + 2);
+	});
+
+	it('rejects wrong answers, spent tokens and malformed tokens', () => {
+		const a = createChallenge('image');
+		const b = createChallenge('image');
+		expect(checkAnswer(a.token, 'wrong')).toBe(false);
+		// A token is spent by any attempt, so it cannot be guessed repeatedly.
+		expect(checkAnswer(a.token, 'anything')).toBe(false);
+		expect(checkAnswer(b.token + 'x', 'abc')).toBe(false);
+		expect(checkAnswer('not.a-token', 'abc')).toBe(false);
+	});
+
+	it('issues answerable text questions, accepted once each', () => {
+		const numbers = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+		const ordinals = ['first', 'second', 'third', 'fourth', 'fifth'];
+		const solve = (q: string) => {
+			let m = q.match(/the (\w+) letter of the word “(\w+)”/);
+			if (m) return m[2]![ordinals.indexOf(m[1]!)]!;
+			m = q.match(/What is (\w+) plus (\w+)\?/);
+			if (m) return String(numbers.indexOf(m[1]!) + numbers.indexOf(m[2]!));
+			return q.match(/list: (.+)\./)![1]!.split(', ').at(-1)!;
+		};
+		for (let i = 0; i < 30; i++) {
+			const c = createChallenge('text');
+			expect(c.svg).toBeUndefined();
+			const answer = solve(c.question!);
+			expect(checkAnswer(c.token, ` ${answer.toUpperCase()} `)).toBe(true);
+			expect(checkAnswer(c.token, answer)).toBe(false);
+		}
+	});
+
+	it('rejects a tampered token', () => {
+		const { token } = createChallenge('text');
+		const [body, sig] = token.split('.');
+		const forged = Buffer.from(JSON.stringify({ ...JSON.parse(Buffer.from(body!, 'base64url').toString()), exp: Date.now() + 1e9 })).toString('base64url');
+		expect(checkAnswer(`${forged}.${sig}`, 'x')).toBe(false);
+	});
+});

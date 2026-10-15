@@ -2,11 +2,11 @@ export const CONTACT_EMAIL = 'info@mughram.com';
 
 /**
  * The operator's legal details, shown on the legal pages. Empty values are left out of the
- * pages rather than shown as placeholders, so fill them in before launch.
+ * pages rather than shown as placeholders.
  */
 export const LEGAL = {
-	/** Name of the individual who runs sqwer as a free, non-commercial project. */
-	operatorName: '',
+	/** The individual who runs sqwer as a free, non-commercial project. */
+	operatorName: 'Ahmed Mughram',
 	operatorCountry: 'the Kingdom of Saudi Arabia',
 	/** Representative in the EU under Article 27 GDPR: name, address and email, once appointed. */
 	euRepresentative: '',
@@ -14,9 +14,7 @@ export const LEGAL = {
 	ukRepresentative: '',
 	/** Provider that hosts the website's server, once it is online, and where. */
 	webHost: '',
-	webHostLocation: 'Europe',
-	/** Date shown on every legal page; change it whenever any of them changes. */
-	updated: '15 October 2026'
+	webHostLocation: 'Europe'
 } as const;
 
 /**
@@ -56,9 +54,13 @@ export const FOOTER_GROUPS = [
 	{
 		title: 'Legal',
 		links: [
-			{ href: '/privacy', label: 'Privacy Policy' },
+			{ href: '/legal', label: 'Legal centre' },
 			{ href: '/terms', label: 'Terms and Conditions' },
-			{ href: '/cookies', label: 'Cookie Policy' }
+			{ href: '/privacy', label: 'Privacy Policy' },
+			{ href: '/cookies', label: 'Cookie and Storage Policy' },
+			{ href: '/copyright', label: 'Content and Copyright' },
+			{ href: '/accessibility', label: 'Accessibility' },
+			{ href: '/security', label: 'Security' }
 		]
 	}
 ] as const;

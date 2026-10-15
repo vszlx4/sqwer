@@ -17,6 +17,7 @@
 	let preview = $state<string | null>(null);
 	let localError = $state<string | null>(null);
 	let busy = $state(false);
+	let confirmed = $state(false);
 	let input: HTMLInputElement | undefined = $state();
 
 	/** Crops to a centred square, resizes and re-encodes, which also removes metadata such as location. */
@@ -57,8 +58,14 @@
 				method="POST"
 				action="?/avatar"
 				enctype="multipart/form-data"
+				novalidate
 				use:enhance={({ formData, cancel }) => {
 					if (!prepared) return cancel();
+					if (!confirmed) {
+						localError = 'Confirm that you hold the rights to this image before uploading it.';
+						return cancel();
+					}
+					localError = null;
 					formData.set('avatar', prepared, 'avatar.webp');
 					busy = true;
 					return async ({ update }) => {
@@ -66,6 +73,7 @@
 						busy = false;
 						prepared = null;
 						preview = null;
+						confirmed = false;
 						if (input) input.value = '';
 					};
 				}}
@@ -85,6 +93,13 @@
 				/>
 				{#if prepared}
 					<button class="btn btn-primary" type="submit" disabled={busy}>{busy ? 'Uploading…' : 'Save picture'}</button>
+					<label class="check rights">
+						<input type="checkbox" name="rightsConfirm" bind:checked={confirmed} required aria-invalid={localError && !confirmed ? 'true' : undefined} />
+						<span>
+							I took or created this image, or have permission to use it, and it does not infringe anyone’s rights, as set
+							out in the <a href="/copyright" target="_blank">Content and Copyright Policy</a>.<span class="req" aria-hidden="true"></span>
+						</span>
+					</label>
 				{/if}
 			</form>
 			{#if src && !prepared}
@@ -97,7 +112,11 @@
 			{/if}
 		</div>
 	</div>
-	<p class="hint">PNG, JPEG or WebP. The image is cropped to a square and resized before upload. Location and camera data are removed.</p>
+	<p class="hint">
+		PNG, JPEG or WebP. The image is cropped to a square and resized before upload, and location and camera data are
+		removed. Upload only images you have the right to use; do not upload photographs of other people without their
+		consent.
+	</p>
 	{#if localError || error}<p class="error" role="alert">{localError ?? error}</p>{/if}
 </section>
 
@@ -128,6 +147,11 @@
 	}
 	label.btn {
 		cursor: pointer;
+	}
+	.rights {
+		flex-basis: 100%;
+		max-width: 520px;
+		font-size: 13.5px;
 	}
 	label.btn:has(+ input:focus-visible) {
 		outline: 2px solid var(--ink);

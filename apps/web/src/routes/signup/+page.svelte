@@ -6,6 +6,7 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import Captcha from '#lib/ui/Captcha.svelte';
 	import Field from '#lib/ui/Field.svelte';
+	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import { PASSWORD_RULE } from '#lib/profile.ts';
 	import type { PageProps } from './$types';
 
@@ -42,6 +43,7 @@
 			}}
 		>
 			{#if errors.form}<p class="form-alert" role="alert">{errors.form}</p>{/if}
+			<RequiredNote />
 
 			<Field label="Email address" name="email" type="email" autocomplete="email" required value={values.email} error={errors.email} />
 			<Field
@@ -65,12 +67,15 @@
 			<div class="consents">
 				<label class="check">
 					<input type="checkbox" name="acceptTerms" required aria-invalid={errors.acceptTerms ? 'true' : undefined} />
-					<span>I accept the <a href="/terms" target="_blank">Terms and Conditions</a> and have read the <a href="/privacy" target="_blank">Privacy Policy</a>.</span>
+					<span
+						>I accept the <a href="/terms" target="_blank">Terms and Conditions</a> and have read the
+						<a href="/privacy" target="_blank">Privacy Policy</a>.<span class="req" aria-hidden="true"></span></span
+					>
 				</label>
 				{#if errors.acceptTerms}<p class="field-error">{errors.acceptTerms}</p>{/if}
 				<label class="check">
 					<input type="checkbox" name="ageConfirm" required aria-invalid={errors.ageConfirm ? 'true' : undefined} />
-					<span>I confirm that I am at least 16 years old.</span>
+					<span>I confirm that I am at least 16 years old.<span class="req" aria-hidden="true"></span></span>
 				</label>
 				{#if errors.ageConfirm}<p class="field-error">{errors.ageConfirm}</p>{/if}
 			</div>
@@ -93,11 +98,5 @@
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
-	}
-	.field-error {
-		margin-left: 28px;
-		font-size: 13.5px;
-		font-weight: 600;
-		color: var(--error);
 	}
 </style>

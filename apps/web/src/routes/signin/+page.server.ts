@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { logSecurity } from '#lib/server/security-log.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { createSession, dummyPasswordHash, findUserByEmail, setSessionCookie, verifyPassword } from '#lib/server/auth.ts';
-import { verifyCaptcha } from '#lib/server/captcha.ts';
+import { CAPTCHA_MESSAGES, verifyCaptcha } from '#lib/server/captcha.ts';
 import { failureLimit, rateLimit, rateLimitMessage, recordFailure } from '#lib/server/rate-limit.ts';
 import { emailSchema, safeRedirect } from '#lib/server/validation.ts';
 import type { Actions, PageServerLoad } from './$types';
@@ -43,9 +43,10 @@ export const actions: Actions = {
 			await logSecurity('rate_limited', { ip, detail: 'signin' });
 			return fail(429, { values, errors: { form: rateLimitMessage(Math.max(ipLimit.retryAfter, emailLimit.retryAfter)) } });
 		}
-		if (!(await verifyCaptcha(form.get('altcha')))) {
+		const captcha = await verifyCaptcha(form);
+		if (captcha !== 'ok') {
 			await logSecurity('captcha_failed', { ip, detail: 'signin' });
-			return fail(400, { values, errors: { captcha: 'Please complete the verification.' } });
+			return fail(400, { values, errors: { captcha: CAPTCHA_MESSAGES[captcha] } });
 		}
 		const password = String(form.get('password') ?? '');
 		if (!emailSchema.safeParse(email).success || !password) {

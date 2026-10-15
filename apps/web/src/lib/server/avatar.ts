@@ -23,13 +23,14 @@ export async function validateAvatar(file: File): Promise<{ mime: string; bytes:
 	return { mime: match.mime, bytes };
 }
 
+/** Saves a picture whose uploader has confirmed they hold the rights to it; the time of confirmation is kept. */
 export async function saveAvatar(userId: string, mime: string, bytes: Uint8Array) {
 	const data = Buffer.from(bytes).toString('base64');
 	const now = new Date();
 	await (await db())
 		.insert(schema.avatars)
-		.values({ userId, mime, data, updatedAt: now })
-		.onConflictDoUpdate({ target: schema.avatars.userId, set: { mime, data, updatedAt: now } });
+		.values({ userId, mime, data, updatedAt: now, rightsConfirmedAt: now })
+		.onConflictDoUpdate({ target: schema.avatars.userId, set: { mime, data, updatedAt: now, rightsConfirmedAt: now } });
 }
 
 export async function deleteAvatar(userId: string) {

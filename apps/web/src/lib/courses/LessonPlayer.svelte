@@ -86,6 +86,16 @@
 		complete = { stars, accuracy, wpm, before, after: courses.rank, bestBefore, saved };
 	}
 
+	/**
+	 * Games depend on reaction time, sight or hearing. After a failed attempt they can be left out,
+	 * so that no learner is blocked by them; a skipped game does not count towards stars.
+	 */
+	const isGame = $derived(step.kind === 'falling' || step.kind === 'rhythm');
+	function skipGame() {
+		outcome = { passed: true, graded: false, accuracy: 0, summary: 'Game skipped.' };
+		void proceed();
+	}
+
 	function restart() {
 		index = 0;
 		attempt++;
@@ -165,6 +175,9 @@
 					<Icon name={outcome.passed ? 'arrow' : 'restart'} size={18} />
 				</button>
 				<p class="enter">or press <kbd>Enter</kbd></p>
+				{#if !outcome.passed && isGame}
+					<button type="button" class="skip-game" onclick={skipGame}>Continue without this game</button>
+				{/if}
 			</section>
 		{:else}
 			{#key attempt}
@@ -349,6 +362,20 @@
 	}
 	.enter {
 		font-size: 13px;
+	}
+	.skip-game {
+		padding: 6px 10px;
+		border: 0;
+		border-radius: 3px;
+		background: none;
+		color: var(--ink);
+		font: inherit;
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	.skip-game:hover {
+		color: var(--ink-2);
 	}
 	kbd {
 		padding: 1px 6px;

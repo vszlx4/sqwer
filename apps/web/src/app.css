@@ -514,6 +514,29 @@ body {
 	font-weight: 600;
 	text-decoration: none;
 }
+/*
+ * Required fields carry an asterisk. It is drawn by CSS and hidden from assistive technology, which
+ * learns that a field is required from its `required` attribute; label text stays clean.
+ */
+.req::before {
+	content: '*';
+	margin-left: 3px;
+	font-weight: 700;
+	color: var(--error);
+}
+.form-note {
+	font-size: 13.5px;
+	color: var(--ink-2);
+}
+.form-note .req::before {
+	margin-left: 0;
+}
+.field-error {
+	margin-left: 28px;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var(--error);
+}
 .honeypot {
 	position: absolute !important;
 	left: -10000px;
@@ -568,5 +591,28 @@ body {
 	[data-reveal='hidden'] {
 		opacity: 1;
 		transform: none;
+	}
+}
+
+/* ---------- Print ---------- */
+/* Legal documents and results print cleanly: site navigation is left out and colours are plain. */
+@media print {
+	.site-header,
+	.site-footer,
+	.skip {
+		display: none !important;
+	}
+	:root {
+		--bg: #fff;
+		--surface: #fff;
+		--ink: #000;
+		--ink-2: #222;
+	}
+	body {
+		background: #fff;
+		color: #000;
+	}
+	a {
+		color: inherit;
 	}
 }

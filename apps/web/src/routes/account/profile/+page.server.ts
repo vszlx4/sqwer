@@ -26,8 +26,12 @@ export const actions: Actions = {
 		const user = requireUser(locals, url);
 		const limit = rateLimit(`avatar:${user.id}`, 20, 60 * 60 * 1000);
 		if (!limit.ok) return fail(429, { avatarError: rateLimitMessage(limit.retryAfter) });
-		const file = (await request.formData()).get('avatar');
+		const form = await request.formData();
+		const file = form.get('avatar');
 		if (!(file instanceof File)) return fail(400, { avatarError: 'Select an image to upload.' });
+		if (form.get('rightsConfirm') !== 'on') {
+			return fail(400, { avatarError: 'Confirm that you hold the rights to this image before uploading it.' });
+		}
 		const checked = await validateAvatar(file);
 		if ('error' in checked) return fail(400, { avatarError: checked.error });
 		await saveAvatar(user.id, checked.mime, checked.bytes);

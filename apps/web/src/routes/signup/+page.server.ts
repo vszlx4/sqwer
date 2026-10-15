@@ -8,7 +8,8 @@ import {
 	newUserId,
 	setSessionCookie
 } from '#lib/server/auth.ts';
-import { verifyCaptcha } from '#lib/server/captcha.ts';
+import { CAPTCHA_MESSAGES, verifyCaptcha } from '#lib/server/captcha.ts';
+import { ACCEPTANCE_VERSION } from '#lib/site/legal.ts';
 import { logSecurity } from '#lib/server/security-log.ts';
 import { rateLimit, rateLimitMessage } from '#lib/server/rate-limit.ts';
 import { emailSchema, passwordSchema } from '#lib/server/validation.ts';
@@ -41,9 +42,10 @@ export const actions: Actions = {
 			await logSecurity('bot_trap', { ip, detail: 'signup' });
 			return fail(400, { values, errors: { form: 'The form could not be submitted. Please try again.' } });
 		}
-		if (!(await verifyCaptcha(form.get('altcha')))) {
+		const captcha = await verifyCaptcha(form);
+		if (captcha !== 'ok') {
 			await logSecurity('captcha_failed', { ip, detail: 'signup' });
-			return fail(400, { values, errors: { captcha: 'Please complete the verification.' } });
+			return fail(400, { values, errors: { captcha: CAPTCHA_MESSAGES[captcha] } });
 		}
 
 		const errors: Record<string, string> = {};
@@ -69,7 +71,16 @@ export const actions: Actions = {
 		}
 
 		const id = newUserId();
-		await (await db()).insert(schema.users).values({ id, email: parsedEmail.data, passwordHash: await hashPassword(password) });
+		const now = new Date();
+		// What was accepted, and when, is kept as evidence of acceptance and of the age confirmation.
+		await (await db()).insert(schema.users).values({
+			id,
+			email: parsedEmail.data,
+			passwordHash: await hashPassword(password),
+			termsVersion: ACCEPTANCE_VERSION,
+			termsAcceptedAt: now,
+			ageConfirmedAt: now
+		});
 		const codes = await issueRecoveryCodes(id);
 		const session = await createSession(id, request.headers.get('user-agent'));
 		await logSecurity('account_created', { userId: id, ip, userAgent: request.headers.get('user-agent') });

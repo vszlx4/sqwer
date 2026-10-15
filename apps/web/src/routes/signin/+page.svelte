@@ -4,6 +4,7 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import Captcha from '#lib/ui/Captcha.svelte';
 	import Field from '#lib/ui/Field.svelte';
+	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -28,6 +29,7 @@
 		}}
 	>
 		{#if errors.form}<p class="form-alert" role="alert">{errors.form}</p>{/if}
+		<RequiredNote />
 		<Field label="Email address" name="email" type="email" autocomplete="email" required value={form?.values?.email ?? ''} />
 		<Field label="Password" name="password" type="password" autocomplete="current-password" required />
 		<Captcha error={errors.captcha} resetKey={form} />
