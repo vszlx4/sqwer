@@ -6,7 +6,7 @@
 	const FAQS = [
 		{
 			q: 'Is sqwer free to use?',
-			a: 'Yes. The Courses, the Examinations, the Finger map and accounts are free of charge. Everything needed to learn and practise will remain free.'
+			a: 'Yes. sqwer is a free, non-commercial project: the Courses, the Examinations, the Finger map and accounts cost nothing, and sqwer never asks for payment details.'
 		},
 		{
 			q: 'Do I need an account?',
