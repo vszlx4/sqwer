@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { sql } from 'drizzle-orm';
 import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core';
 import { DATA_DIR } from '../config.ts';
@@ -13,12 +13,24 @@ const MIGRATIONS = import.meta.glob('/drizzle/*.sql', { query: '?raw', import: '
 	string
 >;
 
+/**
+ * Connections to a database on another machine are always encrypted, and the server's certificate
+ * is verified. Hosted providers such as Supabase sign with their own certificate authority, which
+ * is given as a file in DATABASE_CA_FILE. Only a database on this machine may skip encryption.
+ */
+function tls(url: string): false | { ca?: string; rejectUnauthorized: true } {
+	const host = new URL(url).hostname;
+	if (['localhost', '127.0.0.1', '::1', '[::1]'].includes(host)) return false;
+	const caFile = process.env.DATABASE_CA_FILE;
+	return { ca: caFile ? readFileSync(caFile, 'utf8') : undefined, rejectUnauthorized: true };
+}
+
 async function connect(): Promise<Database> {
 	const url = process.env.DATABASE_URL;
 	if (url) {
 		const { default: pg } = await import('pg');
 		const { drizzle } = await import('drizzle-orm/node-postgres');
-		const pool = new pg.Pool({ connectionString: url, max: 10 });
+		const pool = new pg.Pool({ connectionString: url, max: Number(process.env.DATABASE_POOL_SIZE ?? 5), ssl: tls(url) });
 		return drizzle(pool, { schema }) as unknown as Database;
 	}
 	// No server configured: use an embedded PostgreSQL stored on disk.
@@ -33,6 +45,7 @@ async function migrate(db: Database) {
 	await db.execute(
 		sql`CREATE TABLE IF NOT EXISTS sqwer_migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())`
 	);
+	await db.execute(sql`ALTER TABLE sqwer_migrations ENABLE ROW LEVEL SECURITY`);
 	const applied = await db.execute<{ name: string }>(sql`SELECT name FROM sqwer_migrations`);
 	const done = new Set((applied as unknown as { rows: { name: string }[] }).rows.map((r) => r.name));
 
