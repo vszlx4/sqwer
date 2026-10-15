@@ -39,7 +39,13 @@
 			targetWpm: p.targetWpm,
 			platform: p.platform,
 			avatarColor: p.avatarColor,
-			isPublic: p.isPublic
+			isPublic: p.isPublic,
+			headline: p.headline,
+			pronouns: p.pronouns,
+			banner: p.banner,
+			showRank: p.showRank,
+			showStats: p.showStats,
+			showStreak: p.showStreak
 		}}
 	/>
 </div>

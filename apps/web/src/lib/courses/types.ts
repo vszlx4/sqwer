@@ -22,8 +22,7 @@ export type StepSpec =
 			focus: string;
 			/** Words to use instead of choosing them from the pool. */
 			words?: readonly string[];
-			seconds: number;
-			/** Items to clear to pass. */
+			/** Items to clear; the game ends as soon as they are cleared. */
 			target: number;
 	  }
 	| {
@@ -31,7 +30,35 @@ export type StepSpec =
 			kind: 'rhythm';
 			keys: string[];
 			bpm: number;
-			notes: number;
+			/** Notes to hit on the beat; the game ends as soon as they are hit. */
+			target: number;
+	  }
+	| {
+			/** A key lights up on the keyboard; press it before it fades. Teaches where keys are. */
+			kind: 'keyhunt';
+			pool: string;
+			focus: string;
+			/** Keys to hit. */
+			target: number;
+	  }
+	| {
+			/** A race against a pacer typing at a set speed; finish the passage first. */
+			kind: 'race';
+			pool: string;
+			focus: string;
+			words?: readonly string[];
+			/** Words in the passage, which is the finish line. */
+			count: number;
+			pacerWpm: number;
+	  }
+	| {
+			/** Keys flash in a sequence; repeat it from memory. The sequence grows by one each round. */
+			kind: 'echo';
+			pool: string;
+			/** Length of the first sequence. */
+			start: number;
+			/** Sequence length to reach. */
+			target: number;
 	  }
 	| {
 			/** A word is spoken aloud; the learner types what they hear. */

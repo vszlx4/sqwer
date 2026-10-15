@@ -7,6 +7,7 @@
 	import type { Exam } from '#lib/exams.ts';
 	import { toDetail } from '#lib/results/detail.ts';
 	import ResultReport from '#lib/results/ResultReport.svelte';
+	import { swap } from '#lib/ui/transition.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import type { ExamId, ResultRecord } from '#lib/results/types.ts';
 	import Keyboard from '#lib/keyboard/Keyboard.svelte';
@@ -116,9 +117,14 @@
 		abandon();
 		stopTimer();
 		const words = repeat ? session.targets.slice(0, session.mode.kind === 'words' ? session.targets.length : undefined) : undefined;
-		session = newSession(words);
-		record = null;
-		rev++;
+		const next = newSession(words);
+		const update = () => {
+			session = next;
+			record = null;
+			rev++;
+		};
+		if (record) swap(update);
+		else update();
 		now = 0;
 		idle = true;
 		mouseMoved = true;
@@ -144,8 +150,12 @@
 		if (record) return;
 		session.finish(at);
 		stopTimer();
-		record = save(session, 'completed');
-		rev++;
+		const saved = save(session, 'completed');
+		// The test dissolves into its results rather than snapping to them.
+		swap(() => {
+			record = saved;
+			rev++;
+		});
 	}
 
 	function afterChange(at: number) {

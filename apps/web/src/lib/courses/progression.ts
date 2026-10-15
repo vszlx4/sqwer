@@ -24,27 +24,31 @@ export function totalPoints(progress: Record<string, LessonProgress>): number {
 	return Object.values(progress).reduce((sum, p) => sum + lessonPoints(p.stars), 0);
 }
 
+/** Badge materials, from the first ranks to the last. Two ranks share each material. */
+export type Tier = 'bronze' | 'silver' | 'gold' | 'emerald' | 'diamond';
+
 export interface Rank {
 	level: number;
+	/** A short, single-word title. */
 	name: string;
 	/** Points needed to reach this rank. */
 	min: number;
 	/** A short description of what the rank represents. */
 	note: string;
-	hue: number;
+	tier: Tier;
 }
 
 export const RANKS: Rank[] = [
-	{ level: 1, name: 'Fresh Fingers', min: 0, note: 'Every typist starts here.', hue: 200 },
-	{ level: 2, name: 'Key Finder', min: 100, note: 'Your first keys are found.', hue: 170 },
-	{ level: 3, name: 'Home-Row Hero', min: 350, note: 'All eight fingers know their home.', hue: 140 },
-	{ level: 4, name: 'Top-Row Ranger', min: 800, note: 'Reaching up without looking.', hue: 95 },
-	{ level: 5, name: 'Word Weaver', min: 1400, note: 'Letters have become words.', hue: 50 },
-	{ level: 6, name: 'Rhythm Rider', min: 2200, note: 'An even, steady beat.', hue: 25 },
-	{ level: 7, name: 'Swift Fingers', min: 3200, note: 'Speed that holds its accuracy.', hue: 350 },
-	{ level: 8, name: 'Flow Keeper', min: 4400, note: 'Whole sentences without a pause.', hue: 300 },
-	{ level: 9, name: 'Keyboard Captain', min: 5800, note: 'Every key, every symbol.', hue: 265 },
-	{ level: 10, name: 'Keyboard Legend', min: 7400, note: 'The whole road, travelled.', hue: 230 }
+	{ level: 1, name: 'Novice', min: 0, note: 'Every typist starts here.', tier: 'bronze' },
+	{ level: 2, name: 'Learner', min: 100, note: 'Your first keys are found.', tier: 'bronze' },
+	{ level: 3, name: 'Apprentice', min: 350, note: 'All eight fingers know their home.', tier: 'silver' },
+	{ level: 4, name: 'Typist', min: 800, note: 'The whole alphabet, without looking.', tier: 'silver' },
+	{ level: 5, name: 'Adept', min: 1400, note: 'Letters have become words.', tier: 'gold' },
+	{ level: 6, name: 'Skilled', min: 2200, note: 'An even, steady rhythm.', tier: 'gold' },
+	{ level: 7, name: 'Expert', min: 3200, note: 'Speed that keeps its accuracy.', tier: 'emerald' },
+	{ level: 8, name: 'Master', min: 4400, note: 'Whole sentences without a pause.', tier: 'emerald' },
+	{ level: 9, name: 'Virtuoso', min: 5800, note: 'Every key, every symbol.', tier: 'diamond' },
+	{ level: 10, name: 'Legend', min: 7400, note: 'The whole course, mastered.', tier: 'diamond' }
 ];
 
 export interface RankStatus {
