@@ -21,7 +21,7 @@ export const GAMES: GameInfo[] = [
 	{ id: 'race', title: 'Race', icon: 'flag', summary: 'Read a passage, then type it before the pacer reaches the line.' },
 	{ id: 'falling-words', title: 'Falling words', icon: 'text', summary: 'Type each word before it lands. Words get longer as you climb.' },
 	{ id: 'falling-letters', title: 'Falling letters', icon: 'keyboard', summary: 'Single keys fall from the top; press each before it lands.' },
-	{ id: 'echo', title: 'Echo', icon: 'repeat', summary: 'Watch a word light up letter by letter, then type it from memory.' },
+	{ id: 'echo', title: 'Echo', icon: 'repeat', summary: 'Letters of a word light up one at a time and fade; type the word from memory.' },
 	{ id: 'listen', title: 'Listen and type', icon: 'volume', summary: 'Hear a word, type what you heard. Longer words at higher levels.' },
 	{ id: 'rhythm', title: 'Rhythm', icon: 'play', summary: 'Notes fall in lanes and spell words; press each key on the beat.' },
 	{ id: 'keyhunt', title: 'Key hunt', icon: 'target', summary: 'A key lights up somewhere on the keyboard; find it and press it.' }
@@ -80,6 +80,8 @@ export interface RoundSettings {
 	start?: number;
 	/** Rhythm: beats per minute. */
 	bpm?: number;
+	/** Echo: how long each letter stays lit, in milliseconds. */
+	showMs?: number;
 }
 
 /** Settings for one round of a game at a level. */
@@ -93,8 +95,9 @@ export function roundSettings(game: GameId, level: number): RoundSettings {
 		case 'falling-letters':
 			return { target: 12 + 2 * L, pace: 0.75 + 0.07 * L };
 		case 'echo': {
+			// Only the word length, the word set and how long each letter is shown change.
 			const start = 2 + Math.ceil(L / 2);
-			return { start, target: start + 1 };
+			return { start, target: start + 1, showMs: Math.round(1400 - (L - 1) * 90) };
 		}
 		case 'listen':
 			return { count: 6, target: L <= 4 ? 4 : 5 };

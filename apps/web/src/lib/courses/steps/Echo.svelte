@@ -16,7 +16,19 @@
 	 * far (two short words when no single word is long enough), so they can be remembered as words
 	 * and their finger movements; only pools without letters, such as digits, use random keys.
 	 */
-	let { pool, start, target, oncomplete }: { pool: string; start: number; target: number; oncomplete: (r: StepResult) => void } = $props();
+	interface Props {
+		pool: string;
+		start: number;
+		target: number;
+		/** How long each letter stays lit before it fades, in milliseconds. */
+		showMs?: number;
+		/** Words to choose from instead of the everyday vocabulary, for example a difficulty tier. */
+		words?: readonly string[];
+		oncomplete: (r: StepResult) => void;
+	}
+	let { pool, start, target, showMs = 1100, words, oncomplete }: Props = $props();
+	/** How long a letter takes to fade out. */
+	const FADE = 350;
 
 	const LIVES = 5;
 	const layout = qwertyAnsi(resolvedPlatform());
@@ -31,8 +43,9 @@
 
 	let length = $state(untrack(() => start));
 	let sequence = $state<string[]>([]);
-	let mode = $state<'idle' | 'showing' | 'memorize' | 'answering' | 'between'>('idle');
+	let mode = $state<'idle' | 'showing' | 'answering' | 'between'>('idle');
 	let shown = $state<number>(-1);
+	let fading = $state<number>(-1);
 	let typed = $state(0);
 	let lives = $state(LIVES);
 	let correct = $state(0);
@@ -47,14 +60,14 @@
 
 	const codeOf = (k: string) => pressesFor(layout, k).at(-1)?.code ?? '';
 	const highlight = $derived(mode === 'showing' && shown >= 0 ? new Set([codeOf(sequence[shown]!)]) : new Set<string>());
-	const visible = (i: number) => (mode === 'showing' && i <= shown) || mode === 'memorize';
 	const rounds = $derived(target - start + 1);
 	const progress = $derived((length - start) / rounds);
 
 	/** Everyday words that use only this step's keys, the most common first. */
 	const vocabulary = untrack(() => {
 		const allowed = new Set(keys);
-		const all = [...new Set([...EXAM_WORDS, ...ENGLISH_WORDS, ...COURSE_WORDS].map((w) => w.toLowerCase()))];
+		const source = words?.length ? words : [...EXAM_WORDS, ...ENGLISH_WORDS, ...COURSE_WORDS];
+		const all = [...new Set(source.map((w) => w.toLowerCase()))];
 		return all.filter((w) => w.length >= 2 && /^[a-z]+$/.test(w) && [...w].every((c) => allowed.has(c)));
 	});
 	const used = new Set<string>();
@@ -91,9 +104,9 @@
 	}
 
 	/**
-	 * Shows the sequence one key at a time, at a pace that can be followed. Shown letters stay in
-	 * their places, so the word builds up; the whole word then stays on screen for a moment, longer
-	 * for longer words, before it is hidden and it is the learner's turn.
+	 * Shows the sequence one key at a time. Each letter stays lit long enough to be read, then
+	 * fades away before the next one appears; nothing stays on screen, so the word is typed from
+	 * memory.
 	 */
 	function play(fresh: boolean) {
 		if (fresh) sequence = compose(length);
@@ -101,26 +114,25 @@
 		message = 'Watch';
 		typed = 0;
 		shown = -1;
-		const on = 750;
-		const off = 250;
+		fading = -1;
+		const step = showMs + FADE + 150;
 		const lead = 500;
 		sequence.forEach((k, i) => {
 			later(() => {
+				fading = -1;
 				shown = i;
 				if (sound) tone(LANE_NOTES[keys.indexOf(k) % LANE_NOTES.length]!);
-			}, lead + i * (on + off));
+			}, lead + i * step);
+			later(() => {
+				shown = -1;
+				fading = i;
+			}, lead + i * step + showMs);
 		});
-		const shownBy = lead + sequence.length * (on + off);
-		const hold = 900 + sequence.length * 220;
 		later(() => {
-			mode = 'memorize';
-			message = 'Remember it';
-		}, shownBy);
-		later(() => {
-			shown = -1;
+			fading = -1;
 			mode = 'answering';
 			message = 'Your turn';
-		}, shownBy + hold);
+		}, lead + sequence.length * step);
 	}
 
 	function blink(kind: 'ok' | 'error', code: string) {
@@ -180,7 +192,7 @@
 <GameFrame
 	title="Echo"
 	icon="repeat"
-	how={vocabulary.length ? 'The letters of a word light up one after another, then the whole word stays for a moment. When it disappears, type it from memory. Each correct round makes the word one letter longer.' : 'Keys light up one after another, then the whole sequence stays for a moment. When it disappears, type it from memory. Each correct round adds one more key.'}
+	how={vocabulary.length ? 'The letters of a word light up one at a time, each fading before the next. When the last has faded, type the word from memory. Each correct round makes the word one letter longer.' : 'Keys light up one at a time, each fading before the next. When the last has faded, type them from memory. Each correct round adds one more key.'}
 	goal={`Repeat a sequence of ${target} keys`}
 	{progress}
 	status={`${Math.min(length, target)} keys`}
@@ -196,8 +208,8 @@
 		<p class="message" class:turn={mode === 'answering'} aria-live="polite">{message || ' '}</p>
 		<ol class="slots" aria-label={`Sequence of ${sequence.length} keys`}>
 			{#each sequence as k, i (i)}
-				<li class:filled={mode === 'answering' || mode === 'between' ? i < typed : false} class:lit={mode === 'showing' && i === shown} class:seen={visible(i) && !(mode === 'showing' && i === shown)}>
-					{#if visible(i) || ((mode === 'answering' || mode === 'between') && i < typed)}{keyName(k).length === 1 ? keyName(k) : k}{/if}
+				<li class:filled={(mode === 'answering' || mode === 'between') && i < typed} class:lit={mode === 'showing' && i === shown} class:fading={mode === 'showing' && i === fading}>
+					{#if (mode === 'showing' && (i === shown || i === fading)) || ((mode === 'answering' || mode === 'between') && i < typed)}{keyName(k).length === 1 ? keyName(k) : k}{/if}
 				</li>
 			{/each}
 		</ol>
@@ -253,11 +265,12 @@
 		color: var(--on-accent);
 		transform: translateY(-3px);
 	}
-	.slots li.seen {
+	.slots li.fading {
 		border-style: solid;
-		border-color: var(--ink);
-		background: var(--surface);
-		color: var(--ink);
+		border-color: var(--line-strong);
+		opacity: 0;
+		transform: none;
+		transition: opacity 350ms ease;
 	}
 	.slots li.filled {
 		border-style: solid;

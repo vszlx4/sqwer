@@ -53,11 +53,28 @@
 			left = preview;
 			previewTimer = setInterval(() => {
 				left--;
-				if (left <= 0) countIn();
+				if (left <= 0) play();
 			}, 1000);
+			reveal();
 			return;
 		}
+		reveal();
 		countIn();
+	}
+
+	let game: HTMLDivElement | undefined = $state();
+	/** Brings the whole game into view, so nothing needs scrolling once it starts. */
+	function reveal() {
+		const box = game?.getBoundingClientRect();
+		if (box && (box.top < 0 || box.bottom > window.innerHeight)) game!.scrollIntoView({ block: box.height < window.innerHeight ? 'center' : 'start', behavior: 'smooth' });
+	}
+
+	/** After reading time the game starts at once: the passage has already been seen, so no count-in. */
+	function play() {
+		if (phase !== 'preview') return;
+		clearInterval(previewTimer);
+		phase = 'playing';
+		onstart();
 	}
 
 	function countIn() {
@@ -81,7 +98,7 @@
 		if (e.key === ' ' || e.key === 'Enter') {
 			e.preventDefault();
 			if (phase === 'ready') start();
-			else countIn();
+			else play();
 		}
 	}
 	function onvisibilitychange() {
@@ -92,7 +109,16 @@
 <svelte:window {onkeydown} />
 <svelte:document {onvisibilitychange} />
 
-<div class="game">
+<div class="game" bind:this={game}>
+	{#if phase === 'preview'}
+		<!-- In place of the progress bar, so the layout does not move when the game starts. -->
+		<div class="hud prep" role="timer" aria-label={`${previewLabel}: starts in ${left} seconds`}>
+			<span class="prep-count" aria-hidden="true">{left}</span>
+			<span class="prep-text"><b>{previewLabel}</b><span>Starts when the time runs out</span></span>
+			<span class="prep-bar" aria-hidden="true"><span style:animation-duration={`${preview}s`}></span></span>
+			<button type="button" class="btn btn-primary" onclick={play}>Start now <kbd>Space</kbd></button>
+		</div>
+	{:else}
 	<div class="hud">
 		{#if lives}
 			<span class="lives" role="img" aria-label={`${lives.left} of ${lives.total} lives left`}>
@@ -104,13 +130,6 @@
 		</div>
 		<span class="status">{status}</span>
 	</div>
-
-	{#if phase === 'preview'}
-		<div class="prep" role="status">
-			<span class="prep-text"><b>{previewLabel}</b> · starts in {left}&nbsp;s</span>
-			<span class="prep-bar" aria-hidden="true"><span style:animation-duration={`${preview}s`}></span></span>
-			<button type="button" class="btn btn-primary" onclick={countIn}>Start now <kbd>Space</kbd></button>
-		</div>
 	{/if}
 
 	<!-- The game and its overlays share one grid cell, so the frame grows to fit whichever is taller. -->
@@ -267,23 +286,39 @@
 		font-size: 14px;
 	}
 	.prep {
-		display: flex;
-		align-items: center;
-		gap: 14px;
-		padding: 8px 10px 8px 14px;
+		gap: 16px;
+		min-height: 56px;
+		padding: 6px 6px 6px 8px;
 		border-radius: 3px;
-		border: 1px solid var(--line-strong);
+		border: 1px solid var(--ink);
 		background: var(--surface);
-		font-size: 14px;
 		color: var(--ink-2);
+	}
+	.prep-count {
+		display: grid;
+		place-items: center;
+		min-width: 44px;
+		height: 44px;
+		border-radius: 3px;
+		background: var(--ink);
+		color: var(--bg);
+		font-size: 24px;
+		font-weight: 800;
 		font-variant-numeric: tabular-nums;
 	}
-	.prep b {
+	.prep-text {
+		display: flex;
+		flex-direction: column;
+		line-height: 1.3;
+		font-size: 13px;
+	}
+	.prep-text b {
+		font-size: 15px;
 		color: var(--ink);
 	}
 	.prep-bar {
 		flex: 1;
-		height: 4px;
+		height: 8px;
 		border-radius: 3px;
 		background: var(--surface-2);
 		overflow: hidden;
@@ -291,7 +326,7 @@
 	.prep-bar span {
 		display: block;
 		height: 100%;
-		background: var(--ink);
+		background: var(--accent);
 		transform-origin: left;
 		animation: drain linear both;
 	}
@@ -339,56 +374,8 @@
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.overlay,
-		.prep {
-		display: flex;
-		align-items: center;
-		gap: 14px;
-		padding: 8px 10px 8px 14px;
-		border-radius: 3px;
-		border: 1px solid var(--line-strong);
-		background: var(--surface);
-		font-size: 14px;
-		color: var(--ink-2);
-		font-variant-numeric: tabular-nums;
-	}
-	.prep b {
-		color: var(--ink);
-	}
-	.prep-bar {
-		flex: 1;
-		height: 4px;
-		border-radius: 3px;
-		background: var(--surface-2);
-		overflow: hidden;
-	}
-	.prep-bar span {
-		display: block;
-		height: 100%;
-		background: var(--ink);
-		transform-origin: left;
-		animation: drain linear both;
-	}
-	@keyframes drain {
-		from {
-			transform: scaleX(1);
-		}
-		to {
-			transform: scaleX(0);
-		}
-	}
-	.prep .btn {
-		padding: 6px 12px;
-		font-size: 13.5px;
-	}
-	.prep kbd {
-		margin-left: 6px;
-		padding: 1px 6px;
-		border-radius: 3px;
-		background: rgb(0 0 0 / 0.12);
-		font-family: var(--font-mono);
-		font-size: 12px;
-	}
-	.count span {
+		.count span,
+		.prep-bar span {
 			animation: none;
 		}
 	}
