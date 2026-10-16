@@ -20,7 +20,7 @@ export interface Settings {
 	/** Include the number row when mapping fingers. */
 	mapExtended: boolean;
 	/** Which live readouts the ranked test shows. */
-	ranked: { speed: boolean; accuracy: boolean; rank: boolean; versusBest: boolean };
+	ranked: { time: boolean; speed: boolean };
 }
 
 const DEFAULTS: Settings = {
@@ -35,7 +35,7 @@ const DEFAULTS: Settings = {
 	liveWpm: true,
 	platform: 'auto',
 	mapExtended: false,
-	ranked: { speed: true, accuracy: true, rank: true, versusBest: true }
+	ranked: { time: true, speed: true }
 };
 
 const KEY = 'sqwer:settings';
@@ -44,7 +44,9 @@ function load(): Settings {
 	if (!browser) return { ...DEFAULTS };
 	try {
 		const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}');
-		return { ...DEFAULTS, ...saved, ranked: { ...DEFAULTS.ranked, ...(saved.ranked ?? {}) } };
+		const ranked = { ...DEFAULTS.ranked };
+		for (const key of Object.keys(ranked) as (keyof Settings['ranked'])[]) if (typeof saved.ranked?.[key] === 'boolean') ranked[key] = saved.ranked[key];
+		return { ...DEFAULTS, ...saved, ranked };
 	} catch {
 		return { ...DEFAULTS };
 	}

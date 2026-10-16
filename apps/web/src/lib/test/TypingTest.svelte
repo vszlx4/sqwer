@@ -6,7 +6,6 @@
 	import { fingerMap } from '#lib/fingermap/store.svelte.ts';
 	import type { Exam } from '#lib/exams.ts';
 	import { toDetail } from '#lib/results/detail.ts';
-	import RankedHud from '#lib/competitive/RankedHud.svelte';
 	import RankedResult from '#lib/competitive/RankedResult.svelte';
 	import { MIN_ACCURACY } from '#lib/progress/competitive.ts';
 	import ResultReport from '#lib/results/ResultReport.svelte';
@@ -343,12 +342,11 @@
 		now;
 		return session.started;
 	});
-	/** Live accuracy, worked out only for the ranked display. */
-	const accuracyNow = $derived.by(() => {
-		rev;
-		now;
-		return ranked && session.started ? computeStats(session).accuracy : 100;
-	});
+
+	function toggleRanked(key: keyof typeof settings.ranked) {
+		settings.ranked[key] = !settings.ranked[key];
+		saveSettings();
+	}
 
 	onMount(() => {
 		if (!ranked) return;
@@ -373,8 +371,20 @@
 		<ResultReport {record} onnext={() => restart()} onrepeat={() => restart(true)} />
 	{:else}
 		{#if ranked}
-		<RankedHud {started} {remaining} total={session.mode.kind === 'time' ? session.mode.seconds : 60} wpm={wpmNow} accuracy={accuracyNow} best={rankedBest} />
-		<span class="sr-only" data-testid="counter">{remaining}</span>
+		<div class="chrome top">
+			<p class="ranked-rule"><Icon name="trophy" size={15} /> Ranked · {session.mode.kind === 'time' ? session.mode.seconds : 60} seconds · at least {MIN_ACCURACY}% accuracy</p>
+			<div class="readouts" role="group" aria-label="Live readouts">
+				<button type="button" class="pill" aria-pressed={settings.ranked.time} onclick={() => toggleRanked('time')}><Icon name="clock" size={15} /> Time</button>
+				<button type="button" class="pill" aria-pressed={settings.ranked.speed} onclick={() => toggleRanked('speed')}><Icon name="gauge" size={15} /> Speed</button>
+			</div>
+		</div>
+
+		<div class="status" aria-live="off">
+			<span class="counter" class:sr-only={!settings.ranked.time} data-testid="counter" role="timer" aria-label={`${remaining} seconds left`}>{remaining}</span>
+			{#if settings.ranked.speed && started}
+				<span class="live"><b>{wpmNow}</b> WPM</span>
+			{/if}
+		</div>
 		{:else}
 		<div class="chrome top">
 			{#if fixed && exam}
@@ -493,6 +503,17 @@
 		align-items: center;
 		justify-content: center;
 		gap: 10px;
+	}
+	.ranked-rule {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 14px;
+		color: var(--ink-3);
+	}
+	.readouts {
+		display: flex;
+		gap: 6px;
 	}
 	.exam-banner {
 		max-width: 760px;

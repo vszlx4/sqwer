@@ -4,20 +4,18 @@
 	/**
 	 * A competitive rank emblem: one geometric shape per rank, cut like a glass gem, with the
 	 * shapes growing in complexity up the ladder (triangle, shield, rhombus, hexagon, octagon, then
-	 * stars of four to eight points). The division is the number of chevrons beneath it, matching
-	 * its numeral: three for III, two for II, one for I. Zenith is a brilliant-cut white diamond.
+	 * stars of four to eight points). Every division of a rank shares its emblem; the division
+	 * is written in the rank name beside it. Zenith is a brilliant-cut white diamond.
 	 * Decorative: the rank name is always written beside it.
 	 */
 	interface Props {
 		/** The rank, or null for unranked. */
 		league: League | null;
-		/** Number of chevrons: 3 for division III, 2 for II, 1 for I. Leave out to show the rank alone. */
-		division?: number;
 		size?: number;
 		locked?: boolean;
 	}
 
-	let { league, division, size = 96, locked = false }: Props = $props();
+	let { league, size = 96, locked = false }: Props = $props();
 	const uid = $props.id();
 
 	type Glass = { light: string; base: string; dark: string; deep: string };
@@ -69,9 +67,8 @@
 	const zenith = $derived(league?.id === 'zenith');
 	const g = $derived(league ? GLASS[league.id]! : UNRANKED);
 	const shape = $derived(league && !zenith ? SHAPES[league.id]! : SHAPES.gold!);
-	const count = $derived(!league || zenith || !division ? 0 : Math.min(3, Math.max(1, division)));
-	/** Centre and radius of the emblem, raised to leave room for the chevrons when they are shown. */
-	const frame = $derived(zenith ? { cx: 60, cy: 58, r: 54 } : count ? { cx: 60, cy: 45, r: 38 } : { cx: 60, cy: 58, r: 47 });
+	/** Centre and radius of the emblem. */
+	const frame = $derived(zenith ? { cx: 60, cy: 58, r: 54 } : { cx: 60, cy: 58, r: 50 });
 
 	/* ----------------------------------------------------------------- shading */
 
@@ -110,14 +107,6 @@
 		});
 		return { outline: poly(outer), top: shape.table ? poly(inner) : null, faces, ridges: shape.table ? [] : outer.filter((_, i) => i % 2 === 0) };
 	});
-
-	/** The chevrons of the division, beneath the emblem. */
-	const chevrons = $derived(
-		Array.from({ length: count }, (_, i) => {
-			const y = 90 + i * 9.5;
-			return { body: `M38 ${y} L60 ${y + 7} L82 ${y} L82 ${y + 5.5} L60 ${y + 12.5} L38 ${y + 5.5} Z`, edge: `M38.8 ${y + 0.6} L60 ${y + 7.4} L81.2 ${y + 0.6}` };
-		})
-	);
 
 	/* ------------------------------------------------------------------ zenith */
 
@@ -178,11 +167,6 @@
 			<stop offset="0" stop-color="#fff" stop-opacity="0.75" />
 			<stop offset="1" stop-color="#fff" stop-opacity="0" />
 		</linearGradient>
-		<linearGradient id={`${uid}-chev`} x1="0" y1="0" x2="0" y2="1">
-			<stop offset="0" stop-color={g.light} />
-			<stop offset="0.5" stop-color={g.base} />
-			<stop offset="1" stop-color={g.dark} />
-		</linearGradient>
 		<clipPath id={`${uid}-clip`}>
 			<polygon points={zenith ? zenithCut.outline : cut.outline} />
 		</clipPath>
@@ -233,11 +217,6 @@
 		{#if !league}
 			<text x={frame.cx} y={frame.cy + 6} text-anchor="middle" class="q" fill={g.deep}>?</text>
 		{/if}
-		{#each chevrons as c, i (i)}
-			<path d={c.body} transform="translate(0 1.6)" fill={g.deep} />
-			<path d={c.body} fill={`url(#${uid}-chev)`} stroke={g.deep} stroke-width="1" stroke-linejoin="round" />
-			<path d={c.edge} fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="0.8" stroke-linejoin="round" />
-		{/each}
 	{/if}
 </svg>
 

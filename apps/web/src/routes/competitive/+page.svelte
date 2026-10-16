@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import Avatar from '#lib/account/Avatar.svelte';
 	import RankEmblem from '#lib/competitive/RankEmblem.svelte';
-	import { LEAGUES, MIN_ACCURACY, TIERS, ZENITH_WPM, divisionLevel, nextTier, tierFor, tierRange, type League } from '#lib/progress/competitive.ts';
+	import { LEAGUES, MIN_ACCURACY, TIERS, ZENITH_WPM, nextTier, tierFor, tierRange, type League } from '#lib/progress/competitive.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import type { PageProps } from './$types';
@@ -51,7 +51,7 @@
 
 			<div class="me" aria-label="Your rank">
 				<div class="me-emblem">
-					<RankEmblem league={myTier?.league ?? null} division={divisionLevel(myTier)} size={176} />
+					<RankEmblem league={myTier?.league ?? null} size={176} />
 				</div>
 				<p class="me-label">{data.me ? 'Your rank' : 'Unranked'}</p>
 				<p class="me-name">{myTier?.name ?? 'Unranked'}</p>
@@ -70,7 +70,7 @@
 								<span style:transform={`scaleX(${toNext.share})`}></span>
 							</div>
 							<p class="next-text">
-								<RankEmblem league={upcoming.league} division={divisionLevel(upcoming)} size={26} />
+								<RankEmblem league={upcoming.league} size={26} />
 								<span><b>{toNext.gap} WPM</b> to {upcoming.name}</span>
 							</p>
 						</div>
@@ -120,7 +120,7 @@
 					<ol class="divisions">
 						{#each [...selectedTiers].reverse() as t (t.index)}
 							<li class:mine={myTier?.index === t.index}>
-								<RankEmblem league={selected} division={divisionLevel(t)} size={56} />
+								<RankEmblem league={selected} size={56} />
 								<span class="div-name">{t.name}</span>
 								<span class="div-range">{tierRange(t)}</span>
 								{#if myTier?.index === t.index}<span class="you">You</span>{/if}
@@ -150,7 +150,7 @@
 						<Avatar name={e.displayName} color={e.avatarColor} size={e.position === 1 ? 72 : 60} src={e.avatar} />
 						{#if e.isPublic}<a class="pod-name" href={`/u/${e.username}`}>{e.displayName}</a>{:else}<span class="pod-name">{e.displayName}</span>{/if}
 						<span class="pod-score">{data.by === 'speed' ? `${fmt(e.wpm ?? 0)} WPM` : `${fmt(e.xp)} XP`}</span>
-						{#if t}<span class="pod-tier"><RankEmblem league={t.league} division={divisionLevel(t)} size={30} /> {t.name}</span>{/if}
+						{#if t}<span class="pod-tier"><RankEmblem league={t.league} size={30} /> {t.name}</span>{/if}
 						<span class="pod-level">Level {e.level}</span>
 					</li>
 				{/each}
@@ -174,7 +174,7 @@
 								</span>
 							{/if}
 							<span class="lvl">Level {e.level}</span>
-							<span class="tier">{#if t}<RankEmblem league={t.league} division={divisionLevel(t)} size={30} /><span>{t.name}</span>{/if}</span>
+							<span class="tier">{#if t}<RankEmblem league={t.league} size={30} /><span>{t.name}</span>{/if}</span>
 							<span class="score">{data.by === 'speed' ? `${fmt(e.wpm ?? 0)} WPM` : `${fmt(e.xp)} XP`}</span>
 						</li>
 					{/each}
