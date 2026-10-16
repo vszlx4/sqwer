@@ -290,6 +290,38 @@ test('a verified placement test marks the earlier chapters complete and earns th
 	expect(Number(await page.locator('.account-menu .lvl').textContent())).toBeGreaterThan(levelBefore);
 });
 
+test('clears only the learning path and keeps every other kind of data', async ({ page }) => {
+	await page.goto('/signin');
+	await page.getByLabel('Email address').fill(email);
+	await page.getByLabel('Password').fill(newPassword);
+	await solveCaptcha(page);
+	await page.getByRole('button', { name: 'Sign in' }).click();
+	await expect(page).toHaveURL(/\/account$/);
+
+	await page.goto('/account/data');
+	const row = (title: string) => page.locator('.categories li', { has: page.getByRole('heading', { name: title, exact: true }) });
+	await expect(row('Learning path').locator('.count')).toHaveText(/\d+ lessons? completed/);
+	const practiceBefore = await row('Practice results').locator('.count').textContent();
+	expect(practiceBefore).toMatch(/\d+ results?/);
+
+	await row('Learning path').getByRole('button', { name: 'Clear learning path' }).click();
+	await row('Learning path').getByLabel('Password').fill('not-the-password');
+	await row('Learning path').getByRole('button', { name: 'Clear learning path' }).click();
+	await expect(row('Learning path').getByText('The password is incorrect.')).toBeVisible();
+	await row('Learning path').getByLabel('Password').fill(newPassword);
+	await row('Learning path').getByRole('button', { name: 'Clear learning path' }).click();
+
+	await expect(page.getByRole('status')).toHaveText('Learning path cleared. Everything else is unchanged.');
+	await expect(row('Learning path').locator('.count')).toHaveText('Nothing stored');
+	await expect(row('Practice results').locator('.count')).toHaveText(practiceBefore!);
+
+	// The course starts again; results are untouched.
+	await page.goto('/learn/start');
+	await expect(page.locator('ol.list .count')).toHaveCount(0);
+	await page.goto('/history');
+	await expect(page.getByRole('row').nth(1)).toBeVisible();
+});
+
 test('exports the account data and deletes the account', async ({ page }) => {
 	await page.goto('/signin');
 	await page.getByLabel('Email address').fill(email);

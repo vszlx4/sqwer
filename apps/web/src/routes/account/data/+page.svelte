@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
+	import { DATA_CATEGORIES, type DataCategory } from '#lib/data/categories.ts';
+	import { forgetLocal } from '#lib/data/local.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Field from '#lib/ui/Field.svelte';
 	import RequiredNote from '#lib/ui/RequiredNote.svelte';
@@ -8,6 +11,38 @@
 	let { data, form }: PageProps = $props();
 	const errors = $derived((form?.errors ?? {}) as Record<string, string | undefined>);
 	let confirming = $state(false);
+
+	/** The category whose clearing is being confirmed, and the last one cleared. */
+	let clearing = $state<DataCategory | null>(null);
+	let cleared = $state<DataCategory | null>(null);
+	let busy = $state(false);
+	const clearError = $derived(form && 'category' in form && form.category === clearing ? (form.errors as Record<string, string>).password : undefined);
+
+	const COUNT_TEXT: Record<DataCategory, (n: number) => string> = {
+		learning: (n) => `${n} ${n === 1 ? 'lesson' : 'lessons'} completed`,
+		practice: (n) => `${n} ${n === 1 ? 'result' : 'results'}`,
+		ranked: (n) => `${n} ranked ${n === 1 ? 'result' : 'results'}`,
+		fingermap: (n) => `${n} tagged ${n === 1 ? 'keystroke' : 'keystrokes'}`,
+		usage: (n) => `Statistics from ${n} ${n === 1 ? 'device' : 'devices'}`
+	};
+	const title = (id: DataCategory) => DATA_CATEGORIES.find((c) => c.id === id)!.title;
+
+	/** After the server clears a category, this browser's copy is discarded too. */
+	const onClear: SubmitFunction = () => {
+		busy = true;
+		return async ({ result }) => {
+			if (result.type === 'success' && result.data?.cleared) {
+				const category = result.data.cleared as DataCategory;
+				await forgetLocal(category, Number(result.data.at));
+				cleared = category;
+				clearing = null;
+				await invalidateAll();
+			} else {
+				await applyAction(result);
+			}
+			busy = false;
+		};
+	};
 </script>
 
 <Seo title="Your data" description="Export or delete your sqwer account data." noindex />
@@ -27,6 +62,46 @@
 				account automatically.
 			{/if}
 		</p>
+	</section>
+
+	<section class="card" aria-labelledby="clear-title">
+		<h2 id="clear-title">Clear part of your data</h2>
+		<p class="text">
+			Each kind of data can be cleared on its own; everything else stays exactly as it is. Clearing is permanent and
+			applies to every device you use: copies kept in a browser are discarded on its next visit. Copies in backups
+			disappear within 14 days.
+		</p>
+		{#if cleared}
+			<p class="form-alert success" role="status">{title(cleared)} cleared. Everything else is unchanged.</p>
+		{/if}
+		<ul class="categories">
+			{#each DATA_CATEGORIES as c (c.id)}
+				{@const n = data.counts[c.id]}
+				<li>
+					<div class="category">
+						<div class="about">
+							<h3>{c.title}</h3>
+							<p class="summary">{c.summary}</p>
+							<p class="count">{n ? COUNT_TEXT[c.id](n) : 'Nothing stored'}</p>
+						</div>
+						{#if clearing !== c.id}
+							<button class="btn" type="button" disabled={!n} onclick={() => (clearing = c.id)} aria-label={`Clear ${c.title.toLowerCase()}`}>Clear</button>
+						{/if}
+					</div>
+					{#if clearing === c.id}
+						<form method="POST" action="?/clear" class="confirm" use:enhance={onClear} novalidate>
+							<p class="effect"><b>What happens:</b> {c.effect}</p>
+							<input type="hidden" name="category" value={c.id} />
+							<Field label="Password" name="password" type="password" autocomplete="current-password" required error={clearError} />
+							<div class="row">
+								<button class="btn btn-danger" type="submit" disabled={busy}>{busy ? 'Clearing…' : `Clear ${c.title.toLowerCase()}`}</button>
+								<button class="btn" type="button" onclick={() => (clearing = null)}>Cancel</button>
+							</div>
+						</form>
+					{/if}
+				</li>
+			{/each}
+		</ul>
 	</section>
 
 	<section class="card" aria-labelledby="export-title">
@@ -96,6 +171,62 @@
 	.form {
 		width: 100%;
 		max-width: 440px;
+	}
+	.categories {
+		width: 100%;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		border-top: 1px solid var(--line);
+	}
+	.categories li {
+		padding: 16px 0;
+		border-bottom: 1px solid var(--line);
+	}
+	.category {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+	}
+	.about h3 {
+		font-size: 16px;
+		font-weight: 600;
+	}
+	.summary {
+		max-width: 600px;
+		margin-top: 2px;
+		font-size: 14px;
+		line-height: 1.5;
+		color: var(--ink-2);
+	}
+	.count {
+		margin-top: 4px;
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--ink-3);
+		font-variant-numeric: tabular-nums;
+	}
+	.confirm {
+		max-width: 440px;
+		margin-top: 12px;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+	.effect {
+		font-size: 14px;
+		line-height: 1.5;
+		color: var(--ink-2);
+	}
+	.effect b {
+		color: var(--ink);
+	}
+	@media (max-width: 560px) {
+		.category {
+			flex-direction: column;
+			align-items: flex-start;
+		}
 	}
 	.row {
 		display: flex;

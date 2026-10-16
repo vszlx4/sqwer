@@ -156,6 +156,15 @@ class UsageStore {
 		}).catch(() => {});
 	}
 
+	/** Starts this browser's statistics again after they were cleared from the account, without syncing. */
+	async forget() {
+		await this.load();
+		clearTimeout(this.syncTimer);
+		this.data = emptyUsage();
+		this.dirty = false;
+		await idbSet(KEY, $state.snapshot(this.data)).catch(() => {});
+	}
+
 	async reset() {
 		this.data = emptyUsage();
 		this.dirty = true;

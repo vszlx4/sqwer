@@ -47,6 +47,16 @@ class Pace {
 		this.save();
 	}
 
+	/** Returns to the standard pace, when the learning path starts again. */
+	reset() {
+		this.value = 1;
+		try {
+			localStorage.removeItem(KEY);
+		} catch {
+			// Storage unavailable.
+		}
+	}
+
 	get label() {
 		return this.value < 0.85 ? 'Gentle' : this.value > 1.12 ? 'Brisk' : 'Steady';
 	}

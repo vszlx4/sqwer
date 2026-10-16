@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from '#lib/server/db/index.ts';
 import { requireUser } from '#lib/server/account.ts';
 import { activeSessions } from '#lib/server/auth.ts';
+import { dataResets } from '#lib/server/data.ts';
 import { accountLevel, competitiveBest } from '#lib/server/progress.ts';
 import type { RequestHandler } from './$types';
 
@@ -45,6 +46,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			practiceDays: courseDays.map((r) => r.day)
 		},
 		securityActivity: security,
+		clearedData: Object.fromEntries(Object.entries(await dataResets(user.id)).map(([k, v]) => [k, new Date(v).toISOString()])),
 		recoveryCodes: { total: codes.length, used: codes.filter((c) => c.usedAt).map((c) => c.usedAt) },
 		profilePicture: avatar
 			? { type: avatar.mime, base64: avatar.data, updatedAt: avatar.updatedAt, rightsConfirmedAt: avatar.rightsConfirmedAt }

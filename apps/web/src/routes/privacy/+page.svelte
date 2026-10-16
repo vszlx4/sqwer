@@ -344,6 +344,12 @@
 		</table>
 	</div>
 	<p>10.1. When you delete your account, all data listed in section 5 is deleted from the live database immediately and irreversibly.</p>
+	<p>
+		10.2. You may also clear one category of data while keeping the rest of your account: your learning path, practice
+		results, ranked results, finger map or usage statistics (Account → Your data → Clear part of your data). The data
+		in that category is deleted from the live database immediately and irreversibly, and we record only the time it
+		was cleared, so that copies still held in your browsers are discarded rather than uploaded again.
+	</p>
 
 	<h2 id="security">11. Security of processing</h2>
 	<p>
@@ -393,7 +399,7 @@
 				<tr><th scope="row">Information</th><td>To be told how your data is processed (Art. 13 GDPR).</td><td>This Policy.</td></tr>
 				<tr><th scope="row">Access</th><td>To confirm whether we process your data and receive a copy (Art. 15 GDPR).</td><td>Account → Your data → Download, or by email.</td></tr>
 				<tr><th scope="row">Rectification</th><td>To correct inaccurate or complete incomplete data (Art. 16 GDPR).</td><td>Account → Profile, or by email.</td></tr>
-				<tr><th scope="row">Erasure</th><td>To have your data deleted (Art. 17 GDPR).</td><td>Account → Your data → Delete account; Account → Statistics; or by email.</td></tr>
+				<tr><th scope="row">Erasure</th><td>To have your data deleted (Art. 17 GDPR).</td><td>Account → Your data → Clear part of your data, or Delete account; or by email.</td></tr>
 				<tr><th scope="row">Restriction</th><td>To limit processing, for example while accuracy is checked (Art. 18 GDPR).</td><td>By email.</td></tr>
 				<tr><th scope="row">Portability</th><td>To receive your data in a structured, machine-readable format (Art. 20 GDPR).</td><td>The download is provided in JSON.</td></tr>
 				<tr><th scope="row">Objection</th><td>To object to processing based on legitimate interests (Art. 21 GDPR).</td><td>By email.</td></tr>

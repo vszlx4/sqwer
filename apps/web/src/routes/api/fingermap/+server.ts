@@ -1,6 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { cleanObservations } from '@sqwer/fingermap';
+import { clearedAt } from '#lib/server/data.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
 import type { RequestHandler } from './$types';
@@ -24,8 +25,11 @@ export const PUT: RequestHandler = async ({ locals, request }) => {
 	const length = Number(request.headers.get('content-length') ?? 0);
 	if (length > MAX_BYTES) error(413, 'The finger map is too large.');
 	const body = (await request.json().catch(() => null)) as { observations?: unknown } | null;
-	const observations = cleanObservations(body?.observations);
-	if (!observations) error(400, 'The finger map contains invalid entries.');
+	const cleaned = cleanObservations(body?.observations);
+	if (!cleaned) error(400, 'The finger map contains invalid entries.');
+	// Keystrokes tagged before the finger map was cleared are stale copies from a browser.
+	const since = await clearedAt(locals.user.id, 'fingermap');
+	const observations = since ? cleaned.filter((o) => o.at > since) : cleaned;
 	const now = new Date();
 	await (await db())
 		.insert(schema.fingerMaps)
