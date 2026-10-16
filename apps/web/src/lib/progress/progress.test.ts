@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TIERS, nextTier, tierFor, verifyCompetitive } from './competitive.ts';
+import { TIERS, nextTier, tierFor, tierRange, verifyCompetitive } from './competitive.ts';
 import { MAX_XP_PER_TEST, examXp, levelFor, xpForLevel } from './xp.ts';
 
 describe('experience and levels', () => {
@@ -34,17 +34,42 @@ describe('experience and levels', () => {
 });
 
 describe('competitive tiers', () => {
-	it('runs from Bronze IV at 50 WPM to Grandmaster at 290 WPM, ten WPM per tier', () => {
-		expect(TIERS).toHaveLength(25);
-		expect(tierFor(49)).toBeNull();
-		expect(tierFor(50)!.name).toBe('Bronze IV');
-		expect(tierFor(89.9)!.name).toBe('Bronze I');
-		expect(tierFor(90)!.name).toBe('Silver IV');
-		expect(tierFor(250)!.name).toBe('Master IV');
-		expect(tierFor(295)!.name).toBe('Grandmaster');
-		expect(tierFor(400)!.name).toBe('Grandmaster');
-		expect(nextTier(null)!.name).toBe('Bronze IV');
-		expect(nextTier(tierFor(295))).toBeNull();
+	it('follows the published table: fourteen ranks of three divisions, then Zenith at 300 WPM', () => {
+		expect(TIERS).toHaveLength(43);
+		const table: [number, string][] = [
+			[49, ''],
+			[50, 'Bronze III'],
+			[52.9, 'Bronze III'],
+			[53, 'Bronze II'],
+			[57, 'Bronze I'],
+			[59, 'Bronze I'],
+			[60, 'Silver III'],
+			[129, 'Champion I'],
+			[130, 'Grandmaster III'],
+			[133, 'Grandmaster III'],
+			[134, 'Grandmaster II'],
+			[140, 'Grandmaster I'],
+			[141, 'Prodigy III'],
+			[159, 'Prodigy I'],
+			[160, 'Paragon III'],
+			[179, 'Paragon I'],
+			[180, 'Overlord III'],
+			[209, 'Overlord I'],
+			[210, 'Ascendant III'],
+			[249, 'Ascendant I'],
+			[250, 'Transcendent III'],
+			[283, 'Transcendent I'],
+			[299.9, 'Transcendent I'],
+			[300, 'Zenith'],
+			[360, 'Zenith']
+		];
+		for (const [wpm, name] of table) expect(tierFor(wpm)?.name ?? '', `${wpm} WPM`).toBe(name);
+		// Each tier ends where the next begins.
+		for (let i = 1; i < TIERS.length; i++) expect(TIERS[i - 1]!.to).toBe(TIERS[i]!.from - 1);
+		expect(tierRange(tierFor(55)!)).toBe('53 to 56 WPM');
+		expect(tierRange(tierFor(300)!)).toBe('300+ WPM');
+		expect(nextTier(null)!.name).toBe('Bronze III');
+		expect(nextTier(tierFor(300))).toBeNull();
 	});
 
 	it('accepts a plausible minute of typing and rejects implausible ones', () => {
