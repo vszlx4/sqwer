@@ -71,6 +71,13 @@
       "when": 1792185712342,
       "tag": "0009_data_resets",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792188267283,
+      "tag": "0010_xp_grants",
+      "breakpoints": true
     }
   ]
 }

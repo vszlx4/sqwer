@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy, untrack } from 'svelte';
+	import { COURSE_WORDS, ENGLISH_WORDS, EXAM_WORDS } from '@sqwer/content';
 	import { pressesFor, qwertyAnsi } from '@sqwer/layouts';
 	import Keyboard from '#lib/keyboard/Keyboard.svelte';
 	import { resolvedPlatform } from '#lib/settings.svelte.ts';
@@ -11,8 +12,9 @@
 
 	/**
 	 * Echo: keys light up one after another; type the sequence back from memory. Each correct
-	 * round adds one key. Remembering a sequence by its finger movements builds the muscle memory
-	 * that touch typing depends on.
+	 * round adds one key. The sequences are real, everyday words made only of the keys taught so
+	 * far (two short words when no single word is long enough), so they can be remembered as words
+	 * and their finger movements; only pools without letters, such as digits, use random keys.
 	 */
 	let { pool, start, target, oncomplete }: { pool: string; start: number; target: number; oncomplete: (r: StepResult) => void } = $props();
 
@@ -48,7 +50,36 @@
 	const rounds = $derived(target - start + 1);
 	const progress = $derived((length - start) / rounds);
 
+	/** Everyday words that use only this step's keys, the most common first. */
+	const vocabulary = untrack(() => {
+		const allowed = new Set(keys);
+		const all = [...new Set([...EXAM_WORDS, ...ENGLISH_WORDS, ...COURSE_WORDS].map((w) => w.toLowerCase()))];
+		return all.filter((w) => w.length >= 2 && /^[a-z]+$/.test(w) && [...w].every((c) => allowed.has(c)));
+	});
+	const used = new Set<string>();
+	const pick = <T,>(list: T[]) => list[Math.floor(rand() * list.length)];
+
+	/** A word of exactly n letters, or two words that together have n letters; null when none exist. */
+	function wordOf(n: number): string | null {
+		const fresh = (w: string) => !used.has(w);
+		const exact = vocabulary.filter((w) => w.length === n);
+		const one = pick(exact.filter(fresh)) ?? pick(exact);
+		if (one) return one;
+		const pairs: string[] = [];
+		for (const a of vocabulary) {
+			if (a.length >= n - 1) continue;
+			for (const b of vocabulary) if (b !== a && a.length + b.length === n) pairs.push(a + b);
+			if (pairs.length > 200) break;
+		}
+		return pick(pairs.filter(fresh)) ?? pick(pairs) ?? null;
+	}
+
 	function compose(n: number): string[] {
+		const word = vocabulary.length ? wordOf(n) : null;
+		if (word) {
+			used.add(word);
+			return [...word];
+		}
 		const out: string[] = [];
 		for (let i = 0; i < n; i++) {
 			let k = keys[Math.floor(rand() * keys.length)]!;
