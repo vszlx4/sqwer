@@ -150,14 +150,14 @@ export const FLOW_EXCLUDED: ReadonlySet<string> = new Set(['boat', 'bird', 'usua
 
 /**
  * The words used in examinations, including the competitive test: 200 words of at most five
- * letters from the 600 most frequent, chosen for flow, covering 337 distinct trigrams and always
- * including the required short words. Ordered by frequency.
+ * letters from the 700 most frequent, without doubled letters, chosen for flow, covering 337
+ * distinct trigrams and always including the required short words. Ordered by frequency.
  */
 export const FLOW_WORDS: readonly string[] = (() => {
 	const keep = new Set(FLOW_REQUIRED);
 	const scored = FREQUENT_WORDS.map((w, i) => flowScore(w, i)).filter((s) => s.word.length <= FLOW_MAX_LENGTH && !NOT_EVERYDAY.has(s.word));
 	const required = FLOW_REQUIRED.map((w) => scored.find((s) => s.word === w) ?? flowScore(w, FREQUENT_WORDS.length));
-	const rest = scored.filter((s) => !keep.has(s.word) && !FLOW_EXCLUDED.has(s.word) && s.word.length >= 2 && s.sameFinger === 0 && s.rank < 600).sort((a, b) => b.score - a.score);
+	const rest = scored.filter((s) => !keep.has(s.word) && !FLOW_EXCLUDED.has(s.word) && !/(.)\1/.test(s.word) && s.word.length >= 2 && s.sameFinger === 0 && s.rank < 700).sort((a, b) => b.score - a.score);
 	return choose([...required, ...rest], FLOW_SIZE, FLOW_TRIGRAMS, keep)
 		.sort((a, b) => a.rank - b.rank)
 		.map((s) => s.word);
