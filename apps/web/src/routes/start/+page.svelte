@@ -117,16 +117,17 @@
 				</div>
 				<p class="note">Prefer to decide yourself? <a href="/learn/start">Choose a chapter</a> with a short description of who it suits.</p>
 			{:else if chapter}
-				<h2 id="path-title">Begin at chapter {chapter.number}: {chapter.title}.</h2>
+				<h2 id="path-title">Begin at chapter&nbsp;{chapter.number}: {chapter.title}.</h2>
 				<p class="body">
-					Your placement test: <b>{Math.round(placement.wpm)} WPM at {Math.round(placement.accuracy)}% accuracy</b>.
-					{chapter.summary} This chapter suits typists who can say: “{chapter.readyIf}”
+					Your placement test: <b>{Math.round(placement.wpm)}&nbsp;WPM at {Math.round(placement.accuracy)}%&nbsp;accuracy</b>.
+					{chapter.summary} It suits typists who can say: “{chapter.readyIf}”
 				</p>
 				<div class="actions">
-					<PlacementStart chapter={chapter.number} large />
-					{#if chapter.number > 1}
-						<button type="button" class="btn btn-lg" onclick={() => startAt(FIRST_LESSON.id)}>Start from the beginning</button>
-					{/if}
+					<PlacementStart chapter={chapter.number} large centred>
+						{#if chapter.number > 1}
+							<button type="button" class="btn btn-lg" onclick={() => startAt(FIRST_LESSON.id)}>Start from the beginning</button>
+						{/if}
+					</PlacementStart>
 				</div>
 				<p class="note">
 					{#if level === 'some'}Your own fingering may hide slow habits. The <a href="/map">finger map</a> records them whenever you are ready.{:else}You can also <a href="/learn/start">choose a different chapter</a>.{/if}
@@ -209,6 +210,7 @@
 		font-size: clamp(26px, 3.2vw, 36px);
 		line-height: 1.15;
 		text-align: center;
+		text-wrap: balance;
 	}
 	.options {
 		display: grid;
@@ -316,10 +318,23 @@
 		background: var(--surface);
 		font: inherit;
 		font-size: 13px;
+		color: var(--ink);
 		cursor: pointer;
+		transition:
+			border-color 140ms ease,
+			background-color 140ms ease;
+	}
+	.change:hover {
+		border-color: var(--ink);
+		background: var(--bg);
+	}
+	.change:focus-visible {
+		outline: 2px solid var(--ink);
+		outline-offset: 2px;
 	}
 	.body {
 		max-width: 600px;
+		text-wrap: pretty;
 		font-size: 17px;
 		line-height: 1.6;
 		color: var(--ink-2);
@@ -374,6 +389,10 @@
 		color: var(--ink);
 		font-weight: 600;
 		text-decoration: none;
+		transition: color 140ms ease;
+	}
+	.note a:hover {
+		color: var(--violet);
 	}
 	@media (max-width: 820px) {
 		.options {

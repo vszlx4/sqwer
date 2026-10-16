@@ -308,7 +308,7 @@ function build(): Chapter[] {
 		{ number: 7, title: 'Common words, part one', summary: 'The hundred most frequent words, until they are automatic.', readyIf: 'You know where every key is and type at about 20 WPM.' },
 		{ number: 8, title: 'Common words, part two', summary: 'The next hundred words, for everyday writing.', readyIf: 'The most common short words feel automatic.' },
 		{ number: 9, title: 'Sentences and flow', summary: 'Reading ahead and typing whole sentences in a steady rhythm.', readyIf: 'You type common words without thinking about the keys.' },
-		{ number: 10, title: 'Building speed', summary: 'Letter pairs, word endings, sprints and quicker rhythm.', readyIf: 'You type sentences steadily at about 30 WPM.' },
+		{ number: 10, title: 'Building speed', summary: 'Letter pairs, word endings, sprints and quicker rhythm.', readyIf: 'You type sentences steadily at 30 WPM or faster.' },
 		{ number: 11, title: 'Accuracy and endurance', summary: 'Longer passages with near-perfect accuracy.', readyIf: 'You reach about 35 WPM and want to make it last.' },
 		{ number: 12, title: 'Symbols', summary: 'The symbols used in email, prices and code.', readyIf: 'You type fluently and need the less common keys.' }
 	];
