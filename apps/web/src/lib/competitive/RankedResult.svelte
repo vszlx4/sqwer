@@ -68,7 +68,7 @@
 <section class="ranked" aria-labelledby="ranked-title">
 	<div class="stage">
 		<div class="emblem-wrap rise" class:up={rankedUp}>
-			<RankEmblem league={tier?.league ?? null} division={divisionLevel(tier)} size={210} glow={!!tier} />
+			<RankEmblem league={tier?.league ?? null} division={divisionLevel(tier)} size={210} />
 		</div>
 		<div class="headline rise" style:--i="1">
 			<p class="kicker">Ranked result</p>

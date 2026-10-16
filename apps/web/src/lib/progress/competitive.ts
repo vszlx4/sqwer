@@ -17,14 +17,14 @@ export const LEAGUES = [
 	{ id: 'silver', name: 'Silver', starts: [50, 53, 57], colour: '#8b96a3' },
 	{ id: 'gold', name: 'Gold', starts: [60, 63, 67], colour: '#c9930f' },
 	{ id: 'diamond', name: 'Diamond', starts: [70, 75, 80], colour: '#3f7fe0' },
-	{ id: 'master', name: 'Master', starts: [85, 90, 95], colour: '#7a52e0' },
-	{ id: 'elite', name: 'Elite', starts: [100, 107, 113], colour: '#1f8f5c' },
-	{ id: 'champion', name: 'Champion', starts: [120, 127, 133], colour: '#d9531e' },
-	{ id: 'grandmaster', name: 'Grandmaster', starts: [140, 148, 156], colour: '#c2306e' },
-	{ id: 'prodigy', name: 'Prodigy', starts: [165, 175, 185], colour: '#0a8fa6' },
-	{ id: 'overlord', name: 'Overlord', starts: [195, 210, 225], colour: '#5b3a9c' },
-	{ id: 'transcendent', name: 'Transcendent', starts: [240, 260, 280], colour: '#2f6fb3' },
-	{ id: 'zenith', name: 'Zenith', starts: [ZENITH_WPM], colour: '#8db000' }
+	{ id: 'master', name: 'Master', starts: [85, 90, 95], colour: '#1f9c70' },
+	{ id: 'elite', name: 'Elite', starts: [100, 107, 113], colour: '#1a8eb0' },
+	{ id: 'champion', name: 'Champion', starts: [120, 127, 133], colour: '#b827b8' },
+	{ id: 'grandmaster', name: 'Grandmaster', starts: [140, 148, 156], colour: '#7454e0' },
+	{ id: 'prodigy', name: 'Prodigy', starts: [165, 175, 185], colour: '#e0601c' },
+	{ id: 'overlord', name: 'Overlord', starts: [195, 210, 225], colour: '#d81e48' },
+	{ id: 'transcendent', name: 'Transcendent', starts: [240, 260, 280], colour: '#d9a000' },
+	{ id: 'zenith', name: 'Zenith', starts: [ZENITH_WPM], colour: '#a9b8d6' }
 ] as const;
 
 export type League = (typeof LEAGUES)[number];
@@ -97,4 +97,5 @@ export function verifyCompetitive(r: ReplayCheck): boolean {
 }
 
 /** The division as a count for emblems: 1 for III, 2 for II, 3 for I, undefined for Zenith. */
-export const divisionLevel = (t: Tier | null) => (t?.division ? DIVISIONS.indexOf(t.division) + 1 : undefined);
+/** The number of chevrons on a tier's emblem, matching its numeral: 3 for III, 2 for II, 1 for I. */
+export const divisionLevel = (t: Tier | null) => (t?.division ? DIVISIONS.length - DIVISIONS.indexOf(t.division) : undefined);
