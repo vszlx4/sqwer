@@ -4,18 +4,36 @@
  */
 
 let context: AudioContext | null = null;
+let output: AudioNode | null = null;
 
-function audio(): AudioContext | null {
+/**
+ * Every sound passes through a low-pass filter, which takes the edge off high notes, and a
+ * compressor, which keeps several notes at once from adding up to a loud peak.
+ */
+function audio(): { ctx: AudioContext; out: AudioNode } | null {
 	if (typeof window === 'undefined' || !('AudioContext' in window)) return null;
-	context ??= new AudioContext();
+	if (!context) {
+		context = new AudioContext();
+		const filter = context.createBiquadFilter();
+		filter.type = 'lowpass';
+		filter.frequency.value = 2200;
+		const limiter = context.createDynamicsCompressor();
+		limiter.threshold.value = -24;
+		limiter.ratio.value = 8;
+		const master = context.createGain();
+		master.gain.value = 0.6;
+		filter.connect(limiter).connect(master).connect(context.destination);
+		output = filter;
+	}
 	if (context.state === 'suspended') void context.resume();
-	return context;
+	return { ctx: context, out: output! };
 }
 
 /** A soft, piano-like tone. */
-export function tone(frequency: number, duration = 0.35, volume = 0.18) {
-	const ctx = audio();
-	if (!ctx) return;
+export function tone(frequency: number, duration = 0.35, volume = 0.08) {
+	const a = audio();
+	if (!a) return;
+	const { ctx, out } = a;
 	const now = ctx.currentTime;
 	const osc = ctx.createOscillator();
 	const overtone = ctx.createOscillator();
@@ -25,20 +43,23 @@ export function tone(frequency: number, duration = 0.35, volume = 0.18) {
 	osc.frequency.value = frequency;
 	overtone.frequency.value = frequency * 2;
 	gain.gain.setValueAtTime(0, now);
-	gain.gain.linearRampToValueAtTime(volume, now + 0.008);
+	gain.gain.linearRampToValueAtTime(volume, now + 0.015);
 	gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+	// The overtone adds warmth at a quarter of the level, not brightness.
+	const soft = ctx.createGain();
+	soft.gain.value = 0.25;
 	osc.connect(gain);
-	overtone.connect(gain);
-	gain.connect(ctx.destination);
+	overtone.connect(soft).connect(gain);
+	gain.connect(out);
 	osc.start(now);
 	overtone.start(now);
 	osc.stop(now + duration);
 	overtone.stop(now + duration);
 }
 
-/** A quiet click for counting in. */
+/** A quiet, low click for counting in, like a soft woodblock rather than a beep. */
 export function tick(accent = false) {
-	tone(accent ? 1320 : 880, 0.06, accent ? 0.12 : 0.07);
+	tone(accent ? 523.25 : 392, 0.08, accent ? 0.05 : 0.03);
 }
 
 /** Notes of a pentatonic scale, which sound pleasant in any order. */

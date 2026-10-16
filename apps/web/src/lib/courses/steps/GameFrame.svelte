@@ -27,18 +27,42 @@
 		onpause?: () => void;
 		onresume?: () => void;
 		height?: number;
+		/** Seconds to look at the content before the count-in, for games where reading ahead helps. */
+		preview?: number;
+		/** What to look at during the preview, for example "Read the passage". */
+		previewLabel?: string;
 		children: Snippet;
 	}
 
-	let { title, icon, how, goal, progress, status, lives = null, over = null, paused = false, onstart, onpause, onresume, height = 360, children }: Props = $props();
+	let { title, icon, how, goal, progress, status, lives = null, over = null, paused = false, onstart, onpause, onresume, height = 360, preview = 0, previewLabel = 'Get ready', children }: Props = $props();
 
-	let phase = $state<'ready' | 'countdown' | 'playing'>('ready');
+	let phase = $state<'ready' | 'preview' | 'countdown' | 'playing'>('ready');
 	let count = $state(3);
+	let left = $state(0);
 	let timer: ReturnType<typeof setTimeout> | undefined;
-	onDestroy(() => clearTimeout(timer));
+	let previewTimer: ReturnType<typeof setInterval> | undefined;
+	onDestroy(() => {
+		clearTimeout(timer);
+		clearInterval(previewTimer);
+	});
 
 	function start() {
 		if (phase !== 'ready') return;
+		if (preview > 0) {
+			phase = 'preview';
+			left = preview;
+			previewTimer = setInterval(() => {
+				left--;
+				if (left <= 0) countIn();
+			}, 1000);
+			return;
+		}
+		countIn();
+	}
+
+	function countIn() {
+		if (phase !== 'ready' && phase !== 'preview') return;
+		clearInterval(previewTimer);
 		phase = 'countdown';
 		count = 3;
 		const step = () => {
@@ -53,10 +77,11 @@
 	}
 
 	function onkeydown(e: KeyboardEvent) {
-		if (phase !== 'ready' || (e.target as HTMLElement | null)?.closest('button, a, input')) return;
+		if ((phase !== 'ready' && phase !== 'preview') || (e.target as HTMLElement | null)?.closest('button, a, input')) return;
 		if (e.key === ' ' || e.key === 'Enter') {
 			e.preventDefault();
-			start();
+			if (phase === 'ready') start();
+			else countIn();
 		}
 	}
 	function onvisibilitychange() {
@@ -79,6 +104,14 @@
 		</div>
 		<span class="status">{status}</span>
 	</div>
+
+	{#if phase === 'preview'}
+		<div class="prep" role="status">
+			<span class="prep-text"><b>{previewLabel}</b> · starts in {left}&nbsp;s</span>
+			<span class="prep-bar" aria-hidden="true"><span style:animation-duration={`${preview}s`}></span></span>
+			<button type="button" class="btn btn-primary" onclick={countIn}>Start now <kbd>Space</kbd></button>
+		</div>
+	{/if}
 
 	<!-- The game and its overlays share one grid cell, so the frame grows to fit whichever is taller. -->
 	<div class="stage" style:min-height={`${height}px`}>
@@ -233,6 +266,55 @@
 		font-weight: 600;
 		font-size: 14px;
 	}
+	.prep {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 8px 10px 8px 14px;
+		border-radius: 3px;
+		border: 1px solid var(--line-strong);
+		background: var(--surface);
+		font-size: 14px;
+		color: var(--ink-2);
+		font-variant-numeric: tabular-nums;
+	}
+	.prep b {
+		color: var(--ink);
+	}
+	.prep-bar {
+		flex: 1;
+		height: 4px;
+		border-radius: 3px;
+		background: var(--surface-2);
+		overflow: hidden;
+	}
+	.prep-bar span {
+		display: block;
+		height: 100%;
+		background: var(--ink);
+		transform-origin: left;
+		animation: drain linear both;
+	}
+	@keyframes drain {
+		from {
+			transform: scaleX(1);
+		}
+		to {
+			transform: scaleX(0);
+		}
+	}
+	.prep .btn {
+		padding: 6px 12px;
+		font-size: 13.5px;
+	}
+	.prep kbd {
+		margin-left: 6px;
+		padding: 1px 6px;
+		border-radius: 3px;
+		background: rgb(0 0 0 / 0.12);
+		font-family: var(--font-mono);
+		font-size: 12px;
+	}
 	.count span {
 		display: block;
 		font-family: var(--font-serif);
@@ -257,7 +339,56 @@
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.overlay,
-		.count span {
+		.prep {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 8px 10px 8px 14px;
+		border-radius: 3px;
+		border: 1px solid var(--line-strong);
+		background: var(--surface);
+		font-size: 14px;
+		color: var(--ink-2);
+		font-variant-numeric: tabular-nums;
+	}
+	.prep b {
+		color: var(--ink);
+	}
+	.prep-bar {
+		flex: 1;
+		height: 4px;
+		border-radius: 3px;
+		background: var(--surface-2);
+		overflow: hidden;
+	}
+	.prep-bar span {
+		display: block;
+		height: 100%;
+		background: var(--ink);
+		transform-origin: left;
+		animation: drain linear both;
+	}
+	@keyframes drain {
+		from {
+			transform: scaleX(1);
+		}
+		to {
+			transform: scaleX(0);
+		}
+	}
+	.prep .btn {
+		padding: 6px 12px;
+		font-size: 13.5px;
+	}
+	.prep kbd {
+		margin-left: 6px;
+		padding: 1px 6px;
+		border-radius: 3px;
+		background: rgb(0 0 0 / 0.12);
+		font-family: var(--font-mono);
+		font-size: 12px;
+	}
+	.count span {
 			animation: none;
 		}
 	}

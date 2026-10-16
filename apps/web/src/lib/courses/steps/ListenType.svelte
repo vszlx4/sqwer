@@ -2,7 +2,8 @@
 	import { onDestroy, onMount, untrack } from 'svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import { canSpeak, speak, voicesReady } from '../audio.ts';
-	import { activityWords, seeded } from '../generate.ts';
+	import { COURSE_WORDS } from '@sqwer/content';
+	import { activityWords, seeded, shuffle } from '../generate.ts';
 	import type { StepResult } from '../types.ts';
 
 	interface Props {
@@ -16,8 +17,30 @@
 
 	let { pool, focus, words, count, target, oncomplete }: Props = $props();
 
-	// Each attempt is a new component, so the words are chosen once.
-	const list = untrack(() => activityWords(pool, focus, words, seeded(Date.now() % 100000)).slice(0, count));
+	/** Words that sound like other words, which cannot be told apart by ear. */
+	const HOMOPHONES = new Set(['to', 'too', 'two', 'there', 'their', 'here', 'hear', 'know', 'no', 'new', 'knew', 'right', 'write', 'whole', 'hole', 'one', 'won', 'for', 'four', 'by', 'buy', 'see', 'sea', 'its', 'our', 'hour', 'weather', 'whether', 'week', 'weak', 'piece', 'peace', 'where', 'wear', 'which', 'witch', 'road', 'rode', 'sun', 'son', 'meet', 'meat', 'plane', 'plain', 'tail', 'tale', 'wait', 'weight', 'flower', 'flour', 'break', 'brake', 'mail', 'male', 'sail', 'sale', 'heard', 'herd', 'board', 'bored']);
+
+	/**
+	 * Longer words are easier to recognise when spoken: words of five letters or more come first,
+	 * then four-letter words, and homophones are left out. When the lesson's own list has too few
+	 * long words, more are taken from the course vocabulary, using only the keys taught so far.
+	 */
+	const list = untrack(() => {
+		const rand = seeded(Date.now() % 100000);
+		const clear = (w: string) => !HOMOPHONES.has(w.toLowerCase());
+		const given = activityWords(pool, focus, words, rand).filter(clear);
+		const long = given.filter((w) => w.length >= 5);
+		if (long.length < count) {
+			const allowed = new Set([...pool]);
+			const extra = shuffle(
+				COURSE_WORDS.filter((w) => w.length >= 5 && w.length <= 9 && clear(w) && !long.includes(w) && [...w].every((c) => allowed.has(c))),
+				rand
+			);
+			long.push(...extra.slice(0, count - long.length));
+		}
+		const rest = given.filter((w) => w.length === 4 && !long.includes(w));
+		return [...long, ...rest, ...given.filter((w) => w.length < 4)].slice(0, count);
+	});
 	// Without a voice built into the device, the word is shown briefly and typed from memory instead.
 	let speech = $state(canSpeak());
 
