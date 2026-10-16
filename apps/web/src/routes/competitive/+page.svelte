@@ -21,9 +21,9 @@
 		return { share: Math.min(1, Math.max(0, (data.me.best - from) / (upcoming.from - from))), gap: Math.max(0, upcoming.from - Math.floor(data.me.best)) };
 	});
 
-	// The rank explorer opens on the player's own rank, or Bronze.
+	// The rank explorer opens on the player's own rank, or the first rank.
 	let chosen = $state<string | null>(null);
-	const selected = $derived(LEAGUES.find((l) => l.id === (chosen ?? myTier?.league.id ?? 'bronze'))!);
+	const selected = $derived(LEAGUES.find((l) => l.id === (chosen ?? myTier?.league.id ?? LEAGUES[0].id))!);
 	const selectedTiers = $derived(TIERS.filter((t) => t.league.id === selected.id));
 	const playersIn = (league: League) => data.bests.filter((b) => tierFor(b)?.league.id === league.id).length;
 
@@ -31,7 +31,7 @@
 	const rest = $derived(data.entries.slice(3));
 </script>
 
-<Seo title="Competitive" description="Ranked typing: a 60-second test, fifteen ranks from Bronze to Zenith, and leaderboards by speed and by level." />
+<Seo title="Competitive" description="Ranked typing: a 60-second test, eleven ranks from Silver to Zenith, and leaderboards by speed and by level." />
 
 <div class="competitive">
 	<section class="arena band" aria-labelledby="arena-title">
@@ -41,7 +41,7 @@
 				<h1 id="arena-title">One minute.<br />Your best speed.</h1>
 				<p class="lede">
 					Sixty seconds of the most common, fastest-flowing words. Your best result with at least {MIN_ACCURACY}% accuracy sets
-					your rank, from Bronze to Zenith at {ZENITH_WPM} WPM.
+					your rank, from Silver to Zenith at {ZENITH_WPM} WPM.
 				</p>
 				<div class="cta">
 					<a class="btn btn-primary btn-lg play" href={playHref}><Icon name="play" size={18} /> Play ranked</a>
@@ -56,7 +56,7 @@
 				<p class="me-label">{data.me ? 'Your rank' : 'Unranked'}</p>
 				<p class="me-name">{myTier?.name ?? 'Unranked'}</p>
 				<p class="me-range">
-					{#if myTier}{tierRange(myTier)}{:else if data.me}Reach 50 WPM with {MIN_ACCURACY}% accuracy to enter Bronze III{:else}Sign in to play ranked and earn a rank{/if}
+					{#if myTier}{tierRange(myTier)}{:else if data.me}Reach 50 WPM with {MIN_ACCURACY}% accuracy to enter {TIERS[0]!.name}{:else}Sign in to play ranked and earn a rank{/if}
 				</p>
 				{#if data.me}
 					<dl class="me-stats">
@@ -82,8 +82,7 @@
 
 	<section class="ranks band" aria-labelledby="ranks-title">
 		<div class="ranks-head">
-			<h2 id="ranks-title">Fifteen ranks</h2>
-			<p>Fourteen ranks have three divisions, III to I. Zenith stands alone. Choose a rank to see what it takes.</p>
+			<h2 id="ranks-title">Eleven ranks</h2>
 		</div>
 		<div class="rail" role="tablist" aria-label="Ranks">
 			{#each LEAGUES as league (league.id)}
@@ -390,10 +389,6 @@
 	}
 	.ranks-head h2 {
 		font-size: clamp(28px, 3vw, 38px);
-	}
-	.ranks-head p {
-		font-size: 14.5px;
-		color: #a3a39c;
 	}
 	.rail {
 		display: flex;
