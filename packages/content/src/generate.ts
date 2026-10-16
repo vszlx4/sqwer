@@ -3,6 +3,8 @@ import { ENGLISH_WORDS } from './english.ts';
 export interface WordOptions {
 	punctuation?: boolean;
 	numbers?: boolean;
+	/** Words to draw from; the general English list when not given. */
+	words?: readonly string[];
 }
 
 export type Random = () => number;
@@ -52,7 +54,7 @@ export class WordGenerator {
 			const digits = 1 + Math.floor(rand() * 4);
 			word = String(Math.floor(rand() * 10 ** digits));
 		} else {
-			do word = pick(ENGLISH_WORDS, rand);
+			do word = pick(this.opts.words ?? ENGLISH_WORDS, rand);
 			while (word === this.previous);
 		}
 		this.previous = word;
