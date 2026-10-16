@@ -112,7 +112,7 @@ for (const scheme of ['light', 'dark'] as const) {
 		const context = await browser.newContext({ colorScheme: scheme });
 		const page = await context.newPage();
 		const failures: string[] = [];
-		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/learn/l005', '/exams', '/exams/finger-speed', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password', '/missing']) {
+		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/learn/l005', '/exams', '/exams/finger-speed', '/play/race', '/play/echo', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password', '/missing']) {
 			await page.goto(path);
 			await page.waitForTimeout(300);
 			// Measure the settled page: entrance animations fade content in over a moment.

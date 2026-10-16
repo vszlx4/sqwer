@@ -206,7 +206,7 @@
 	<ul>
 		<li><strong>Typefaces:</strong> PP Neue Montreal and PP Altera are typefaces by Pangram Pangram Foundry, used under licence. Geist Mono, by Vercel, is used under the SIL Open Font License 1.1.</li>
 		<li><strong>Software:</strong> sqwer is built with open-source software, including Svelte and SvelteKit (MIT), Tailwind CSS (MIT), Drizzle ORM (Apache 2.0), node-postgres (MIT) and the ALTCHA library (MIT), each used under its licence.</li>
-		<li><strong>Word lists and course texts:</strong> written or compiled for sqwer from common vocabulary; individual words are not protected works.</li>
+		<li><strong>Word lists and course texts:</strong> written or compiled for sqwer from common vocabulary and English word-frequency data; individual words are not protected works.</li>
 		<li><strong>Illustrations:</strong> the hand and keyboard illustrations were created for sqwer.</li>
 	</ul>
 </Prose>

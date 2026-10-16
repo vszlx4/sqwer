@@ -218,15 +218,13 @@
 	<div class="field" class:shake style:height={`${HEIGHT}px`} aria-hidden={phase === 'playing'}>
 		{#each drops as d (d.id)}
 			<span class="drop" class:word={items === 'words'} style:left={`${d.x * 100}%`} style:transform={`translate(-50%, ${d.y}px)`}>
-				{#if items === 'words' && buffer && d.text.startsWith(buffer)}<b>{buffer}</b><span class="rest">{d.text.slice(buffer.length)}</span>{:else}{d.text}{/if}
+				<span class="text">{#if items === 'words' && buffer && d.text.startsWith(buffer)}<b>{buffer}</b><span class="rest">{d.text.slice(buffer.length)}</span>{:else}{d.text}{/if}</span>
 			</span>
 		{/each}
 		{#each bursts as b (b.id)}
 			<span class="burst" style:left={`${b.x * 100}%`} style:top={`${b.y + 20}px`}></span>
 		{/each}
-		<div class="ground" style:top={`${GROUND}px`}>
-			{#if items === 'words'}<span class="buffer">{buffer || ' '}</span>{/if}
-		</div>
+		<div class="ground" style:top={`${GROUND}px`}></div>
 
 		{#if phase === 'ready'}
 			<div class="overlay">
@@ -347,6 +345,10 @@
 		color: var(--ink);
 		will-change: transform;
 	}
+	/* One line per word: the typed part and the rest stay together, whatever the position. */
+	.text {
+		white-space: nowrap;
+	}
 	.drop.word {
 		height: 40px;
 		font-size: 19px;
@@ -355,6 +357,7 @@
 	/* The typed part of a word is shown by weight; the rest is dimmed. */
 	.drop b {
 		font-weight: 800;
+		color: var(--ink);
 	}
 	.drop .rest {
 		color: var(--untyped);
@@ -388,12 +391,6 @@
 		background: color-mix(in srgb, var(--accent) 22%, var(--bg));
 		display: grid;
 		place-items: center;
-	}
-	.buffer {
-		font-family: var(--font-mono);
-		font-size: 20px;
-		font-weight: 600;
-		min-height: 1.3em;
 	}
 	.overlay {
 		position: absolute;
