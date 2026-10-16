@@ -34,6 +34,8 @@
 		}
 		return activityWords(pool, focus, words, rand).slice(0, count).join(' ');
 	});
+	/** Time to read the passage before the count-in: about half a second a word, from 5 to 12 seconds. */
+	const previewSeconds = untrack(() => Math.min(12, Math.max(5, Math.round(text.split(' ').length * 0.5))));
 	// Characters per millisecond, using the standard five characters per word.
 	const pacerRate = untrack(() => (pacerWpm * 5) / 60000);
 
@@ -132,6 +134,8 @@
 	onpause={pause}
 	onresume={resume}
 	height={240}
+	preview={previewSeconds}
+	previewLabel="Read the passage"
 >
 	<div class="race">
 		<div class="track" aria-hidden="true">

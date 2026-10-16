@@ -14,11 +14,14 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import { reveal } from '#lib/ui/reveal.ts';
+	import { GAMES, loadRecords, type EndlessRecord, type GameId } from '#lib/games/endless.ts';
 
 	let mounted = $state(false);
+	let records = $state<Partial<Record<GameId, EndlessRecord>>>({});
 	onMount(() => {
 		fingerMap.load();
 		results.load();
+		records = loadRecords();
 		mounted = true;
 	});
 
@@ -99,6 +102,7 @@
 			<a href="/history"><Icon name="history" size={16} /> History and replays</a>
 			<a href="/map"><Icon name="hand" size={16} /> Finger map</a>
 			<a href="/competitive"><Icon name="trophy" size={16} /> Competitive test</a>
+			<a href="#games"><Icon name="play" size={16} /> Endless games</a>
 		</nav>
 	</header>
 
@@ -146,9 +150,102 @@
 			</div>
 		</section>
 	{/each}
+
+	<section id="games" aria-labelledby="games-title" class="category games">
+		<div class="cat-head" use:reveal>
+			<h2 id="games-title">Games, endless</h2>
+			<p>
+				The course games without an end: round after round, at a difficulty you choose or one that adapts to you.
+				Choose the difficulty before you start.
+			</p>
+		</div>
+		<ul class="game-list">
+			{#each GAMES as g, i (g.id)}
+				<li use:reveal={{ delay: i * 50 }}>
+					<a href={`/play/${g.id}`}>
+						<span class="game-icon" aria-hidden="true"><Icon name={g.icon} size={20} /></span>
+						<span class="game-text">
+							<span class="game-title">{g.title}</span>
+							<span class="game-summary">{g.summary}</span>
+						</span>
+						{#if records[g.id]?.best}<span class="game-best">Best {records[g.id]!.best}</span>{/if}
+						<Icon name="arrow" size={16} />
+					</a>
+				</li>
+			{/each}
+		</ul>
+	</section>
 </div>
 
 <style>
+	.game-list {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 10px;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+	.game-list a {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		height: 100%;
+		padding: 14px 16px;
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--surface);
+		color: var(--ink);
+		text-decoration: none;
+		transition:
+			border-color 140ms ease,
+			transform 140ms ease;
+	}
+	.game-list a:hover {
+		border-color: var(--ink);
+		transform: translateY(-2px);
+	}
+	.game-list a:focus-visible {
+		outline: 2px solid var(--ink);
+		outline-offset: 2px;
+	}
+	.game-icon {
+		display: grid;
+		place-items: center;
+		flex-shrink: 0;
+		width: 40px;
+		height: 40px;
+		border-radius: 3px;
+		background: var(--ink);
+		color: var(--bg);
+	}
+	.game-text {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		flex: 1;
+		min-width: 0;
+	}
+	.game-title {
+		font-weight: 700;
+	}
+	.game-summary {
+		font-size: 13.5px;
+		line-height: 1.45;
+		color: var(--ink-2);
+	}
+	.game-best {
+		flex-shrink: 0;
+		font-size: 12.5px;
+		font-weight: 600;
+		color: var(--ink-2);
+		font-variant-numeric: tabular-nums;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.game-list a {
+			transition: none;
+		}
+	}
 	.exams {
 		display: flex;
 		flex-direction: column;

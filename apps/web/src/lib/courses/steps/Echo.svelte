@@ -18,7 +18,7 @@
 	 */
 	let { pool, start, target, oncomplete }: { pool: string; start: number; target: number; oncomplete: (r: StepResult) => void } = $props();
 
-	const LIVES = 3;
+	const LIVES = 5;
 	const layout = qwertyAnsi(resolvedPlatform());
 	const rand = seeded(Date.now() % 100000);
 	const keys = untrack(() => [...new Set([...pool])].filter((c) => c.trim()));
@@ -31,7 +31,7 @@
 
 	let length = $state(untrack(() => start));
 	let sequence = $state<string[]>([]);
-	let mode = $state<'idle' | 'showing' | 'answering' | 'between'>('idle');
+	let mode = $state<'idle' | 'showing' | 'memorize' | 'answering' | 'between'>('idle');
 	let shown = $state<number>(-1);
 	let typed = $state(0);
 	let lives = $state(LIVES);
@@ -47,6 +47,7 @@
 
 	const codeOf = (k: string) => pressesFor(layout, k).at(-1)?.code ?? '';
 	const highlight = $derived(mode === 'showing' && shown >= 0 ? new Set([codeOf(sequence[shown]!)]) : new Set<string>());
+	const visible = (i: number) => (mode === 'showing' && i <= shown) || mode === 'memorize';
 	const rounds = $derived(target - start + 1);
 	const progress = $derived((length - start) / rounds);
 
@@ -89,25 +90,37 @@
 		return out;
 	}
 
+	/**
+	 * Shows the sequence one key at a time, at a pace that can be followed. Shown letters stay in
+	 * their places, so the word builds up; the whole word then stays on screen for a moment, longer
+	 * for longer words, before it is hidden and it is the learner's turn.
+	 */
 	function play(fresh: boolean) {
 		if (fresh) sequence = compose(length);
 		mode = 'showing';
 		message = 'Watch';
 		typed = 0;
-		// Slightly quicker as sequences grow.
-		const on = Math.max(420, 700 - length * 30);
-		const off = 180;
+		shown = -1;
+		const on = 750;
+		const off = 250;
+		const lead = 500;
 		sequence.forEach((k, i) => {
 			later(() => {
 				shown = i;
 				if (sound) tone(LANE_NOTES[keys.indexOf(k) % LANE_NOTES.length]!);
-			}, i * (on + off));
-			later(() => (shown = -1), i * (on + off) + on);
+			}, lead + i * (on + off));
 		});
+		const shownBy = lead + sequence.length * (on + off);
+		const hold = 900 + sequence.length * 220;
 		later(() => {
+			mode = 'memorize';
+			message = 'Remember it';
+		}, shownBy);
+		later(() => {
+			shown = -1;
 			mode = 'answering';
 			message = 'Your turn';
-		}, sequence.length * (on + off) + 120);
+		}, shownBy + hold);
 	}
 
 	function blink(kind: 'ok' | 'error', code: string) {
@@ -167,7 +180,7 @@
 <GameFrame
 	title="Echo"
 	icon="repeat"
-	how="Keys light up one after another. When they stop, type the same keys in the same order. Each correct round adds one more key."
+	how={vocabulary.length ? 'The letters of a word light up one after another, then the whole word stays for a moment. When it disappears, type it from memory. Each correct round makes the word one letter longer.' : 'Keys light up one after another, then the whole sequence stays for a moment. When it disappears, type it from memory. Each correct round adds one more key.'}
 	goal={`Repeat a sequence of ${target} keys`}
 	{progress}
 	status={`${Math.min(length, target)} keys`}
@@ -183,8 +196,8 @@
 		<p class="message" class:turn={mode === 'answering'} aria-live="polite">{message || ' '}</p>
 		<ol class="slots" aria-label={`Sequence of ${sequence.length} keys`}>
 			{#each sequence as k, i (i)}
-				<li class:filled={mode !== 'showing' && i < typed} class:lit={mode === 'showing' && i === shown}>
-					{#if mode === 'showing' && i === shown}{keyName(k).length === 1 ? keyName(k) : k}{:else if i < typed}{keyName(k).length === 1 ? keyName(k) : k}{/if}
+				<li class:filled={mode === 'answering' || mode === 'between' ? i < typed : false} class:lit={mode === 'showing' && i === shown} class:seen={visible(i) && !(mode === 'showing' && i === shown)}>
+					{#if visible(i) || ((mode === 'answering' || mode === 'between') && i < typed)}{keyName(k).length === 1 ? keyName(k) : k}{/if}
 				</li>
 			{/each}
 		</ol>
@@ -239,6 +252,12 @@
 		background: var(--accent);
 		color: var(--on-accent);
 		transform: translateY(-3px);
+	}
+	.slots li.seen {
+		border-style: solid;
+		border-color: var(--ink);
+		background: var(--surface);
+		color: var(--ink);
 	}
 	.slots li.filled {
 		border-style: solid;

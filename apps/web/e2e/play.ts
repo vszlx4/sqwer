@@ -21,7 +21,8 @@ async function start(page: Page) {
 	await page.keyboard.press('Space');
 }
 
-const outcome = (page: Page) => page.locator('.outcome').isVisible();
+/** A lesson step's outcome, or the summary of an endless round. */
+const outcome = (page: Page) => page.locator('.outcome, .endless .result').isVisible();
 
 /** Key hunt: presses each key as it lights up. */
 export async function playKeyHunt(page: Page) {
@@ -103,6 +104,9 @@ export async function playFalling(page: Page) {
 /** Race: types the passage before the pacer. */
 export async function playRace(page: Page) {
 	await start(page);
+	// The passage can be read first; Space skips the rest of the preview.
+	await expect(page.getByRole('button', { name: /^Start now/ })).toBeVisible();
+	await page.keyboard.press('Space');
 	await expect(page.locator('.passage')).toBeVisible();
 	await page.waitForTimeout(1700);
 	const text = await page.evaluate(() =>

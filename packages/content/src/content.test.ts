@@ -44,3 +44,24 @@ describe('examination words', async () => {
 		expect(EXAM_WORDS.slice(0, 4)).toEqual(['the', 'be', 'of', 'and']);
 	});
 });
+
+describe('word tiers', async () => {
+	const { WORD_TIERS, STARTER_WORDS, ADVANCED_WORDS } = await import('./sets.ts');
+
+	it('hold distinct lowercase words, each in only one tier', () => {
+		const all = WORD_TIERS.flat();
+		expect(new Set(all).size).toBe(all.length);
+		for (const w of all) expect(w).toMatch(/^[a-z]+$/);
+	});
+
+	it('grow longer from the easiest tier to the hardest', () => {
+		const mean = (ws: readonly string[]) => ws.reduce((n, w) => n + w.length, 0) / ws.length;
+		expect(Math.max(...STARTER_WORDS.map((w) => w.length))).toBeLessThanOrEqual(5);
+		expect(mean(ADVANCED_WORDS)).toBeGreaterThan(mean(STARTER_WORDS) + 2);
+	});
+
+	it('leave out words unsuited to the games', () => {
+		const all = new Set(WORD_TIERS.flat());
+		for (const w of ['kill', 'casino', 'erotic', 'drugs', 'gambling', 'asp', 'cant']) expect(all.has(w)).toBe(false);
+	});
+});
