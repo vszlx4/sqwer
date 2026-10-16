@@ -78,13 +78,6 @@
 				{/if}
 			</div>
 		</div>
-
-		<ol class="how" aria-label="How ranked works">
-			<li><span class="how-n">1</span><span><b>Sixty seconds</b> of fast-flowing everyday words, the same for everyone.</span></li>
-			<li><span class="how-n">2</span><span><b>{MIN_ACCURACY}% accuracy</b> or more for the result to count.</span></li>
-			<li><span class="how-n">3</span><span><b>Your best result</b> sets your rank. A slower attempt never lowers it.</span></li>
-			<li><span class="how-n">4</span><span><b>Checked on the server</b> from the keystroke timings, so every rank is earned.</span></li>
-		</ol>
 	</section>
 
 	<section class="ranks band" aria-labelledby="ranks-title">
@@ -211,7 +204,7 @@
 	}
 	/* Arena: the competitive area is dark in both themes. */
 	.arena {
-		padding: clamp(40px, 6vw, 72px) 0 32px;
+		padding: clamp(40px, 6vw, 72px) 0 clamp(40px, 6vw, 64px);
 		color: #f2f2ee;
 	}
 	.arena::before {
@@ -377,39 +370,6 @@
 	.next-text b {
 		color: #f2f2ee;
 	}
-	.how {
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 8px;
-		margin-top: 36px;
-	}
-	.how li {
-		display: flex;
-		gap: 10px;
-		padding: 14px;
-		border-radius: 3px;
-		border: 1px solid #1f1f1f;
-		background: rgb(255 255 255 / 0.025);
-		font-size: 14px;
-		line-height: 1.45;
-		color: #b9b9b3;
-	}
-	.how b {
-		color: #f2f2ee;
-	}
-	.how-n {
-		display: grid;
-		place-items: center;
-		flex-shrink: 0;
-		width: 24px;
-		height: 24px;
-		border-radius: 3px;
-		background: rgb(204 249 0 / 0.12);
-		color: var(--accent);
-		font-size: 12.5px;
-		font-weight: 800;
-	}
-
 	/* Ranks: a rail of emblems and the chosen rank in detail. */
 	.ranks {
 		padding: 44px 0 52px;
@@ -773,9 +733,6 @@
 		.arena-grid {
 			grid-template-columns: 1fr;
 		}
-		.how {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
 		.detail {
 			grid-template-columns: 1fr;
 			justify-items: center;
@@ -789,9 +746,6 @@
 		}
 	}
 	@media (max-width: 600px) {
-		.how {
-			grid-template-columns: 1fr;
-		}
 		.podium {
 			grid-template-columns: 1fr;
 		}
