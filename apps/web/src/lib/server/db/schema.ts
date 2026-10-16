@@ -96,7 +96,7 @@ export const results = pgTable('results', {
 	xp: integer('xp').notNull().default(0),
 	/** Words per minute, copied for ranking. */
 	wpm: real('wpm').notNull().default(0),
-	/** For competitive results: whether the server's plausibility check passed. */
+	/** For competitive and placement results: whether the server's plausibility check passed. */
 	verified: boolean('verified').notNull().default(false)
 }, (t) => [index('results_competitive_idx').on(t.exam, t.verified, t.wpm)]).enableRLS();
 

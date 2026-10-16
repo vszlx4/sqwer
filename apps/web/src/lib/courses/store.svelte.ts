@@ -149,6 +149,24 @@ class CourseStore {
 		if (this.signedIn) await this.request('PUT', { startLesson: lessonId }).then((s) => this.apply(s)).catch(() => {});
 	}
 
+	/**
+	 * Applies the latest placement test saved to the account: the chapters before the recommended
+	 * one are marked complete with full stars and it becomes the starting point. Returns the
+	 * recommended chapter, or null when it could not be applied.
+	 */
+	async place(): Promise<{ chapter: number; credited: number } | null> {
+		if (!this.signedIn) return null;
+		try {
+			const res = await fetch('/api/courses/placement', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+			if (!res.ok) return null;
+			const body = (await res.json()) as { chapter: number; credited: number; snapshot: Snapshot };
+			this.apply(body.snapshot);
+			return { chapter: body.chapter, credited: body.credited };
+		} catch {
+			return null;
+		}
+	}
+
 	/** Whether a guest finished the first lesson and has a result waiting for an account. */
 	get hasPendingTrial() {
 		return !this.signedIn && !!read(PENDING_KEY);
