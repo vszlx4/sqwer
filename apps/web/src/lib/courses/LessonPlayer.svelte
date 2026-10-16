@@ -248,8 +248,8 @@
 				<button type="button" class="btn btn-primary btn-lg" onclick={proceed} use:autofocus>
 					{outcome.passed ? (index + 1 < lesson.steps.length ? 'Continue' : 'See your result') : 'Try again'}
 					<Icon name={outcome.passed ? 'arrow' : 'restart'} size={18} />
+					<kbd aria-hidden="true">Enter</kbd>
 				</button>
-				<p class="enter">or press <kbd>Enter</kbd></p>
 				{#if !outcome.passed && fails >= 2}
 					<div class="help" role="group" aria-label="Help with this step">
 						<p><b>Need a hand?</b> This step has been hard twice. You can slow the pace down, or move on and come back to it later.</p>
@@ -501,8 +501,8 @@
 	.outcome .badge {
 		display: grid;
 		place-items: center;
-		width: 64px;
-		height: 64px;
+		width: 56px;
+		height: 56px;
 		border-radius: 3px;
 		background: var(--surface-2);
 		color: var(--ink);
@@ -518,17 +518,33 @@
 		}
 	}
 	.outcome h2 {
-		font-size: 30px;
+		font-size: 32px;
+		text-wrap: balance;
 	}
 	.outcome p {
+		max-width: 52ch;
 		color: var(--ink-2);
 		line-height: 1.55;
+		text-wrap: pretty;
+	}
+	.outcome .btn {
+		margin-top: 4px;
+	}
+	.outcome kbd {
+		margin-left: 6px;
+		padding: 1px 6px;
+		border-radius: 3px;
+		background: rgb(0 0 0 / 0.12);
+		font-family: var(--font-mono);
+		font-size: 12px;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.outcome.passed .badge {
+			animation: none;
+		}
 	}
 	.advice {
 		font-size: 14.5px;
-	}
-	.enter {
-		font-size: 13px;
 	}
 	.skip-game {
 		padding: 6px 10px;

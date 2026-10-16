@@ -80,8 +80,9 @@
 		<span class="status">{status}</span>
 	</div>
 
+	<!-- The game and its overlays share one grid cell, so the frame grows to fit whichever is taller. -->
 	<div class="stage" style:min-height={`${height}px`}>
-		{@render children()}
+		<div class="layer">{@render children()}</div>
 
 		{#if phase === 'ready'}
 			<div class="overlay">
@@ -161,6 +162,7 @@
 	}
 	.stage {
 		position: relative;
+		display: grid;
 		overflow: hidden;
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
@@ -168,16 +170,23 @@
 			radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 8%, transparent) 1px, transparent 0) 0 0 / 22px 22px,
 			linear-gradient(to bottom, var(--surface), var(--bg));
 	}
+	.layer,
 	.overlay {
-		position: absolute;
-		inset: 0;
+		grid-area: 1 / 1;
+		min-width: 0;
+	}
+	.layer {
+		position: relative;
+	}
+	.overlay {
+		position: relative;
 		z-index: 2;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		gap: 10px;
-		padding: 24px;
+		padding: 28px 24px;
 		text-align: center;
 		background: color-mix(in srgb, var(--bg) 84%, transparent);
 		-webkit-backdrop-filter: blur(6px);
@@ -209,8 +218,9 @@
 		color: var(--ink);
 	}
 	.how {
-		max-width: 440px;
+		max-width: 52ch;
 		line-height: 1.55;
+		text-wrap: pretty;
 	}
 	.goal {
 		display: inline-flex;
