@@ -34,34 +34,13 @@ describe('WordGenerator', () => {
 	});
 });
 
-describe('flow words', async () => {
-	const { FLOW_WORDS, FLOW_EXCLUDED, FLOW_REQUIRED, FREQUENT_WORDS, SCORED_WORDS, flowScore, trigrams } = await import('./index.ts');
+describe('examination words', async () => {
+	const { EXAM_WORDS } = await import('./index.ts');
 
-	it('are everyday words from the most frequent list, without same-finger pairs', () => {
-		expect(new Set(FLOW_WORDS).size).toBe(200);
-		for (const w of FLOW_WORDS) {
-			expect(FREQUENT_WORDS.indexOf(w)).toBeLessThan(700);
-			expect(w).not.toMatch(/(.)\1/);
-			expect(w.length).toBeLessThanOrEqual(5);
-			if (!FLOW_REQUIRED.includes(w)) expect(flowScore(w).sameFinger).toBe(0);
-		}
-		for (const w of FLOW_REQUIRED) expect(FLOW_WORDS).toContain(w);
-		for (const w of FLOW_EXCLUDED) expect(FLOW_WORDS).not.toContain(w);
-		for (const w of ['the', 'and', 'to', 'is', 'it', 'for', 'with']) expect(FLOW_WORDS).toContain(w);
-	});
-
-	it('cover exactly 337 distinct trigrams', () => {
-		expect(new Set(FLOW_WORDS.flatMap(trigrams)).size).toBe(337);
-	});
-
-	it('alternate hands more often and reach less than frequent words in general', () => {
-		const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
-		const flow = FLOW_WORDS.map((w) => flowScore(w));
-		expect(mean(flow.map((s) => s.alternation))).toBeGreaterThan(mean(SCORED_WORDS.map((s) => s.alternation)));
-		expect(mean(flow.map((s) => s.reach))).toBeLessThan(mean(SCORED_WORDS.map((s) => s.reach)));
-	});
-
-	it('rate a hand-alternating home-row word above a one-hand stretch', () => {
-		expect(flowScore('fish').score).toBeGreaterThan(flowScore('were').score);
+	it('are two hundred distinct words of letters only', () => {
+		expect(EXAM_WORDS).toHaveLength(200);
+		expect(new Set(EXAM_WORDS).size).toBe(200);
+		for (const w of EXAM_WORDS) expect(w).toMatch(/^[a-zA-Z]+$/);
+		expect(EXAM_WORDS.slice(0, 4)).toEqual(['the', 'be', 'of', 'and']);
 	});
 });

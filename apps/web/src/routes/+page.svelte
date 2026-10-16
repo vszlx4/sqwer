@@ -582,7 +582,7 @@
 		background: #f2f2ee;
 		color: #111;
 		font-family: var(--font-mono);
-		font-weight: 700;
+		font-weight: 600;
 		animation: fall 3.4s linear infinite;
 		animation-delay: calc(var(--n) * -0.68s);
 	}
@@ -645,7 +645,7 @@
 		transform: translateX(-50%);
 		font-family: var(--font-mono);
 		font-size: 18px;
-		font-weight: 700;
+		font-weight: 600;
 		color: #5a5a55;
 	}
 	.spell span {
@@ -682,7 +682,7 @@
 		transform: translateX(-50%);
 		font-family: var(--font-mono);
 		font-size: 12px;
-		font-weight: 700;
+		font-weight: 600;
 		color: #b9b9b3;
 		text-transform: uppercase;
 	}
@@ -781,7 +781,7 @@
 		color: #77776f;
 		font-family: var(--font-mono);
 		font-size: 10px;
-		font-weight: 700;
+		font-weight: 600;
 		text-transform: uppercase;
 	}
 	.mk.target {
@@ -918,7 +918,7 @@
 		color: #8e8e88;
 		font-family: var(--font-mono);
 		font-size: 14px;
-		font-weight: 700;
+		font-weight: 600;
 		text-transform: uppercase;
 		animation: echo 3.6s ease infinite;
 		animation-delay: calc(var(--n) * 0.35s);
