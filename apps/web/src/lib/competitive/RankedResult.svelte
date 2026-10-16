@@ -4,7 +4,7 @@
 	import ResultReport from '#lib/results/ResultReport.svelte';
 	import type { UploadOutcome } from '#lib/results/store.svelte.ts';
 	import type { ResultRecord } from '#lib/results/types.ts';
-	import { MIN_ACCURACY, divisionLevel, nextTier, tierFor, tierRange } from '#lib/progress/competitive.ts';
+	import { MIN_ACCURACY, TIERS, divisionLevel, nextTier, tierFor, tierRange } from '#lib/progress/competitive.ts';
 	import { examXp } from '#lib/progress/xp.ts';
 	import Confetti from '#lib/ui/Confetti.svelte';
 	import CountUp from '#lib/ui/CountUp.svelte';
@@ -56,7 +56,7 @@
 	const verdict = $derived.by(() => {
 		if (record.status !== 'completed') return 'Not completed: ranked results need the full sixty seconds.';
 		if (!counts) return `Accuracy under ${MIN_ACCURACY}%: this result does not count towards your rank.`;
-		if (!tier) return 'Under 50 WPM: reach 50 WPM to enter Bronze III.';
+		if (!tier) return `Under ${TIERS[0]!.from} WPM: reach ${TIERS[0]!.from} WPM to enter ${TIERS[0]!.name}.`;
 		if (rankedUp) return before ? `Rank up: ${before.name} to ${tier.name}.` : `First rank: ${tier.name}.`;
 		if (isBest) return `New personal best, still ${tier.name}.`;
 		return `Your best remains ${Math.round(previousBest ?? 0)} WPM (${before?.name ?? 'Unranked'}).`;

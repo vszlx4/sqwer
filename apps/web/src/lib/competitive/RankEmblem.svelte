@@ -22,19 +22,15 @@
 	const uid = $props.id();
 
 	const PALETTES: Record<string, [string, string, string]> = {
-		bronze: ['#f6cfa6', '#c27a43', '#5e2f12'],
 		silver: ['#f7f9fb', '#a8b2bf', '#47505d'],
 		gold: ['#fff3b8', '#e3a82a', '#6e4703'],
-		platinum: ['#d8fff6', '#38bca6', '#0d4f46'],
 		diamond: ['#e6f1ff', '#5a92f6', '#1a3a86'],
 		master: ['#f0e4ff', '#9a6cf2', '#3b1d80'],
 		elite: ['#d9ffea', '#2db673', '#0b4a30'],
 		champion: ['#ffe2d0', '#f06a2a', '#702606'],
 		grandmaster: ['#ffdbe9', '#e0457b', '#640d2e'],
 		prodigy: ['#d6fbff', '#18b3ce', '#0a4855'],
-		paragon: ['#f1ffd2', '#8fca2d', '#36520a'],
 		overlord: ['#ede0ff', '#7344c8', '#220e4a'],
-		ascendant: ['#fff4c8', '#e6b422', '#5f4300'],
 		transcendent: ['#e6f7ff', '#48a2e8', '#103a61'],
 		zenith: ['#fdffe6', '#ccf900', '#465500']
 	};
@@ -54,19 +50,19 @@
 
 	/** The frame: a heater shield, a cut gem, a spiked crest, a star, a radiant star, then the sun. */
 	const frame = $derived.by(() => {
-		if (index < 0 || index <= 2) return { kind: 'path', d: 'M60 12 L95 23 V55 C95 80 80 97 60 108 C40 97 25 80 25 55 V23 Z' } as const;
-		if (index <= 4) return { kind: 'path', d: 'M60 10 L99 33 V83 L60 108 L21 83 V33 Z' } as const;
-		if (index <= 7) return { kind: 'path', d: 'M60 8 L73 19 L98 17 L93 58 C91 82 77 98 60 110 C43 98 29 82 27 58 L22 17 L47 19 Z' } as const;
-		if (index <= 10) return { kind: 'poly', d: star(8, 52, 41) } as const;
-		if (index <= 13) return { kind: 'poly', d: star(12, 54, 43) } as const;
+		if (index <= 1) return { kind: 'path', d: 'M60 12 L95 23 V55 C95 80 80 97 60 108 C40 97 25 80 25 55 V23 Z' } as const;
+		if (index <= 3) return { kind: 'path', d: 'M60 10 L99 33 V83 L60 108 L21 83 V33 Z' } as const;
+		if (index <= 5) return { kind: 'path', d: 'M60 8 L73 19 L98 17 L93 58 C91 82 77 98 60 110 C43 98 29 82 27 58 L22 17 L47 19 Z' } as const;
+		if (index <= 7) return { kind: 'poly', d: star(8, 52, 41) } as const;
+		if (index <= 9) return { kind: 'poly', d: star(12, 54, 43) } as const;
 		return { kind: 'poly', d: star(16, 56, 44) } as const;
 	});
-	const wings = $derived(index >= 6);
-	const crown = $derived(index >= 8);
-	const radiant = $derived(index >= 11);
+	const wings = $derived(index >= 4);
+	const crown = $derived(index >= 6);
+	const radiant = $derived(index >= 8);
 </script>
 
-<svg class="emblem" class:locked class:glow class:pulse={index >= 8} width={size} height={size} viewBox="-10 -10 140 140" aria-hidden="true" style:--glow={p[1]}>
+<svg class="emblem" class:locked class:glow class:pulse={index >= 6} width={size} height={size} viewBox="-10 -10 140 140" aria-hidden="true" style:--glow={p[1]}>
 	<defs>
 		<linearGradient id={`${uid}-metal`} x1="0.15" y1="0" x2="0.85" y2="1">
 			<stop offset="0" stop-color={p[0]} />
@@ -96,13 +92,13 @@
 			{/each}
 		</g>
 	{/if}
-	{#if glow || index >= 3}
+	{#if glow || index >= 2}
 		<circle cx="60" cy="60" r="62" fill={`url(#${uid}-halo)`} />
 	{/if}
 
 	{#if wings}
 		<!-- Wings grow with each rank from Elite. -->
-		{@const spread = 1 + (index - 6) * 0.05}
+		{@const spread = 1 + (index - 4) * 0.05}
 		<g transform={`translate(60 62) scale(${spread}) translate(-60 -62)`}>
 			{#each [-1, 1] as side (side)}
 				<g transform={`translate(60 0) scale(${side} 1) translate(-60 0)`}>

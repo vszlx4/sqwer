@@ -1,6 +1,6 @@
 /**
  * The competitive ladder: speed tiers earned only in the 60-second competitive test, with at
- * least MIN_ACCURACY. Fourteen ranks have three divisions each, from III (lowest) to I, and Zenith
+ * least MIN_ACCURACY. Ten ranks have three divisions each, from III (lowest) to I, and Zenith
  * stands alone at 300 WPM and above.
  */
 
@@ -14,27 +14,23 @@ export const MAX_WPM = 400;
 
 /** Each rank with the speed at which each of its divisions (III, II, I) begins. */
 export const LEAGUES = [
-	{ id: 'bronze', name: 'Bronze', starts: [50, 53, 57], colour: '#b8743a' },
-	{ id: 'silver', name: 'Silver', starts: [60, 63, 67], colour: '#8b96a3' },
-	{ id: 'gold', name: 'Gold', starts: [70, 73, 77], colour: '#c9930f' },
-	{ id: 'platinum', name: 'Platinum', starts: [80, 83, 87], colour: '#2a9d8f' },
-	{ id: 'diamond', name: 'Diamond', starts: [90, 93, 97], colour: '#3f7fe0' },
-	{ id: 'master', name: 'Master', starts: [100, 103, 107], colour: '#7a52e0' },
-	{ id: 'elite', name: 'Elite', starts: [110, 113, 117], colour: '#1f8f5c' },
-	{ id: 'champion', name: 'Champion', starts: [120, 123, 127], colour: '#d9531e' },
-	{ id: 'grandmaster', name: 'Grandmaster', starts: [130, 134, 138], colour: '#c2306e' },
-	{ id: 'prodigy', name: 'Prodigy', starts: [141, 147, 153], colour: '#0a8fa6' },
-	{ id: 'paragon', name: 'Paragon', starts: [160, 166, 173], colour: '#5f8f1f' },
-	{ id: 'overlord', name: 'Overlord', starts: [180, 190, 200], colour: '#5b3a9c' },
-	{ id: 'ascendant', name: 'Ascendant', starts: [210, 223, 236], colour: '#b8860b' },
-	{ id: 'transcendent', name: 'Transcendent', starts: [250, 267, 283], colour: '#2f6fb3' },
+	{ id: 'silver', name: 'Silver', starts: [50, 53, 57], colour: '#8b96a3' },
+	{ id: 'gold', name: 'Gold', starts: [60, 63, 67], colour: '#c9930f' },
+	{ id: 'diamond', name: 'Diamond', starts: [70, 75, 80], colour: '#3f7fe0' },
+	{ id: 'master', name: 'Master', starts: [85, 90, 95], colour: '#7a52e0' },
+	{ id: 'elite', name: 'Elite', starts: [100, 107, 113], colour: '#1f8f5c' },
+	{ id: 'champion', name: 'Champion', starts: [120, 127, 133], colour: '#d9531e' },
+	{ id: 'grandmaster', name: 'Grandmaster', starts: [140, 148, 156], colour: '#c2306e' },
+	{ id: 'prodigy', name: 'Prodigy', starts: [165, 175, 185], colour: '#0a8fa6' },
+	{ id: 'overlord', name: 'Overlord', starts: [195, 210, 225], colour: '#5b3a9c' },
+	{ id: 'transcendent', name: 'Transcendent', starts: [240, 260, 280], colour: '#2f6fb3' },
 	{ id: 'zenith', name: 'Zenith', starts: [ZENITH_WPM], colour: '#8db000' }
 ] as const;
 
 export type League = (typeof LEAGUES)[number];
 
 export interface Tier {
-	/** 1 for Bronze III, up to 43 for Zenith. */
+	/** 1 for Silver III, up to 31 for Zenith. */
 	index: number;
 	league: League;
 	/** III (lowest), II or I; empty for Zenith, which has no divisions. */

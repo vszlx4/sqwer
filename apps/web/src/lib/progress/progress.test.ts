@@ -34,41 +34,42 @@ describe('experience and levels', () => {
 });
 
 describe('competitive tiers', () => {
-	it('follows the published table: fourteen ranks of three divisions, then Zenith at 300 WPM', () => {
-		expect(TIERS).toHaveLength(43);
+	it('has ten ranks of three divisions, then Zenith at 300 WPM, with no gaps', () => {
+		expect(TIERS).toHaveLength(31);
 		const table: [number, string][] = [
 			[49, ''],
-			[50, 'Bronze III'],
-			[52.9, 'Bronze III'],
-			[53, 'Bronze II'],
-			[57, 'Bronze I'],
-			[59, 'Bronze I'],
-			[60, 'Silver III'],
-			[129, 'Champion I'],
-			[130, 'Grandmaster III'],
-			[133, 'Grandmaster III'],
-			[134, 'Grandmaster II'],
-			[140, 'Grandmaster I'],
-			[141, 'Prodigy III'],
-			[159, 'Prodigy I'],
-			[160, 'Paragon III'],
-			[179, 'Paragon I'],
-			[180, 'Overlord III'],
-			[209, 'Overlord I'],
-			[210, 'Ascendant III'],
-			[249, 'Ascendant I'],
-			[250, 'Transcendent III'],
-			[283, 'Transcendent I'],
+			[50, 'Silver III'],
+			[52.9, 'Silver III'],
+			[53, 'Silver II'],
+			[59, 'Silver I'],
+			[60, 'Gold III'],
+			[70, 'Diamond III'],
+			[84, 'Diamond I'],
+			[85, 'Master III'],
+			[99, 'Master I'],
+			[100, 'Elite III'],
+			[119, 'Elite I'],
+			[120, 'Champion III'],
+			[139, 'Champion I'],
+			[140, 'Grandmaster III'],
+			[164, 'Grandmaster I'],
+			[165, 'Prodigy III'],
+			[194, 'Prodigy I'],
+			[195, 'Overlord III'],
+			[239, 'Overlord I'],
+			[240, 'Transcendent III'],
 			[299.9, 'Transcendent I'],
 			[300, 'Zenith'],
 			[360, 'Zenith']
 		];
 		for (const [wpm, name] of table) expect(tierFor(wpm)?.name ?? '', `${wpm} WPM`).toBe(name);
-		// Each tier ends where the next begins.
 		for (let i = 1; i < TIERS.length; i++) expect(TIERS[i - 1]!.to).toBe(TIERS[i]!.from - 1);
+		// Divisions widen, or stay as wide, as the ranks rise.
+		const widths = TIERS.slice(0, -1).map((t) => t.to! - t.from + 1);
+		for (let i = 3; i < widths.length; i += 3) expect(widths[i]!).toBeGreaterThanOrEqual(widths[i - 3]!);
 		expect(tierRange(tierFor(55)!)).toBe('53 to 56 WPM');
 		expect(tierRange(tierFor(300)!)).toBe('300+ WPM');
-		expect(nextTier(null)!.name).toBe('Bronze III');
+		expect(nextTier(null)!.name).toBe('Silver III');
 		expect(nextTier(tierFor(300))).toBeNull();
 	});
 
