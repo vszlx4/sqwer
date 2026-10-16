@@ -51,7 +51,7 @@
 
 			<div class="me" aria-label="Your rank">
 				<div class="me-emblem">
-					<RankEmblem league={myTier?.league ?? null} division={divisionLevel(myTier)} size={176} glow />
+					<RankEmblem league={myTier?.league ?? null} division={divisionLevel(myTier)} size={176} />
 				</div>
 				<p class="me-label">{data.me ? 'Your rank' : 'Unranked'}</p>
 				<p class="me-name">{myTier?.name ?? 'Unranked'}</p>
@@ -108,7 +108,7 @@
 		{#key selected.id}
 			<div class="detail rise" id="rank-detail" role="tabpanel" style:--league={selected.colour}>
 				<div class="detail-emblem">
-					<RankEmblem league={selected} division={selectedTiers.length > 1 ? 3 : undefined} size={200} glow />
+					<RankEmblem league={selected} size={200} />
 				</div>
 				<div class="detail-body">
 					<p class="detail-kicker">Rank {LEAGUES.indexOf(selected) + 1} of {LEAGUES.length}</p>

@@ -1,289 +1,242 @@
 <script lang="ts">
-	import { LEAGUES, type League } from '#lib/progress/competitive.ts';
+	import type { League } from '#lib/progress/competitive.ts';
 
 	/**
-	 * A competitive rank insignia, drawn as a small 3D object in the manner of military rank
-	 * insignia: chevron stacks for the first ranks, a star over chevrons for the middle ranks and a
-	 * shield patch with a star and chevrons from Champion. The division (III to I) is the number of
-	 * chevrons. Lower ranks are brushed and polished metal, the higher ranks are cut glass gems,
-	 * and Zenith is white diamond with wings, a halo and prismatic light.
+	 * A competitive rank emblem: one geometric shape per rank, cut like a glass gem, with the
+	 * shapes growing in complexity up the ladder (triangle, shield, rhombus, hexagon, octagon, then
+	 * stars of four to eight points). The division is the number of chevrons beneath it, matching
+	 * its numeral: three for III, two for II, one for I. Zenith is a brilliant-cut white diamond.
 	 * Decorative: the rank name is always written beside it.
 	 */
 	interface Props {
 		/** The rank, or null for unranked. */
 		league: League | null;
-		/** 1 for division III, 2 for II, 3 for I. Ranks shown on their own use three. */
+		/** Number of chevrons: 3 for division III, 2 for II, 1 for I. Leave out to show the rank alone. */
 		division?: number;
 		size?: number;
-		/** A soft light behind the insignia, for featured places. */
-		glow?: boolean;
 		locked?: boolean;
 	}
 
-	let { league, division, size = 96, glow = false, locked = false }: Props = $props();
+	let { league, division, size = 96, locked = false }: Props = $props();
 	const uid = $props.id();
 
-	type Material = { kind: 'metal' | 'glass' | 'diamond'; light: string; base: string; dark: string; deep: string };
-	const MATERIALS: Record<string, Material> = {
-		silver: { kind: 'metal', light: '#ffffff', base: '#b9c2cc', dark: '#6b7684', deep: '#353c46' },
-		gold: { kind: 'metal', light: '#fff6c4', base: '#e8b52c', dark: '#9a6a06', deep: '#4b3302' },
-		diamond: { kind: 'metal', light: '#e6f0ff', base: '#6f9df5', dark: '#2c56b8', deep: '#122760' },
-		master: { kind: 'metal', light: '#f2e8ff', base: '#9d74f0', dark: '#5532b8', deep: '#241055' },
-		elite: { kind: 'metal', light: '#ddffee', base: '#3cc183', dark: '#137a4b', deep: '#06381e' },
-		champion: { kind: 'metal', light: '#ffe3d1', base: '#e57a43', dark: '#9a3d12', deep: '#461805' },
-		grandmaster: { kind: 'glass', light: '#ffd6e5', base: '#ff2d6f', dark: '#9c0636', deep: '#4a0018' },
-		prodigy: { kind: 'glass', light: '#d8fcff', base: '#19d3f0', dark: '#057d93', deep: '#023642' },
-		overlord: { kind: 'glass', light: '#efdcff', base: '#9a4dff', dark: '#5410b8', deep: '#220450' },
-		transcendent: { kind: 'glass', light: '#dfecff', base: '#3d7dff', dark: '#0d3bb8', deep: '#031856' },
-		zenith: { kind: 'diamond', light: '#ffffff', base: '#e9f0ff', dark: '#a9b8d6', deep: '#5d6b8a' }
+	type Glass = { light: string; base: string; dark: string; deep: string };
+	const GLASS: Record<string, Glass> = {
+		silver: { light: '#ffffff', base: '#b8c2cd', dark: '#6c7787', deep: '#2c333d' },
+		gold: { light: '#fff3b8', base: '#f2b51c', dark: '#a86a00', deep: '#4a2c00' },
+		diamond: { light: '#e4f0ff', base: '#78a8f5', dark: '#2f5fc4', deep: '#0f2560' },
+		master: { light: '#d9fff0', base: '#34c995', dark: '#0e7a57', deep: '#033324' },
+		elite: { light: '#e6fdff', base: '#6ad6ef', dark: '#1a8eb0', deep: '#053a4c' },
+		champion: { light: '#ffe0fb', base: '#e04ae0', dark: '#8e1595', deep: '#3d0642' },
+		grandmaster: { light: '#efe6ff', base: '#9b7cf6', dark: '#5634c4', deep: '#1f0f5c' },
+		prodigy: { light: '#ffe6d2', base: '#ff7a2e', dark: '#b53d06', deep: '#4d1500' },
+		overlord: { light: '#ffdbe3', base: '#ff2f5b', dark: '#a50a2c', deep: '#45000f' },
+		transcendent: { light: '#fffbd6', base: '#ffd02a', dark: '#d98a00', deep: '#6b3500' },
+		zenith: { light: '#ffffff', base: '#eef3ff', dark: '#a9b8d6', deep: '#5d6b8a' }
 	};
-	const UNRANKED: Material = { kind: 'metal', light: '#e9e9e4', base: '#9a9a93', dark: '#5a5a55', deep: '#2a2a28' };
-	/** The star and chevrons on glass patches are polished silver; on Zenith, a cut diamond. */
-	const INSIGNIA: Material = { kind: 'metal', light: '#ffffff', base: '#e2e8f0', dark: '#9aa6b6', deep: '#4c5566' };
-	const DIAMOND_STAR: Material = { kind: 'diamond', light: '#ffffff', base: '#dfe8fb', dark: '#7f93bf', deep: '#4a5a80' };
+	const UNRANKED: Glass = { light: '#ececea', base: '#a3a39d', dark: '#5f5f5a', deep: '#2a2a28' };
 
-	const index = $derived(league ? LEAGUES.findIndex((l) => l.id === league.id) : -1);
-	const m = $derived(league ? MATERIALS[league.id]! : UNRANKED);
-	const design = $derived(index < 0 ? 'patch' : index <= 1 ? 'chevrons' : index <= 4 ? 'star' : 'patch');
-	const count = $derived(!league || league.id === 'zenith' ? 0 : Math.min(3, Math.max(1, division ?? 3)));
-	const wings = $derived(index >= 8);
+	type Point = [number, number];
+	/** An outline in unit coordinates; `table` is the size of the flat top face, 0 for a pyramid cut. */
+	type Shape = { points: Point[]; table: number };
+
+	const regular = (n: number, r = 0.95, offset = -90): Point[] =>
+		Array.from({ length: n }, (_, i) => {
+			const a = ((offset + (360 / n) * i) * Math.PI) / 180;
+			return [Math.cos(a) * r, Math.sin(a) * r];
+		});
+	const star = (n: number, inner: number, outer: number[] = [1]): Point[] =>
+		Array.from({ length: n * 2 }, (_, i) => {
+			const a = ((-90 + (180 / n) * i) * Math.PI) / 180;
+			const r = i % 2 ? inner : outer[(i / 2) % outer.length]!;
+			return [Math.cos(a) * r, Math.sin(a) * r];
+		});
+
+	/** One shape per rank, in ladder order. */
+	const SHAPES: Record<string, Shape> = {
+		silver: { points: [[-1, -0.66], [1, -0.66], [0, 0.98]], table: 0.42 },
+		gold: { points: [[-0.84, -0.86], [0.84, -0.86], [0.84, 0.18], [0, 0.98], [-0.84, 0.18]], table: 0.52 },
+		diamond: { points: [[0, -1], [0.78, 0], [0, 1], [-0.78, 0]], table: 0.5 },
+		master: { points: regular(6), table: 0.56 },
+		elite: { points: regular(8, 0.97, -67.5), table: 0.6 },
+		champion: { points: star(4, 0.4), table: 0 },
+		grandmaster: { points: star(5, 0.46), table: 0 },
+		prodigy: { points: star(6, 0.54), table: 0 },
+		overlord: { points: star(8, 0.5), table: 0 },
+		transcendent: { points: star(8, 0.42, [1, 0.74]), table: 0 }
+	};
+
 	const zenith = $derived(league?.id === 'zenith');
-	const insignia = $derived(zenith ? DIAMOND_STAR : m.kind === 'metal' && design === 'patch' && index >= 0 ? { ...m, base: m.light, dark: m.base, deep: m.dark } : INSIGNIA);
+	const g = $derived(league ? GLASS[league.id]! : UNRANKED);
+	const shape = $derived(league && !zenith ? SHAPES[league.id]! : SHAPES.gold!);
+	const count = $derived(!league || zenith || !division ? 0 : Math.min(3, Math.max(1, division)));
+	/** Centre and radius of the emblem, raised to leave room for the chevrons when they are shown. */
+	const frame = $derived(zenith ? { cx: 60, cy: 58, r: 54 } : count ? { cx: 60, cy: 45, r: 38 } : { cx: 60, cy: 58, r: 47 });
 
-	/* --------------------------------------------------------------- geometry */
+	/* ----------------------------------------------------------------- shading */
 
-	/** A chevron band pointing down, from x0 to x1, with its top at y. */
-	function chevron(x0: number, x1: number, y: number, thick: number, depth: number): string {
-		const cx = (x0 + x1) / 2;
-		return `M${x0} ${y} L${cx} ${y + depth} L${x1} ${y} L${x1} ${y + thick} L${cx} ${y + depth + thick} L${x0} ${y + thick} Z`;
+	const hex = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+	function mix(a: string, b: string, t: number): string {
+		const x = hex(a);
+		const y = hex(b);
+		return `#${x.map((v, i) => Math.round(v + (y[i]! - v) * t).toString(16).padStart(2, '0')).join('')}`;
 	}
-	/** The top edge of a chevron, for its highlight. */
-	const chevronEdge = (x0: number, x1: number, y: number, depth: number) => `M${x0} ${y} L${(x0 + x1) / 2} ${y + depth} L${x1} ${y}`;
-
-	interface Stack {
-		x0: number;
-		x1: number;
-		top: number;
-		thick: number;
-		depth: number;
-		gap: number;
+	/** Colour of a face lit to the degree t, from 0 (facing away) to 1 (facing the light). */
+	function ramp(m: Glass, t: number): string {
+		const v = Math.min(1, Math.max(0, t));
+		return v < 0.5 ? mix(m.deep, m.base, v * 2) : mix(m.base, m.light, (v - 0.5) * 2);
 	}
-	const stack = $derived.by<Stack>(() => {
-		if (design === 'chevrons') {
-			const thick = 15;
-			const gap = 21;
-			const height = (count - 1) * gap + thick + 16;
-			return { x0: 16, x1: 104, top: 60 - height / 2, thick, depth: 16, gap };
-		}
-		if (design === 'star') return { x0: 33, x1: 87, top: 70, thick: 8.5, depth: 9, gap: 12.5 };
-		return { x0: 41, x1: 79, top: 64, thick: 6.5, depth: 7, gap: 9.5 };
+	/** Light falls from the upper left. */
+	const LIGHT: Point = [-0.5, -0.866];
+
+	const place = (p: Point, f: { cx: number; cy: number; r: number }): Point => [f.cx + p[0] * f.r, f.cy + p[1] * f.r];
+	const poly = (ps: Point[]) => ps.map((p) => `${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(' ');
+
+	/** The faces of the cut: bevels between the outline and the top face, each lit by its slope. */
+	const cut = $derived.by(() => {
+		const outer = shape.points.map((p) => place(p, frame));
+		const inner = shape.points.map((p) => place([p[0] * shape.table, p[1] * shape.table], frame));
+		const faces = outer.map((a, i) => {
+			const b = outer[(i + 1) % outer.length]!;
+			const pts: Point[] = shape.table ? [a, b, inner[(i + 1) % inner.length]!, inner[i]!] : [a, b, [frame.cx, frame.cy]];
+			let nx = b[1] - a[1];
+			let ny = a[0] - b[0];
+			const len = Math.hypot(nx, ny) || 1;
+			nx /= len;
+			ny /= len;
+			if (nx * ((a[0] + b[0]) / 2 - frame.cx) + ny * ((a[1] + b[1]) / 2 - frame.cy) < 0) [nx, ny] = [-nx, -ny];
+			const lit = nx * LIGHT[0] + ny * LIGHT[1];
+			return { points: poly(pts), fill: ramp(g, 0.5 + lit * 0.62) };
+		});
+		return { outline: poly(outer), top: shape.table ? poly(inner) : null, faces, ridges: shape.table ? [] : outer.filter((_, i) => i % 2 === 0) };
 	});
-	const star = $derived(design === 'star' ? { cx: 60, cy: 40, r: 27 } : zenith ? { cx: 60, cy: 50, r: 30 } : { cx: 60, cy: 39, r: 20 });
 
-	const lerp = (a: string, b: string, t: number) => {
-		const pa = parseInt(a.slice(1), 16);
-		const pb = parseInt(b.slice(1), 16);
-		const ch = (p: number, s: number) => (p >> s) & 255;
-		const mix = (s: number) => Math.round(ch(pa, s) + (ch(pb, s) - ch(pa, s)) * t);
-		return `#${((mix(16) << 16) | (mix(8) << 8) | mix(0)).toString(16).padStart(6, '0')}`;
-	};
+	/** The chevrons of the division, beneath the emblem. */
+	const chevrons = $derived(
+		Array.from({ length: count }, (_, i) => {
+			const y = 90 + i * 9.5;
+			return { body: `M38 ${y} L60 ${y + 7} L82 ${y} L82 ${y + 5.5} L60 ${y + 12.5} L38 ${y + 5.5} Z`, edge: `M38.8 ${y + 0.6} L60 ${y + 7.4} L81.2 ${y + 0.6}` };
+		})
+	);
 
-	/** A five-pointed star cut into ten facets, each shaded by its angle to a light at the top left. */
-	function facets(cx: number, cy: number, r: number, mat: Material, prism = false) {
-		const pt = (a: number, rad: number) => [cx + rad * Math.cos((a * Math.PI) / 180), cy + rad * Math.sin((a * Math.PI) / 180)] as const;
-		const out: { d: string; fill: string }[] = [];
-		const tints = ['#ffd6f0', '#d6f6ff', '#fff4c8', '#e2dcff'];
-		for (let i = 0; i < 5; i++) {
-			const a = -90 + i * 72;
-			const o = pt(a, r);
-			const prev = pt(a - 36, r * 0.42);
-			const next = pt(a + 36, r * 0.42);
-			for (const [side, inner, mid] of [
-				[0, prev, a - 18],
-				[1, next, a + 18]
-			] as const) {
-				const light = (Math.cos(((mid - -135) * Math.PI) / 180) + 1) / 2;
-				const shade = side === 0 ? light : light * 0.7;
-				let fill = shade > 0.5 ? lerp(mat.base, mat.light, (shade - 0.5) * 2) : lerp(mat.dark, mat.base, shade * 2);
-				if (prism && (i + side) % 2 === 0) fill = lerp(fill, tints[(i + side) % tints.length]!, 0.45);
-				out.push({ d: `M${cx} ${cy} L${o[0]} ${o[1]} L${inner[0]} ${inner[1]} Z`, fill });
-			}
-		}
-		const outline = Array.from({ length: 10 }, (_, i) => pt(-90 + i * 36, i % 2 ? r * 0.42 : r).join(',')).join(' ');
-		return { facets: out, outline };
-	}
-	const starShape = $derived(design === 'chevrons' || !league ? null : facets(star.cx, star.cy, star.r, design === 'star' ? m : insignia, zenith));
+	/* ------------------------------------------------------------------ zenith */
 
-	const PATCH = 'M27 8 H93 Q97 8 97 12 V83 L60 106 L23 83 V12 Q23 8 27 8 Z';
-	/** Facets of the white diamond patch: lines from the centre to its corners. */
-	const DIAMOND_FACETS = [
-		{ d: 'M60 52 L27 8 H93 Z', t: 0.95 },
-		{ d: 'M60 52 L93 8 L97 12 V83 Z', t: 0.55 },
-		{ d: 'M60 52 L97 83 L60 106 Z', t: 0.3 },
-		{ d: 'M60 52 L60 106 L23 83 Z', t: 0.45 },
-		{ d: 'M60 52 L23 83 V12 L27 8 Z', t: 0.8 }
-	];
+	/** A brilliant-cut diamond seen from the side: the crown above the girdle, the pavilion below. */
+	const Z = (x: number, y: number) => place([x, y], frame);
+	const zenithCut = $derived.by(() => {
+		const A = Z(-0.42, -0.66);
+		const B = Z(0, -0.66);
+		const C = Z(0.42, -0.66);
+		const G = [-1, -0.5, 0, 0.5, 1].map((x) => Z(x, -0.26));
+		const culet = Z(0, 0.98);
+		const mids = [-0.75, -0.25, 0.25, 0.75].map((x) => Z(x * 0.5, 0.36));
+		const faces: [Point[], string][] = [
+			// Crown
+			[[G[0]!, A, G[1]!], '#f3f8ff'],
+			[[A, B, G[1]!], '#ffffff'],
+			[[B, G[1]!, G[2]!], '#e6efff'],
+			[[B, G[2]!, G[3]!], '#fbf3ff'],
+			[[B, C, G[3]!], '#f6fbff'],
+			[[C, G[3]!, G[4]!], '#d9e4f8'],
+			// Pavilion
+			[[G[0]!, G[1]!, mids[0]!], '#e9f2ff'],
+			[[G[0]!, mids[0]!, culet], '#c9d8f2'],
+			[[G[1]!, mids[0]!, culet], '#f4fbff'],
+			[[G[1]!, G[2]!, mids[1]!], '#fff7e8'],
+			[[G[1]!, mids[1]!, culet], '#dfe9fb'],
+			[[G[2]!, mids[1]!, culet], '#ffffff'],
+			[[G[2]!, G[3]!, mids[2]!], '#e8fbff'],
+			[[G[2]!, mids[2]!, culet], '#d4e1f6'],
+			[[G[3]!, mids[2]!, culet], '#fdf0ff'],
+			[[G[3]!, G[4]!, mids[3]!], '#dbe6f9'],
+			[[G[3]!, mids[3]!, culet], '#eef5ff'],
+			[[G[4]!, mids[3]!, culet], '#b9c9e6']
+		];
+		return { outline: poly([A, C, G[4]!, culet, G[0]!]), faces: faces.map(([pts, fill]) => ({ points: poly(pts), fill })) };
+	});
 	const SPARKS = [
-		{ x: 104, y: 18, s: 7, d: 0 },
-		{ x: 14, y: 30, s: 5, d: 0.8 },
-		{ x: 100, y: 92, s: 4.5, d: 1.6 },
-		{ x: 22, y: 98, s: 6, d: 2.2 }
+		{ x: 28, y: 20, s: 7, d: 0 },
+		{ x: 96, y: 40, s: 5, d: 1.1 },
+		{ x: 54, y: 84, s: 4, d: 2 }
 	];
+	const sparkPath = (x: number, y: number, s: number) => `M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s} Z`;
 </script>
 
-<svg
-	class="emblem"
-	class:locked
-	class:glow={glow || index >= 6}
-	class:zenith
-	width={size}
-	height={size}
-	viewBox="-12 -14 144 144"
-	aria-hidden="true"
-	style:--glow={zenith ? '#ffffff' : m.base}
->
+<svg class="emblem" class:locked width={size} height={size} viewBox="0 0 120 120" aria-hidden="true">
 	<defs>
-		<!-- Brushed metal: alternating light bands give the look of polished steel. -->
-		<linearGradient id={`${uid}-face`} x1="0.1" y1="0" x2="0.9" y2="1">
-			{#if m.kind === 'metal'}
-				<stop offset="0" stop-color={m.light} />
-				<stop offset="0.32" stop-color={m.base} />
-				<stop offset="0.5" stop-color={m.light} stop-opacity="0.9" />
-				<stop offset="0.68" stop-color={m.base} />
-				<stop offset="1" stop-color={m.dark} />
-			{:else if m.kind === 'glass'}
-				<stop offset="0" stop-color={m.light} />
-				<stop offset="0.25" stop-color={m.base} />
-				<stop offset="0.75" stop-color={m.dark} />
-				<stop offset="1" stop-color={m.deep} />
-			{:else}
-				<stop offset="0" stop-color="#ffffff" />
-				<stop offset="0.35" stop-color="#eef3ff" />
-				<stop offset="0.6" stop-color="#d4def3" />
-				<stop offset="1" stop-color="#ffffff" />
-			{/if}
+		<linearGradient id={`${uid}-top`} x1="0" y1="0" x2="0.35" y2="1">
+			<stop offset="0" stop-color={mix(g.base, g.light, 0.55)} />
+			<stop offset="0.45" stop-color={g.base} />
+			<stop offset="0.78" stop-color={g.dark} />
+			<stop offset="1" stop-color={mix(g.base, g.light, 0.25)} />
 		</linearGradient>
-		<linearGradient id={`${uid}-ins`} x1="0" y1="0" x2="0" y2="1">
-			<stop offset="0" stop-color={design === 'patch' ? insignia.light : m.light} />
-			<stop offset="0.45" stop-color={design === 'patch' ? insignia.base : m.base} />
-			<stop offset="1" stop-color={design === 'patch' ? insignia.dark : m.dark} />
-		</linearGradient>
-		<linearGradient id={`${uid}-gloss`} x1="0" y1="0" x2="0" y2="1">
-			<stop offset="0" stop-color="#ffffff" stop-opacity="0.75" />
-			<stop offset="1" stop-color="#ffffff" stop-opacity="0" />
-		</linearGradient>
-		<radialGradient id={`${uid}-inner`} cx="0.5" cy="0.62" r="0.6">
-			<stop offset="0" stop-color={m.light} stop-opacity="0.55" />
-			<stop offset="1" stop-color={m.light} stop-opacity="0" />
+		<radialGradient id={`${uid}-caustic`} cx="0.55" cy="0.95" r="0.6">
+			<stop offset="0" stop-color={g.light} stop-opacity="0.75" />
+			<stop offset="1" stop-color={g.light} stop-opacity="0" />
 		</radialGradient>
-		<radialGradient id={`${uid}-halo`} cx="0.5" cy="0.5" r="0.5">
-			<stop offset="0" stop-color={zenith ? '#ffffff' : m.base} stop-opacity={zenith ? 0.9 : 0.5} />
-			<stop offset="1" stop-color={zenith ? '#ffffff' : m.base} stop-opacity="0" />
-		</radialGradient>
-		<linearGradient id={`${uid}-ring`} x1="0" y1="0" x2="1" y2="0">
-			<stop offset="0" stop-color="#fff3c4" />
-			<stop offset="0.5" stop-color="#ffffff" />
-			<stop offset="1" stop-color="#ffe7a3" />
+		<linearGradient id={`${uid}-gloss`} x1="0" y1="0" x2="0.4" y2="1">
+			<stop offset="0" stop-color="#fff" stop-opacity="0.75" />
+			<stop offset="1" stop-color="#fff" stop-opacity="0" />
 		</linearGradient>
-		<linearGradient id={`${uid}-feather`} x1="0" y1="0" x2="1" y2="1">
-			<stop offset="0" stop-color="#ffffff" />
-			<stop offset="0.6" stop-color={zenith ? '#e7eefc' : m.light} />
-			<stop offset="1" stop-color={zenith ? '#aebbd8' : m.base} />
+		<linearGradient id={`${uid}-chev`} x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color={g.light} />
+			<stop offset="0.5" stop-color={g.base} />
+			<stop offset="1" stop-color={g.dark} />
 		</linearGradient>
-		<clipPath id={`${uid}-patch`}><path d={PATCH} /></clipPath>
+		<clipPath id={`${uid}-clip`}>
+			<polygon points={zenith ? zenithCut.outline : cut.outline} />
+		</clipPath>
 	</defs>
 
-	{#if glow || index >= 6}
-		<circle cx="60" cy="56" r={zenith ? 70 : 62} fill={`url(#${uid}-halo)`} />
-	{/if}
-
-	{#if wings || zenith}
-		<!-- Feathered wings: three layers on each side, larger and brighter for Zenith. -->
-		{@const span = zenith ? 1.18 : 0.92}
-		<g transform={`translate(60 46) scale(${span}) translate(-60 -46)`}>
-			{#each [-1, 1] as side (side)}
-				<g transform={`translate(60 0) scale(${side} 1) translate(-60 0)`}>
-					{#each [0, 1, 2, 3] as f (f)}
-						<path
-							d={`M30 ${30 + f * 9} C${12 - f * 5} ${22 + f * 10} ${-4 - f * 2} ${30 + f * 13} ${-10 + f * 3} ${48 + f * 12} C${2 + f * 2} ${44 + f * 11} ${16 + f} ${44 + f * 10} 30 ${46 + f * 9} Z`}
-							fill={`url(#${uid}-feather)`}
-							stroke={zenith ? '#9fb0d4' : m.dark}
-							stroke-width="0.8"
-							stroke-linejoin="round"
-							opacity={1 - f * 0.08}
-						/>
-					{/each}
-				</g>
-			{/each}
-		</g>
-	{/if}
-
 	{#if zenith}
-		<!-- The halo. -->
-		<ellipse cx="60" cy="-3" rx="27" ry="7.5" fill="none" stroke={`url(#${uid}-ring)`} stroke-width="3.6" class="halo" />
-		<ellipse cx="60" cy="-3" rx="27" ry="7.5" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.9" />
-	{/if}
-
-	{#if design === 'patch'}
-		<!-- The patch: extruded edge, face, bevel and, for glass, gloss. -->
-		<path d={PATCH} fill={m.deep} transform="translate(0 4.5)" />
-		<path d={PATCH} fill={`url(#${uid}-face)`} stroke={m.dark} stroke-width="1.4" stroke-linejoin="round" />
-		{#if zenith}
-			<g clip-path={`url(#${uid}-patch)`}>
-				{#each DIAMOND_FACETS as f, i (i)}
-					<path d={f.d} fill={lerp('#c4d0ea', '#ffffff', f.t)} fill-opacity="0.85" />
-				{/each}
-				<path d="M60 52 L27 8 M60 52 L93 8 M60 52 L97 83 M60 52 L60 106 M60 52 L23 83" stroke="#ffffff" stroke-width="0.8" />
-				<!-- Prismatic glints along two facets. -->
-				<path d="M60 52 L93 8 L97 12 Z" fill="#ffd6f0" fill-opacity="0.55" />
-				<path d="M60 52 L23 83 L23 70 Z" fill="#cdf3ff" fill-opacity="0.6" />
-				<path d="M60 52 L97 83 L90 87 Z" fill="#fff1b8" fill-opacity="0.55" />
-			</g>
-		{:else}
-			<path d={PATCH} fill={`url(#${uid}-inner)`} />
-		{/if}
-		<path d={PATCH} fill="none" stroke={m.light} stroke-opacity="0.8" stroke-width="1.6" transform="translate(60 57) scale(0.9) translate(-60 -57)" />
-		{#if m.kind !== 'metal'}
-			<g clip-path={`url(#${uid}-patch)`}>
-				<ellipse cx="52" cy="14" rx="46" ry="26" fill={`url(#${uid}-gloss)`} />
-				<path d="M30 70 L84 8 L92 8 L36 76 Z" fill="#ffffff" fill-opacity="0.16" />
-			</g>
-		{/if}
-	{/if}
-
-	<!-- Chevrons, one to three, each with an extruded edge and a lit top. -->
-	{#each Array.from({ length: count }) as _, i (i)}
-		{@const y = stack.top + i * stack.gap}
-		<path d={chevron(stack.x0, stack.x1, y, stack.thick, stack.depth)} fill={design === 'patch' ? insignia.deep : m.deep} transform="translate(0 3)" />
-		<path d={chevron(stack.x0, stack.x1, y, stack.thick, stack.depth)} fill={`url(#${uid}-ins)`} stroke={design === 'patch' ? insignia.dark : m.dark} stroke-width="0.9" stroke-linejoin="round" />
-		<path d={chevronEdge(stack.x0, stack.x1, y, stack.depth)} fill="none" stroke="#ffffff" stroke-opacity="0.85" stroke-width="1.3" stroke-linecap="round" />
-		{#if m.kind !== 'metal' && design !== 'patch'}
-			<path d={chevron(stack.x0, stack.x1, y, stack.thick / 2, stack.depth)} fill="#ffffff" fill-opacity="0.35" />
-		{/if}
-	{/each}
-
-	{#if starShape}
-		<!-- The star: extruded, then ten shaded facets. -->
-		<polygon points={starShape.outline} fill={design === 'patch' ? insignia.deep : m.deep} transform="translate(0 3)" />
-		{#each starShape.facets as f, i (i)}
-			<path d={f.d} fill={f.fill} />
+		<polygon points={zenithCut.outline} transform="translate(0 3)" fill="#7d8fb3" />
+		{#each zenithCut.faces as f, i (i)}
+			<polygon points={f.points} fill={f.fill} stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round" />
 		{/each}
-		<polygon points={starShape.outline} fill="none" stroke={design === 'patch' ? insignia.dark : m.dark} stroke-width="0.9" stroke-linejoin="round" />
-	{/if}
-
-	{#if !league}
-		<text x="60" y="68" text-anchor="middle" class="q" fill={m.deep}>?</text>
-	{/if}
-
-	{#if zenith}
-		{#each SPARKS as s, i (i)}
-			<path
-				class="spark"
-				style:animation-delay={`${s.d}s`}
-				style:transform-origin={`${s.x}px ${s.y}px`}
-				d={`M${s.x} ${s.y - s.s} Q${s.x} ${s.y} ${s.x + s.s} ${s.y} Q${s.x} ${s.y} ${s.x} ${s.y + s.s} Q${s.x} ${s.y} ${s.x - s.s} ${s.y} Q${s.x} ${s.y} ${s.x} ${s.y - s.s} Z`}
-				fill="#ffffff"
+		<g clip-path={`url(#${uid}-clip)`}>
+			<polygon points={poly([Z(-1.1, -0.8), Z(0.25, -0.8), Z(-0.35, 0.3), Z(-1.1, 0.1)])} fill={`url(#${uid}-gloss)`} opacity="0.7" />
+			<polygon points={poly([Z(0.1, 0.1), Z(0.32, -0.1), Z(0.04, 0.8)])} fill="#c7f3ff" opacity="0.55" />
+			<polygon points={poly([Z(-0.5, -0.1), Z(-0.3, -0.05), Z(-0.12, 0.6)])} fill="#ffd9f4" opacity="0.5" />
+			<polygon points={poly([Z(0.5, -0.2), Z(0.7, -0.2), Z(0.2, 0.55)])} fill="#fff1c4" opacity="0.5" />
+		</g>
+		<polygon points={zenithCut.outline} fill="none" stroke="#7a8bb0" stroke-width="1.3" stroke-linejoin="round" />
+		{#each SPARKS as s (s.x)}
+			<path d={sparkPath(s.x, s.y, s.s)} fill="#ffffff" class="spark" style:animation-delay={`${s.d}s`} style:transform-origin={`${s.x}px ${s.y}px`} />
+		{/each}
+	{:else}
+		<polygon points={cut.outline} transform={`translate(0 ${frame.r * 0.07})`} fill={g.deep} stroke={g.deep} stroke-width="1.5" stroke-linejoin="round" />
+		{#each cut.faces as f, i (i)}
+			<polygon points={f.points} fill={f.fill} stroke={f.fill} stroke-width="0.5" stroke-linejoin="round" />
+		{/each}
+		{#if cut.top}
+			<polygon points={cut.top} fill={`url(#${uid}-top)`} />
+			<polygon points={cut.top} fill={`url(#${uid}-caustic)`} />
+			<polygon points={cut.top} fill="none" stroke={g.light} stroke-opacity="0.55" stroke-width="0.8" stroke-linejoin="round" />
+		{:else}
+			{#each cut.ridges as p, i (i)}
+				<line x1={frame.cx} y1={frame.cy} x2={p[0]} y2={p[1]} stroke={g.light} stroke-opacity="0.5" stroke-width="0.7" />
+			{/each}
+		{/if}
+		<g clip-path={`url(#${uid}-clip)`}>
+			<ellipse
+				cx={frame.cx - frame.r * 0.35}
+				cy={frame.cy - frame.r * 0.62}
+				rx={frame.r * 0.95}
+				ry={frame.r * 0.5}
+				transform={`rotate(-24 ${frame.cx - frame.r * 0.35} ${frame.cy - frame.r * 0.62})`}
+				fill={`url(#${uid}-gloss)`}
+				opacity="0.65"
 			/>
+		</g>
+		<polygon points={cut.outline} fill="none" stroke={g.light} stroke-opacity="0.7" stroke-width="0.9" stroke-linejoin="round" />
+		<polygon points={cut.outline} fill="none" stroke={g.deep} stroke-width="1.4" stroke-linejoin="round" />
+		{#if !league}
+			<text x={frame.cx} y={frame.cy + 6} text-anchor="middle" class="q" fill={g.deep}>?</text>
+		{/if}
+		{#each chevrons as c, i (i)}
+			<path d={c.body} transform="translate(0 1.6)" fill={g.deep} />
+			<path d={c.body} fill={`url(#${uid}-chev)`} stroke={g.deep} stroke-width="1" stroke-linejoin="round" />
+			<path d={c.edge} fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="0.8" stroke-linejoin="round" />
 		{/each}
 	{/if}
 </svg>
@@ -292,16 +245,10 @@
 	.emblem {
 		flex-shrink: 0;
 		overflow: visible;
-		filter: drop-shadow(0 5px 8px rgb(0 0 0 / 0.3));
+		filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.28));
 	}
-	.emblem.glow {
-		filter: drop-shadow(0 0 14px color-mix(in srgb, var(--glow) 45%, transparent)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.3));
-	}
-	.emblem.zenith {
-		filter: drop-shadow(0 0 18px rgb(255 255 255 / 0.75)) drop-shadow(0 0 40px rgb(200 220 255 / 0.45)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.3));
-	}
-	.halo {
-		filter: drop-shadow(0 0 4px #fff7d6);
+	.emblem.locked {
+		filter: grayscale(1) opacity(0.35);
 	}
 	.spark {
 		animation: twinkle 2.6s ease-in-out infinite;
@@ -309,26 +256,23 @@
 	@keyframes twinkle {
 		0%,
 		100% {
-			opacity: 0.2;
-			transform: scale(0.6);
+			opacity: 0.25;
+			transform: scale(0.55);
 		}
 		50% {
 			opacity: 1;
 			transform: scale(1);
 		}
 	}
-	.emblem.locked {
-		filter: grayscale(1) opacity(0.35);
-	}
 	.q {
 		font-family: var(--font-serif);
-		font-size: 40px;
+		font-size: 34px;
 		font-weight: 400;
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.spark {
 			animation: none;
-			opacity: 0.8;
+			opacity: 0.85;
 		}
 	}
 </style>
