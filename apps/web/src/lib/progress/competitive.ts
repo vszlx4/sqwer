@@ -95,7 +95,3 @@ export function verifyCompetitive(r: ReplayCheck): boolean {
 	const expected = net / 5 / (r.seconds / 60);
 	return Math.abs(expected - r.wpm) <= Math.max(4, r.wpm * 0.06);
 }
-
-/** The division as a count for emblems: 1 for III, 2 for II, 3 for I, undefined for Zenith. */
-/** The number of chevrons on a tier's emblem, matching its numeral: 3 for III, 2 for II, 1 for I. */
-export const divisionLevel = (t: Tier | null) => (t?.division ? DIVISIONS.length - DIVISIONS.indexOf(t.division) : undefined);

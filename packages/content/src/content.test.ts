@@ -35,15 +35,19 @@ describe('WordGenerator', () => {
 });
 
 describe('flow words', async () => {
-	const { FLOW_WORDS, FREQUENT_WORDS, SCORED_WORDS, flowScore } = await import('./index.ts');
+	const { FLOW_WORDS, FREQUENT_WORDS, SCORED_WORDS, flowScore, trigrams } = await import('./index.ts');
 
 	it('are everyday words from the most frequent list, without same-finger pairs', () => {
-		expect(FLOW_WORDS.length).toBeGreaterThanOrEqual(200);
+		expect(new Set(FLOW_WORDS).size).toBe(200);
 		for (const w of FLOW_WORDS) {
-			expect(FREQUENT_WORDS.indexOf(w)).toBeLessThan(750);
+			expect(FREQUENT_WORDS.indexOf(w)).toBeLessThan(500);
 			expect(flowScore(w).sameFinger).toBe(0);
 		}
 		for (const w of ['the', 'and', 'to', 'is', 'it', 'for', 'with']) expect(FLOW_WORDS).toContain(w);
+	});
+
+	it('cover exactly 337 distinct trigrams', () => {
+		expect(new Set(FLOW_WORDS.flatMap(trigrams)).size).toBe(337);
 	});
 
 	it('alternate hands more often and reach less than frequent words in general', () => {

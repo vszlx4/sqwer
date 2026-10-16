@@ -82,13 +82,57 @@ const NOT_EVERYDAY = new Set(['vowel', 'noun', 'verb', 'suffix', 'numeral', 'equ
 /** Every frequent word with its score, most frequent first. */
 export const SCORED_WORDS: readonly FlowScore[] = FREQUENT_WORDS.map((w, i) => flowScore(w, i)).filter((s) => s.word.length >= 2 && s.word.length <= 7 && !NOT_EVERYDAY.has(s.word));
 
+/** The three-letter sequences inside a word. */
+export const trigrams = (word: string): string[] => Array.from({ length: Math.max(0, word.length - 2) }, (_, i) => word.slice(i, i + 3));
+
+/** Size of the examination word set, and the number of distinct trigrams it covers. */
+export const FLOW_SIZE = 200;
+export const FLOW_TRIGRAMS = 337;
+
 /**
- * The words used in examinations, including the competitive test: the best-flowing of the most
- * frequent words, ordered by frequency. Single letters and very long words are left out.
+ * Picks `size` words from a pool ordered best first so that together they hold exactly `target`
+ * distinct trigrams: the best words are taken while they fit, then the lowest-ranked words that
+ * hold no trigram of their own are exchanged for the next best words that add the trigrams still
+ * missing. Deterministic, so the set is the same on every page.
  */
-export const FLOW_WORDS: readonly string[] = [...SCORED_WORDS]
-	.filter((s) => s.sameFinger === 0 && s.rank < 750)
-	.sort((a, b) => b.score - a.score)
-	.slice(0, 260)
+function choose(pool: readonly FlowScore[], size: number, target: number): FlowScore[] {
+	const counts = new Map<string, number>();
+	const count = (w: string, d: number) =>
+		trigrams(w).forEach((g) => {
+			const n = (counts.get(g) ?? 0) + d;
+			if (n) counts.set(g, n);
+			else counts.delete(g);
+		});
+	const fresh = (w: string) => new Set(trigrams(w).filter((g) => !counts.has(g))).size;
+	const chosen: FlowScore[] = [];
+	const rest: FlowScore[] = [];
+	for (const s of pool) {
+		if (chosen.length < size && counts.size + fresh(s.word) <= target) {
+			chosen.push(s);
+			count(s.word, 1);
+		} else rest.push(s);
+	}
+	while (counts.size < target) {
+		const next = rest.find((s) => fresh(s.word) >= 1 && fresh(s.word) <= target - counts.size);
+		const out = chosen.findLastIndex((s) => trigrams(s.word).every((g) => counts.get(g)! > 1));
+		if (!next || out < 0) break;
+		count(chosen[out]!.word, -1);
+		chosen.splice(out, 1);
+		rest.splice(rest.indexOf(next), 1);
+		chosen.push(next);
+		count(next.word, 1);
+	}
+	return chosen;
+}
+
+/**
+ * The words used in examinations, including the competitive test: 200 of the 500 most frequent
+ * words, chosen for flow, covering 337 distinct trigrams, ordered by frequency.
+ */
+export const FLOW_WORDS: readonly string[] = choose(
+	[...SCORED_WORDS].filter((s) => s.sameFinger === 0 && s.rank < 500).sort((a, b) => b.score - a.score),
+	FLOW_SIZE,
+	FLOW_TRIGRAMS
+)
 	.sort((a, b) => a.rank - b.rank)
 	.map((s) => s.word);
