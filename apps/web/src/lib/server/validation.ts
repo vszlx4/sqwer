@@ -67,7 +67,8 @@ export const profileSchema = z.object({
 	banner: z.enum(values(BANNERS), { message: 'Select a banner.' }),
 	showRank: z.boolean(),
 	showStats: z.boolean(),
-	showStreak: z.boolean()
+	showStreak: z.boolean(),
+	showOnLeaderboard: z.boolean()
 });
 
 export type ProfileInput = z.infer<typeof profileSchema>;
@@ -98,7 +99,8 @@ export function readProfileForm(form: FormData) {
 		banner: form.get('banner') ?? 'lime',
 		showRank: form.get('showRank') === 'on',
 		showStats: form.get('showStats') === 'on',
-		showStreak: form.get('showStreak') === 'on'
+		showStreak: form.get('showStreak') === 'on',
+		showOnLeaderboard: form.get('showOnLeaderboard') === 'on'
 	});
 }
 

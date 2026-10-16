@@ -38,18 +38,32 @@ export interface Rank {
 	tier: Tier;
 }
 
-export const RANKS: Rank[] = [
-	{ level: 1, name: 'Novice', min: 0, note: 'Every typist starts here.', tier: 'bronze' },
-	{ level: 2, name: 'Learner', min: 100, note: 'Your first keys are found.', tier: 'bronze' },
-	{ level: 3, name: 'Apprentice', min: 350, note: 'All eight fingers know their home.', tier: 'silver' },
-	{ level: 4, name: 'Typist', min: 800, note: 'The whole alphabet, without looking.', tier: 'silver' },
-	{ level: 5, name: 'Adept', min: 1400, note: 'Letters have become words.', tier: 'gold' },
-	{ level: 6, name: 'Skilled', min: 2200, note: 'An even, steady rhythm.', tier: 'gold' },
-	{ level: 7, name: 'Expert', min: 3200, note: 'Speed that keeps its accuracy.', tier: 'emerald' },
-	{ level: 8, name: 'Master', min: 4400, note: 'Whole sentences without a pause.', tier: 'emerald' },
-	{ level: 9, name: 'Virtuoso', min: 5800, note: 'Every key, every symbol.', tier: 'diamond' },
-	{ level: 10, name: 'Legend', min: 7400, note: 'The whole course, mastered.', tier: 'diamond' }
-];
+/** The highest number of points the course can award. */
+export const MAX_POINTS = LESSONS.length * lessonPoints(3);
+
+/** Share of all points needed for each rank. Rank 9 is also given for finishing the course well; rank 10 only for near-perfect work. */
+const RANK_SHARE = [0, 0.012, 0.04, 0.09, 0.16, 0.25, 0.36, 0.5, 0.75, 0.95];
+const at = (share: number) => Math.round((share * MAX_POINTS) / 50) * 50;
+
+export const RANKS: Rank[] = (
+	[
+		{ level: 1, name: 'Novice', note: 'Every typist starts here.', tier: 'bronze' },
+		{ level: 2, name: 'Learner', note: 'Your first keys are found.', tier: 'bronze' },
+		{ level: 3, name: 'Apprentice', note: 'All eight fingers know their home.', tier: 'silver' },
+		{ level: 4, name: 'Typist', note: 'The whole alphabet, without looking.', tier: 'silver' },
+		{ level: 5, name: 'Adept', note: 'Letters have become words.', tier: 'gold' },
+		{ level: 6, name: 'Skilled', note: 'An even, steady rhythm.', tier: 'gold' },
+		{ level: 7, name: 'Expert', note: 'Speed that keeps its accuracy.', tier: 'emerald' },
+		{ level: 8, name: 'Master', note: 'Whole sentences without a pause.', tier: 'emerald' },
+		{ level: 9, name: 'Virtuoso', note: 'The whole course, completed with at least 75% of its stars.', tier: 'diamond' },
+		{ level: 10, name: 'Legend', note: 'A perfect score in at least 95% of the lessons.', tier: 'diamond' }
+	] as const
+).map((r, i) => ({ ...r, min: at(RANK_SHARE[i]!) }));
+
+/** Completing the whole course with this share of its stars guarantees rank 9. */
+export const COMPLETION_FOR_RANK_9 = 0.75;
+/** Share of lessons with three stars needed for rank 10. */
+export const PERFECT_FOR_RANK_10 = 0.95;
 
 export interface RankStatus {
 	rank: Rank;
@@ -59,15 +73,29 @@ export interface RankStatus {
 	progress: number;
 }
 
-export function rankFor(points: number): RankStatus {
-	const index = RANKS.findLastIndex((r) => points >= r.min);
-	const rank = RANKS[Math.max(0, index)]!;
-	const next = RANKS[index + 1] ?? null;
-	return { rank, next, points, progress: next ? (points - rank.min) / (next.min - rank.min) : 1 };
-}
+/**
+ * The course rank. Points set the rank up to Virtuoso (9). Completing every lesson with at least
+ * 75% of all stars guarantees Virtuoso; Legend (10) is given only for three stars in at least 95%
+ * of the lessons. `stars` lists the stars of each lesson the learner has taken.
+ */
+export function rankFor(points: number, stars: readonly number[] = []): RankStatus {
+	const total = LESSONS.length;
+	const completed = stars.filter((s) => s > 0).length;
+	const starShare = stars.reduce((a, s) => a + s, 0) / (total * 3);
+	const perfect = stars.filter((s) => s >= 3).length;
 
-/** The highest number of points the course can award. */
-export const MAX_POINTS = LESSONS.length * lessonPoints(3);
+	let index = Math.min(8, RANKS.findLastIndex((r) => points >= r.min));
+	if (completed >= total && starShare >= COMPLETION_FOR_RANK_9) index = Math.max(index, 8);
+	if (perfect >= Math.ceil(total * PERFECT_FOR_RANK_10)) index = 9;
+	index = Math.max(0, index);
+
+	const rank = RANKS[index]!;
+	const next = RANKS[index + 1] ?? null;
+	let progress = 1;
+	if (next?.level === 10) progress = Math.min(1, perfect / Math.ceil(total * PERFECT_FOR_RANK_10));
+	else if (next) progress = Math.min(1, Math.max(0, (points - rank.min) / (next.min - rank.min)));
+	return { rank, next, points, progress };
+}
 
 /** Consecutive days with practice, ending today or yesterday. Days are `YYYY-MM-DD`. */
 export function streak(days: readonly string[], today: string): number {

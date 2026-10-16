@@ -105,10 +105,18 @@ describe('stars, points and ranks', () => {
 
 	it('moves through ranks in order and reaches the last before the maximum', () => {
 		expect(rankFor(0).rank.name).toBe('Novice');
-		expect(rankFor(120).rank.name).toBe('Learner');
-		expect(rankFor(120).progress).toBeCloseTo(20 / 250, 5);
+		expect(rankFor(RANKS[1]!.min).rank.name).toBe('Learner');
 		expect(RANKS.at(-1)!.min).toBeLessThan(MAX_POINTS);
-		expect(rankFor(MAX_POINTS).next).toBeNull();
+		// Points alone stop at Virtuoso; Legend needs three stars in 95% of the lessons.
+		expect(rankFor(MAX_POINTS).rank.level).toBe(9);
+		const all = (stars: number) => LESSONS.map(() => stars);
+		expect(rankFor(MAX_POINTS, all(3)).rank.level).toBe(10);
+		expect(rankFor(MAX_POINTS, all(3)).next).toBeNull();
+		// Finishing every lesson with 75% of the stars guarantees Virtuoso, whatever the points.
+		const mixed = LESSONS.map((_, i) => (i % 4 === 0 ? 0 : 3));
+		expect(rankFor(0, mixed).rank.level).toBeLessThan(9);
+		const finished = LESSONS.map((_, i) => (i % 4 === 0 ? 1 : 3));
+		expect(rankFor(0, finished).rank.level).toBe(9);
 	});
 });
 
@@ -185,10 +193,12 @@ describe('course variety', () => {
 		const kinds = new Set(LESSONS.flatMap((l) => l.steps.map((s) => s.kind)));
 		for (const k of ['falling', 'rhythm', 'keyhunt', 'race', 'echo', 'listen']) expect(kinds.has(k as never)).toBe(true);
 		const shape = (i: number) => LESSONS[i]!.steps.map((s) => s.kind).join(',');
+		const same: string[] = [];
 		for (let i = 1; i < LESSONS.length; i++) {
-			if (LESSONS[i]!.steps.some((s) => s.kind === 'checkpoint')) continue;
-			if (shape(i) === shape(i - 1)) expect(LESSONS[i]!.newKeys.length + LESSONS[i - 1]!.newKeys.length).toBeGreaterThan(0);
+			if (LESSONS[i]!.steps.some((s) => s.kind === 'checkpoint') || LESSONS[i]!.newKeys.length) continue;
+			if (shape(i) === shape(i - 1)) same.push(`${LESSONS[i - 1]!.title} / ${LESSONS[i]!.title}`);
 		}
+		expect(same).toEqual([]);
 	});
 
 	it('gives every game a target instead of a time limit', () => {

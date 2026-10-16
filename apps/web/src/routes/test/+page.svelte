@@ -10,7 +10,11 @@
 
 <Seo title={exam.title} description={`${exam.purpose} Measures: ${exam.measures.join(', ').toLowerCase()}.`} />
 
-<Breadcrumbs items={[{ href: '/exams', label: 'Examinations' }, { href: `/test?exam=${exam.id}`, label: exam.title }]} />
+<Breadcrumbs
+	items={exam.id === 'competitive'
+		? [{ href: '/competitive', label: 'Competitive' }, { href: `/test?exam=${exam.id}`, label: exam.title }]
+		: [{ href: '/exams', label: 'Practice' }, { href: `/test?exam=${exam.id}`, label: exam.title }]}
+/>
 <h1 class="sr-only">{exam.title}</h1>
 {#key exam.id}
 	<TypingTest {exam} />

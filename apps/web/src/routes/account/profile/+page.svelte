@@ -45,7 +45,8 @@
 			banner: p.banner,
 			showRank: p.showRank,
 			showStats: p.showStats,
-			showStreak: p.showStreak
+			showStreak: p.showStreak,
+			showOnLeaderboard: p.showOnLeaderboard
 		}}
 	/>
 </div>

@@ -11,6 +11,7 @@
 			email: string;
 			profile: { username: string; displayName: string; avatarColor: string } | null;
 			avatar: string | null;
+			level: import('#lib/progress/xp.ts').LevelStatus;
 		};
 	}
 
@@ -48,10 +49,11 @@
 		class="trigger"
 		aria-expanded={open}
 		aria-controls="account-menu-panel"
-		aria-label={`Account menu for ${name}`}
+		aria-label={`Account menu for ${name}, level ${user.level.level}`}
 		onclick={() => (open = !open)}
 	>
 		<Avatar {name} color={user.profile?.avatarColor ?? 'ink'} size={32} src={user.avatar} />
+		<span class="lvl" aria-hidden="true">{user.level.level}</span>
 		<Icon name="chevron" size={14} class="chevron" />
 	</button>
 	{#if open}
@@ -59,12 +61,20 @@
 			<div class="who">
 				<p class="name">{name}</p>
 				<p class="email">{user.email}</p>
+				<div class="level">
+					<span>Level {user.level.level}</span>
+					<span class="xp">{user.level.xp - user.level.floor} / {user.level.next - user.level.floor} XP</span>
+				</div>
+				<div class="bar" role="progressbar" aria-label={`Progress to level ${user.level.level + 1}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(user.level.progress * 100)}>
+					<span style:transform={`scaleX(${user.level.progress})`}></span>
+				</div>
 			</div>
 			<nav aria-label="Account">
 				{#if user.profile}
 					{#each ACCOUNT_LINKS as link (link.href)}
 						<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
 					{/each}
+					<a href="/history" aria-current={page.url.pathname === '/history' ? 'page' : undefined}>History</a>
 				{:else}
 					<a href="/account/setup">Complete your profile</a>
 				{/if}
@@ -95,6 +105,46 @@
 		color: var(--ink-2);
 		cursor: pointer;
 		transition: border-color 140ms ease;
+	}
+	.lvl {
+		display: grid;
+		place-items: center;
+		min-width: 22px;
+		height: 22px;
+		padding: 0 5px;
+		border-radius: 3px;
+		background: var(--violet);
+		color: #fff;
+		font-size: 12px;
+		font-weight: 800;
+		font-variant-numeric: tabular-nums;
+	}
+	.level {
+		display: flex;
+		justify-content: space-between;
+		gap: 8px;
+		margin-top: 10px;
+		font-size: 13px;
+		font-weight: 700;
+		color: var(--violet);
+	}
+	.level .xp {
+		font-weight: 500;
+		color: var(--ink-2);
+		font-variant-numeric: tabular-nums;
+	}
+	.bar {
+		height: 6px;
+		margin-top: 6px;
+		border-radius: 3px;
+		background: var(--surface-2);
+		overflow: hidden;
+	}
+	.bar span {
+		display: block;
+		height: 100%;
+		background: linear-gradient(90deg, var(--violet), var(--accent));
+		transform-origin: left;
 	}
 	.trigger:hover {
 		border-color: var(--ink-3);

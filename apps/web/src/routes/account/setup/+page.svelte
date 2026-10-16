@@ -32,7 +32,8 @@
 			banner: 'lime',
 			showRank: true,
 			showStats: true,
-			showStreak: true
+			showStreak: true,
+			showOnLeaderboard: true
 		}}
 	/>
 </div>

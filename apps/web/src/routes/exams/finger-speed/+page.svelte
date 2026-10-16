@@ -5,5 +5,5 @@
 </script>
 
 <Seo title="Finger speed assessment" description="Measure the speed and accuracy of each finger using your own finger map." />
-<Breadcrumbs items={[{ href: '/exams', label: 'Examinations' }, { href: '/exams/finger-speed', label: 'Finger speed assessment' }]} />
+<Breadcrumbs items={[{ href: '/exams', label: 'Practice' }, { href: '/exams/finger-speed', label: 'Finger speed assessment' }]} />
 <FingerAssessment />

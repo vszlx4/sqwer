@@ -20,6 +20,7 @@
 		{ name: 'sqwer:start', purpose: 'The course lesson you chose to start from.', lasts: 'Until you remove it', sent: 'Copied to your account when you sign in' },
 		{ name: 'sqwer:pending-lesson', purpose: 'Your result in the first lesson when taken without an account, so that it can be saved if you create one.', lasts: 'Until you create an account or remove it', sent: 'When you create an account' },
 		{ name: 'sqwer:sound', purpose: 'Whether sound is on in the rhythm game.', lasts: 'Until you remove it', sent: 'Never' },
+		{ name: 'sqwer:pace', purpose: 'The adaptive pace of the Courses, which makes games and drills gentler or brisker according to how your exercises go.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:device', purpose: 'A random identifier for this browser, created only while you are signed in, so that its usage statistics are kept separate from your other devices.', lasts: 'Until you remove it', sent: 'With your usage statistics, while signed in' }
 	];
 

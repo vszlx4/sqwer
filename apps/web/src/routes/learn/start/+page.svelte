@@ -23,7 +23,7 @@
 
 <Seo title="Choose where to start" description="Start the sqwer course from the beginning, choose a chapter that suits you, or let a placement test decide." />
 
-<Breadcrumbs items={[{ href: '/learn', label: 'Courses' }, { href: '/learn/start', label: 'Choose where to start' }]} />
+<Breadcrumbs items={[{ href: '/learn', label: 'Learning path' }, { href: '/learn/start', label: 'Choose where to start' }]} />
 
 <div class="choose">
 	<header>
