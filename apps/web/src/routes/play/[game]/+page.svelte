@@ -9,7 +9,7 @@
 
 <Seo title={`${data.game.title}: endless mode`} description={`${data.game.summary} Played in endless rounds with adaptive difficulty.`} />
 
-<Breadcrumbs items={[{ href: '/exams', label: 'Practice' }, { href: '/exams#games', label: 'Games' }, { href: `/play/${data.game.id}`, label: data.game.title }]} />
+<Breadcrumbs items={[{ href: '/exams', label: 'Practice' }, { href: '/exams#games', label: 'Endless games' }, { href: `/play/${data.game.id}`, label: data.game.title }]} />
 
 <div class="play">
 	<header>

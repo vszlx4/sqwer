@@ -56,7 +56,7 @@
 	const choice = $derived(DIFFICULTIES.find((d) => d.id === difficulty)!);
 	const startLevel = $derived(choice.level ?? adaptiveLevel);
 	const settings = $derived(roundSettings(game.id, level));
-	const usesWords = $derived(game.id === 'race' || game.id === 'falling-words' || game.id === 'listen');
+	const usesWords = $derived(game.id === 'race' || game.id === 'falling-words' || game.id === 'listen' || game.id === 'echo');
 
 	async function load(at: number) {
 		level = at;
@@ -122,28 +122,50 @@
 
 <div class="endless">
 	{#if phase === 'setup'}
-		<section class="setup" aria-labelledby="difficulty-title">
-			<h2 id="difficulty-title">Choose the difficulty</h2>
-			<p class="lede">
-				Rounds follow one another until {STRIKES} have been failed. Each cleared round scores its level, from 1 to
-				{MAX_LEVEL}.{#if best} Your best run: <b>{best}&nbsp;points</b>.{/if}
-			</p>
-			<div class="choices" role="radiogroup" aria-labelledby="difficulty-title">
-				{#each DIFFICULTIES as d (d.id)}
-					<label class="choice" class:on={difficulty === d.id}>
-						<input type="radio" name="difficulty" value={d.id} bind:group={difficulty} />
-						<span class="name">
-							{d.label}
-							<small>{d.level === null ? `Starts at level ${adaptiveLevel}` : `Level ${d.level}`}</small>
-						</span>
-						<span class="note">{d.note}</span>
-					</label>
-				{/each}
-			</div>
-			<button type="button" class="btn btn-primary btn-lg" onclick={begin}>
-				Start at level {startLevel} <Icon name="arrow" size={18} />
-			</button>
-		</section>
+		<div class="setup">
+			<aside class="rules" aria-labelledby="rules-title">
+				<h2 id="rules-title">How a run works</h2>
+				<ol>
+					<li><b>Round after round.</b> Each round is one game at a level from 1 to {MAX_LEVEL}.</li>
+					<li><b>{STRIKES} tries.</b> A failed round uses one; the run ends when they are gone.</li>
+					<li><b>Score.</b> A cleared round scores its level, so harder rounds count for more.</li>
+				</ol>
+				<p class="record">
+					{#if best}Best run <b>{best}&nbsp;points</b>{:else}No run yet{/if}
+				</p>
+			</aside>
+
+			<section class="difficulty" aria-labelledby="difficulty-title">
+				<h2 id="difficulty-title">Difficulty</h2>
+				<fieldset>
+					<legend class="sr-only">Choose the difficulty</legend>
+					{#each DIFFICULTIES.filter((d) => d.level === null) as d (d.id)}
+						<label class="adaptive" class:on={difficulty === d.id}>
+							<input type="radio" name="difficulty" value={d.id} bind:group={difficulty} />
+							<span class="mark" aria-hidden="true"></span>
+							<span class="adaptive-text">
+								<span class="adaptive-title">{d.label} <span class="tag">Recommended</span></span>
+								<span class="adaptive-note">{d.note} Next start: level {adaptiveLevel}.</span>
+							</span>
+						</label>
+					{/each}
+					<p class="or">Or a fixed level</p>
+					<div class="levels">
+						{#each DIFFICULTIES.filter((d) => d.level !== null) as d (d.id)}
+							<label class="level" class:on={difficulty === d.id}>
+								<input type="radio" name="difficulty" value={d.id} bind:group={difficulty} />
+								<span class="level-name">{d.label}</span>
+								<span class="level-num">Level {d.level}</span>
+							</label>
+						{/each}
+					</div>
+				</fieldset>
+				<p class="chosen" aria-live="polite">{choice.level === null ? 'Adapts to you after every round.' : choice.note}</p>
+				<button type="button" class="btn btn-primary btn-lg start" onclick={begin}>
+					Start at level {startLevel} <Icon name="arrow" size={18} />
+				</button>
+			</section>
+		</div>
 	{:else}
 		<div class="hud" aria-live="polite">
 			<span><small>Level</small><b>{level}</b> {levelName(level)}</span>
@@ -167,7 +189,7 @@
 				{:else if game.id === 'falling-letters'}
 					<FallingGame items="letters" pool={LETTERS} focus="" target={settings.target!} pace={settings.pace} oncomplete={done} />
 				{:else if game.id === 'echo'}
-					<Echo pool={LETTERS} start={settings.start!} target={settings.target!} oncomplete={done} />
+					<Echo pool={LETTERS} start={settings.start!} target={settings.target!} showMs={settings.showMs} {words} oncomplete={done} />
 				{:else if game.id === 'listen'}
 					<ListenType pool={LETTERS} focus="" {words} count={settings.count!} target={settings.target!} oncomplete={done} />
 				{:else if game.id === 'rhythm'}
@@ -226,74 +248,208 @@
 		gap: 18px;
 	}
 	.setup {
+		display: grid;
+		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+		gap: clamp(20px, 4vw, 48px);
+		align-items: start;
+	}
+	h2 {
+		font-size: 22px;
+	}
+	.rules {
+		padding-top: 4px;
+	}
+	.rules ol {
 		display: flex;
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 16px;
+		gap: 14px;
+		margin: 16px 0 0;
+		padding: 0;
+		list-style: none;
+		counter-reset: rule;
 	}
-	.setup h2 {
-		font-size: 24px;
-	}
-	.lede {
-		max-width: 64ch;
+	.rules li {
+		position: relative;
+		padding-left: 36px;
+		font-size: 15px;
+		line-height: 1.5;
 		color: var(--ink-2);
-		line-height: 1.55;
+		counter-increment: rule;
 	}
-	.lede b {
+	.rules li::before {
+		content: counter(rule);
+		position: absolute;
+		left: 0;
+		top: 0;
+		display: grid;
+		place-items: center;
+		width: 24px;
+		height: 24px;
+		border-radius: 3px;
+		background: var(--surface-2);
+		color: var(--ink);
+		font-size: 13px;
+		font-weight: 700;
+	}
+	.rules b {
 		color: var(--ink);
 	}
-	.choices {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-		gap: 10px;
-		width: 100%;
+	.record {
+		margin-top: 22px;
+		padding-top: 16px;
+		border-top: 1px solid var(--line);
+		font-size: 14px;
+		color: var(--ink-2);
 	}
-	.choice {
-		position: relative;
+	.record b {
+		color: var(--ink);
+		font-variant-numeric: tabular-nums;
+	}
+	.difficulty {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-		padding: 14px 16px;
+		gap: 14px;
+		padding: clamp(18px, 3vw, 28px);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
-		cursor: pointer;
-		transition:
-			border-color 140ms ease,
-			box-shadow 140ms ease;
 	}
-	.choice:hover {
-		border-color: var(--ink-3);
+	fieldset {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		min-width: 0;
 	}
-	.choice.on {
-		border-color: var(--ink);
-		box-shadow: inset 0 3px 0 var(--accent);
-	}
-	.choice:has(input:focus-visible) {
-		outline: 2px solid var(--ink);
-		outline-offset: 2px;
-	}
-	.choice input {
+	input[type='radio'] {
 		position: absolute;
 		opacity: 0;
 		pointer-events: none;
 	}
-	.name {
+	.adaptive,
+	.level {
+		position: relative;
+		border-radius: 3px;
+		border: 1px solid var(--line-strong);
+		background: var(--bg);
+		cursor: pointer;
+		transition:
+			border-color 140ms ease,
+			background-color 140ms ease;
+	}
+	.adaptive:hover,
+	.level:hover {
+		border-color: var(--ink-3);
+	}
+	.adaptive:has(input:focus-visible),
+	.level:has(input:focus-visible) {
+		outline: 2px solid var(--ink);
+		outline-offset: 2px;
+	}
+	.adaptive {
 		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
+		align-items: flex-start;
+		gap: 12px;
+		padding: 14px 16px;
+	}
+	.mark {
+		flex-shrink: 0;
+		width: 18px;
+		height: 18px;
+		margin-top: 2px;
+		border-radius: 50%;
+		border: 1.5px solid var(--ink-3);
+	}
+	.adaptive.on .mark {
+		border: 5px solid var(--ink);
+	}
+	.adaptive-text {
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+	}
+	.adaptive-title {
+		display: flex;
+		align-items: center;
 		gap: 8px;
 		font-weight: 700;
 	}
-	.name small {
-		font-weight: 500;
-		font-size: 12.5px;
+	.tag {
+		padding: 1px 7px;
+		border-radius: 3px;
+		background: var(--accent);
+		color: var(--on-accent);
+		font-size: 11.5px;
+		font-weight: 700;
+	}
+	.adaptive-note {
+		font-size: 14px;
+		line-height: 1.5;
+		color: var(--ink-2);
+	}
+	.or {
+		margin-top: 6px;
+		font-size: 13px;
+		font-weight: 600;
 		color: var(--ink-3);
 	}
-	.note {
-		font-size: 13.5px;
-		line-height: 1.45;
+	.levels {
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		gap: 6px;
+	}
+	.level {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2px;
+		padding: 10px 6px;
+		text-align: center;
+	}
+	.level-name {
+		font-size: 14px;
+		font-weight: 700;
+	}
+	.level-num {
+		font-size: 12px;
+		color: var(--ink-3);
+		font-variant-numeric: tabular-nums;
+	}
+	.adaptive.on,
+	.level.on {
+		border-color: var(--ink);
+		background: var(--surface-2);
+	}
+	.chosen {
+		min-height: 1.5em;
+		font-size: 14px;
 		color: var(--ink-2);
+	}
+	.start {
+		align-self: flex-start;
+	}
+	@media (max-width: 820px) {
+		.setup {
+			grid-template-columns: 1fr;
+		}
+		/* On narrow screens the choice and the start button come first. */
+		.difficulty {
+			order: -1;
+		}
+	}
+	@media (max-width: 520px) {
+		.levels {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.levels .level:last-child {
+			grid-column: 1 / -1;
+		}
+		.start {
+			align-self: stretch;
+			justify-content: center;
+		}
 	}
 	.hud {
 		display: flex;
