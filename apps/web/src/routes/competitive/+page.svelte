@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import Avatar from '#lib/account/Avatar.svelte';
-	import { LEAGUES, MIN_ACCURACY, TIERS, nextTier, tierFor } from '#lib/progress/competitive.ts';
+	import { LEAGUES, MIN_ACCURACY, TIERS, ZENITH_WPM, nextTier, tierFor, tierRange } from '#lib/progress/competitive.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import type { PageProps } from './$types';
@@ -22,7 +22,8 @@
 			<h1>One minute. Your best speed.</h1>
 			<p class="lede">
 				The competitive test is sixty seconds of common words. Your best result with at least {MIN_ACCURACY}% accuracy sets
-				your tier, from Bronze IV at 50 WPM to Grandmaster at 290 WPM and above, and your place on the leaderboard.
+				your rank, from Bronze III at 50 WPM through fourteen ranks of three divisions to Zenith at {ZENITH_WPM} WPM and
+				above, and your place on the leaderboard.
 			</p>
 		</div>
 
@@ -31,7 +32,7 @@
 			{#if data.me}
 				<div class="tier-badge" style:--league={myTier?.league.colour ?? 'var(--ink-3)'}>
 					<span class="tier-name">{myTier?.name ?? 'Unranked'}</span>
-					<span class="tier-range">{myTier ? `${myTier.from} to ${myTier.to} WPM` : 'Reach 50 WPM to enter Bronze IV'}</span>
+					<span class="tier-range">{myTier ? tierRange(myTier) : 'Reach 50 WPM to enter Bronze III'}</span>
 				</div>
 				<dl class="facts">
 					<div><dt>Best speed</dt><dd>{data.me.best != null ? `${fmt(data.me.best)} WPM` : 'None yet'}</dd></div>
@@ -50,16 +51,22 @@
 	</header>
 
 	<section class="ladder" aria-labelledby="ladder-title">
-		<h2 id="ladder-title">Leagues</h2>
+		<h2 id="ladder-title">Ranks</h2>
+		<p class="ladder-note">Each rank has three divisions, from III to I. Zenith has none: it is reached at {ZENITH_WPM} WPM.</p>
 		<ol class="leagues">
 			{#each LEAGUES as league (league.id)}
 				{@const tiers = TIERS.filter((t) => t.league.id === league.id)}
 				<li style:--league={league.colour} class:current={myTier?.league.id === league.id}>
 					<span class="l-name">{league.name}</span>
-					<span class="l-range">{tiers[0]!.from} to {tiers.at(-1)!.to} WPM</span>
+					<span class="l-range">{tiers.at(-1)!.to === null ? `${tiers[0]!.from}+ WPM` : `${tiers[0]!.from} to ${tiers.at(-1)!.to} WPM`}</span>
 					<span class="pips" aria-hidden="true">
 						{#each tiers as t (t.index)}<span class:on={!!myTier && myTier.index >= t.index}></span>{/each}
 					</span>
+					{#if tiers.length > 1}
+						<span class="divs">
+							{#each tiers as t (t.index)}<span><b>{t.division}</b> {t.from}–{t.to}</span>{/each}
+						</span>
+					{/if}
 				</li>
 			{/each}
 		</ol>
@@ -93,9 +100,9 @@
 						<span class="lvl">Level {e.level}</span>
 						<span class="score">
 							{#if data.by === 'speed'}
-								<b>{fmt(e.wpm ?? 0)} WPM</b>{#if t}<small style:color={t.league.colour}>{t.name}</small>{/if}
+								<b>{fmt(e.wpm ?? 0)} WPM</b>{#if t}<small><span class="dot" style:background={t.league.colour}></span>{t.name}</small>{/if}
 							{:else}
-								<b>{fmt(e.xp)} XP</b>{#if t}<small style:color={t.league.colour}>{t.name}</small>{/if}
+								<b>{fmt(e.xp)} XP</b>{#if t}<small><span class="dot" style:background={t.league.colour}></span>{t.name}</small>{/if}
 							{/if}
 						</span>
 					</li>
@@ -205,9 +212,14 @@
 	.actions {
 		margin-top: auto;
 	}
+	.ladder-note {
+		margin-top: 6px;
+		font-size: 14px;
+		color: var(--ink-2);
+	}
 	.leagues {
 		display: grid;
-		grid-template-columns: repeat(7, minmax(0, 1fr));
+		grid-template-columns: repeat(5, minmax(0, 1fr));
 		gap: 8px;
 		margin-top: 14px;
 	}
@@ -235,6 +247,20 @@
 	.pips {
 		display: flex;
 		gap: 4px;
+	}
+	.divs {
+		display: flex;
+		justify-content: space-between;
+		gap: 4px;
+		font-size: 11.5px;
+		color: var(--ink-2);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+	.divs b {
+		display: inline-block;
+		min-width: 1.6em;
+		color: var(--ink);
 	}
 	.pips span {
 		flex: 1;
@@ -342,8 +368,18 @@
 		font-variant-numeric: tabular-nums;
 	}
 	.score small {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
 		font-size: 12.5px;
 		font-weight: 700;
+		color: var(--ink-2);
+	}
+	.dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 2px;
+		flex-shrink: 0;
 	}
 	.empty,
 	.note {
@@ -358,12 +394,16 @@
 			grid-template-columns: 1fr;
 		}
 		.leagues {
-			grid-template-columns: repeat(4, minmax(0, 1fr));
+			grid-template-columns: repeat(3, minmax(0, 1fr));
 		}
 	}
 	@media (max-width: 600px) {
 		.leagues {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.divs {
+			flex-direction: column;
+			gap: 2px;
 		}
 		.row {
 			grid-template-columns: 32px minmax(0, 1fr) auto;
