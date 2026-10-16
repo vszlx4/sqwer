@@ -4,7 +4,7 @@
 	import ResultReport from '#lib/results/ResultReport.svelte';
 	import type { UploadOutcome } from '#lib/results/store.svelte.ts';
 	import type { ResultRecord } from '#lib/results/types.ts';
-	import { MIN_ACCURACY, TIERS, divisionLevel, nextTier, tierFor, tierRange } from '#lib/progress/competitive.ts';
+	import { MIN_ACCURACY, TIERS, nextTier, tierFor, tierRange } from '#lib/progress/competitive.ts';
 	import { examXp } from '#lib/progress/xp.ts';
 	import Confetti from '#lib/ui/Confetti.svelte';
 	import CountUp from '#lib/ui/CountUp.svelte';
@@ -68,7 +68,7 @@
 <section class="ranked" aria-labelledby="ranked-title">
 	<div class="stage">
 		<div class="emblem-wrap rise" class:up={rankedUp}>
-			<RankEmblem league={tier?.league ?? null} division={divisionLevel(tier)} size={210} />
+			<RankEmblem league={tier?.league ?? null} size={210} />
 		</div>
 		<div class="headline rise" style:--i="1">
 			<p class="kicker">Ranked result</p>
@@ -101,7 +101,7 @@
 		</p>
 		{#if upcoming && counts}
 			<p class="next">
-				<RankEmblem league={upcoming.league} division={divisionLevel(upcoming)} size={28} />
+				<RankEmblem league={upcoming.league} size={28} />
 				<span><b>{Math.max(0, upcoming.from - Math.floor(Math.max(record.wpm, previousBest ?? 0)))} WPM</b> to {upcoming.name}</span>
 			</p>
 		{/if}

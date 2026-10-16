@@ -127,13 +127,18 @@ test('a visitor without an account leaves no usage statistics or device identifi
 	expect(usage).toBeNull();
 });
 
-test('the ranked test has its own display with live readouts that can be switched off', async ({ page }) => {
+test('the ranked test shows only the time and live speed, each of which can be switched off', async ({ page }) => {
 	await page.goto('/test?exam=timed');
 	await expect(page.getByRole('link', { name: 'Play ranked' })).toBeVisible();
 
 	await page.goto('/test?exam=competitive');
-	await expect(page.getByText('Your rank')).toBeVisible();
+	await expect(page.getByText(/Ranked · 60 seconds/)).toBeVisible();
 	await expect(page.getByRole('timer')).toHaveAccessibleName('60 seconds left');
+	const time = page.getByRole('group', { name: 'Live readouts' }).getByRole('button', { name: 'Time' });
+	await time.click();
+	await expect(page.getByRole('timer')).toHaveClass(/sr-only/);
+	await time.click();
+	await expect(page.getByRole('timer')).not.toHaveClass(/sr-only/);
 	const speed = page.getByRole('group', { name: 'Live readouts' }).getByRole('button', { name: 'Speed' });
 	await expect(speed).toHaveAttribute('aria-pressed', 'true');
 	await speed.click();
