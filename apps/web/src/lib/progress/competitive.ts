@@ -99,3 +99,6 @@ export function verifyCompetitive(r: ReplayCheck): boolean {
 	const expected = net / 5 / (r.seconds / 60);
 	return Math.abs(expected - r.wpm) <= Math.max(4, r.wpm * 0.06);
 }
+
+/** The division as a count for emblems: 1 for III, 2 for II, 3 for I, undefined for Zenith. */
+export const divisionLevel = (t: Tier | null) => (t?.division ? DIVISIONS.indexOf(t.division) + 1 : undefined);

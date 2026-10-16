@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { onDestroy, onMount, untrack } from 'svelte';
 	import { computeStats, liveWpm, TypingSession, type TestMode } from '@sqwer/engine';
-	import { WordGenerator } from '@sqwer/content';
+	import { FLOW_WORDS, WordGenerator } from '@sqwer/content';
 	import { qwertyAnsi } from '@sqwer/layouts';
 	import { fingerMap } from '#lib/fingermap/store.svelte.ts';
 	import type { Exam } from '#lib/exams.ts';
 	import { toDetail } from '#lib/results/detail.ts';
+	import RankedHud from '#lib/competitive/RankedHud.svelte';
+	import RankedResult from '#lib/competitive/RankedResult.svelte';
+	import { MIN_ACCURACY } from '#lib/progress/competitive.ts';
 	import ResultReport from '#lib/results/ResultReport.svelte';
+	import type { UploadOutcome } from '#lib/results/store.svelte.ts';
 	import { swap } from '#lib/ui/transition.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import type { ExamId, ResultRecord } from '#lib/results/types.ts';
@@ -45,6 +49,13 @@
 				}
 			: settings;
 
+	/** The ranked test has its own display and result. */
+	const ranked = examId === 'competitive';
+	/** Best verified ranked speed before this attempt, and the server's answer for the latest one. */
+	let rankedBest = $state<number | null>(null);
+	let rankedUpload = $state.raw<Promise<UploadOutcome | null> | null>(null);
+	let previousBest = $state<number | null>(null);
+
 	let generator: WordGenerator;
 	let session = $state.raw<TypingSession>(newSession());
 	let rev = $state(0);
@@ -72,7 +83,7 @@
 
 	function newSession(words?: string[]): TypingSession {
 		const mode = currentMode();
-		generator = new WordGenerator({ punctuation: config().punctuation, numbers: config().numbers });
+		generator = new WordGenerator({ punctuation: config().punctuation, numbers: config().numbers, words: FLOW_WORDS });
 		const list = words ?? generator.next(mode.kind === 'words' ? mode.count : LOOKAHEAD * 2);
 		return new TypingSession(list, mode);
 	}
@@ -102,7 +113,15 @@
 			detail: toDetail(s, stats)
 		};
 		usage.testEnded(rec);
-		if (status === 'completed' || stats.keystrokes.total >= MIN_KEYSTROKES) results.add(rec);
+		if (status === 'completed' || stats.keystrokes.total >= MIN_KEYSTROKES) {
+			const upload = results.add(rec);
+			if (ranked && status === 'completed') {
+				previousBest = rankedBest;
+				rankedUpload = upload;
+				// A qualifying result raises the best shown in the display for the next attempt.
+				if (rec.accuracy >= MIN_ACCURACY && (rankedBest == null || rec.wpm > rankedBest)) rankedBest = rec.wpm;
+			}
+		}
 		return rec;
 	}
 
@@ -155,6 +174,8 @@
 		swap(() => {
 			record = saved;
 			rev++;
+			// The result opens at the top, wherever the page was scrolled while typing.
+			if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'instant' });
 		});
 	}
 
@@ -317,20 +338,51 @@
 		rev;
 		return session.started ? Math.round(liveWpm(session, now)) : 0;
 	});
+	const started = $derived.by(() => {
+		rev;
+		now;
+		return session.started;
+	});
+	/** Live accuracy, worked out only for the ranked display. */
+	const accuracyNow = $derived.by(() => {
+		rev;
+		now;
+		return ranked && session.started ? computeStats(session).accuracy : 100;
+	});
+
+	onMount(() => {
+		if (!ranked) return;
+		// The best verified result from the account, or the best qualifying one in this browser.
+		const local = results.forExam('competitive').filter((r) => r.accuracy >= MIN_ACCURACY).map((r) => r.wpm);
+		rankedBest = local.length ? Math.max(...local) : null;
+		void fetch('/api/competitive')
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d: { best: number | null } | null) => {
+				if (d && d.best != null) rankedBest = Math.max(d.best, rankedBest ?? 0);
+			})
+			.catch(() => {});
+	});
 </script>
 
 <svelte:window onkeydown={onWindowKeydown} onmousemove={() => (mouseMoved = true)} />
 
 <div class="test" class:fade>
-	{#if record}
+	{#if record && ranked}
+		<RankedResult {record} {previousBest} upload={rankedUpload} onnext={() => restart()} onrepeat={() => restart(true)} />
+	{:else if record}
 		<ResultReport {record} onnext={() => restart()} onrepeat={() => restart(true)} />
 	{:else}
+		{#if ranked}
+		<RankedHud {started} {remaining} total={session.mode.kind === 'time' ? session.mode.seconds : 60} wpm={wpmNow} accuracy={accuracyNow} best={rankedBest} />
+		<span class="sr-only" data-testid="counter">{remaining}</span>
+		{:else}
 		<div class="chrome top">
 			{#if fixed && exam}
 				<p class="exam-banner"><b>{exam.title}</b> · {exam.duration} · {exam.purpose}</p>
 			{:else}
 				<ConfigBar onchange={onSettingsChange} />
 			{/if}
+			<a class="ranked-link" href="/test?exam=competitive" data-sveltekit-reload><Icon name="trophy" size={15} /> Play ranked</a>
 		</div>
 
 		<div class="status" aria-live="off">
@@ -341,6 +393,7 @@
 				<span class="live"><b>{wpmNow}</b> WPM</span>
 			{/if}
 		</div>
+		{/if}
 
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -404,6 +457,22 @@
 </div>
 
 <style>
+	.ranked-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 5px 10px;
+		border-radius: 3px;
+		border: 1px solid var(--line-strong);
+		color: var(--ink);
+		font-size: 13px;
+		font-weight: 600;
+		text-decoration: none;
+		transition: border-color 140ms ease;
+	}
+	.ranked-link:hover {
+		border-color: var(--ink);
+	}
 	.test {
 		--typing-size: clamp(21px, 2.3vw, 29px);
 		--typing-leading: 1.65;
@@ -420,7 +489,10 @@
 	}
 	.top {
 		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
 		justify-content: center;
+		gap: 10px;
 	}
 	.exam-banner {
 		max-width: 760px;

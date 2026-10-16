@@ -7,6 +7,12 @@ const MAX = 500;
 const byTime = (a: ResultRecord, b: ResultRecord) => a.at - b.at;
 
 /** Test and assessment results, kept in the browser and synced to the account when signed in. */
+/** What the server works out for a saved result. */
+export interface UploadOutcome {
+	xp: number;
+	verified: boolean;
+}
+
 class ResultsStore {
 	list = $state.raw<ResultRecord[]>([]);
 	loaded = $state(false);
@@ -50,19 +56,22 @@ class ResultsStore {
 		}
 	}
 
-	private async upload(record: ResultRecord) {
-		await fetch('/api/results', {
+	private async upload(record: ResultRecord): Promise<UploadOutcome | null> {
+		const res = await fetch('/api/results', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(record)
 		});
+		return res.ok ? ((await res.json()) as UploadOutcome) : null;
 	}
 
-	async add(record: ResultRecord) {
+	/** Saves a result locally and, when signed in, to the account. Resolves with the server's XP and check. */
+	async add(record: ResultRecord): Promise<UploadOutcome | null> {
 		await this.load();
 		this.list = [...this.list, record].slice(-MAX);
 		await this.saveLocal();
-		if (this.account) await this.upload(record).catch(() => {});
+		if (!this.account) return null;
+		return this.upload(record).catch(() => null);
 	}
 
 	/** Completed results for an examination; abandoned attempts are excluded from comparisons. */
