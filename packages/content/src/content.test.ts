@@ -35,16 +35,17 @@ describe('WordGenerator', () => {
 });
 
 describe('flow words', async () => {
-	const { FLOW_WORDS, FLOW_REQUIRED, FREQUENT_WORDS, SCORED_WORDS, flowScore, trigrams } = await import('./index.ts');
+	const { FLOW_WORDS, FLOW_EXCLUDED, FLOW_REQUIRED, FREQUENT_WORDS, SCORED_WORDS, flowScore, trigrams } = await import('./index.ts');
 
 	it('are everyday words from the most frequent list, without same-finger pairs', () => {
 		expect(new Set(FLOW_WORDS).size).toBe(200);
 		for (const w of FLOW_WORDS) {
-			expect(FREQUENT_WORDS.indexOf(w)).toBeLessThan(500);
+			expect(FREQUENT_WORDS.indexOf(w)).toBeLessThan(600);
 			expect(w.length).toBeLessThanOrEqual(5);
 			if (!FLOW_REQUIRED.includes(w)) expect(flowScore(w).sameFinger).toBe(0);
 		}
 		for (const w of FLOW_REQUIRED) expect(FLOW_WORDS).toContain(w);
+		for (const w of FLOW_EXCLUDED) expect(FLOW_WORDS).not.toContain(w);
 		for (const w of ['the', 'and', 'to', 'is', 'it', 'for', 'with']) expect(FLOW_WORDS).toContain(w);
 	});
 

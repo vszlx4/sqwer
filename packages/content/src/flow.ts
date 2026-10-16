@@ -111,11 +111,11 @@ function choose(pool: readonly FlowScore[], size: number, target: number, keep: 
 			count(s.word, 1);
 		} else rest.push(s);
 	}
-	// Exchange the least frequent words for better-scored ones until the target is met exactly.
+	// Exchange the least frequent words (never one of the hundred most frequent) for better-scored ones until the target is met exactly.
 	while (counts.size < target) {
 		const need = target - counts.size;
 		let swap: { out: number; next: FlowScore } | null = null;
-		const victims = chosen.map((s, i) => ({ s, i })).filter(({ s }) => !keep.has(s.word)).sort((x, y) => y.s.rank - x.s.rank);
+		const victims = chosen.map((s, i) => ({ s, i })).filter(({ s }) => !keep.has(s.word) && s.rank >= 100).sort((x, y) => y.s.rank - x.s.rank);
 		for (const next of rest) {
 			const adds = new Set(trigrams(next.word).filter((g) => !counts.has(g)));
 			if (!adds.size) continue;
@@ -145,16 +145,19 @@ export const FLOW_MAX_LENGTH = 5;
 /** Short function words every examination set includes, whatever their score. */
 export const FLOW_REQUIRED: readonly string[] = ['a', 'an', 'and', 'to', 'or', 'two', 'one', 'as', 'of', 'from', 'for'];
 
+/** Words left out of the examination set by editorial choice. */
+export const FLOW_EXCLUDED: ReadonlySet<string> = new Set(['boat', 'bird', 'usual', 'foot', 'six', 'song', 'paper', 'south', 'black', 'field', 'fire', 'inch', 'rock', 'sing', 'spell', 'laugh', 'sea', 'blue', 'girl', 'five', 'shape', 'half', 'got', 'light', 'farm']);
+
 /**
  * The words used in examinations, including the competitive test: 200 words of at most five
- * letters from the 500 most frequent, chosen for flow, covering 337 distinct trigrams and always
+ * letters from the 600 most frequent, chosen for flow, covering 337 distinct trigrams and always
  * including the required short words. Ordered by frequency.
  */
 export const FLOW_WORDS: readonly string[] = (() => {
 	const keep = new Set(FLOW_REQUIRED);
 	const scored = FREQUENT_WORDS.map((w, i) => flowScore(w, i)).filter((s) => s.word.length <= FLOW_MAX_LENGTH && !NOT_EVERYDAY.has(s.word));
 	const required = FLOW_REQUIRED.map((w) => scored.find((s) => s.word === w) ?? flowScore(w, FREQUENT_WORDS.length));
-	const rest = scored.filter((s) => !keep.has(s.word) && s.word.length >= 2 && s.sameFinger === 0 && s.rank < 500).sort((a, b) => b.score - a.score);
+	const rest = scored.filter((s) => !keep.has(s.word) && !FLOW_EXCLUDED.has(s.word) && s.word.length >= 2 && s.sameFinger === 0 && s.rank < 600).sort((a, b) => b.score - a.score);
 	return choose([...required, ...rest], FLOW_SIZE, FLOW_TRIGRAMS, keep)
 		.sort((a, b) => a.rank - b.rank)
 		.map((s) => s.word);
