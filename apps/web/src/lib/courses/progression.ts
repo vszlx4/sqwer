@@ -139,6 +139,17 @@ export function recommendedChapter(wpm: number, accuracy: number): number {
 	return ladder[adjusted]![1];
 }
 
+/**
+ * What applying a placement result gives: the lessons before the recommended chapter that are not
+ * yet at full stars, and the points (and so XP) that marking them complete adds.
+ */
+export function placementCredit(chapter: number, progress: Record<string, LessonProgress>) {
+	const lessons = CHAPTERS.filter((c) => c.number < chapter)
+		.flatMap((c) => c.lessons)
+		.filter((l) => (progress[l.id]?.stars ?? 0) < 3);
+	return { lessons: lessons.length, xp: lessons.reduce((sum, l) => sum + lessonPoints(3) - lessonPoints(progress[l.id]?.stars ?? 0), 0) };
+}
+
 /** Completed lessons in a chapter, for the roadmap. */
 export function chapterProgress(chapter: number, progress: Record<string, LessonProgress>) {
 	const lessons = CHAPTERS.find((c) => c.number === chapter)?.lessons ?? [];
