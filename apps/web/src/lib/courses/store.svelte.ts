@@ -167,6 +167,21 @@ class CourseStore {
 		}
 	}
 
+	/**
+	 * Discards the learning path held in this browser after it was cleared from the account, then
+	 * loads the (now empty) account copy again.
+	 */
+	async forget() {
+		for (const key of [LEVEL_KEY, START_KEY, PENDING_KEY]) write(key, null);
+		this.progress = {};
+		this.days = [];
+		this.level = null;
+		this.startLesson = null;
+		const signedIn = this.signedIn;
+		this.attached = null;
+		await this.attach(signedIn);
+	}
+
 	/** Whether a guest finished the first lesson and has a result waiting for an account. */
 	get hasPendingTrial() {
 		return !this.signedIn && !!read(PENDING_KEY);

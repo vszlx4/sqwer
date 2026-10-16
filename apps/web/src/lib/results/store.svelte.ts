@@ -74,6 +74,13 @@ class ResultsStore {
 		return this.upload(record).catch(() => null);
 	}
 
+	/** Discards the results in this browser that match, after they were cleared from the account. */
+	async forget(match: (r: ResultRecord) => boolean) {
+		await this.load();
+		this.list = this.list.filter((r) => !match(r));
+		await this.saveLocal();
+	}
+
 	/** Completed results for an examination; abandoned attempts are excluded from comparisons. */
 	forExam(exam: ExamId) {
 		return this.list.filter((r) => r.exam === exam && r.status !== 'abandoned');

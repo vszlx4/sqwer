@@ -2,6 +2,8 @@ import { error, json } from '@sveltejs/kit';
 import { desc, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { FINGERS } from '@sqwer/layouts';
+import { categoryOfExam } from '#lib/data/categories.ts';
+import { clearedAt } from '#lib/server/data.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
 import { verifyCompetitive, verifyMinute } from '#lib/progress/competitive.ts';
@@ -60,6 +62,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const parsed = recordSchema.safeParse(await request.json().catch(() => null));
 	if (!parsed.success) error(400, 'The result is not valid.');
 	const r = parsed.data;
+	// A result from before its category was cleared is a stale copy from a browser: it is not kept.
+	if (r.at <= (await clearedAt(locals.user.id, categoryOfExam(r.exam)))) error(409, 'This result belongs to data you cleared.');
 	// XP and the competitive check are worked out here, never taken from the browser.
 	const xp = examXp(r);
 	// Competitive and placement results are checked, because they earn a rank or course credit.

@@ -1,6 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import { clearCategory, clearedAt } from '#lib/server/data.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
 import { mergeUsage, type Usage } from '#lib/usage/types.ts';
@@ -40,6 +41,8 @@ export const PUT: RequestHandler = async ({ locals, request }) => {
 	const deviceId = z.uuid().safeParse(body?.deviceId);
 	const parsed = usageSchema.safeParse(body?.usage);
 	if (!deviceId.success || !parsed.success) error(400, 'The statistics are not valid.');
+	// A device whose statistics began before they were cleared resets them on its next visit.
+	if (parsed.data.firstSeen <= (await clearedAt(locals.user.id, 'usage'))) return json({ ok: false, cleared: true });
 	const now = new Date();
 	await (await db())
 		.insert(schema.usageStats)
@@ -51,6 +54,6 @@ export const PUT: RequestHandler = async ({ locals, request }) => {
 /** Deletes all usage statistics stored for the account. */
 export const DELETE: RequestHandler = async ({ locals }) => {
 	if (!locals.user) error(401, 'Sign in to manage your statistics.');
-	await (await db()).delete(schema.usageStats).where(eq(schema.usageStats.userId, locals.user.id));
+	await clearCategory(locals.user.id, 'usage');
 	return json({ ok: true });
 };
