@@ -254,6 +254,42 @@ test('a completed course lesson is saved and earns points towards the next rank'
 	await expect(entry.getByRole('link')).toHaveAttribute('href', /\/u\//);
 });
 
+test('a verified placement test marks the earlier chapters complete and earns their XP', async ({ page }) => {
+	test.setTimeout(150_000);
+	await page.goto('/signin');
+	await page.getByLabel('Email address').fill(email);
+	await page.getByLabel('Password').fill(newPassword);
+	await solveCaptcha(page);
+	await page.getByRole('button', { name: 'Sign in' }).click();
+	await expect(page).toHaveURL(/\/account$/);
+	const levelBefore = Number(await page.locator('.account-menu .lvl').textContent());
+
+	await page.goto('/test?exam=placement');
+	await page.getByTestId('typing-input').focus();
+	// About 200 WPM: fast enough for the last chapter, within the server's plausibility limits.
+	while ((await page.getByTestId('result-wpm').count()) === 0) {
+		const words = await page.$$eval('[data-word]', (els) =>
+			els.filter((e) => !e.querySelector('.correct, .incorrect')).slice(0, 8).map((e) => e.textContent ?? '')
+		);
+		if (!words.length) break;
+		await page.keyboard.type(words.join(' ') + ' ', { delay: 55 });
+	}
+	await expect(page.getByTestId('result-wpm')).toBeVisible();
+
+	await page.goto('/learn/start');
+	const credit = page.getByText(/Chapters 1 to \d+ will be marked complete with full stars/);
+	await expect(credit).toBeVisible();
+	await page.locator('#level').getByRole('button', { name: /^Start chapter \d+/ }).click();
+	await expect(page).toHaveURL(/\/learn\/l\d+/);
+
+	await page.goto('/learn/start');
+	const first = page.locator('ol.list > li').first();
+	await expect(first.locator('.count')).toHaveText(/^(\d+)\/\1 done$/);
+	await expect(page.getByText(/Chapters 1 to \d+ are already complete with full stars/)).toBeVisible();
+	// The lessons' points are added to the account level.
+	expect(Number(await page.locator('.account-menu .lvl').textContent())).toBeGreaterThan(levelBefore);
+});
+
 test('exports the account data and deletes the account', async ({ page }) => {
 	await page.goto('/signin');
 	await page.getByLabel('Email address').fill(email);

@@ -22,6 +22,35 @@ export async function accountLevel(userId: string): Promise<LevelStatus> {
 	return levelFor(Number(rowsOf(res)[0]?.xp ?? 0));
 }
 
+export interface PaceSummary {
+	/** Completed tests of any kind. */
+	tests: number;
+	/** Average speed and accuracy over the last twenty completed tests, or null without any. */
+	wpm: number | null;
+	accuracy: number | null;
+}
+
+/** A short summary of the player's tests, for the level card in the account menu. */
+export async function paceSummary(userId: string): Promise<PaceSummary> {
+	const res = await (await db()).execute(sql`
+		select
+			(select count(*) from results where user_id = ${userId} and data->>'status' = 'completed')::int as tests,
+			avg(t.wpm) as wpm,
+			avg(t.accuracy) as accuracy
+		from (
+			select wpm, (data->>'accuracy')::float as accuracy from results
+			where user_id = ${userId} and data->>'status' = 'completed'
+			order by created_at desc limit 20
+		) t
+	`);
+	const row = rowsOf(res)[0] ?? {};
+	return {
+		tests: Number(row.tests ?? 0),
+		wpm: row.wpm == null ? null : Number(row.wpm),
+		accuracy: row.accuracy == null ? null : Number(row.accuracy)
+	};
+}
+
 /** The best verified competitive speed, or null. */
 export async function competitiveBest(userId: string): Promise<number | null> {
 	const res = await (await db()).execute(

@@ -9,6 +9,7 @@
 	import { LEVEL_TEXT, LEVELS, type Level } from '#lib/courses/state.ts';
 	import { courses } from '#lib/courses/store.svelte.ts';
 	import Hands from '#lib/hands/Hands.svelte';
+	import PlacementStart from '#lib/courses/PlacementStart.svelte';
 	import { results } from '#lib/results/store.svelte.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
@@ -122,9 +123,7 @@
 					{chapter.summary} This chapter suits typists who can say: “{chapter.readyIf}”
 				</p>
 				<div class="actions">
-					<button type="button" class="btn btn-primary btn-lg" onclick={() => startAt(chapter.lessons[0]!.id)}>
-						Start chapter {chapter.number} <Icon name="arrow" size={18} />
-					</button>
+					<PlacementStart chapter={chapter.number} large />
 					{#if chapter.number > 1}
 						<button type="button" class="btn btn-lg" onclick={() => startAt(FIRST_LESSON.id)}>Start from the beginning</button>
 					{/if}

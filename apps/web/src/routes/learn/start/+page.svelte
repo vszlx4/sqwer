@@ -5,6 +5,7 @@
 	import { pathInput } from '#lib/courses/learner.svelte.ts';
 	import { chapterProgress, recommendedChapter } from '#lib/courses/progression.ts';
 	import { courses } from '#lib/courses/store.svelte.ts';
+	import PlacementStart from '#lib/courses/PlacementStart.svelte';
 	import { results } from '#lib/results/store.svelte.ts';
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
 	import Seo from '#lib/site/Seo.svelte';
@@ -47,9 +48,10 @@
 			{/if}
 		</div>
 		{#if placement && recommended}
-			<button type="button" class="btn btn-primary" onclick={() => startAt(CHAPTERS[recommended - 1]!.lessons[0]!.id)}>
-				Start chapter {recommended} <Icon name="arrow" size={16} />
-			</button>
+			<div class="apply">
+				<PlacementStart chapter={recommended} />
+				<a class="retake" href="/test?exam=placement">Take the placement test again</a>
+			</div>
 		{:else}
 			<a class="btn btn-primary" href="/test?exam=placement">Take the placement test <Icon name="arrow" size={16} /></a>
 		{/if}
@@ -84,6 +86,16 @@
 </div>
 
 <style>
+	.apply {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		max-width: 360px;
+	}
+	.retake {
+		font-size: 14px;
+	}
 	.choose {
 		display: flex;
 		flex-direction: column;

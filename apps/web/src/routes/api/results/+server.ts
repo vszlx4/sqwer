@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { FINGERS } from '@sqwer/layouts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
-import { verifyCompetitive } from '#lib/progress/competitive.ts';
+import { verifyCompetitive, verifyMinute } from '#lib/progress/competitive.ts';
 import { examXp } from '#lib/progress/xp.ts';
 import { EXAM_IDS } from '#lib/results/types.ts';
 import type { RequestHandler } from './$types';
@@ -62,11 +62,12 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const r = parsed.data;
 	// XP and the competitive check are worked out here, never taken from the browser.
 	const xp = examXp(r);
+	// Competitive and placement results are checked, because they earn a rank or course credit.
+	const check = r.detail ? { seconds: r.seconds, wpm: r.wpm, accuracy: r.accuracy, chars: r.detail.chars, words: r.detail.words, replay: r.detail.replay } : null;
 	const verified =
-		r.exam === 'competitive' &&
 		r.status === 'completed' &&
-		!!r.detail &&
-		verifyCompetitive({ seconds: r.seconds, wpm: r.wpm, accuracy: r.accuracy, chars: r.detail.chars, words: r.detail.words, replay: r.detail.replay });
+		!!check &&
+		(r.exam === 'competitive' ? verifyCompetitive(check) : r.exam === 'placement' ? verifyMinute(check, 0) : false);
 	await (await db())
 		.insert(schema.results)
 		.values({ id: r.id, userId: locals.user.id, exam: r.exam, createdAt: new Date(r.at), data: r, xp, wpm: r.wpm, verified })

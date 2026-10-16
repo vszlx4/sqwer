@@ -79,12 +79,12 @@ export interface ReplayCheck {
 }
 
 /**
- * Server-side plausibility check for a competitive result: the right duration, enough accuracy,
+ * Server-side plausibility check for a one-minute result: the right duration, enough accuracy,
  * a keystroke record that spans the test, and a speed that matches the characters typed.
  */
-export function verifyCompetitive(r: ReplayCheck): boolean {
+export function verifyMinute(r: ReplayCheck, minAccuracy: number): boolean {
 	if (Math.abs(r.seconds - COMPETITIVE_SECONDS) > 1.5) return false;
-	if (r.accuracy < MIN_ACCURACY || r.wpm > MAX_WPM) return false;
+	if (r.accuracy < minAccuracy || r.wpm > MAX_WPM) return false;
 	if (r.replay.length < r.chars.correct * 0.9) return false;
 	const span = (r.replay.at(-1)?.[0] ?? 0) - (r.replay[0]?.[0] ?? 0);
 	if (span < 45_000) return false;
@@ -95,3 +95,6 @@ export function verifyCompetitive(r: ReplayCheck): boolean {
 	const expected = net / 5 / (r.seconds / 60);
 	return Math.abs(expected - r.wpm) <= Math.max(4, r.wpm * 0.06);
 }
+
+/** A competitive result counts only with at least MIN_ACCURACY. */
+export const verifyCompetitive = (r: ReplayCheck) => verifyMinute(r, MIN_ACCURACY);

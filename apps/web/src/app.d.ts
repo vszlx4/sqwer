@@ -11,6 +11,8 @@ declare global {
 				profile: { username: string; displayName: string; avatarColor: string } | null;
 				avatar: string | null;
 				level: import('./lib/progress/xp.ts').LevelStatus;
+				best: number | null;
+				pace: import('./lib/server/progress.ts').PaceSummary;
 			} | null;
 			siteUrl?: string;
 		}
