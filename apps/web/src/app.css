@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/geist-mono';
 
 /* ---------- Fonts: PP Altera Serif (titles), PP Neue Montreal (everything else) ---------- */
 @font-face {
@@ -89,49 +90,6 @@
 	font-family: 'PP Neue Montreal';
 	src: url('./lib/assets/fonts/PPNeueMontreal-ExtraboldItalic.woff2') format('woff2');
 	font-weight: 800;
-	font-style: italic;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'PP Neue Montreal Mono';
-	src: url('./lib/assets/fonts/PPNeueMontrealMono-Thin.woff2') format('woff2');
-	font-weight: 100;
-	font-style: normal;
-	font-display: swap;
-}
-@font-face {
-	font-family: 'PP Neue Montreal Mono';
-	src: url('./lib/assets/fonts/PPNeueMontrealMono-Book.woff2') format('woff2');
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
-}
-@font-face {
-	font-family: 'PP Neue Montreal Mono';
-	src: url('./lib/assets/fonts/PPNeueMontrealMono-RegularItalic.woff2') format('woff2');
-	font-weight: 400;
-	font-style: italic;
-	font-display: swap;
-}
-@font-face {
-	font-family: 'PP Neue Montreal Mono';
-	src: url('./lib/assets/fonts/PPNeueMontrealMono-Medium.woff2') format('woff2');
-	font-weight: 500;
-	font-style: normal;
-	font-display: swap;
-}
-@font-face {
-	font-family: 'PP Neue Montreal Mono';
-	src: url('./lib/assets/fonts/PPNeueMontrealMono-Bold.woff2') format('woff2');
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
-}
-@font-face {
-	font-family: 'PP Neue Montreal Mono';
-	src: url('./lib/assets/fonts/PPNeueMontrealMono-BoldItalic.woff2') format('woff2');
-	font-weight: 700;
 	font-style: italic;
 	font-display: swap;
 }
@@ -323,7 +281,7 @@
 	--font-sans: 'PP Neue Montreal', ui-sans-serif, system-ui, sans-serif;
 	--font-serif: 'PP Altera Serif', ui-serif, Georgia, serif;
 	/* Examination text uses the monospaced cut of Neue Montreal. */
-	--font-mono: 'PP Neue Montreal Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+	--font-mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
 	--font-hand: var(--font-sans);
 
 	--color-accent: var(--accent);
