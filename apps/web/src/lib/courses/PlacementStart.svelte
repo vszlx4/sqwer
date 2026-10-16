@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { goto, invalidate } from '$app/navigation';
 	import { page } from '$app/state';
 	import Icon from '#lib/ui/Icon.svelte';
@@ -11,7 +12,15 @@
 	 * before it are marked complete with full stars and their points are added to the learner's XP;
 	 * the server works this out from the saved placement test.
 	 */
-	let { chapter, large = false }: { chapter: number; large?: boolean } = $props();
+	interface Props {
+		chapter: number;
+		large?: boolean;
+		/** Centre the buttons and the note, for centred layouts. */
+		centred?: boolean;
+		/** Further buttons, shown in the same row as the start button. */
+		children?: Snippet;
+	}
+	let { chapter, large = false, centred = false, children }: Props = $props();
 
 	const signedIn = $derived(!!page.data.user);
 	const credit = $derived(placementCredit(chapter, courses.progress));
@@ -38,16 +47,19 @@
 	}
 </script>
 
-<div class="placement-start">
-	<button type="button" class="btn btn-primary" class:btn-lg={large} disabled={busy} onclick={start}>
-		{busy ? 'Saving your level…' : `Start chapter ${chapter}`} <Icon name="arrow" size={large ? 18 : 16} />
-	</button>
+<div class="placement-start" class:centred>
+	<div class="buttons">
+		<button type="button" class="btn btn-primary" class:btn-lg={large} disabled={busy} aria-busy={busy} onclick={start}>
+			{busy ? 'Saving your level…' : `Start chapter\u00a0${chapter}`} <Icon name="arrow" size={large ? 18 : 16} />
+		</button>
+		{@render children?.()}
+	</div>
 	{#if chapter > 1}
 		<p class="credit">
 			{#if !signedIn}
 				<a href="/signin">Sign in</a> to have chapters 1 to {chapter - 1} marked complete and earn their XP.
 			{:else if credit.lessons}
-				Chapters 1 to {chapter - 1} will be marked complete with full stars: <b>{credit.lessons} lessons, +{credit.xp.toLocaleString('en-GB')} XP</b>.
+				Chapters 1 to&nbsp;{chapter - 1} will be marked complete with full stars: <b>{credit.lessons}&nbsp;lessons, +{credit.xp.toLocaleString('en-GB')}&nbsp;XP</b>.
 			{:else}
 				Chapters 1 to {chapter - 1} are already complete with full stars.
 			{/if}
@@ -63,15 +75,44 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 8px;
+		gap: 10px;
+	}
+	.placement-start.centred {
+		align-items: center;
+		text-align: center;
+	}
+	.buttons {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 10px;
+	}
+	.centred .buttons {
+		justify-content: center;
 	}
 	.credit {
+		max-width: 60ch;
 		font-size: 14px;
+		line-height: 1.5;
 		color: var(--ink-2);
+		text-wrap: pretty;
 	}
 	.credit b {
 		color: var(--violet);
 		font-variant-numeric: tabular-nums;
+	}
+	@media (max-width: 480px) {
+		.centred,
+		.centred .buttons {
+			align-self: stretch;
+		}
+		.centred .buttons {
+			flex-direction: column;
+			align-items: stretch;
+		}
+		.centred .buttons :global(.btn) {
+			justify-content: center;
+		}
 	}
 	.error {
 		font-size: 14px;

@@ -277,15 +277,15 @@ test('a verified placement test marks the earlier chapters complete and earns th
 	await expect(page.getByTestId('result-wpm')).toBeVisible();
 
 	await page.goto('/learn/start');
-	const credit = page.getByText(/Chapters 1 to \d+ will be marked complete with full stars/);
+	const credit = page.getByText(/Chapters 1 to\s\d+ will be marked complete with full stars/);
 	await expect(credit).toBeVisible();
-	await page.locator('#level').getByRole('button', { name: /^Start chapter \d+/ }).click();
+	await page.locator('#level').getByRole('button', { name: /^Start chapter\s\d+/ }).click();
 	await expect(page).toHaveURL(/\/learn\/l\d+/);
 
 	await page.goto('/learn/start');
 	const first = page.locator('ol.list > li').first();
 	await expect(first.locator('.count')).toHaveText(/^(\d+)\/\1 done$/);
-	await expect(page.getByText(/Chapters 1 to \d+ are already complete with full stars/)).toBeVisible();
+	await expect(page.getByText(/Chapters 1 to\s\d+ are already complete with full stars/)).toBeVisible();
 	// The lessons' points are added to the account level.
 	expect(Number(await page.locator('.account-menu .lvl').textContent())).toBeGreaterThan(levelBefore);
 });
