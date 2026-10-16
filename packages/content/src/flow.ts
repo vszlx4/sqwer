@@ -146,7 +146,7 @@ export const FLOW_MAX_LENGTH = 5;
 export const FLOW_REQUIRED: readonly string[] = ['a', 'an', 'and', 'to', 'or', 'two', 'one', 'as', 'of', 'from', 'for'];
 
 /** Words left out of the examination set by editorial choice. */
-export const FLOW_EXCLUDED: ReadonlySet<string> = new Set(['boat', 'bird', 'usual', 'foot', 'six', 'song', 'paper', 'south', 'black', 'field', 'fire', 'inch', 'rock', 'sing', 'spell', 'laugh', 'sea', 'blue', 'girl', 'five', 'shape', 'half', 'got', 'light', 'farm']);
+export const FLOW_EXCLUDED: ReadonlySet<string> = new Set(['boat', 'bird', 'usual', 'foot', 'six', 'song', 'paper', 'south', 'black', 'field', 'fire', 'inch', 'rock', 'sing', 'spell', 'laugh', 'sea', 'blue', 'girl', 'five', 'shape', 'half', 'got', 'light', 'farm', 'visit', 'west', 'happy', 'ease', 'heavy']);
 
 /**
  * The words used in examinations, including the competitive test: 200 words of at most five
