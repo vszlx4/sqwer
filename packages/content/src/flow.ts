@@ -91,11 +91,10 @@ export const FLOW_TRIGRAMS = 337;
 
 /**
  * Picks `size` words from a pool ordered best first so that together they hold exactly `target`
- * distinct trigrams: the best words are taken while they fit, then the lowest-ranked words that
- * hold no trigram of their own are exchanged for the next best words that add the trigrams still
- * missing. Deterministic, so the set is the same on every page.
+ * distinct trigrams: the best words are taken while they fit, then the least frequent words are
+ * exchanged for the best-scored words that add the trigrams still missing. Deterministic, so the set is the same on every page.
  */
-function choose(pool: readonly FlowScore[], size: number, target: number): FlowScore[] {
+function choose(pool: readonly FlowScore[], size: number, target: number, keep: ReadonlySet<string>): FlowScore[] {
 	const counts = new Map<string, number>();
 	const count = (w: string, d: number) =>
 		trigrams(w).forEach((g) => {
@@ -112,27 +111,51 @@ function choose(pool: readonly FlowScore[], size: number, target: number): FlowS
 			count(s.word, 1);
 		} else rest.push(s);
 	}
+	// Exchange the least frequent words for better-scored ones until the target is met exactly.
 	while (counts.size < target) {
-		const next = rest.find((s) => fresh(s.word) >= 1 && fresh(s.word) <= target - counts.size);
-		const out = chosen.findLastIndex((s) => trigrams(s.word).every((g) => counts.get(g)! > 1));
-		if (!next || out < 0) break;
-		count(chosen[out]!.word, -1);
-		chosen.splice(out, 1);
-		rest.splice(rest.indexOf(next), 1);
-		chosen.push(next);
-		count(next.word, 1);
+		const need = target - counts.size;
+		let swap: { out: number; next: FlowScore } | null = null;
+		const victims = chosen.map((s, i) => ({ s, i })).filter(({ s }) => !keep.has(s.word)).sort((x, y) => y.s.rank - x.s.rank);
+		for (const next of rest) {
+			const adds = new Set(trigrams(next.word).filter((g) => !counts.has(g)));
+			if (!adds.size) continue;
+			const victim = victims.find(({ s }) => {
+				const lost = new Set(trigrams(s.word).filter((g) => counts.get(g) === 1 && !trigrams(next.word).includes(g))).size;
+				const gain = adds.size - lost;
+				return gain >= 1 && gain <= need;
+			});
+			if (victim) {
+				swap = { out: victim.i, next };
+				break;
+			}
+		}
+		if (!swap) break;
+		count(chosen[swap.out]!.word, -1);
+		rest.push(chosen[swap.out]!);
+		chosen.splice(swap.out, 1);
+		rest.splice(rest.indexOf(swap.next), 1);
+		chosen.push(swap.next);
+		count(swap.next.word, 1);
 	}
 	return chosen;
 }
 
+/** The longest word in the examination set. */
+export const FLOW_MAX_LENGTH = 5;
+/** Short function words every examination set includes, whatever their score. */
+export const FLOW_REQUIRED: readonly string[] = ['a', 'an', 'and', 'to', 'or', 'two', 'one', 'as', 'of', 'from', 'for'];
+
 /**
- * The words used in examinations, including the competitive test: 200 of the 500 most frequent
- * words, chosen for flow, covering 337 distinct trigrams, ordered by frequency.
+ * The words used in examinations, including the competitive test: 200 words of at most five
+ * letters from the 500 most frequent, chosen for flow, covering 337 distinct trigrams and always
+ * including the required short words. Ordered by frequency.
  */
-export const FLOW_WORDS: readonly string[] = choose(
-	[...SCORED_WORDS].filter((s) => s.sameFinger === 0 && s.rank < 500).sort((a, b) => b.score - a.score),
-	FLOW_SIZE,
-	FLOW_TRIGRAMS
-)
-	.sort((a, b) => a.rank - b.rank)
-	.map((s) => s.word);
+export const FLOW_WORDS: readonly string[] = (() => {
+	const keep = new Set(FLOW_REQUIRED);
+	const scored = FREQUENT_WORDS.map((w, i) => flowScore(w, i)).filter((s) => s.word.length <= FLOW_MAX_LENGTH && !NOT_EVERYDAY.has(s.word));
+	const required = FLOW_REQUIRED.map((w) => scored.find((s) => s.word === w) ?? flowScore(w, FREQUENT_WORDS.length));
+	const rest = scored.filter((s) => !keep.has(s.word) && s.word.length >= 2 && s.sameFinger === 0 && s.rank < 500).sort((a, b) => b.score - a.score);
+	return choose([...required, ...rest], FLOW_SIZE, FLOW_TRIGRAMS, keep)
+		.sort((a, b) => a.rank - b.rank)
+		.map((s) => s.word);
+})();
