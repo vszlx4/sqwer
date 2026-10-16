@@ -101,6 +101,14 @@ class FingerMapStore {
 		return this.persist();
 	}
 
+	/** Discards this browser's copy after the map was cleared from the account, without syncing. */
+	async forget() {
+		await this.load();
+		clearTimeout(this.pushTimer);
+		this.observations = [];
+		await idbDelete(KEY).catch(() => {});
+	}
+
 	async clear() {
 		this.observations = [];
 		try {

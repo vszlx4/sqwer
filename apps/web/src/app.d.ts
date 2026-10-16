@@ -13,6 +13,7 @@ declare global {
 				level: import('./lib/progress/xp.ts').LevelStatus;
 				best: number | null;
 				pace: import('./lib/server/progress.ts').PaceSummary;
+				resets: import('./lib/data/categories.ts').DataResets;
 			} | null;
 			siteUrl?: string;
 		}

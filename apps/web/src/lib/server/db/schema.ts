@@ -154,6 +154,22 @@ export const courseState = pgTable('course_state', {
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 }).enableRLS();
 
+/**
+ * When the user last cleared a category of their data (see lib/data/categories.ts). Copies older
+ * than this, still held by a browser, are discarded rather than uploaded again.
+ */
+export const dataResets = pgTable(
+	'data_resets',
+	{
+		userId: text('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		category: text('category').notNull(),
+		clearedAt: timestamp('cleared_at', { withTimezone: true }).notNull()
+	},
+	(t) => [primaryKey({ columns: [t.userId, t.category] })]
+).enableRLS();
+
 /** Profile pictures, re-encoded in the browser and validated on the server. */
 export const avatars = pgTable('avatars', {
 	userId: text('user_id')
