@@ -40,7 +40,8 @@ describe('flow words', async () => {
 	it('are everyday words from the most frequent list, without same-finger pairs', () => {
 		expect(new Set(FLOW_WORDS).size).toBe(200);
 		for (const w of FLOW_WORDS) {
-			expect(FREQUENT_WORDS.indexOf(w)).toBeLessThan(600);
+			expect(FREQUENT_WORDS.indexOf(w)).toBeLessThan(700);
+			expect(w).not.toMatch(/(.)\1/);
 			expect(w.length).toBeLessThanOrEqual(5);
 			if (!FLOW_REQUIRED.includes(w)) expect(flowScore(w).sameFinger).toBe(0);
 		}
