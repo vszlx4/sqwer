@@ -5,14 +5,14 @@ test('endless games are listed in practice and play round after round at the cho
 	test.setTimeout(120_000);
 	await page.goto('/exams');
 	const games = page.locator('#games');
-	await expect(games.getByRole('heading', { name: 'Games, endless' })).toBeVisible();
+	await expect(games.getByRole('heading', { name: 'Endless games' })).toBeVisible();
 	await expect(games.getByRole('link')).toHaveCount(7);
 	await games.getByRole('link', { name: /Falling words/ }).click();
 	await expect(page).toHaveURL(/\/play\/falling-words$/);
 
 	// The difficulty is chosen before the run starts.
-	await expect(page.getByRole('heading', { name: 'Choose the difficulty' })).toBeVisible();
-	await page.locator('.choice', { hasText: 'Gentle' }).click();
+	await expect(page.getByRole('heading', { name: 'Difficulty', exact: true })).toBeVisible();
+	await page.locator('.level', { hasText: 'Gentle' }).click();
 	await expect(page.getByRole('radio', { name: /Gentle/ })).toBeChecked();
 	await page.getByRole('button', { name: 'Start at level 2' }).click();
 	await expect(page.locator('.hud')).toContainText('Gentle');
