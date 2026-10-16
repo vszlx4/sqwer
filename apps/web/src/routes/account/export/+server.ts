@@ -28,12 +28,16 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		.select({ termsVersion: schema.users.termsVersion, termsAcceptedAt: schema.users.termsAcceptedAt, ageConfirmedAt: schema.users.ageConfirmedAt })
 		.from(schema.users)
 		.where(eq(schema.users.id, user.id));
+	const grants = await d
+		.select({ xp: schema.xpGrants.xp, reason: schema.xpGrants.reason, grantedAt: schema.xpGrants.createdAt })
+		.from(schema.xpGrants)
+		.where(eq(schema.xpGrants.userId, user.id));
 	const codes = await d.select({ usedAt: schema.recoveryCodes.usedAt }).from(schema.recoveryCodes).where(eq(schema.recoveryCodes.userId, user.id));
 	const body = {
 		exportedAt: new Date().toISOString(),
 		account: { email: user.email, createdAt: user.createdAt },
 		acceptance: consent ?? null,
-		progress: { ...(await accountLevel(user.id)), bestCompetitiveWpm: await competitiveBest(user.id) },
+		progress: { ...(await accountLevel(user.id)), bestCompetitiveWpm: await competitiveBest(user.id), xpGrants: grants },
 		profile: profile ? { ...profile, userId: undefined } : null,
 		devices: sessions.map((s) => ({ device: s.device, signedInAt: s.createdAt, lastActiveAt: s.lastSeenAt })),
 		fingerMap: fingerMap ? { updatedAt: fingerMap.updatedAt, observations: fingerMap.observations } : null,

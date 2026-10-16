@@ -155,6 +155,20 @@ export const courseState = pgTable('course_state', {
 }).enableRLS();
 
 /**
+ * Experience granted by the operator rather than earned from a result or lesson, for example XP
+ * carried over from another typing service. Counted in the account level like any other XP.
+ */
+export const xpGrants = pgTable('xp_grants', {
+	id: text('id').primaryKey(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	xp: integer('xp').notNull(),
+	reason: text('reason').notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+}).enableRLS();
+
+/**
  * When the user last cleared a category of their data (see lib/data/categories.ts). Copies older
  * than this, still held by a browser, are discarded rather than uploaded again.
  */

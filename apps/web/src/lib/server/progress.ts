@@ -11,9 +11,10 @@ import { db } from './db/index.ts';
 type Row = Record<string, unknown>;
 const rowsOf = (r: unknown) => (r as { rows: Row[] }).rows;
 
-/** Per-user XP as a SQL fragment: examination XP plus course points. */
+/** Per-user XP as a SQL fragment: examination XP, course points and any XP granted to the account. */
 const XP_OF = (user: ReturnType<typeof sql>) => sql`(
 	coalesce((select sum(r.xp) from results r where r.user_id = ${user}), 0)
+	+ coalesce((select sum(g.xp) from xp_grants g where g.user_id = ${user}), 0)
 	+ coalesce((select sum(${POINTS_PER_LESSON} + ${POINTS_PER_STAR} * c.stars) from course_progress c where c.user_id = ${user} and c.stars > 0), 0)
 )`;
 
