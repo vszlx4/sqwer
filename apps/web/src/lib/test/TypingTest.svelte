@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy, onMount, untrack } from 'svelte';
 	import { computeStats, liveWpm, TypingSession, type TestMode } from '@sqwer/engine';
-	import { FLOW_WORDS, WordGenerator } from '@sqwer/content';
+	import { EXAM_WORDS, WordGenerator } from '@sqwer/content';
 	import { qwertyAnsi } from '@sqwer/layouts';
 	import { fingerMap } from '#lib/fingermap/store.svelte.ts';
 	import type { Exam } from '#lib/exams.ts';
@@ -82,7 +82,7 @@
 
 	function newSession(words?: string[]): TypingSession {
 		const mode = currentMode();
-		generator = new WordGenerator({ punctuation: config().punctuation, numbers: config().numbers, words: FLOW_WORDS });
+		generator = new WordGenerator({ punctuation: config().punctuation, numbers: config().numbers, words: EXAM_WORDS });
 		const list = words ?? generator.next(mode.kind === 'words' ? mode.count : LOOKAHEAD * 2);
 		return new TypingSession(list, mode);
 	}

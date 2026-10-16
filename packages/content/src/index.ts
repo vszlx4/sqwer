@@ -2,5 +2,4 @@ export * from './english.ts';
 export * from './generate.ts';
 export * from './mapping.ts';
 export * from './lessons.ts';
-export * from './frequency.ts';
-export * from './flow.ts';
+export * from './exam.ts';

@@ -36,6 +36,7 @@
 	},
 	"dependencies": {
 		"@electric-sql/pglite": "^0.5.9",
+		"@fontsource-variable/geist-mono": "^5.3.0",
 		"@sqwer/content": "*",
 		"@sqwer/engine": "*",
 		"@sqwer/fingermap": "*",
