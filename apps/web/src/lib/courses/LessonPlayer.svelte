@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { autofocus } from '#lib/ui/autofocus.ts';
 	import { swap } from '#lib/ui/transition.ts';
 	import Dialog from '#lib/ui/Dialog.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
-	import { chapterOf, lessonAfter } from './catalog.ts';
+	import { chapterOf, fingerName, lessonAfter } from './catalog.ts';
 	import { drillTokens, seeded } from './generate.ts';
 	import LessonComplete from './LessonComplete.svelte';
 	import { lessonStars, rankFor } from './progression.ts';
@@ -18,8 +18,11 @@
 	import RhythmGame from './steps/RhythmGame.svelte';
 	import TypingDrill from './steps/TypingDrill.svelte';
 	import { STEP_INFO } from './stepInfo.ts';
+	import { results as examResults } from '#lib/results/store.svelte.ts';
+	import { pace } from './pace.svelte.ts';
+	import { weakKeys, type WeakKeys } from './weak.ts';
 	import { courses } from './store.svelte.ts';
-	import type { Lesson, StepResult } from './types.ts';
+	import type { Lesson, StepResult, StepSpec } from './types.ts';
 
 	let { lesson }: { lesson: Lesson } = $props();
 
@@ -41,7 +44,44 @@
 		saved: boolean;
 	}>(null);
 
-	const step = $derived(lesson.steps[index]!);
+	/** Failed attempts at the current step; after two, help and a skip are offered. */
+	let fails = $state(0);
+
+	/*
+	 * Steps marked `weak` practise the learner's weakest fingers. They are chosen once per lesson
+	 * from recent examination results, or the little and ring fingers when there are none yet.
+	 */
+	function weakPoolOf(s: StepSpec): string | null {
+		if (!('weak' in s) || !s.weak) return null;
+		if (s.kind === 'drill') return 'pool' in s.source ? s.source.pool : null;
+		return 'pool' in s ? s.pool : null;
+	}
+	const weakPool = untrack(() => lesson.steps.map(weakPoolOf).find((p) => !!p) ?? null);
+	let weak = $state<WeakKeys | null>(null);
+	onMount(() => {
+		if (!weakPool) return;
+		weak = weakKeys(weakPool, examResults.list);
+		void examResults.load().then(() => {
+			// Results may arrive after the first step has started; only refine before any typing.
+			if (index === 0 && !outcome) weak = weakKeys(weakPool, examResults.list);
+		});
+	});
+
+	const raw = $derived(lesson.steps[index]!);
+	/** The current step with weak-finger keys filled in and the drill goal adapted to the pace. */
+	const step = $derived.by(() => {
+		const s = raw;
+		const focus = weak?.keys ?? '';
+		const letters = [...focus].filter((c) => /[a-z]/.test(c)).join('');
+		const easier = Math.round(Math.max(0, 1 - pace.value) * 10);
+		if (s.kind === 'drill') {
+			const source = s.weak && weak ? (s.source.type === 'patterns' ? { ...s.source, focus } : s.source.type === 'words' ? { ...s.source, focus: letters } : s.source) : s.source;
+			return { ...s, source, minAccuracy: Math.max(75, s.minAccuracy - easier) };
+		}
+		if ((s.kind === 'keyhunt' || s.kind === 'falling') && s.weak && weak) return { ...s, focus };
+		if (s.kind === 'echo' && s.weak && weak) return { ...s, pool: focus.length >= 3 ? focus : s.pool };
+		return s;
+	});
 	/** Share of the lesson done: completed steps, counting a step as soon as it is passed. */
 	const progress = $derived(complete ? 1 : (index + (outcome?.passed ? 1 : 0)) / lesson.steps.length);
 	const chapter = $derived(chapterOf(lesson));
@@ -54,6 +94,8 @@
 	});
 
 	function done(r: StepResult) {
+		pace.record(r);
+		if (!r.passed) fails++;
 		swap(() => (outcome = r));
 	}
 
@@ -73,6 +115,7 @@
 				outcome = null;
 				index++;
 				attempt++;
+				fails = 0;
 			});
 			return;
 		}
@@ -95,12 +138,20 @@
 	}
 
 	/**
-	 * Games depend on reaction time, sight or hearing. After a failed attempt they can be left out,
-	 * so that no learner is blocked by them; a skipped game does not count towards stars.
+	 * Games depend on reaction time, sight or hearing, so they can be left out after one failed
+	 * attempt. Any other step except the chapter check can be skipped after two. Skipped steps do
+	 * not count towards stars, so no learner is ever blocked.
 	 */
 	const isGame = $derived(['falling', 'rhythm', 'keyhunt', 'race', 'echo'].includes(step.kind));
-	function skipGame() {
-		outcome = { passed: true, graded: false, accuracy: 0, summary: 'Game skipped.' };
+	const canSkip = $derived(step.kind !== 'checkpoint' && (isGame ? fails >= 1 : fails >= 2));
+	function skipStep() {
+		outcome = { passed: true, graded: false, accuracy: 0, summary: isGame ? 'Game skipped.' : 'Step skipped.' };
+		void proceed();
+	}
+	/** Lowers the pace and tries again, with hints on for typing steps. */
+	function easier() {
+		pace.ease();
+		hints = true;
 		void proceed();
 	}
 
@@ -168,7 +219,17 @@
 				<span style:transform={`scaleX(${progress})`}></span>
 			</div>
 			<span class="lesson-count">{complete ? 'Complete' : `Step ${index + 1} of ${lesson.steps.length}`}</span>
+			<span class="pace" title="The pace adapts to how each step goes">Pace: {pace.label}</span>
 		</div>
+		{#if weak && !complete}
+			<p class="weak-note">
+				<Icon name="hand" size={16} />
+				<span>
+					Practising your {weak.fingers.map(fingerName).join(' and ')}
+					{weak.basis === 'data' ? ', chosen from your results.' : '. These are the weakest for most typists; take a few examinations and this lesson will choose yours.'}
+				</span>
+			</p>
+		{/if}
 	</header>
 
 	<div class="body">
@@ -189,8 +250,17 @@
 					<Icon name={outcome.passed ? 'arrow' : 'restart'} size={18} />
 				</button>
 				<p class="enter">or press <kbd>Enter</kbd></p>
-				{#if !outcome.passed && isGame}
-					<button type="button" class="skip-game" onclick={skipGame}>Continue without this game</button>
+				{#if !outcome.passed && fails >= 2}
+					<div class="help" role="group" aria-label="Help with this step">
+						<p><b>Need a hand?</b> This step has been hard twice. You can slow the pace down, or move on and come back to it later.</p>
+						<div class="help-actions">
+							<button type="button" class="btn" onclick={easier}><Icon name="gauge" size={16} /> Make it easier</button>
+							{#if canSkip}<button type="button" class="btn" onclick={skipStep}>Skip this step</button>{/if}
+						</div>
+						{#if step.kind === 'checkpoint'}<p class="help-note">The chapter check cannot be skipped. The weak fingers lesson just before it is good preparation.</p>{/if}
+					</div>
+				{:else if !outcome.passed && canSkip}
+					<button type="button" class="skip-game" onclick={skipStep}>Continue without this game</button>
 				{/if}
 			</section>
 		{:else}
@@ -205,15 +275,15 @@
 						<h2 class="step-title">Checkpoint</h2>
 						<TypingDrill {tokens} seconds={step.seconds} minAccuracy={step.minAccuracy} minWpm={step.minWpm} bind:hints oncomplete={done} />
 					{:else if step.kind === 'falling'}
-						<FallingGame items={step.items} pool={step.pool} focus={step.focus} words={step.words} target={step.target} oncomplete={done} />
+						<FallingGame items={step.items} pool={step.pool} focus={step.focus} words={step.words} target={step.target} pace={pace.value} oncomplete={done} />
 					{:else if step.kind === 'rhythm'}
-						<RhythmGame keys={step.keys} bpm={step.bpm} target={step.target} oncomplete={done} />
+						<RhythmGame keys={step.keys} pool={step.pool} bpm={Math.round(step.bpm * pace.value)} target={step.target} oncomplete={done} />
 					{:else if step.kind === 'keyhunt'}
-						<KeyHunt pool={step.pool} focus={step.focus} target={step.target} oncomplete={done} />
+						<KeyHunt pool={step.pool} focus={step.focus} target={step.target} pace={pace.value} oncomplete={done} />
 					{:else if step.kind === 'race'}
-						<Race pool={step.pool} focus={step.focus} words={step.words} count={step.count} pacerWpm={step.pacerWpm} oncomplete={done} />
+						<Race pool={step.pool} focus={step.focus} words={step.words} sentences={step.sentences} count={step.count} pacerWpm={Math.max(6, Math.round(step.pacerWpm * pace.value))} oncomplete={done} />
 					{:else if step.kind === 'echo'}
-						<Echo pool={step.pool} start={step.start} target={step.target} oncomplete={done} />
+						<Echo pool={step.pool} start={step.start} target={pace.value < 0.85 ? Math.max(step.start, step.target - 1) : step.target} oncomplete={done} />
 					{:else if step.kind === 'listen'}
 						<ListenType pool={step.pool} focus={step.focus} words={step.words} count={step.count} target={step.target} oncomplete={done} />
 					{/if}
@@ -335,6 +405,53 @@
 		background: linear-gradient(90deg, var(--green), var(--accent));
 		transform-origin: left;
 		transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.pace {
+		padding: 2px 8px;
+		border-radius: 3px;
+		background: var(--blue-soft);
+		color: var(--blue);
+		font-size: 12.5px;
+		font-weight: 700;
+		white-space: nowrap;
+	}
+	.weak-note {
+		grid-column: 1 / -1;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 12px;
+		border-radius: 3px;
+		background: var(--orange-soft);
+		color: var(--ink);
+		font-size: 14px;
+	}
+	.weak-note :global(svg) {
+		flex-shrink: 0;
+		color: var(--orange);
+	}
+	.help {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		max-width: 520px;
+		margin-top: 8px;
+		padding: 14px 16px;
+		border-radius: 3px;
+		border: 1px solid var(--line-strong);
+		background: var(--blue-soft);
+		color: var(--ink);
+		text-align: left;
+		font-size: 14.5px;
+	}
+	.help-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+	.help-note {
+		font-size: 13px;
+		color: var(--ink-2);
 	}
 	.lesson-count {
 		font-size: 13px;

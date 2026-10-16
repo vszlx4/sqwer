@@ -9,10 +9,12 @@
 		focus: string;
 		words?: readonly string[];
 		target: number;
+		/** Adaptive pace: below 1 falls more slowly, above 1 more quickly. */
+		pace?: number;
 		oncomplete: (r: StepResult) => void;
 	}
 
-	let { items, pool, focus, words, target, oncomplete }: Props = $props();
+	let { items, pool, focus, words, target, pace: tempo = 1, oncomplete }: Props = $props();
 
 	interface Drop {
 		id: number;
@@ -75,7 +77,7 @@
 		const lastDrop = drops[drops.length - 1];
 		if (lastDrop && Math.abs(lastDrop.x - x) < 0.15) x = x > 0.5 ? x - 0.3 : x + 0.3;
 		const base = items === 'letters' ? 62 : 34;
-		drops = [...drops, { id: nextId++, text, x, y: -40, speed: base * (1 + pace * 0.9) * (0.9 + rand() * 0.2) }];
+		drops = [...drops, { id: nextId++, text, x, y: -40, speed: base * tempo * (1 + pace * 0.9) * (0.9 + rand() * 0.2) }];
 	}
 
 	function start() {
@@ -102,7 +104,7 @@
 		const maxOnScreen = items === 'letters' ? 6 : 4;
 		if (spawnIn <= 0 && drops.length < maxOnScreen) {
 			spawn();
-			const interval = items === 'letters' ? 1.5 - pace * 0.8 : 2.6 - pace * 1.2;
+			const interval = (items === 'letters' ? 1.5 - pace * 0.8 : 2.6 - pace * 1.2) / tempo;
 			spawnIn = interval;
 		}
 		let lost = 0;

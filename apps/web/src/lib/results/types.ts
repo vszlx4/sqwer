@@ -1,7 +1,7 @@
 import type { Finger } from '@sqwer/layouts';
 
 /** Examinations a result can belong to. */
-export const EXAM_IDS = ['placement', 'timed', 'words', 'symbols', 'endurance', 'finger-speed'] as const;
+export const EXAM_IDS = ['placement', 'timed', 'words', 'symbols', 'endurance', 'finger-speed', 'competitive'] as const;
 export type ExamId = (typeof EXAM_IDS)[number];
 
 export interface FingerScore {

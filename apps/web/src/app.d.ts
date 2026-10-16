@@ -10,6 +10,7 @@ declare global {
 				email: string;
 				profile: { username: string; displayName: string; avatarColor: string } | null;
 				avatar: string | null;
+				level: import('./lib/progress/xp.ts').LevelStatus;
 			} | null;
 			siteUrl?: string;
 		}

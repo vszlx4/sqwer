@@ -58,7 +58,8 @@ describe('input sanitising and validation', () => {
 			banner: 'ocean',
 			showRank: true,
 			showStats: false,
-			showStreak: true
+			showStreak: true,
+			showOnLeaderboard: true
 		};
 		const ok = profileSchema.parse(base);
 		expect(ok.headline).toBe('Practising every morning');

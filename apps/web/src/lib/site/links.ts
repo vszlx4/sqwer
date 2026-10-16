@@ -18,14 +18,13 @@ export const LEGAL = {
 } as const;
 
 /**
- * The four areas of the product, in the order a learner meets them. Getting started is used once,
- * so it is reached from the home page and the course rather than kept in the navigation.
+ * The three areas of the product: learning, practice and competition. The finger map and history
+ * belong to practice and are reached from its page; Getting started from the home page and course.
  */
 export const NAV_LINKS = [
-	{ href: '/learn', label: 'Courses', icon: 'route', description: 'Lessons, games and ranks' },
-	{ href: '/exams', label: 'Examinations', icon: 'gauge', description: 'Typing tests and finger speed' },
-	{ href: '/map', label: 'Finger map', icon: 'hand', description: 'Which finger you use for each key' },
-	{ href: '/history', label: 'History', icon: 'history', description: 'Every result, with replays' }
+	{ href: '/learn', label: 'Learning path', icon: 'route', description: 'Lessons, games and course ranks' },
+	{ href: '/exams', label: 'Practice', icon: 'gauge', description: 'Tests, finger map and history, with XP' },
+	{ href: '/competitive', label: 'Competitive', icon: 'trophy', description: 'Speed tiers and leaderboards' }
 ] as const;
 
 /** Account pages, listed once and shared by the account menu and the account section. */
@@ -41,7 +40,12 @@ export const ACCOUNT_LINKS = [
 export const FOOTER_GROUPS = [
 	{
 		title: 'Learn',
-		links: [{ href: '/start', label: 'Get started' }, ...NAV_LINKS.map(({ href, label }) => ({ href, label }))]
+		links: [
+			{ href: '/start', label: 'Get started' },
+			...NAV_LINKS.map(({ href, label }) => ({ href, label })),
+			{ href: '/map', label: 'Finger map' },
+			{ href: '/history', label: 'History' }
+		]
 	},
 	{
 		title: 'Account',

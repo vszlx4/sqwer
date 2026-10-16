@@ -15,6 +15,7 @@
 		showRank: boolean;
 		showStats: boolean;
 		showStreak: boolean;
+		showOnLeaderboard: boolean;
 	}
 </script>
 
@@ -212,6 +213,13 @@
 				<label class="check"><input type="checkbox" name="showStats" bind:checked={v.showStats} /><span>Best speed, accuracy and lessons completed</span></label>
 				<label class="check"><input type="checkbox" name="showStreak" bind:checked={v.showStreak} /><span>Daily streak</span></label>
 			</div>
+			<label class="check public">
+				<input type="checkbox" name="showOnLeaderboard" bind:checked={v.showOnLeaderboard} />
+				<span>
+					Appear on the leaderboards. Your display name, profile picture, level and best competitive speed are shown on the
+					<a href="/competitive" target="_blank">Competitive</a> page; your name links to your profile only if it is public.
+				</span>
+			</label>
 			<label class="check public">
 				<input type="checkbox" name="isPublic" bind:checked={v.isPublic} />
 				<span>

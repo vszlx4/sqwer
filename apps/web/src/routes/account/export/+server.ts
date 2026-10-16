@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from '#lib/server/db/index.ts';
 import { requireUser } from '#lib/server/account.ts';
 import { activeSessions } from '#lib/server/auth.ts';
+import { accountLevel, competitiveBest } from '#lib/server/progress.ts';
 import type { RequestHandler } from './$types';
 
 /** Data portability: everything stored about the signed-in account, as JSON. */
@@ -12,7 +13,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	const [fingerMap] = await d.select().from(schema.fingerMaps).where(eq(schema.fingerMaps.userId, user.id));
 	const sessions = await activeSessions(user.id);
 	const [avatar] = await d.select().from(schema.avatars).where(eq(schema.avatars.userId, user.id));
-	const savedResults = await d.select({ data: schema.results.data }).from(schema.results).where(eq(schema.results.userId, user.id));
+	const savedResults = await d.select({ data: schema.results.data, xp: schema.results.xp, verified: schema.results.verified }).from(schema.results).where(eq(schema.results.userId, user.id));
 	const usageRows = await d.select({ deviceId: schema.usageStats.deviceId, data: schema.usageStats.data }).from(schema.usageStats).where(eq(schema.usageStats.userId, user.id));
 	const courseRows = await d.select().from(schema.courseProgress).where(eq(schema.courseProgress.userId, user.id));
 	const courseDays = await d.select({ day: schema.courseDays.day }).from(schema.courseDays).where(eq(schema.courseDays.userId, user.id));
@@ -31,10 +32,11 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		exportedAt: new Date().toISOString(),
 		account: { email: user.email, createdAt: user.createdAt },
 		acceptance: consent ?? null,
+		progress: { ...(await accountLevel(user.id)), bestCompetitiveWpm: await competitiveBest(user.id) },
 		profile: profile ? { ...profile, userId: undefined } : null,
 		devices: sessions.map((s) => ({ device: s.device, signedInAt: s.createdAt, lastActiveAt: s.lastSeenAt })),
 		fingerMap: fingerMap ? { updatedAt: fingerMap.updatedAt, observations: fingerMap.observations } : null,
-		results: savedResults.map((r) => r.data),
+		results: savedResults.map((r) => ({ ...(r.data as object), xp: r.xp, verified: r.verified })),
 		usageStatistics: usageRows.map((r) => r.data),
 		course: {
 			level: courseState?.level ?? null,

@@ -62,7 +62,7 @@
 
 	const GAMES = [
 		{ kind: 'falling', title: 'Falling letters', body: 'Letters drop from the top. Type each one before it lands.' },
-		{ kind: 'rhythm', title: 'Rhythm keys', body: 'Notes travel down like piano keys. Press each on the beat.' },
+		{ kind: 'rhythm', title: 'Rhythm keys', body: 'Notes travel down like piano keys and spell real words. Press each on the beat.' },
 		{ kind: 'listen', title: 'Listen and type', body: 'Hear a word and type it, without seeing it first.' },
 		{ kind: 'keyhunt', title: 'Key hunt', body: 'A key lights up. Find it by touch before its light runs out.' },
 		{ kind: 'race', title: 'Race', body: 'Type a passage before the pacer reaches the finish line.' },
@@ -161,23 +161,40 @@
 				<article class="game" use:reveal={{ delay: i * 80 }}>
 					<div class={`preview p-${g.kind}`} aria-hidden="true">
 						{#if g.kind === 'falling'}
-							{#each ['f', 'j', 'k', 'd'] as l, n (l)}<span class="fl" style:left={`${14 + n * 22}%`} style:--n={n}>{l}</span>{/each}
+							{#each ['f', 'j', 'k', 'd', 'g'] as l, n (l)}<span class="fl" style:left={`${10 + n * 19}%`} style:--n={n}>{l}</span>{/each}
+							<span class="pop"></span>
 							<span class="floor"></span>
 						{:else if g.kind === 'rhythm'}
-							{#each [0, 1, 2] as lane (lane)}
-								<span class="lane">{#each [0, 1] as n (n)}<span class="note" style:--n={lane * 0.45 + n * 1.2}></span>{/each}</span>
+							<span class="spell">{#each ['f', 'a', 'd'] as c, n (n)}<span style:--n={n}>{c}</span>{/each}</span>
+							{#each ['a', 'd', 'f'] as k, lane (k)}
+								<span class="lane" style:--lane={lane}>
+									{#each [0, 1] as n (n)}<span class="note" style:--n={lane * 0.5 + n * 1.25}></span>{/each}
+									<span class="lane-key">{k}</span>
+								</span>
 							{/each}
 							<span class="hit"></span>
 						{:else if g.kind === 'listen'}
-							<span class="wave">{#each [0, 1, 2, 3, 4, 5, 6] as n (n)}<span style:--n={n}></span>{/each}</span>
+							<span class="speaker"><span class="wave">{#each [0, 1, 2, 3, 4, 5, 6, 7, 8] as n (n)}<span style:--n={n}></span>{/each}</span></span>
 							<span class="typed">steady<span class="caret"></span></span>
 						{:else if g.kind === 'keyhunt'}
-							<span class="hunt-row">{#each ['A', 'S', 'D', 'F', 'J', 'K', 'L'] as k, n (k)}<span class="hk" style:--d={`${[3, 0, 5, 1, 6, 2, 4][n]! * 0.6}s`}>{k}</span>{/each}</span>
+							<span class="mini-kb">
+								{#each ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'] as row, r (row)}
+									<span class="kb-row" style:--r={r}>{#each [...row] as k (k)}<span class="mk" class:target={k === 'j'}>{k}</span>{/each}</span>
+								{/each}
+							</span>
+							<span class="fuse"></span>
 						{:else if g.kind === 'race'}
-							<span class="road"><span class="runner me"></span></span>
-							<span class="road"><span class="runner pace"></span></span>
+							{#each ['me', 'pace'] as who (who)}
+								<span class="race-lane">
+									<span class="trail {who}"></span>
+									<span class="runner {who}"></span>
+									<span class="flag"></span>
+								</span>
+							{/each}
+							<span class="race-text">the quick <b>r</b><span>ace</span></span>
 						{:else}
-							<span class="echo-row">{#each [0, 1, 2, 3] as n (n)}<span class="ek" style:--n={n}></span>{/each}</span>
+							<span class="echo-label">Watch, then repeat</span>
+							<span class="echo-row">{#each ['s', 'k', 'd', 'l'] as k, n (n)}<span class="ek" style:--n={n}>{k}</span>{/each}</span>
 						{/if}
 					</div>
 					<h3>{g.title}</h3>
@@ -540,12 +557,19 @@
 	}
 	.preview {
 		position: relative;
-		height: 150px;
+		height: 170px;
 		overflow: hidden;
 		border-radius: 3px;
-		background: #0b0b0b;
+		background:
+			radial-gradient(120% 90% at 50% 120%, rgb(204 249 0 / 0.1), transparent 60%),
+			radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.05) 1px, transparent 0) 0 0 / 16px 16px,
+			#0b0b0b;
 		border: 1px solid #1f1f1f;
 	}
+	.game:hover .preview {
+		border-color: #333;
+	}
+	/* Falling letters: keycaps drop, and one bursts as it is typed. */
 	.fl {
 		position: absolute;
 		top: -36px;
@@ -554,16 +578,41 @@
 		width: 30px;
 		height: 30px;
 		border-radius: 3px;
+		border-bottom: 3px solid #9a9a93;
 		background: #f2f2ee;
 		color: #111;
 		font-family: var(--font-mono);
 		font-weight: 700;
-		animation: fall 3.2s linear infinite;
-		animation-delay: calc(var(--n) * -0.8s);
+		animation: fall 3.4s linear infinite;
+		animation-delay: calc(var(--n) * -0.68s);
 	}
 	@keyframes fall {
 		to {
-			transform: translateY(170px);
+			transform: translateY(190px);
+		}
+	}
+	.pop {
+		position: absolute;
+		left: 46%;
+		top: 52%;
+		width: 44px;
+		height: 44px;
+		border-radius: 3px;
+		border: 3px solid var(--accent);
+		animation: pop-burst 1.7s ease-out infinite;
+	}
+	@keyframes pop-burst {
+		0%,
+		60% {
+			opacity: 0;
+			transform: scale(0.4) rotate(0deg);
+		}
+		70% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 0;
+			transform: scale(1.6) rotate(45deg);
 		}
 	}
 	.floor {
@@ -572,36 +621,82 @@
 		right: 0;
 		bottom: 0;
 		height: 14px;
-		background: color-mix(in srgb, var(--accent) 30%, #0b0b0b);
+		background: color-mix(in srgb, var(--accent) 26%, #0b0b0b);
 		border-top: 2px solid var(--accent);
+		box-shadow: 0 -10px 24px -8px rgb(204 249 0 / 0.5);
 	}
+	/* Rhythm: notes fall in lanes and spell a word above them. */
 	.p-rhythm {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 	}
+	.spell {
+		position: absolute;
+		top: 8px;
+		left: 50%;
+		z-index: 2;
+		display: flex;
+		justify-content: center;
+		gap: 2px;
+		padding: 2px 10px;
+		border-radius: 3px;
+		background: #0b0b0b;
+		box-shadow: 0 0 0 1px #262626;
+		transform: translateX(-50%);
+		font-family: var(--font-mono);
+		font-size: 18px;
+		font-weight: 700;
+		color: #5a5a55;
+	}
+	.spell span {
+		animation: spell 3.75s steps(1) infinite;
+		animation-delay: calc(var(--n) * 1.25s);
+	}
+	@keyframes spell {
+		0%,
+		33% {
+			color: var(--accent);
+		}
+	}
 	.lane {
 		position: relative;
 		border-right: 1px solid #1f1f1f;
+		background: linear-gradient(to bottom, transparent, rgb(255 255 255 / calc(0.02 + var(--lane) * 0.01)));
 	}
 	.note {
 		position: absolute;
 		top: -20px;
-		left: 20%;
-		right: 20%;
-		height: 16px;
+		left: 18%;
+		right: 18%;
+		height: 14px;
 		border-radius: 3px;
 		background: var(--accent);
-		animation: fall 2.4s linear infinite;
+		box-shadow: 0 0 14px rgb(204 249 0 / 0.55);
+		animation: fall 2.5s linear infinite;
 		animation-delay: calc(var(--n) * -1s);
+	}
+	.lane-key {
+		position: absolute;
+		left: 50%;
+		bottom: 6px;
+		transform: translateX(-50%);
+		font-family: var(--font-mono);
+		font-size: 12px;
+		font-weight: 700;
+		color: #b9b9b3;
+		text-transform: uppercase;
 	}
 	.hit {
 		position: absolute;
 		left: 0;
 		right: 0;
-		bottom: 26px;
+		bottom: 28px;
 		height: 2px;
 		background: #f2f2ee;
+		box-shadow: 0 0 10px rgb(242 242 238 / 0.6);
 	}
+	/* Listening: a voice wave and the word appearing as it is typed. */
+	.p-listen,
 	.p-keyhunt,
 	.p-echo,
 	.p-race {
@@ -609,121 +704,36 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 16px;
+		gap: 14px;
 		padding: 0 18px;
 	}
-	.hunt-row,
-	.echo-row {
-		display: flex;
-		gap: 6px;
-	}
-	.hk,
-	.ek {
+	.speaker {
 		display: grid;
 		place-items: center;
-		width: 30px;
-		height: 32px;
+		width: 120px;
+		height: 56px;
 		border-radius: 3px;
-		border: 1px solid #333;
-		border-bottom-width: 3px;
-		background: #161616;
-		color: #b9b9b3;
-		font-family: var(--font-mono);
-		font-size: 13px;
-		font-weight: 700;
-	}
-	/* One key at a time lights up, in a hunting order. */
-	.hk {
-		animation: hunt 4.2s steps(1) infinite;
-		animation-delay: var(--d);
-	}
-	@keyframes hunt {
-		0%,
-		14% {
-			background: var(--accent);
-			border-color: var(--accent);
-			color: #111;
-		}
-		15%,
-		100% {
-			background: #161616;
-		}
-	}
-	.ek {
-		width: 38px;
-		height: 38px;
-		animation: echo 3.2s ease infinite;
-		animation-delay: calc(var(--n) * 0.4s);
-	}
-	@keyframes echo {
-		0%,
-		22% {
-			background: #161616;
-		}
-		8% {
-			background: var(--accent);
-			border-color: var(--accent);
-		}
-		60%,
-		100% {
-			background: color-mix(in srgb, var(--green) 40%, #161616);
-			border-color: var(--green);
-		}
-	}
-	.road {
-		position: relative;
-		width: 100%;
-		height: 24px;
-		border-radius: 3px;
-		background: #161616;
-		box-shadow: inset -3px 0 0 #f2f2ee;
-	}
-	.runner {
-		position: absolute;
-		top: 4px;
-		left: 4px;
-		width: 16px;
-		height: 16px;
-		border-radius: 3px;
-		animation: run 3.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-	}
-	.runner.me {
-		background: var(--accent);
-	}
-	.runner.pace {
-		background: #9a8cf2;
-		animation-duration: 4.4s;
-	}
-	@keyframes run {
-		to {
-			left: calc(100% - 22px);
-		}
-	}
-	.p-listen {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 16px;
+		background: rgb(204 249 0 / 0.08);
+		border: 1px solid rgb(204 249 0 / 0.25);
 	}
 	.wave {
 		display: flex;
 		align-items: center;
 		gap: 5px;
-		height: 40px;
+		height: 36px;
 	}
 	.wave span {
-		width: 5px;
+		width: 4px;
 		height: 100%;
 		border-radius: 2px;
 		background: var(--accent);
 		animation: wave 1.1s ease-in-out infinite;
-		animation-delay: calc(var(--n) * -0.15s);
+		animation-delay: calc(var(--n) * -0.13s);
 	}
 	@keyframes wave {
 		0%,
 		100% {
-			transform: scaleY(0.25);
+			transform: scaleY(0.2);
 		}
 		50% {
 			transform: scaleY(1);
@@ -746,6 +756,189 @@
 	@keyframes blink {
 		50% {
 			opacity: 0;
+		}
+	}
+	/* Key hunt: a small keyboard with one key lit and its fuse running out. */
+	.mini-kb {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+	.kb-row {
+		display: flex;
+		gap: 4px;
+		margin-left: calc(var(--r) * 9px);
+	}
+	.mk {
+		display: grid;
+		place-items: center;
+		width: 20px;
+		height: 22px;
+		border-radius: 3px;
+		border: 1px solid #2c2c2c;
+		border-bottom-width: 2px;
+		background: #151515;
+		color: #77776f;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		font-weight: 700;
+		text-transform: uppercase;
+	}
+	.mk.target {
+		border-color: var(--accent);
+		background: var(--accent);
+		color: #111;
+		box-shadow: 0 0 16px rgb(204 249 0 / 0.6);
+		animation: hunt 2.4s ease-in-out infinite;
+	}
+	@keyframes hunt {
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		80% {
+			transform: translateY(0);
+		}
+		88% {
+			transform: translateY(2px);
+		}
+	}
+	.fuse {
+		width: 120px;
+		height: 4px;
+		border-radius: 3px;
+		background: linear-gradient(90deg, var(--accent), #9a8cf2);
+		transform-origin: left;
+		animation: fuse 2.4s linear infinite;
+	}
+	@keyframes fuse {
+		from {
+			transform: scaleX(1);
+		}
+		to {
+			transform: scaleX(0);
+		}
+	}
+	/* Race: two lanes, trails, a checkered finish and the passage being typed. */
+	.race-lane {
+		position: relative;
+		width: 100%;
+		height: 22px;
+		border-radius: 3px;
+		background: #161616;
+	}
+	.trail {
+		position: absolute;
+		left: 0;
+		top: 50%;
+		height: 3px;
+		margin-top: -1.5px;
+		border-radius: 3px;
+		animation: trail 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+	}
+	.trail.me {
+		background: linear-gradient(90deg, transparent, var(--accent));
+	}
+	.trail.pace {
+		background: linear-gradient(90deg, transparent, #9a8cf2);
+		animation-duration: 4.4s;
+	}
+	@keyframes trail {
+		from {
+			width: 0;
+		}
+		to {
+			width: calc(100% - 26px);
+		}
+	}
+	.runner {
+		position: absolute;
+		top: 3px;
+		left: 3px;
+		width: 16px;
+		height: 16px;
+		border-radius: 3px;
+		animation: run 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+	}
+	.runner.me {
+		background: var(--accent);
+		box-shadow: 0 0 12px rgb(204 249 0 / 0.6);
+	}
+	.runner.pace {
+		background: #9a8cf2;
+		animation-duration: 4.4s;
+	}
+	@keyframes run {
+		to {
+			left: calc(100% - 28px);
+		}
+	}
+	.flag {
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 8px;
+		height: 100%;
+		background: conic-gradient(#f2f2ee 25%, #0b0b0b 0 50%, #f2f2ee 0 75%, #0b0b0b 0) 0 0 / 4px 4px;
+		border-radius: 0 3px 3px 0;
+	}
+	.race-text {
+		align-self: flex-start;
+		font-family: var(--font-mono);
+		font-size: 16px;
+		color: #f2f2ee;
+	}
+	.race-text b {
+		color: var(--accent);
+	}
+	.race-text span {
+		color: #5a5a55;
+	}
+	/* Echo: keys light up in turn, then turn green as they are repeated. */
+	.echo-label {
+		font-size: 12px;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: #8e8e88;
+	}
+	.echo-row {
+		display: flex;
+		gap: 8px;
+	}
+	.ek {
+		display: grid;
+		place-items: center;
+		width: 38px;
+		height: 40px;
+		border-radius: 3px;
+		border: 1px solid #333;
+		border-bottom-width: 3px;
+		background: #161616;
+		color: #8e8e88;
+		font-family: var(--font-mono);
+		font-size: 14px;
+		font-weight: 700;
+		text-transform: uppercase;
+		animation: echo 3.6s ease infinite;
+		animation-delay: calc(var(--n) * 0.35s);
+	}
+	@keyframes echo {
+		0%,
+		24% {
+			background: #161616;
+		}
+		8% {
+			background: var(--accent);
+			border-color: var(--accent);
+			color: #111;
+			box-shadow: 0 0 14px rgb(204 249 0 / 0.5);
+		}
+		58%,
+		100% {
+			background: color-mix(in srgb, #2fc48a 30%, #161616);
+			border-color: #2fc48a;
+			color: #f2f2ee;
 		}
 	}
 	/* ---------- Ranks ---------- */
@@ -909,7 +1102,11 @@
 		.note,
 		.wave span,
 		.caret,
-		.hk,
+		.pop,
+		.spell span,
+		.mk.target,
+		.fuse,
+		.trail,
 		.ek,
 		.runner {
 			animation: none;

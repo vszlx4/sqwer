@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, primaryKey, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, jsonb, pgTable, primaryKey, real, serial, text, timestamp } from 'drizzle-orm/pg-core';
 import type { FingerObservation } from '@sqwer/fingermap';
 
 /*
@@ -48,6 +48,8 @@ export const profiles = pgTable('profiles', {
 	showRank: boolean('show_rank').notNull().default(true),
 	showStats: boolean('show_stats').notNull().default(true),
 	showStreak: boolean('show_streak').notNull().default(true),
+	/** Whether the person appears on the public leaderboards. */
+	showOnLeaderboard: boolean('show_on_leaderboard').notNull().default(true),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 }).enableRLS();
 
@@ -89,8 +91,14 @@ export const results = pgTable('results', {
 		.references(() => users.id, { onDelete: 'cascade' }),
 	exam: text('exam').notNull(),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
-	data: jsonb('data').notNull()
-}).enableRLS();
+	data: jsonb('data').notNull(),
+	/** Experience earned by this result (lib/progress/xp.ts), worked out on the server. */
+	xp: integer('xp').notNull().default(0),
+	/** Words per minute, copied for ranking. */
+	wpm: real('wpm').notNull().default(0),
+	/** For competitive results: whether the server's plausibility check passed. */
+	verified: boolean('verified').notNull().default(false)
+}, (t) => [index('results_competitive_idx').on(t.exam, t.verified, t.wpm)]).enableRLS();
 
 /** Usage statistics, one document per device so that totals can be added without double counting. */
 export const usageStats = pgTable(

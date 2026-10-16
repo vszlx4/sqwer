@@ -175,6 +175,7 @@ export function sectionOf(path: string): string {
 	if (path === '/') return 'Home';
 	if (path.startsWith('/start') || path.startsWith('/journey')) return 'Getting started';
 	if (path.startsWith('/learn')) return 'Courses';
+	if (path.startsWith('/competitive')) return 'Competitive';
 	if (path.startsWith('/exams') || path.startsWith('/test')) return 'Examinations';
 	if (path.startsWith('/map')) return 'Finger map';
 	if (path.startsWith('/history')) return 'History';

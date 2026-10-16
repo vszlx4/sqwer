@@ -4,14 +4,6 @@
 	import { CONTACT_EMAIL, FOOTER_GROUPS, LEGAL } from './links.ts';
 
 	const year = new Date().getFullYear();
-
-	/** Commitments that hold everywhere on the site, each backed by a policy. */
-	const PROMISES = [
-		{ icon: 'lock', title: 'No tracking', text: 'No advertising, analytics or tracking cookies.', href: '/cookies' },
-		{ icon: 'shield', title: 'Data in the EU', text: 'Accounts are stored in Ireland, encrypted.', href: '/privacy' },
-		{ icon: 'download', title: 'Yours to keep', text: 'Download or delete everything at any time.', href: '/account/data' },
-		{ icon: 'eye', title: 'Accessible', text: 'Designed to WCAG 2.2 Level AA.', href: '/accessibility' }
-	] as const;
 </script>
 
 <footer class="site-footer">
@@ -38,24 +30,12 @@
 			</div>
 		</div>
 
-		<ul class="promises" aria-label="Our commitments">
-			{#each PROMISES as p (p.title)}
-				<li>
-					<a href={p.href}>
-						<span class="p-icon"><Icon name={p.icon} size={16} /></span>
-						<span><b>{p.title}</b><span class="p-text">{p.text}</span></span>
-					</a>
-				</li>
-			{/each}
-		</ul>
-
 		<div class="bottom">
 			<span>© {year} <span translate="no">sqwer</span>. A free, non-commercial project by {LEGAL.operatorName}.</span>
 			<span class="links">
 				<a href="/terms">Terms</a>
 				<a href="/privacy">Privacy</a>
 				<a href="/cookies">Cookies</a>
-				<a href="/.well-known/security.txt">security.txt</a>
 			</span>
 		</div>
 	</div>
@@ -153,44 +133,6 @@
 	ul a:hover {
 		color: var(--accent);
 	}
-	.promises {
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 8px;
-	}
-	.promises a {
-		display: flex;
-		gap: 10px;
-		height: 100%;
-		padding: 14px;
-		border-radius: 3px;
-		border: 1px solid #222;
-		background: #111;
-		transition: border-color 160ms ease;
-	}
-	.promises a:hover {
-		color: inherit;
-		border-color: #3a3a3a;
-	}
-	.p-icon {
-		display: grid;
-		place-items: center;
-		width: 30px;
-		height: 30px;
-		flex-shrink: 0;
-		border-radius: 3px;
-		background: rgb(204 249 0 / 0.12);
-		color: var(--accent);
-	}
-	.promises b {
-		display: block;
-		font-size: 14px;
-		color: #f2f2ee;
-	}
-	.p-text {
-		font-size: 13px;
-		color: #a3a39c;
-	}
 	.bottom {
 		display: flex;
 		justify-content: space-between;
@@ -219,16 +161,10 @@
 		.top {
 			grid-template-columns: 1fr;
 		}
-		.promises {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
 	}
 	@media (max-width: 640px) {
 		.groups {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-		.promises {
-			grid-template-columns: 1fr;
 		}
 	}
 </style>

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { playFalling, playRace, proceed, typeDrill } from './play.ts';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -212,7 +213,8 @@ test('saves usage statistics to the account and shows them on the statistics pag
 	await expect(page.getByText(`recorded across ${devices} ${devices > 1 ? 'devices' : 'device'} since`)).toBeVisible();
 });
 
-test('a completed course lesson is saved and earns points and a rank', async ({ page }) => {
+test('a completed course lesson is saved and earns points towards the next rank', async ({ page }) => {
+	test.setTimeout(150_000);
 	await page.goto('/signin');
 	await page.getByLabel('Email address').fill(email);
 	await page.getByLabel('Password').fill(newPassword);
@@ -224,21 +226,32 @@ test('a completed course lesson is saved and earns points and a rank', async ({ 
 	await page.getByRole('button', { name: 'Start chapter 4: Capital letters' }).click();
 	await expect(page.getByRole('heading', { level: 1, name: 'Right Shift' })).toBeVisible();
 	for (let i = 0; i < 3; i++) await page.keyboard.press('ShiftRight');
-	await page.locator('.outcome').getByRole('button', { name: 'Continue' }).click();
-	await page.waitForSelector('[data-word]');
-	const words = await page.$$eval('[data-word]', (els) => els.map((e) => e.textContent ?? ''));
-	await page.keyboard.type(words.join(' '), { delay: 20 });
+	await proceed(page);
+	await typeDrill(page);
+	await proceed(page);
+	await playFalling(page);
+	await proceed(page);
+	await typeDrill(page);
+	await proceed(page);
+	await playRace(page);
 	await page.locator('.outcome').getByRole('button', { name: 'See your result' }).click();
 
-	await expect(page.getByText('New rank')).toBeVisible();
-	await expect(page.getByText('Learner')).toBeVisible();
 	await expect(page.getByText(/\+\d+ points/)).toBeVisible();
 
 	await page.goto('/learn');
-	await expect(page.getByRole('heading', { name: 'Learner' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Novice' })).toBeVisible();
+	await expect(page.getByRole('progressbar', { name: 'Progress to Learner' })).toBeVisible();
 	await expect(page.getByRole('link', { name: /Lesson \d+: Right Shift, \d of 3 stars/ })).toBeVisible();
 	// The chosen start is kept: the next lesson continues chapter 4.
 	await expect(page.locator('section.next')).toContainText('Left Shift');
+
+	// Course points count towards the account level, which ranks the level leaderboard.
+	await page.goto('/competitive?by=level');
+	await expect(page.getByRole('heading', { level: 1, name: 'One minute. Your best speed.' })).toBeVisible();
+	const row = page.locator('.row', { hasText: 'Test Typist' });
+	await expect(row).toBeVisible();
+	await expect(row).toContainText(/Level \d+/);
+	await expect(row.getByRole('link')).toHaveAttribute('href', /\/u\//);
 });
 
 test('exports the account data and deletes the account', async ({ page }) => {

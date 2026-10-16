@@ -32,7 +32,7 @@ test('examination cards are single links with a recommended next step', async ({
 test('the main navigation leads with the course; getting started is not a permanent item', async ({ page }) => {
 	await page.goto('/');
 	const nav = page.getByRole('navigation', { name: 'Main' }).first();
-	await expect(nav.getByRole('link')).toHaveText(['Courses', 'Examinations', 'Finger map', 'History']);
+	await expect(nav.getByRole('link')).toHaveText(['Learning path', 'Practice', 'Competitive']);
 });
 
 for (const [path, heading] of [
@@ -85,7 +85,7 @@ test('robots.txt and the sitemap are served', async ({ request }) => {
 
 test('every page has a unique title', async ({ page }) => {
 	const titles = new Set<string>();
-	const paths = ['/', '/start', '/learn', '/learn/start', '/exams', '/test', '/map', '/about', '/faq', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password'];
+	const paths = ['/', '/start', '/learn', '/learn/start', '/exams', '/test', '/map', '/about', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password'];
 	for (const path of paths) {
 		await page.goto(path);
 		await page.waitForFunction(() => document.title.length > 0);
@@ -103,8 +103,8 @@ test('mobile: menu navigates and nothing fixed covers the content', async ({ pag
 	);
 	expect(fixed).toBe(0);
 	await page.getByRole('button', { name: 'Open menu' }).click();
-	await page.locator('#mobile-menu').getByRole('link', { name: 'Finger map' }).click();
-	await expect(page).toHaveURL(/\/map$/);
+	await page.locator('#mobile-menu').getByRole('link', { name: /Competitive/ }).click();
+	await expect(page).toHaveURL(/\/competitive$/);
 });
 
 for (const scheme of ['light', 'dark'] as const) {
@@ -112,7 +112,7 @@ for (const scheme of ['light', 'dark'] as const) {
 		const context = await browser.newContext({ colorScheme: scheme });
 		const page = await context.newPage();
 		const failures: string[] = [];
-		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l01', '/learn/l05', '/exams', '/exams/finger-speed', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password', '/missing']) {
+		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/learn/l005', '/exams', '/exams/finger-speed', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password', '/missing']) {
 			await page.goto(path);
 			await page.waitForTimeout(300);
 			// Measure the settled page: entrance animations fade content in over a moment.
