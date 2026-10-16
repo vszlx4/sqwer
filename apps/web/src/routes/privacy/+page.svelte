@@ -157,6 +157,8 @@
 				<tr><th scope="row">Examination results</th><td>For each test or assessment, including attempts not completed: speed, accuracy, a per-second timeline, the words shown, the time taken for each word and the sequence of keystrokes, so that the result can be replayed.</td></tr>
 				<tr><th scope="row">Course progress</th><td>For each lesson: the best stars, accuracy and speed, the number of attempts and when it was first completed; the calendar days on which you completed a lesson (for your streak); the level you described and the lesson you chose to start from. Points and ranks are calculated from these.</td></tr>
 				<tr><th scope="row">Finger map</th><td>Each entry: the key pressed, the neighbouring keys, the finger you selected and the time.</td></tr>
+				<tr><th scope="row">Experience and competitive results</th><td>For each saved examination result, the experience points (XP) it earned, worked out from its length, speed and accuracy, and its speed; for competitive results, whether they passed the automated plausibility check. Your account level is calculated from your XP and course points.</td></tr>
+				<tr><th scope="row">Leaderboard setting</th><td>Whether you appear on the leaderboards (on unless you switch it off).</td></tr>
 				<tr><th scope="row">Usage statistics</th><td>Recorded only while you are signed in: active time per section of the site, active days and hours, tests started and completed, keystroke and word counts, and per-word counts and speeds. Kept separately for each of your devices by means of a random device identifier.</td></tr>
 				<tr><th scope="row">Recovery codes</th><td>One-way hashes of your recovery codes and whether each has been used.</td></tr>
 				<tr><th scope="row">Signed-in devices</th><td>For each device: a hash of the session identifier, a short browser description (for example, “Chrome on macOS”), and the sign-in and last-activity times.</td></tr>
@@ -203,6 +205,16 @@
 					<td>Showing your public profile, if you choose to make it public</td>
 					<td>Public profile fields (section 17)</td>
 					<td>Performance of the contract, at your request (Art. 6(1)(b) GDPR)</td>
+				</tr>
+				<tr>
+					<td>Showing the leaderboards, which list display names, pictures, levels and best competitive speeds</td>
+					<td>Leaderboard entries (section 17)</td>
+					<td>Legitimate interest in offering a fair competitive feature that typists expect (Art. 6(1)(f) GDPR); you can object at any time by switching off “Appear on leaderboards”</td>
+				</tr>
+				<tr>
+					<td>Checking competitive results for plausibility, so that the tiers and leaderboards stay fair</td>
+					<td>Competitive results, including their keystroke timings</td>
+					<td>Legitimate interest in preventing cheating (Art. 6(1)(f) GDPR)</td>
 				</tr>
 				<tr>
 					<td>Recording acceptance of the Terms, the age confirmation and the rights confirmation for pictures</td>
@@ -447,6 +459,16 @@
 		automated processing within the meaning of Article 22 GDPR. We do not profile users for marketing or any other
 		purpose.
 	</p>
+	<p>
+		16.2. Competitive results are checked automatically: a result counts towards speed tiers and the leaderboards only
+		if its duration, accuracy and keystroke timings are consistent with a person typing. A result that does not pass is
+		kept in your history but not ranked. This affects only your place on a leaderboard; if you believe a result was
+		wrongly excluded, write to us and we will review it by hand.
+	</p>
+	<p>
+		16.3. The pace of the Courses adapts to how each exercise goes, and weak-finger lessons choose fingers from your
+		results. Both happen in your browser and only change the practice offered to you.
+	</p>
 
 	<h2 id="public">17. Public profiles</h2>
 	<p>
@@ -456,6 +478,13 @@
 		your course rank and points, your best speed and accuracy and the number of lessons completed, and your daily
 		streak. Each showcase item can be switched off. Your email address is never shown. Public profiles instruct search engines
 		not to index them. You can make your profile private again at any time from <strong>Account → Profile</strong>.
+	</p>
+	<p>
+		17.2. <strong>Leaderboards.</strong> Unless you switch off “Appear on leaderboards” in <strong>Account →
+		Profile</strong>, the Competitive page lists your display name, profile picture, account level and best verified
+		competitive speed and tier. Because your picture is shown there, it can be viewed by anyone while you appear on a
+		leaderboard, even if your profile is private. Your name links to your profile only when the profile is public.
+		Switching the setting off removes you from the leaderboards at once.
 	</p>
 
 	<h2 id="children">18. Children</h2>
@@ -489,7 +518,8 @@
 				<tr><th scope="col">Version</th><th scope="col">Effective</th><th scope="col">Changes</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>2.1</td><td>{doc.effective}</td><td>Profile headline, pronouns, banner and showcase choices, and what public profiles show.</td></tr>
+				<tr><td>2.2</td><td>{doc.effective}</td><td>Experience and levels, competitive results and their checks, leaderboards, and the adaptive pace of the Courses.</td></tr>
+				<tr><td>2.1</td><td>15 October 2026</td><td>Profile headline, pronouns, banner and showcase choices, and what public profiles show.</td></tr>
 				<tr><td>2.0</td><td>15 October 2026</td><td>Controller named; records of acceptance and picture rights confirmation; new verification check; principles, security, breach and regional sections expanded.</td></tr>
 				<tr><td>1.0</td><td>14 October 2026</td><td>First published version.</td></tr>
 			</tbody>

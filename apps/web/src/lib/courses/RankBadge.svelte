@@ -3,7 +3,7 @@
 
 	/**
 	 * A rank emblem shaped like a keycap, in the material of the rank's tier, with the level on its
-	 * face and one or two pips for its place within the tier. Decorative: the rank name is shown beside it.
+	 * face and up to five stars, one for each tier reached. Decorative: the rank name is shown beside it.
 	 */
 	let { rank, size = 56, locked = false }: { rank: Rank; size?: number; locked?: boolean } = $props();
 	const id = $props.id();
@@ -16,7 +16,8 @@
 		diamond: { face: ['#f1f8ff', '#a9b9ff'], body: ['#5363b8', '#2c3574'], ink: '#1c2257', glow: '#9fe7f5' }
 	};
 	const m = $derived(MATERIALS[rank.tier]);
-	const pips = $derived(((rank.level - 1) % 2) + 1);
+	/** One star per tier, up to five at the highest ranks. */
+	const stars = $derived(Math.ceil(rank.level / 2));
 	const crowned = $derived(rank.level === 10);
 </script>
 
@@ -43,9 +44,14 @@
 	<rect x="11" y="10" width="42" height="37" rx="8.5" fill={`url(#${id}-shine)`} />
 	<rect x="11.5" y="10.5" width="41" height="36" rx="8" fill="none" stroke="#fff" stroke-opacity="0.55" />
 	<text x="32" y="36.5" text-anchor="middle" class="level" fill={m.ink}>{rank.level}</text>
-	<!-- Place within the tier. -->
-	{#each Array.from({ length: pips }) as _, i (i)}
-		<rect x={32 - (pips - 1) * 4 + i * 8 - 2} y="49.5" width="4" height="4" rx="1" transform={`rotate(45 ${32 - (pips - 1) * 4 + i * 8} 51.5)`} fill="#fff" fill-opacity="0.9" />
+	<!-- One star for each tier reached, up to five. -->
+	{#each Array.from({ length: stars }) as _, i (i)}
+		<path
+			d="M0-3.1l.9 1.9 2.1.3-1.5 1.4.4 2.1L0 1.6l-1.9 1 .4-2.1-1.5-1.4 2.1-.3z"
+			transform={`translate(${32 + (i - (stars - 1) / 2) * 7.2} 51.6)`}
+			fill="#fff"
+			fill-opacity="0.95"
+		/>
 	{/each}
 	{#if crowned}
 		<path d="M22 8.5 L25.5 2.5 L29 7 L32 1.5 L35 7 L38.5 2.5 L42 8.5 Z" fill="#ccf900" stroke="#1c2257" stroke-width="1" stroke-linejoin="round" />

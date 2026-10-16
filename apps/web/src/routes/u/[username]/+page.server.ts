@@ -28,9 +28,11 @@ export const load: PageServerLoad = async ({ params }) => {
 	// Only what the owner chose to show is read.
 	let points = 0;
 	let lessons = 0;
+	let starsList: number[] = [];
 	if (p.showRank || p.showStats) {
 		const progress = await d.select({ stars: schema.courseProgress.stars }).from(schema.courseProgress).where(eq(schema.courseProgress.userId, userId));
 		points = progress.reduce((sum, r) => sum + lessonPoints(r.stars), 0);
+		starsList = progress.map((r) => r.stars);
 		lessons = progress.filter((r) => r.stars > 0).length;
 	}
 	let best: { wpm: number | null; accuracy: number | null; tests: number } | null = null;
@@ -53,7 +55,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	return {
 		showcase: {
-			rank: p.showRank ? { status: rankFor(points) } : null,
+			rank: p.showRank ? { status: rankFor(points, starsList) } : null,
 			stats: p.showStats ? { lessons, ...best! } : null,
 			streak: dayStreak
 		},

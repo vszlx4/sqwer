@@ -1,6 +1,6 @@
 import type { ExamId } from './results/types.ts';
 
-export type ExamCategory = 'Assessment' | 'Speed and accuracy' | 'Technique';
+export type ExamCategory = 'Assessment' | 'Speed and accuracy' | 'Technique' | 'Competitive';
 
 export interface TestPreset {
 	mode: 'time' | 'words';
@@ -76,6 +76,16 @@ export const EXAMS: Exam[] = [
 		duration: '2 minutes',
 		href: '/test?exam=endurance',
 		preset: { mode: 'time', time: 120, punctuation: false, numbers: false, adjustable: false }
+	},
+	{
+		id: 'competitive',
+		title: 'Competitive test',
+		category: 'Competitive',
+		purpose: 'Sixty seconds of common words. Your best result with at least 92% accuracy sets your speed tier and your place on the leaderboard.',
+		measures: ['Speed', 'Accuracy'],
+		duration: '60 seconds',
+		href: '/test?exam=competitive',
+		preset: { mode: 'time', time: 60, punctuation: false, numbers: false, adjustable: false }
 	},
 	{
 		id: 'finger-map',

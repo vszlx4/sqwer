@@ -82,19 +82,24 @@
 </script>
 
 <Seo
-	title="Examinations"
+	title="Practice"
 	description="Placement, speed, accuracy, endurance and technique examinations, each with a clear purpose and your own statistics."
 />
 
-<Breadcrumbs items={[{ href: '/exams', label: 'Examinations' }]} />
+<Breadcrumbs items={[{ href: '/exams', label: 'Practice' }]} />
 
 <div class="exams">
 	<header class="intro">
-		<h1>Examinations</h1>
+		<h1>Practice</h1>
 		<p class="lede">
-			Courses teach; examinations measure. Each one measures one thing and explains its result, so you can see your
-			progress at any point in the course.
+			Courses teach; examinations measure. Each one measures one thing and explains its result. Signed in, every
+			completed test earns XP towards your account level: longer, faster and more accurate tests earn more.
 		</p>
+		<nav class="shortcuts" aria-label="Practice tools">
+			<a href="/history"><Icon name="history" size={16} /> History and replays</a>
+			<a href="/map"><Icon name="hand" size={16} /> Finger map</a>
+			<a href="/competitive"><Icon name="trophy" size={16} /> Competitive test</a>
+		</nav>
 	</header>
 
 	{#each CATEGORIES as category, ci (category.name)}
@@ -416,5 +421,28 @@
 		.exam-card:hover {
 			transform: none;
 		}
+	}
+	.shortcuts {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-top: 16px;
+	}
+	.shortcuts a {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 14px;
+		border-radius: 3px;
+		border: 1px solid var(--line-strong);
+		background: var(--surface);
+		color: var(--ink);
+		font-size: 14px;
+		font-weight: 600;
+		text-decoration: none;
+		transition: border-color 140ms ease;
+	}
+	.shortcuts a:hover {
+		border-color: var(--ink);
 	}
 </style>

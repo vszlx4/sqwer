@@ -34,7 +34,16 @@
 		const next = learnerNextStep();
 		return next.stage === 'course' && next.lesson ? next : null;
 	});
-	const isCurrent = (href: string) => page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
+	/** Which of the three areas a page belongs to, so its link is marked as current. */
+	const area = $derived.by(() => {
+		const path = page.url.pathname;
+		if (path === '/test' && page.url.searchParams.get('exam') === 'competitive') return '/competitive';
+		if (path.startsWith('/competitive')) return '/competitive';
+		if (path.startsWith('/learn') || path === '/start') return '/learn';
+		if (['/exams', '/test', '/map', '/history'].some((p) => path === p || path.startsWith(`${p}/`))) return '/exams';
+		return null;
+	});
+	const isCurrent = (href: string) => area === href;
 </script>
 
 <svelte:window {onkeydown} {onclick} onscroll={() => (scrolled = window.scrollY > 8)} />

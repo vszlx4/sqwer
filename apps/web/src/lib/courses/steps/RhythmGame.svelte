@@ -3,21 +3,25 @@
 	import Icon from '#lib/ui/Icon.svelte';
 	import { LANE_NOTES, tick, tone } from '../audio.ts';
 	import { keyName } from '../catalog.ts';
-	import { seeded } from '../generate.ts';
+	import { wordsUsing } from '@sqwer/content';
+	import { seeded, shuffle } from '../generate.ts';
 	import type { StepResult } from '../types.ts';
 
 	interface Props {
 		keys: string[];
+		/** Letters to make real words from; the notes then spell those words. */
+		pool?: string;
 		bpm: number;
 		target: number;
 		oncomplete: (r: StepResult) => void;
 	}
 
-	let { keys, bpm, target, oncomplete }: Props = $props();
+	let { keys: givenKeys, pool, bpm, target, oncomplete }: Props = $props();
 
 	interface Note {
 		id: number;
 		lane: number;
+		word: number;
 		at: number;
 		judged: 'perfect' | 'good' | 'miss' | null;
 	}
@@ -41,21 +45,68 @@
 	// Enough notes to reach the target with every allowed miss, so the track never runs out first.
 	const notes = untrack(() => target + MAX_MISSES);
 
-	/** One note per beat, with occasional rests, never more than twice in a row on one lane. */
-	function compose(): { id: number; lane: number; beat: number }[] {
-		const out: { id: number; lane: number; beat: number }[] = [];
+	/** Keyboard columns from left to right, so lanes appear in the order the fingers sit. */
+	const COLUMNS = '`1qaz2wsx3edc4rfv5tgb6yhn7ujm8ik,9ol.0p;/-[\'=]';
+	const byColumn = (a: string, b: string) => COLUMNS.indexOf(a) - COLUMNS.indexOf(b);
+
+	interface Planned {
+		id: number;
+		lane: number;
+		beat: number;
+		/** Index of the word the note belongs to, in words mode. */
+		word: number;
+	}
+
+	/**
+	 * In words mode, real English words are chosen whose letters fit in five lanes, and the notes
+	 * spell them one after another with a rest between words. Otherwise, or when too few words
+	 * can be made from the keys learnt so far, notes follow the given keys.
+	 */
+	function plan(): { lanes: string[]; notes: Planned[]; words: string[] } {
+		if (pool) {
+			const letters = [...pool].filter((c) => /[a-z]/.test(c)).join('');
+			const candidates = shuffle(
+				wordsUsing(letters).filter((w) => w.length >= 2 && w.length <= 5),
+				rand
+			);
+			const chosen: string[] = [];
+			const used = new Set<string>();
+			let length = 0;
+			for (const w of candidates) {
+				const union = new Set([...used, ...w]);
+				if (union.size > 5 || chosen.includes(w)) continue;
+				chosen.push(w);
+				w.split('').forEach((c) => used.add(c));
+				length += w.length;
+				if (length >= notes + 2) break;
+			}
+			if (chosen.length >= 3 && length >= notes) {
+				const lanes = [...used].sort(byColumn);
+				const out: Planned[] = [];
+				let beat = 0;
+				chosen.forEach((w, wi) => {
+					for (const c of w) out.push({ id: out.length, lane: lanes.indexOf(c), beat: beat++, word: wi });
+					beat++;
+				});
+				return { lanes, notes: out, words: chosen };
+			}
+		}
+		const out: Planned[] = [];
 		let beat = 0;
 		for (let i = 0; i < notes; i++) {
 			if (i > 2 && rand() < 0.15) beat++;
-			let lane = Math.floor(rand() * keys.length);
+			let lane = Math.floor(rand() * givenKeys.length);
 			const prev = out.slice(-2);
-			if (prev.length === 2 && prev.every((n) => n.lane === lane)) lane = (lane + 1) % keys.length;
-			out.push({ id: i, lane, beat });
+			if (prev.length === 2 && prev.every((n) => n.lane === lane)) lane = (lane + 1) % givenKeys.length;
+			out.push({ id: i, lane, beat, word: -1 });
 			beat++;
 		}
-		return out;
+		return { lanes: givenKeys, notes: out, words: [] };
 	}
-	const score = compose();
+	const planned = untrack(plan);
+	const keys = planned.lanes;
+	const score = planned.notes;
+	const wordMode = planned.words.length > 0;
 
 	let phase = $state<'ready' | 'playing' | 'over'>('ready');
 	let now = $state(0);
@@ -95,7 +146,7 @@
 	function begin() {
 		phase = 'playing';
 		start = performance.now() + 400;
-		track = score.map((n) => ({ id: n.id, lane: n.lane, judged: null, at: start + (COUNT_IN + n.beat) * BEAT }));
+		track = score.map((n) => ({ id: n.id, lane: n.lane, word: n.word, judged: null, at: start + (COUNT_IN + n.beat) * BEAT }));
 		frame = requestAnimationFrame(loop);
 	}
 
@@ -174,6 +225,14 @@
 		if (perfect + good >= target) timers.push(setTimeout(end, 250));
 	}
 
+	/** The word being played: the word of the first note not yet judged. */
+	const currentWord = $derived.by(() => {
+		if (!wordMode) return null;
+		const pending = track.find((n) => !n.judged);
+		const index = pending?.word ?? Math.max(0, (track.at(-1)?.word ?? 0));
+		return { text: planned.words[index] ?? '', notes: track.filter((n) => n.word === index) };
+	});
+
 	const yOf = (n: Note) => HIT_Y - ((n.at - now) / LEAD) * HIT_Y;
 </script>
 
@@ -188,6 +247,19 @@
 			<Icon name={sound ? 'volume' : 'mute'} size={15} /> Sound {sound ? 'on' : 'off'}
 		</button>
 	</div>
+
+	{#if wordMode}
+		<p class="word" aria-live="polite">
+			{#if currentWord && phase === 'playing'}
+				{#each [...currentWord.text] as letter, i (i)}
+					{@const n = currentWord.notes[i]}
+					<span class:hit={n?.judged === 'perfect' || n?.judged === 'good'} class:miss={n?.judged === 'miss'}>{letter}</span>
+				{/each}
+			{:else}
+				<span class="word-hint">The notes spell real words</span>
+			{/if}
+		</p>
+	{/if}
 
 	<div class="stage" style:height={`${HEIGHT}px`} style:--lanes={keys.length}>
 		{#each keys as k, lane (k)}
@@ -253,6 +325,32 @@
 		background: linear-gradient(90deg, var(--green), var(--accent));
 		transform-origin: left;
 		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.word {
+		display: flex;
+		justify-content: center;
+		gap: 4px;
+		min-height: 44px;
+		font-family: var(--font-mono);
+		font-size: 30px;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+	}
+	.word span {
+		color: var(--untyped);
+		transition: color 120ms ease;
+	}
+	.word span.hit {
+		color: var(--green);
+	}
+	.word span.miss {
+		color: var(--error);
+	}
+	.word .word-hint {
+		font-family: var(--font-sans);
+		font-size: 15px;
+		font-weight: 500;
+		align-self: center;
 	}
 	.misses {
 		color: var(--rose);

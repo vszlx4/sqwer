@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { MIN_ACCURACY, tierFor } from '#lib/progress/competitive.ts';
+	import { examXp } from '#lib/progress/xp.ts';
 	import CountUp from '#lib/ui/CountUp.svelte';
 	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
 	import { examById } from '#lib/exams.ts';
@@ -51,6 +54,10 @@
 		};
 	});
 
+	const xp = $derived(examXp(record));
+	// The tier shown here is a preview; the server confirms it when the result is saved.
+	const tier = $derived(record.exam === 'competitive' && record.status === 'completed' && record.accuracy >= MIN_ACCURACY ? tierFor(record.wpm) : null);
+
 	const keyName = (k: string) => (k === ' ' ? 'Space' : k);
 	const when = $derived(new Date(record.at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }));
 </script>
@@ -62,6 +69,13 @@
 			{record.label} · {when}
 			{#if record.status === 'abandoned'}<span class="badge">Not completed</span>{/if}
 		</p>
+		{#if xp > 0 || tier}
+			<p class="earned">
+				{#if xp > 0}<span class="xp">+{xp} XP</span>{/if}
+				{#if tier}<span class="tier" style:--league={tier.league.colour}>{tier.name}</span>{:else if record.exam === 'competitive' && record.status === 'completed'}<span class="hint">Reach 50 WPM with {MIN_ACCURACY}% accuracy for a tier</span>{/if}
+				{#if !page.data.user}<span class="hint">Sign in to keep your XP{record.exam === 'competitive' ? ' and tier' : ''}.</span>{/if}
+			</p>
+		{/if}
 	</header>
 
 	<div class="top rise" style:--i="1">
@@ -185,6 +199,45 @@
 		align-items: center;
 		gap: 8px;
 		flex-wrap: wrap;
+	}
+	.earned {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+		margin-top: 10px;
+	}
+	.xp {
+		padding: 4px 10px;
+		border-radius: 3px;
+		background: var(--violet-soft);
+		color: var(--violet);
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+		animation: xp-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 400ms both;
+	}
+	@keyframes xp-pop {
+		from {
+			transform: scale(0.6);
+			opacity: 0;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.xp {
+			animation: none;
+		}
+	}
+	.tier {
+		padding: 4px 10px;
+		border-radius: 3px;
+		border: 1px solid var(--league);
+		color: var(--ink);
+		font-weight: 700;
+		box-shadow: inset 3px 0 0 var(--league);
+	}
+	.hint {
+		font-size: 13.5px;
+		color: var(--ink-2);
 	}
 	.badge {
 		padding: 2px 8px;

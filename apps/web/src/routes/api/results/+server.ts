@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { FINGERS } from '@sqwer/layouts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
+import { verifyCompetitive } from '#lib/progress/competitive.ts';
+import { examXp } from '#lib/progress/xp.ts';
 import { EXAM_IDS } from '#lib/results/types.ts';
 import type { RequestHandler } from './$types';
 
@@ -58,9 +60,16 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const parsed = recordSchema.safeParse(await request.json().catch(() => null));
 	if (!parsed.success) error(400, 'The result is not valid.');
 	const r = parsed.data;
+	// XP and the competitive check are worked out here, never taken from the browser.
+	const xp = examXp(r);
+	const verified =
+		r.exam === 'competitive' &&
+		r.status === 'completed' &&
+		!!r.detail &&
+		verifyCompetitive({ seconds: r.seconds, wpm: r.wpm, accuracy: r.accuracy, chars: r.detail.chars, words: r.detail.words, replay: r.detail.replay });
 	await (await db())
 		.insert(schema.results)
-		.values({ id: r.id, userId: locals.user.id, exam: r.exam, createdAt: new Date(r.at), data: r })
+		.values({ id: r.id, userId: locals.user.id, exam: r.exam, createdAt: new Date(r.at), data: r, xp, wpm: r.wpm, verified })
 		.onConflictDoNothing();
-	return json({ ok: true });
+	return json({ ok: true, xp, verified });
 };

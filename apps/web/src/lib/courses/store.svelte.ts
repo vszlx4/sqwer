@@ -55,7 +55,7 @@ class CourseStore {
 		return totalPoints(this.progress);
 	}
 	get rank() {
-		return rankFor(this.points);
+		return rankFor(this.points, Object.values(this.progress).map((p) => p.stars));
 	}
 	get streak() {
 		return streak(this.days, localDay());

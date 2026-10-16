@@ -170,6 +170,16 @@
 		all learners.
 	</p>
 	<p>7.4. You must not obtain Results or Progress by automated input, scripts or any means other than your own typing.</p>
+	<p>
+		7.5. Examinations earn experience points (XP), which add up to an account level. The competitive test sets a speed
+		tier and a place on the leaderboards. XP, levels, tiers and places have no monetary value and are not a
+		qualification.
+	</p>
+	<p>
+		7.6. Competitive results are checked automatically for plausibility, and we may exclude results, remove leaderboard
+		entries or reset XP that we reasonably believe were obtained unfairly, for example with scripts, macros or another
+		person typing. Where reasonable, we will tell you why, and you may ask for a review.
+	</p>
 
 	<h2 id="content">8. Your Content</h2>
 	<p>8.1. You retain all ownership rights in Your Content.</p>

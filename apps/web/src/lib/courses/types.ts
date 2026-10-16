@@ -13,6 +13,8 @@ export type StepSpec =
 			source: DrillSource;
 			/** Minimum accuracy, in percent, to pass the step. */
 			minAccuracy: number;
+			/** Practise the learner's weakest fingers: the focus becomes their keys within the pool. */
+			weak?: boolean;
 	  }
 	| {
 			/** Letters or words fall; typing one clears it before it lands. */
@@ -24,11 +26,14 @@ export type StepSpec =
 			words?: readonly string[];
 			/** Items to clear; the game ends as soon as they are cleared. */
 			target: number;
+			weak?: boolean;
 	  }
 	| {
 			/** Notes move to a line in lanes, one per key; press the key on the beat. */
 			kind: 'rhythm';
 			keys: string[];
+			/** When set, notes spell real words made from these letters, and the lanes are their letters. */
+			pool?: string;
 			bpm: number;
 			/** Notes to hit on the beat; the game ends as soon as they are hit. */
 			target: number;
@@ -40,6 +45,7 @@ export type StepSpec =
 			focus: string;
 			/** Keys to hit. */
 			target: number;
+			weak?: boolean;
 	  }
 	| {
 			/** A race against a pacer typing at a set speed; finish the passage first. */
@@ -49,7 +55,10 @@ export type StepSpec =
 			words?: readonly string[];
 			/** Words in the passage, which is the finish line. */
 			count: number;
+			/** Whole sentences to race through in order, instead of separate words. */
+			sentences?: readonly string[];
 			pacerWpm: number;
+			weak?: boolean;
 	  }
 	| {
 			/** Keys flash in a sequence; repeat it from memory. The sequence grows by one each round. */
@@ -59,6 +68,7 @@ export type StepSpec =
 			start: number;
 			/** Sequence length to reach. */
 			target: number;
+			weak?: boolean;
 	  }
 	| {
 			/** A word is spoken aloud; the learner types what they hear. */

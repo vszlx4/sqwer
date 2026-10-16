@@ -12,7 +12,7 @@
 	 * Key hunt: one key lights up on the keyboard; press it before its light runs out. The window
 	 * shortens as the learner nears the target, so keys are found by touch rather than by sight.
 	 */
-	let { pool, focus, target, oncomplete }: { pool: string; focus: string; target: number; oncomplete: (r: StepResult) => void } = $props();
+	let { pool, focus, target, pace = 1, oncomplete }: { pool: string; focus: string; target: number; pace?: number; oncomplete: (r: StepResult) => void } = $props();
 
 	const LIVES = 3;
 	const layout = qwertyAnsi(resolvedPlatform());
@@ -48,7 +48,7 @@
 		if (k === current && bag.length > 1) k = bag.find((c) => c !== current)!;
 		current = k;
 		// From 2.6 seconds down to 1.3 seconds as the goal comes closer.
-		windowMs = Math.round(2600 - 1300 * Math.min(1, hits / target));
+		windowMs = Math.round((2600 - 1300 * Math.min(1, hits / target)) / pace);
 		arm(windowMs);
 	}
 	function arm(ms: number) {
