@@ -77,3 +77,29 @@ export async function leaderboard(by: 'speed' | 'xp', limit = 100): Promise<Lead
 		};
 	});
 }
+
+/** Best verified competitive speed of every listed player, for the distribution across ranks. */
+export async function competitiveBests(): Promise<number[]> {
+	return (await listedBests()).map((r) => r.best);
+}
+
+async function listedBests(): Promise<{ userId: string; best: number }[]> {
+	const res = await (await db()).execute(sql`
+		select r.user_id, max(r.wpm) as best from results r
+		join profiles p on p.user_id = r.user_id and p.show_on_leaderboard
+		where r.exam = 'competitive' and r.verified
+		group by r.user_id
+	`);
+	return rowsOf(res).map((r) => ({ userId: String(r.user_id), best: Number(r.best) }));
+}
+
+/**
+ * A player's place on the speed leaderboard: one more than the number of faster players. Null
+ * when the player has no verified result or does not appear on the leaderboards.
+ */
+export async function competitiveStanding(userId: string): Promise<{ position: number; players: number } | null> {
+	const all = await listedBests();
+	const mine = all.find((r) => r.userId === userId);
+	if (!mine) return null;
+	return { position: all.filter((r) => r.best > mine.best).length + 1, players: all.length };
+}

@@ -247,11 +247,11 @@ test('a completed course lesson is saved and earns points towards the next rank'
 
 	// Course points count towards the account level, which ranks the level leaderboard.
 	await page.goto('/competitive?by=level');
-	await expect(page.getByRole('heading', { level: 1, name: 'One minute. Your best speed.' })).toBeVisible();
-	const row = page.locator('.row', { hasText: 'Test Typist' });
-	await expect(row).toBeVisible();
-	await expect(row).toContainText(/Level \d+/);
-	await expect(row.getByRole('link')).toHaveAttribute('href', /\/u\//);
+	await expect(page.getByRole('heading', { level: 1, name: /One minute\.\s*Your best speed\./ })).toBeVisible();
+	const entry = page.locator('#leaderboard li', { hasText: 'Test Typist' });
+	await expect(entry).toBeVisible();
+	await expect(entry).toContainText(/Level \d+/);
+	await expect(entry.getByRole('link')).toHaveAttribute('href', /\/u\//);
 });
 
 test('exports the account data and deletes the account', async ({ page }) => {

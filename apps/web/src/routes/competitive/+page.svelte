@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import Avatar from '#lib/account/Avatar.svelte';
-	import { LEAGUES, MIN_ACCURACY, TIERS, ZENITH_WPM, nextTier, tierFor, tierRange } from '#lib/progress/competitive.ts';
+	import RankEmblem from '#lib/competitive/RankEmblem.svelte';
+	import { LEAGUES, MIN_ACCURACY, TIERS, ZENITH_WPM, divisionLevel, nextTier, tierFor, tierRange, type League } from '#lib/progress/competitive.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import type { PageProps } from './$types';
@@ -11,105 +12,188 @@
 	const myTier = $derived(tierFor(data.me?.best));
 	const upcoming = $derived(nextTier(myTier));
 	const fmt = (n: number) => Math.round(n).toLocaleString('en');
+	const playHref = $derived(signedIn ? '/test?exam=competitive' : '/signin?redirectTo=%2Ftest%3Fexam%3Dcompetitive');
+
+	/** Progress from the start of the current tier to the next one. */
+	const toNext = $derived.by(() => {
+		if (!upcoming || data.me?.best == null) return { share: 0, gap: upcoming ? upcoming.from : 0 };
+		const from = myTier?.from ?? 0;
+		return { share: Math.min(1, Math.max(0, (data.me.best - from) / (upcoming.from - from))), gap: Math.max(0, upcoming.from - Math.floor(data.me.best)) };
+	});
+
+	// The rank explorer opens on the player's own rank, or Bronze.
+	let chosen = $state<string | null>(null);
+	const selected = $derived(LEAGUES.find((l) => l.id === (chosen ?? myTier?.league.id ?? 'bronze'))!);
+	const selectedTiers = $derived(TIERS.filter((t) => t.league.id === selected.id));
+	const playersIn = (league: League) => data.bests.filter((b) => tierFor(b)?.league.id === league.id).length;
+
+	const podium = $derived(data.entries.slice(0, 3));
+	const rest = $derived(data.entries.slice(3));
 </script>
 
-<Seo title="Competitive" description="Sixty-second speed tiers from 50 to 300 WPM, and the sqwer leaderboards by speed and by level." />
+<Seo title="Competitive" description="Ranked typing: a 60-second test, fifteen ranks from Bronze to Zenith, and leaderboards by speed and by level." />
 
 <div class="competitive">
-	<header class="head">
-		<div class="intro">
-			<p class="kicker">Competitive</p>
-			<h1>One minute. Your best speed.</h1>
-			<p class="lede">
-				The competitive test is sixty seconds of common words. Your best result with at least {MIN_ACCURACY}% accuracy sets
-				your rank, from Bronze III at 50 WPM through fourteen ranks of three divisions to Zenith at {ZENITH_WPM} WPM and
-				above, and your place on the leaderboard.
-			</p>
+	<section class="arena band" aria-labelledby="arena-title">
+		<div class="arena-grid">
+			<div class="intro">
+				<p class="kicker"><span class="live-dot" aria-hidden="true"></span> Ranked</p>
+				<h1 id="arena-title">One minute.<br />Your best speed.</h1>
+				<p class="lede">
+					Sixty seconds of the most common, fastest-flowing words. Your best result with at least {MIN_ACCURACY}% accuracy sets
+					your rank, from Bronze to Zenith at {ZENITH_WPM} WPM.
+				</p>
+				<div class="cta">
+					<a class="btn btn-primary btn-lg play" href={playHref}><Icon name="play" size={18} /> Play ranked</a>
+					<a class="btn btn-lg ghost" href="#leaderboard">Leaderboard</a>
+				</div>
+			</div>
+
+			<div class="me" aria-label="Your rank">
+				<div class="me-emblem">
+					<RankEmblem league={myTier?.league ?? null} division={divisionLevel(myTier)} size={176} glow />
+				</div>
+				<p class="me-label">{data.me ? 'Your rank' : 'Unranked'}</p>
+				<p class="me-name">{myTier?.name ?? 'Unranked'}</p>
+				<p class="me-range">
+					{#if myTier}{tierRange(myTier)}{:else if data.me}Reach 50 WPM with {MIN_ACCURACY}% accuracy to enter Bronze III{:else}Sign in to play ranked and earn a rank{/if}
+				</p>
+				{#if data.me}
+					<dl class="me-stats">
+						<div><dt>Best</dt><dd>{data.me.best != null ? `${fmt(data.me.best)} WPM` : 'None yet'}</dd></div>
+						<div><dt>Place</dt><dd>{data.me.standing ? `#${data.me.standing.position}` : 'None'}<small>{data.me.standing ? ` of ${data.me.standing.players}` : ''}</small></dd></div>
+						<div><dt>Level</dt><dd class="violet">{data.me.level?.level ?? 1}</dd></div>
+					</dl>
+					{#if upcoming}
+						<div class="next">
+							<div class="next-bar" role="progressbar" aria-label={`Progress to ${upcoming.name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(toNext.share * 100)}>
+								<span style:transform={`scaleX(${toNext.share})`}></span>
+							</div>
+							<p class="next-text">
+								<RankEmblem league={upcoming.league} division={divisionLevel(upcoming)} size={26} />
+								<span><b>{toNext.gap} WPM</b> to {upcoming.name}</span>
+							</p>
+						</div>
+					{/if}
+				{/if}
+			</div>
 		</div>
 
-		<section class="standing" aria-labelledby="standing-title">
-			<h2 id="standing-title" class="sr-only">Your standing</h2>
-			{#if data.me}
-				<div class="tier-badge" style:--league={myTier?.league.colour ?? 'var(--ink-3)'}>
-					<span class="tier-name">{myTier?.name ?? 'Unranked'}</span>
-					<span class="tier-range">{myTier ? tierRange(myTier) : 'Reach 50 WPM to enter Bronze III'}</span>
-				</div>
-				<dl class="facts">
-					<div><dt>Best speed</dt><dd>{data.me.best != null ? `${fmt(data.me.best)} WPM` : 'None yet'}</dd></div>
-					<div><dt>Level</dt><dd class="violet">{data.me.level?.level ?? 1}</dd></div>
-					{#if upcoming}<div><dt>Next tier</dt><dd>{upcoming.name} <small>at {upcoming.from} WPM</small></dd></div>{/if}
-				</dl>
-			{:else}
-				<p class="note">Sign in to record a competitive speed, earn a tier and appear on the leaderboard.</p>
-			{/if}
-			<div class="actions">
-				<a class="btn btn-primary btn-lg" href={signedIn ? '/test?exam=competitive' : '/signin?redirectTo=%2Ftest%3Fexam%3Dcompetitive'}>
-					Take the competitive test <Icon name="arrow" size={18} />
-				</a>
-			</div>
-		</section>
-	</header>
-
-	<section class="ladder" aria-labelledby="ladder-title">
-		<h2 id="ladder-title">Ranks</h2>
-		<p class="ladder-note">Each rank has three divisions, from III to I. Zenith has none: it is reached at {ZENITH_WPM} WPM.</p>
-		<ol class="leagues">
-			{#each LEAGUES as league (league.id)}
-				{@const tiers = TIERS.filter((t) => t.league.id === league.id)}
-				<li style:--league={league.colour} class:current={myTier?.league.id === league.id}>
-					<span class="l-name">{league.name}</span>
-					<span class="l-range">{tiers.at(-1)!.to === null ? `${tiers[0]!.from}+ WPM` : `${tiers[0]!.from} to ${tiers.at(-1)!.to} WPM`}</span>
-					<span class="pips" aria-hidden="true">
-						{#each tiers as t (t.index)}<span class:on={!!myTier && myTier.index >= t.index}></span>{/each}
-					</span>
-					{#if tiers.length > 1}
-						<span class="divs">
-							{#each tiers as t (t.index)}<span><b>{t.division}</b> {t.from}–{t.to}</span>{/each}
-						</span>
-					{/if}
-				</li>
-			{/each}
+		<ol class="how" aria-label="How ranked works">
+			<li><span class="how-n">1</span><span><b>Sixty seconds</b> of fast-flowing everyday words, the same for everyone.</span></li>
+			<li><span class="how-n">2</span><span><b>{MIN_ACCURACY}% accuracy</b> or more for the result to count.</span></li>
+			<li><span class="how-n">3</span><span><b>Your best result</b> sets your rank. A slower attempt never lowers it.</span></li>
+			<li><span class="how-n">4</span><span><b>Checked on the server</b> from the keystroke timings, so every rank is earned.</span></li>
 		</ol>
 	</section>
 
-	<section class="board" aria-labelledby="board-title">
+	<section class="ranks band" aria-labelledby="ranks-title">
+		<div class="ranks-head">
+			<h2 id="ranks-title">Fifteen ranks</h2>
+			<p>Fourteen ranks have three divisions, III to I. Zenith stands alone. Choose a rank to see what it takes.</p>
+		</div>
+		<div class="rail" role="tablist" aria-label="Ranks">
+			{#each LEAGUES as league (league.id)}
+				{@const reached = !!myTier && LEAGUES.indexOf(myTier.league) >= LEAGUES.indexOf(league)}
+				<button
+					type="button"
+					role="tab"
+					class="rank-tab"
+					class:active={selected.id === league.id}
+					class:reached
+					aria-selected={selected.id === league.id}
+					aria-controls="rank-detail"
+					onclick={() => (chosen = league.id)}
+					style:--league={league.colour}
+				>
+					<RankEmblem {league} size={64} />
+					<span class="tab-name">{league.name}</span>
+					<span class="tab-from">{league.starts[0]}+</span>
+				</button>
+			{/each}
+		</div>
+
+		{#key selected.id}
+			<div class="detail rise" id="rank-detail" role="tabpanel" style:--league={selected.colour}>
+				<div class="detail-emblem">
+					<RankEmblem league={selected} division={selectedTiers.length > 1 ? 3 : undefined} size={200} glow />
+				</div>
+				<div class="detail-body">
+					<p class="detail-kicker">Rank {LEAGUES.indexOf(selected) + 1} of {LEAGUES.length}</p>
+					<h3>{selected.name}</h3>
+					<p class="detail-range">
+						{selectedTiers.at(-1)!.to === null ? `${selectedTiers[0]!.from} WPM and above` : `${selectedTiers[0]!.from} to ${selectedTiers.at(-1)!.to} WPM`}
+						· {playersIn(selected)} {playersIn(selected) === 1 ? 'player' : 'players'}
+					</p>
+					<ol class="divisions">
+						{#each [...selectedTiers].reverse() as t (t.index)}
+							<li class:mine={myTier?.index === t.index}>
+								<RankEmblem league={selected} division={divisionLevel(t)} size={56} />
+								<span class="div-name">{t.name}</span>
+								<span class="div-range">{tierRange(t)}</span>
+								{#if myTier?.index === t.index}<span class="you">You</span>{/if}
+							</li>
+						{/each}
+					</ol>
+				</div>
+			</div>
+		{/key}
+	</section>
+
+	<section class="board" id="leaderboard" aria-labelledby="board-title">
 		<div class="board-head">
 			<h2 id="board-title">Leaderboard</h2>
 			<nav class="tabs" aria-label="Rank the leaderboard by">
-				<a href="/competitive" aria-current={data.by === 'speed' ? 'page' : undefined} data-sveltekit-noscroll>Speed</a>
-				<a href="/competitive?by=level" aria-current={data.by === 'xp' ? 'page' : undefined} data-sveltekit-noscroll>Level</a>
+				<a href="/competitive#leaderboard" aria-current={data.by === 'speed' ? 'page' : undefined} data-sveltekit-noscroll>Speed</a>
+				<a href="/competitive?by=level#leaderboard" aria-current={data.by === 'xp' ? 'page' : undefined} data-sveltekit-noscroll>Level</a>
 			</nav>
 		</div>
+
 		{#if data.entries.length}
-			<ol class="rows">
-				{#each data.entries as e (e.username)}
+			<ol class="podium" aria-label="Top three">
+				{#each podium as e (e.username)}
 					{@const t = tierFor(e.wpm)}
-					<li class="row rise" style:--i={Math.min(e.position, 12)} class:top={e.position <= 3}>
-						<span class="pos">{e.position}</span>
-						{#if e.isPublic}
-							<a class="who" href={`/u/${e.username}`}>
-								<Avatar name={e.displayName} color={e.avatarColor} size={40} src={e.avatar} />
-								<span><b>{e.displayName}</b><small>@{e.username}</small></span>
-							</a>
-						{:else}
-							<span class="who">
-								<Avatar name={e.displayName} color={e.avatarColor} size={40} src={e.avatar} />
-								<span><b>{e.displayName}</b><small>Private profile</small></span>
-							</span>
-						{/if}
-						<span class="lvl">Level {e.level}</span>
-						<span class="score">
-							{#if data.by === 'speed'}
-								<b>{fmt(e.wpm ?? 0)} WPM</b>{#if t}<small><span class="dot" style:background={t.league.colour}></span>{t.name}</small>{/if}
-							{:else}
-								<b>{fmt(e.xp)} XP</b>{#if t}<small><span class="dot" style:background={t.league.colour}></span>{t.name}</small>{/if}
-							{/if}
-						</span>
+					<li class={`place p${e.position}`}>
+						<span class="medal">{e.position}</span>
+						<Avatar name={e.displayName} color={e.avatarColor} size={e.position === 1 ? 72 : 60} src={e.avatar} />
+						{#if e.isPublic}<a class="pod-name" href={`/u/${e.username}`}>{e.displayName}</a>{:else}<span class="pod-name">{e.displayName}</span>{/if}
+						<span class="pod-score">{data.by === 'speed' ? `${fmt(e.wpm ?? 0)} WPM` : `${fmt(e.xp)} XP`}</span>
+						{#if t}<span class="pod-tier"><RankEmblem league={t.league} division={divisionLevel(t)} size={30} /> {t.name}</span>{/if}
+						<span class="pod-level">Level {e.level}</span>
 					</li>
 				{/each}
 			</ol>
+
+			{#if rest.length}
+				<ol class="rows">
+					{#each rest as e (e.username)}
+						{@const t = tierFor(e.wpm)}
+						<li class="row">
+							<span class="pos">{e.position}</span>
+							{#if e.isPublic}
+								<a class="who" href={`/u/${e.username}`}>
+									<Avatar name={e.displayName} color={e.avatarColor} size={38} src={e.avatar} />
+									<span><b>{e.displayName}</b><small>@{e.username}</small></span>
+								</a>
+							{:else}
+								<span class="who">
+									<Avatar name={e.displayName} color={e.avatarColor} size={38} src={e.avatar} />
+									<span><b>{e.displayName}</b><small>Private profile</small></span>
+								</span>
+							{/if}
+							<span class="lvl">Level {e.level}</span>
+							<span class="tier">{#if t}<RankEmblem league={t.league} division={divisionLevel(t)} size={30} /><span>{t.name}</span>{/if}</span>
+							<span class="score">{data.by === 'speed' ? `${fmt(e.wpm ?? 0)} WPM` : `${fmt(e.xp)} XP`}</span>
+						</li>
+					{/each}
+				</ol>
+			{/if}
 		{:else}
-			<p class="empty">No one is on this leaderboard yet. Take the competitive test to be the first.</p>
+			<div class="empty">
+				<RankEmblem league={null} size={72} />
+				<p>No one is on this leaderboard yet. Play ranked to take the first place.</p>
+				<a class="btn btn-primary" href={playHref}>Play ranked</a>
+			</div>
 		{/if}
 		<p class="note">
 			Leaderboards show the display name, picture and level of people who have not switched off “Appear on leaderboards” in
@@ -122,161 +206,380 @@
 	.competitive {
 		display: flex;
 		flex-direction: column;
-		gap: 36px;
+		/* The page opens straight into the arena. */
+		margin-top: calc(clamp(20px, 4vh, 44px) * -1);
 	}
-	.head {
-		display: grid;
-		grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-		gap: 28px;
-		align-items: stretch;
-	}
-	.kicker {
-		font-size: 13px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--ink-2);
-	}
-	h1 {
-		margin-top: 8px;
-		font-size: clamp(34px, 4.6vw, 54px);
-		line-height: 1.05;
-	}
-	.lede {
-		margin-top: 12px;
-		max-width: 560px;
-		font-size: 17px;
-		line-height: 1.6;
-		color: var(--ink-2);
-	}
-	h2 {
-		font-size: clamp(22px, 2.4vw, 28px);
-	}
-	.standing {
-		display: flex;
-		flex-direction: column;
-		gap: 16px;
-		padding: 22px;
-		border-radius: 3px;
-		background:
-			radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%),
-			#0b0b0b;
+	/* Arena: the competitive area is dark in both themes. */
+	.arena {
+		padding: clamp(40px, 6vw, 72px) 0 32px;
 		color: #f2f2ee;
 	}
-	.tier-badge {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		padding-left: 14px;
-		border-left: 4px solid var(--league);
+	.arena::before {
+		background:
+			radial-gradient(60% 80% at 80% 20%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
+			radial-gradient(50% 70% at 0% 100%, rgb(122 82 224 / 0.18), transparent 60%),
+			repeating-linear-gradient(115deg, transparent 0 22px, rgb(255 255 255 / 0.018) 22px 23px),
+			#070707;
 	}
-	.tier-name {
-		font-family: var(--font-serif);
-		font-size: 34px;
-		line-height: 1.1;
+	.arena-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+		gap: 40px;
+		align-items: center;
 	}
-	.tier-range {
-		font-size: 14px;
+	.kicker {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 13px;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--accent);
+	}
+	.live-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--accent);
+		animation: live 1.8s ease-out infinite;
+	}
+	@keyframes live {
+		from {
+			box-shadow: 0 0 0 0 rgb(204 249 0 / 0.6);
+		}
+		to {
+			box-shadow: 0 0 0 10px rgb(204 249 0 / 0);
+		}
+	}
+	h1 {
+		margin-top: 12px;
+		font-size: clamp(42px, 6vw, 76px);
+		line-height: 0.98;
+		letter-spacing: -0.02em;
+	}
+	.lede {
+		margin-top: 18px;
+		max-width: 520px;
+		font-size: 17px;
+		line-height: 1.6;
 		color: #b9b9b3;
 	}
-	.facts {
+	.cta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin-top: 28px;
+	}
+	.play {
+		box-shadow: 0 0 32px -6px rgb(204 249 0 / 0.6);
+	}
+	.ghost {
+		border-color: #3a3a3a;
+		background: transparent;
+		color: #f2f2ee;
+	}
+	.ghost:hover {
+		border-color: #f2f2ee;
+	}
+	.me {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		gap: 4px;
+		padding: 26px 24px 22px;
+		border-radius: 3px;
+		border: 1px solid #222;
+		background: linear-gradient(to bottom, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.01));
+	}
+	.me-emblem {
+		margin-top: -6px;
+		animation: float 5s ease-in-out infinite;
+	}
+	@keyframes float {
+		50% {
+			transform: translateY(-6px);
+		}
+	}
+	.me-label {
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: #8e8e88;
+	}
+	.me-name {
+		font-family: var(--font-serif);
+		font-size: 36px;
+		line-height: 1.05;
+	}
+	.me-range {
+		font-size: 14px;
+		color: #a3a39c;
+	}
+	.me-stats {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 8px;
-	}
-	.facts div {
-		padding: 10px 12px;
-		border-radius: 3px;
-		background: #151515;
-		border: 1px solid #262626;
-	}
-	.facts dt {
-		font-size: 12px;
-		color: #a3a39c;
-	}
-	.facts dd {
-		font-size: 18px;
-		font-weight: 700;
-	}
-	.facts dd.violet {
-		color: #9a8cf2;
-	}
-	.facts small {
-		font-size: 12px;
-		font-weight: 500;
-		color: #a3a39c;
-	}
-	.standing .note {
-		color: #b9b9b3;
-	}
-	.actions {
-		margin-top: auto;
-	}
-	.ladder-note {
-		margin-top: 6px;
-		font-size: 14px;
-		color: var(--ink-2);
-	}
-	.leagues {
-		display: grid;
-		grid-template-columns: repeat(5, minmax(0, 1fr));
-		gap: 8px;
+		gap: 6px;
+		width: 100%;
 		margin-top: 14px;
 	}
-	.leagues li {
+	.me-stats div {
+		padding: 10px;
+		border-radius: 3px;
+		background: #111;
+		border: 1px solid #222;
+	}
+	.me-stats dt {
+		font-size: 11.5px;
+		color: #8e8e88;
+	}
+	.me-stats dd {
+		font-size: 18px;
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+	}
+	.me-stats small {
+		font-size: 12px;
+		font-weight: 500;
+		color: #8e8e88;
+	}
+	.violet {
+		color: #a99cf5;
+	}
+	.next {
+		width: 100%;
+		margin-top: 12px;
+	}
+	.next-bar {
+		height: 8px;
+		border-radius: 3px;
+		background: #1c1c1c;
+		overflow: hidden;
+	}
+	.next-bar span {
+		display: block;
+		height: 100%;
+		background: linear-gradient(90deg, #7a52e0, var(--accent));
+		transform-origin: left;
+		transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.next-text {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		margin-top: 8px;
+		font-size: 13.5px;
+		color: #b9b9b3;
+	}
+	.next-text b {
+		color: #f2f2ee;
+	}
+	.how {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 8px;
+		margin-top: 36px;
+	}
+	.how li {
+		display: flex;
+		gap: 10px;
+		padding: 14px;
+		border-radius: 3px;
+		border: 1px solid #1f1f1f;
+		background: rgb(255 255 255 / 0.025);
+		font-size: 14px;
+		line-height: 1.45;
+		color: #b9b9b3;
+	}
+	.how b {
+		color: #f2f2ee;
+	}
+	.how-n {
+		display: grid;
+		place-items: center;
+		flex-shrink: 0;
+		width: 24px;
+		height: 24px;
+		border-radius: 3px;
+		background: rgb(204 249 0 / 0.12);
+		color: var(--accent);
+		font-size: 12.5px;
+		font-weight: 800;
+	}
+
+	/* Ranks: a rail of emblems and the chosen rank in detail. */
+	.ranks {
+		padding: 44px 0 52px;
+		color: #f2f2ee;
+	}
+	.ranks::before {
+		background:
+			radial-gradient(60% 60% at 50% 100%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%),
+			#0b0b0b;
+		border-top: 1px solid #1a1a1a;
+	}
+	.ranks-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 8px 20px;
+	}
+	.ranks-head h2 {
+		font-size: clamp(28px, 3vw, 38px);
+	}
+	.ranks-head p {
+		font-size: 14.5px;
+		color: #a3a39c;
+	}
+	.rail {
+		display: flex;
+		gap: 6px;
+		margin-top: 20px;
+		padding: 6px 2px 12px;
+		overflow-x: auto;
+		scrollbar-width: thin;
+		scroll-snap-type: x proximity;
+	}
+	.rank-tab {
+		flex: 0 0 auto;
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		padding: 14px 12px;
+		align-items: center;
+		gap: 4px;
+		width: 92px;
+		padding: 10px 4px;
 		border-radius: 3px;
-		border: 1px solid var(--line);
-		background: linear-gradient(to bottom, color-mix(in srgb, var(--league) 16%, transparent), transparent 70%), var(--surface);
-		box-shadow: inset 0 3px 0 var(--league);
+		border: 1px solid transparent;
+		background: none;
+		color: #8e8e88;
+		font: inherit;
+		cursor: pointer;
+		scroll-snap-align: start;
+		transition:
+			background-color 180ms ease,
+			border-color 180ms ease,
+			transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
-	.leagues li.current {
-		border-color: var(--league);
+	.rank-tab:hover {
+		transform: translateY(-3px);
+		color: #f2f2ee;
 	}
-	.l-name {
+	.rank-tab.active {
+		border-color: color-mix(in srgb, var(--league) 70%, transparent);
+		background: color-mix(in srgb, var(--league) 12%, transparent);
+		color: #f2f2ee;
+	}
+	.rank-tab:not(.reached) :global(.emblem) {
+		opacity: 0.6;
+	}
+	.rank-tab.active :global(.emblem),
+	.rank-tab:hover :global(.emblem) {
+		opacity: 1;
+	}
+	.tab-name {
+		font-size: 12.5px;
 		font-weight: 700;
 	}
-	.l-range {
-		font-size: 12.5px;
-		color: var(--ink-2);
+	.tab-from {
+		font-size: 11px;
+		color: #8e8e88;
 		font-variant-numeric: tabular-nums;
 	}
-	.pips {
-		display: flex;
-		gap: 4px;
-	}
-	.divs {
-		display: flex;
-		justify-content: space-between;
-		gap: 4px;
-		font-size: 11.5px;
-		color: var(--ink-2);
-		font-variant-numeric: tabular-nums;
-		white-space: nowrap;
-	}
-	.divs b {
-		display: inline-block;
-		min-width: 1.6em;
-		color: var(--ink);
-	}
-	.pips span {
-		flex: 1;
-		height: 5px;
+	.detail {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		gap: 32px;
+		align-items: center;
+		margin-top: 18px;
+		padding: 24px 28px;
 		border-radius: 3px;
-		background: var(--surface-2);
+		border: 1px solid #222;
+		background:
+			radial-gradient(70% 120% at 0% 50%, color-mix(in srgb, var(--league) 18%, transparent), transparent 60%),
+			#0f0f0f;
 	}
-	.pips span.on {
-		background: var(--league);
+	.detail-kicker {
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: #8e8e88;
+	}
+	.detail h3 {
+		font-family: var(--font-serif);
+		font-weight: 400;
+		font-size: clamp(36px, 4vw, 52px);
+		line-height: 1.05;
+	}
+	.detail-range {
+		margin-top: 4px;
+		font-size: 15px;
+		color: #b9b9b3;
+	}
+	.divisions {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+		gap: 8px;
+		margin-top: 18px;
+	}
+	.divisions li {
+		position: relative;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		grid-template-rows: auto auto;
+		column-gap: 10px;
+		align-items: center;
+		padding: 10px 12px;
+		border-radius: 3px;
+		border: 1px solid #262626;
+		background: #141414;
+		text-align: left;
+	}
+	.divisions li.mine {
+		border-color: var(--league);
+		box-shadow: inset 0 0 0 1px var(--league);
+	}
+	.divisions :global(.emblem) {
+		grid-row: span 2;
+	}
+	.div-name {
+		font-weight: 700;
+	}
+	.div-range {
+		font-size: 13px;
+		color: #a3a39c;
+		font-variant-numeric: tabular-nums;
+	}
+	.you {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		padding: 1px 6px;
+		border-radius: 3px;
+		background: var(--accent);
+		color: #111;
+		font-size: 11px;
+		font-weight: 800;
+	}
+
+	/* Leaderboard. */
+	.board {
+		padding-top: 44px;
+		scroll-margin-top: 80px;
 	}
 	.board-head {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: 12px;
-		margin-bottom: 14px;
+		margin-bottom: 18px;
+	}
+	.board-head h2 {
+		font-size: clamp(28px, 3vw, 38px);
 	}
 	.tabs {
 		display: flex;
@@ -299,6 +602,88 @@
 		color: var(--ink);
 		box-shadow: var(--shadow);
 	}
+	.podium {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 10px;
+		align-items: end;
+		margin-bottom: 12px;
+	}
+	.place {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6px;
+		padding: 22px 14px 18px;
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--surface);
+		text-align: center;
+	}
+	.place.p1 {
+		order: 2;
+		padding-top: 30px;
+		border-color: color-mix(in srgb, var(--amber) 60%, var(--line));
+		background: linear-gradient(to bottom, var(--amber-soft), var(--surface) 70%);
+	}
+	.place.p2 {
+		order: 1;
+	}
+	.place.p3 {
+		order: 3;
+	}
+	.medal {
+		position: absolute;
+		top: 10px;
+		left: 12px;
+		display: grid;
+		place-items: center;
+		width: 28px;
+		height: 28px;
+		border-radius: 50%;
+		background: var(--surface-2);
+		font-family: var(--font-serif);
+		font-size: 17px;
+	}
+	.p1 .medal {
+		background: linear-gradient(135deg, #ffe58a, #c99410);
+		color: #3a2600;
+	}
+	.p2 .medal {
+		background: linear-gradient(135deg, #f4f6f8, #9aa4b0);
+		color: #2c333d;
+	}
+	.p3 .medal {
+		background: linear-gradient(135deg, #f1c49b, #b06a35);
+		color: #3b1d07;
+	}
+	.pod-name {
+		font-weight: 700;
+		color: var(--ink);
+		text-decoration: none;
+	}
+	a.pod-name:hover {
+		color: var(--ink-2);
+	}
+	.pod-score {
+		font-family: var(--font-serif);
+		font-size: 26px;
+		font-variant-numeric: tabular-nums;
+	}
+	.pod-tier {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		font-size: 13px;
+		font-weight: 700;
+		color: var(--ink-2);
+	}
+	.pod-level {
+		font-size: 12px;
+		color: var(--violet);
+		font-weight: 700;
+	}
 	.rows {
 		display: flex;
 		flex-direction: column;
@@ -306,26 +691,20 @@
 	}
 	.row {
 		display: grid;
-		grid-template-columns: 44px minmax(0, 1fr) auto 150px;
+		grid-template-columns: 40px minmax(0, 1fr) auto 170px 110px;
 		align-items: center;
-		gap: 14px;
-		padding: 10px 14px;
+		gap: 12px;
+		padding: 8px 14px;
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
-	.row.top {
-		border-color: var(--line-strong);
-		background: linear-gradient(90deg, color-mix(in srgb, var(--amber) 10%, transparent), transparent 40%), var(--surface);
-	}
 	.pos {
 		font-family: var(--font-serif);
-		font-size: 24px;
+		font-size: 20px;
 		text-align: center;
+		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
-	}
-	.row.top .pos {
-		color: var(--amber);
 	}
 	.who {
 		display: flex;
@@ -361,58 +740,77 @@
 		font-weight: 700;
 		white-space: nowrap;
 	}
-	.score {
+	.tier {
 		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-		font-variant-numeric: tabular-nums;
-	}
-	.score small {
-		display: inline-flex;
 		align-items: center;
 		gap: 6px;
-		font-size: 12.5px;
+		font-size: 13px;
 		font-weight: 700;
 		color: var(--ink-2);
 	}
-	.dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 2px;
-		flex-shrink: 0;
+	.score {
+		text-align: right;
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
 	}
-	.empty,
-	.note {
-		font-size: 14px;
+	.empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+		padding: 36px 20px;
+		border-radius: 3px;
+		border: 1px dashed var(--line-strong);
+		text-align: center;
 		color: var(--ink-2);
 	}
-	.board .note {
-		margin-top: 12px;
+	.note {
+		margin-top: 14px;
+		font-size: 13.5px;
+		color: var(--ink-2);
 	}
 	@media (max-width: 960px) {
-		.head {
+		.arena-grid {
 			grid-template-columns: 1fr;
 		}
-		.leagues {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
+		.how {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.detail {
+			grid-template-columns: 1fr;
+			justify-items: center;
+			text-align: center;
+		}
+		.row {
+			grid-template-columns: 36px minmax(0, 1fr) auto 90px;
+		}
+		.tier {
+			display: none;
 		}
 	}
 	@media (max-width: 600px) {
-		.leagues {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
+		.how {
+			grid-template-columns: 1fr;
 		}
-		.divs {
-			flex-direction: column;
-			gap: 2px;
+		.podium {
+			grid-template-columns: 1fr;
+		}
+		.place.p1,
+		.place.p2,
+		.place.p3 {
+			order: 0;
 		}
 		.row {
-			grid-template-columns: 32px minmax(0, 1fr) auto;
+			grid-template-columns: 30px minmax(0, 1fr) 80px;
 		}
 		.lvl {
 			display: none;
 		}
-		.facts {
-			grid-template-columns: 1fr 1fr;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.live-dot,
+		.me-emblem {
+			animation: none;
 		}
 	}
 </style>
