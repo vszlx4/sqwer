@@ -55,7 +55,19 @@ async function connect(): Promise<Database> {
 	if (url) {
 		const { default: pg } = await import('pg');
 		const { drizzle } = await import('drizzle-orm/node-postgres');
-		const pool = new pg.Pool({ connectionString: url.trim(), max: Number(process.env.DATABASE_POOL_SIZE ?? 5), ssl: tls(url) });
+		const pool = new pg.Pool({
+			connectionString: url.trim(),
+			max: Number(process.env.DATABASE_POOL_SIZE ?? 5),
+			ssl: tls(url),
+			application_name: 'sqwer',
+			// A slow or stuck query, connection or transaction is ended instead of holding a connection
+			// from the small pool, so one expensive request cannot starve every other.
+			connectionTimeoutMillis: 10_000,
+			statement_timeout: Number(process.env.DATABASE_STATEMENT_TIMEOUT_MS ?? 15_000),
+			idle_in_transaction_session_timeout: 30_000
+		});
+		// An idle connection that the server drops must not crash the process.
+		pool.on('error', (e) => console.error(JSON.stringify({ kind: 'database', error: String(e?.message ?? e).slice(0, 200) })));
 		return drizzle(pool, { schema }) as unknown as Database;
 	}
 	// No server configured: use an embedded PostgreSQL stored on disk.
@@ -66,17 +78,37 @@ async function connect(): Promise<Database> {
 	return drizzle(new PGlite(dir), { schema }) as unknown as Database;
 }
 
-async function migrate(db: Database) {
-	await db.execute(
-		sql`CREATE TABLE IF NOT EXISTS sqwer_migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())`
-	);
-	await db.execute(sql`ALTER TABLE sqwer_migrations ENABLE ROW LEVEL SECURITY`);
-	const applied = await db.execute<{ name: string }>(sql`SELECT name FROM sqwer_migrations`);
-	const done = new Set((applied as unknown as { rows: { name: string }[] }).rows.map((r) => r.name));
+/**
+ * Applies pending migrations. The check is read-only, so an application role that may only read
+ * and write rows (see DEPLOYMENT.md) starts normally when the schema is up to date; schema changes
+ * are made only when a migration is pending, which needs the owner role (`npm run db:migrate`).
+ */
+export async function migrate(db: Database) {
+	const rows = (r: unknown) => (r as { rows: Record<string, unknown>[] }).rows;
+	const [exists] = rows(await db.execute(sql`SELECT to_regclass('public.sqwer_migrations') IS NOT NULL AS present`));
+	const done = new Set<string>();
+	if (exists?.present) {
+		for (const r of rows(await db.execute(sql`SELECT name FROM sqwer_migrations`))) done.add(String(r.name));
+	}
+	const pending = Object.keys(MIGRATIONS)
+		.sort()
+		.filter((file) => !done.has(file.split('/').pop()!));
+	if (!pending.length) return;
+	if (process.env.DATABASE_MIGRATIONS === 'manual') {
+		throw new Error(
+			`The database schema is out of date (${pending.length} pending migration${pending.length === 1 ? '' : 's'}). ` +
+				'Run `npm run db:migrate -w web` with the owner role (MIGRATION_DATABASE_URL), then restart.'
+		);
+	}
+	if (!exists?.present) {
+		await db.execute(
+			sql`CREATE TABLE IF NOT EXISTS sqwer_migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())`
+		);
+		await db.execute(sql`ALTER TABLE sqwer_migrations ENABLE ROW LEVEL SECURITY`);
+	}
 
-	for (const file of Object.keys(MIGRATIONS).sort()) {
+	for (const file of pending) {
 		const name = file.split('/').pop()!;
-		if (done.has(name)) continue;
 		const statements = MIGRATIONS[file]!.split('--> statement-breakpoint')
 			.map((s) => s.trim())
 			.filter(Boolean);
@@ -88,6 +120,7 @@ async function migrate(db: Database) {
 }
 
 let ready: Promise<Database> | null = null;
+let lastFailure = '';
 
 /** The database, connected and migrated on first use. */
 export function db(): Promise<Database> {
@@ -99,6 +132,12 @@ export function db(): Promise<Database> {
 		.catch((e) => {
 			// Retry on the next request instead of failing every request until a restart.
 			ready = null;
+			// The reason is logged once per distinct message (never the connection string).
+			const reason = String((e as Error)?.message ?? e).slice(0, 300);
+			if (reason !== lastFailure) {
+				lastFailure = reason;
+				console.error(JSON.stringify({ kind: 'database', error: reason }));
+			}
 			const host = process.env.DATABASE_URL ? new URL(process.env.DATABASE_URL).hostname : '';
 			if (/ENOTFOUND/.test(String(e?.cause ?? e)) && /^db\..+\.supabase\.co$/.test(host)) {
 				// Supabase's direct host has only an IPv6 address; networks without IPv6 cannot reach it.

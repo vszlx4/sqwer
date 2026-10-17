@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { SITE_URL } from '../config.ts';
+import { isPublicSite, isTurnstileTestSecret } from '../config-check.ts';
 import { consumeOnce } from './replay.ts';
 import type { ProtectedAction } from './ticket.ts';
 
@@ -18,14 +19,18 @@ const TIMEOUT_MS = 5000;
 export function turnstileConfig() {
 	const siteKey = process.env.TURNSTILE_SITE_KEY?.trim() || null;
 	const secretKey = process.env.TURNSTILE_SECRET_KEY?.trim() || null;
-	return siteKey && secretKey ? { siteKey, secretKey } : null;
+	if (!siteKey || !secretKey) return null;
+	// A test secret passes every token, so on a public site it would switch verification off; sqwer's
+	// own check is used instead (and the start-up check logs the problem).
+	if (isTestSecret(secretKey) && isPublicSite()) return null;
+	return { siteKey, secretKey };
 }
 
 /**
  * Cloudflare's published test secrets (always pass, always fail, already spent) answer for any
  * hostname and action, so those two checks are skipped for them; they are for development only.
  */
-const isTestSecret = (secret: string) => /^[123]x0{30,}AA$/.test(secret);
+const isTestSecret = isTurnstileTestSecret;
 
 export type TurnstileOutcome = 'ok' | 'invalid' | 'replayed' | 'unavailable';
 

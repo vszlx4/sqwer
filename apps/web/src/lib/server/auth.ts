@@ -43,6 +43,11 @@ export function dummyPasswordHash() {
 export const SESSION_COOKIE = 'sqwer_session';
 const SESSION_DAYS = 30;
 const RENEW_WHEN_DAYS_LEFT = 15;
+/**
+ * However active it is, a session ends this long after sign-in, so a copied session cookie stops
+ * working on its own even if it keeps being used.
+ */
+const MAX_SESSION_DAYS = 90;
 const DAY = 24 * 60 * 60 * 1000;
 
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
@@ -92,16 +97,20 @@ export async function validateSession(token: string) {
 	const row = rows[0];
 	if (!row) return null;
 	const now = Date.now();
-	if (row.session.expiresAt.getTime() <= now) {
+	const absoluteEnd = row.session.createdAt.getTime() + MAX_SESSION_DAYS * DAY;
+	if (row.session.expiresAt.getTime() <= now || absoluteEnd <= now) {
 		await d.delete(sessions).where(eq(sessions.id, id));
 		return null;
 	}
 	let renewed = false;
-	if (row.session.expiresAt.getTime() - now < RENEW_WHEN_DAYS_LEFT * DAY) {
-		row.session.expiresAt = new Date(now + SESSION_DAYS * DAY);
+	if (row.session.expiresAt.getTime() - now < RENEW_WHEN_DAYS_LEFT * DAY && row.session.expiresAt.getTime() < absoluteEnd) {
+		row.session.expiresAt = new Date(Math.min(now + SESSION_DAYS * DAY, absoluteEnd));
 		renewed = true;
 	}
-	await d.update(sessions).set({ expiresAt: row.session.expiresAt, lastSeenAt: new Date(now) }).where(eq(sessions.id, id));
+	// "Last active" is kept to the minute, so most requests need no write.
+	if (renewed || now - row.session.lastSeenAt.getTime() > 60_000) {
+		await d.update(sessions).set({ expiresAt: row.session.expiresAt, lastSeenAt: new Date(now) }).where(eq(sessions.id, id));
+	}
 	return { ...row, renewed };
 }
 
