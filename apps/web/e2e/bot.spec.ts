@@ -1,4 +1,5 @@
 import { expect, test, type APIRequestContext, type Browser, type Page } from '@playwright/test';
+import { DECLINED } from './consent.ts';
 import { answerQuestion } from './human.ts';
 
 /*
@@ -10,7 +11,7 @@ import { answerQuestion } from './human.ts';
 const ORIGIN = 'http://localhost:4321';
 
 async function contextAt(browser: Browser, ip: string) {
-	const context = await browser.newContext({ baseURL: ORIGIN, extraHTTPHeaders: { 'x-forwarded-for': ip } });
+	const context = await browser.newContext({ baseURL: ORIGIN, extraHTTPHeaders: { 'x-forwarded-for': ip }, storageState: DECLINED });
 	return { context, page: await context.newPage() };
 }
 

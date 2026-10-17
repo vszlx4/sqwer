@@ -1,4 +1,4 @@
-import { boolean, index, integer, jsonb, pgTable, primaryKey, real, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, date, index, integer, jsonb, pgTable, primaryKey, real, serial, text, timestamp } from 'drizzle-orm/pg-core';
 import type { FingerObservation } from '@sqwer/fingermap';
 
 /*
@@ -23,7 +23,12 @@ export const users = pgTable('users', {
 	termsVersion: text('terms_version'),
 	termsAcceptedAt: timestamp('terms_accepted_at', { withTimezone: true }),
 	/** When the person confirmed they are at least 16 years old. */
-	ageConfirmedAt: timestamp('age_confirmed_at', { withTimezone: true })
+	ageConfirmedAt: timestamp('age_confirmed_at', { withTimezone: true }),
+	/**
+	 * 'user' or 'admin'. Administrators can open the analytics dashboard. The role can only be
+	 * changed from the server's command line (`npm run admin -w web`), never through the website.
+	 */
+	role: text('role').notNull().default('user')
 }).enableRLS();
 
 export const profiles = pgTable('profiles', {
@@ -153,6 +158,66 @@ export const courseState = pgTable('course_state', {
 	startLesson: text('start_lesson'),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 }).enableRLS();
+
+/**
+ * Analytics events, kept for 13 months (see lib/server/analytics). Page views and engagement come
+ * from the browser, and only after the visitor has agreed to analytics; account events such as
+ * registrations and sign-ins are recorded by the server, without visitor identifiers. No IP
+ * address, user agent string, email address or secret is stored.
+ */
+export const analyticsEvents = pgTable(
+	'analytics_events',
+	{
+		/** A random identifier from the sender, so the same event is never stored twice. */
+		id: text('id').primaryKey(),
+		occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull(),
+		receivedAt: timestamp('received_at', { withTimezone: true }).notNull().defaultNow(),
+		/** 'client' (the browser, with consent) or 'server'. */
+		source: text('source').notNull(),
+		/** 'pageview', 'engagement', or the name of an event such as 'signup_completed'. */
+		name: text('name').notNull(),
+		path: text('path'),
+		/** The route pattern, such as /learn/[lesson], for grouping pages. */
+		route: text('route'),
+		referrerHost: text('referrer_host'),
+		/** direct, search, social, referral or campaign. */
+		channel: text('channel'),
+		utmSource: text('utm_source'),
+		utmMedium: text('utm_medium'),
+		utmCampaign: text('utm_campaign'),
+		/** A random identifier kept in the browser after consent; never derived from the person. */
+		visitorId: text('visitor_id'),
+		sessionId: text('session_id'),
+		/** Set by the server from the signed-in session, never taken from the browser. */
+		userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+		authenticated: boolean('authenticated').notNull().default(false),
+		device: text('device'),
+		browser: text('browser'),
+		os: text('os'),
+		/** For engagement events: time the page was visible. */
+		durationMs: integer('duration_ms'),
+		/** A few non-personal details, such as the examination of a completed test. */
+		props: jsonb('props')
+	},
+	(t) => [
+		index('analytics_time_idx').on(t.occurredAt),
+		index('analytics_name_time_idx').on(t.name, t.occurredAt),
+		index('analytics_route_time_idx').on(t.route, t.occurredAt),
+		index('analytics_session_idx').on(t.sessionId),
+		index('analytics_user_idx').on(t.userId)
+	]
+).enableRLS();
+
+/** Daily totals, kept after raw events expire, for long-term trends. Contain no personal data. */
+export const analyticsDaily = pgTable(
+	'analytics_daily',
+	{
+		day: date('day').notNull(),
+		metric: text('metric').notNull(),
+		value: integer('value').notNull()
+	},
+	(t) => [primaryKey({ columns: [t.day, t.metric] })]
+).enableRLS();
 
 /**
  * One-time tokens that have been used: verification challenges, proof-of-work solutions, form

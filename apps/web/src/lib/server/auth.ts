@@ -84,7 +84,7 @@ export async function validateSession(token: string) {
 	const d = await db();
 	const id = sha256(token);
 	const rows = await d
-		.select({ session: sessions, user: { id: users.id, email: users.email, createdAt: users.createdAt } })
+		.select({ session: sessions, user: { id: users.id, email: users.email, createdAt: users.createdAt, role: users.role } })
 		.from(sessions)
 		.innerJoin(users, eq(sessions.userId, users.id))
 		.where(eq(sessions.id, id))

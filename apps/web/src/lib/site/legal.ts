@@ -28,19 +28,19 @@ export const LEGAL_DOCUMENTS = {
 		ref: 'SQW-LGL-002',
 		title: 'Privacy Policy',
 		href: '/privacy',
-		version: '2.2',
-		effective: '16 October 2026',
-		effectiveIso: '2026-10-16',
+		version: '2.3',
+		effective: '18 October 2026',
+		effectiveIso: '2026-10-18',
 		summary: 'What personal data sqwer processes, why, on what legal basis, for how long, with whom, and your rights.'
 	},
 	cookies: {
 		ref: 'SQW-LGL-003',
 		title: 'Cookie and Storage Policy',
 		href: '/cookies',
-		version: '2.1',
-		effective: '16 October 2026',
-		effectiveIso: '2026-10-16',
-		summary: 'The single strictly necessary cookie and every item sqwer keeps in your browser.'
+		version: '2.2',
+		effective: '18 October 2026',
+		effectiveIso: '2026-10-18',
+		summary: 'The single strictly necessary cookie, the analytics identifiers kept only with your consent, and every item sqwer keeps in your browser.'
 	},
 	copyright: {
 		ref: 'SQW-LGL-004',

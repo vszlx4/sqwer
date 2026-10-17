@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { track } from '#lib/server/analytics/track.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import {
 	createSession,
@@ -86,6 +87,7 @@ export const actions: Actions = {
 		const codes = await issueRecoveryCodes(id);
 		const session = await createSession(id, request.headers.get('user-agent'));
 		await logSecurity('account_created', { userId: id, ip, userAgent: request.headers.get('user-agent') });
+		track('signup_completed', { userId: id });
 		setSessionCookie(cookies, session.token, session.expiresAt, url.protocol === 'https:');
 
 		return { created: true, email: parsedEmail.data, codes };

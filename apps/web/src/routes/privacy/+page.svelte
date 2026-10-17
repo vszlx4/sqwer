@@ -47,7 +47,8 @@
 		<ul>
 			<li>You can practise without an account. Without one, your settings and practice data stay in your browser and are not sent to us.</li>
 			<li>With an account, we store only what the registration and profile forms ask for, and the results and progress your practice produces.</li>
-			<li>sqwer is free and non-commercial. We never ask for payment details, show advertising, use analytics or tracking tools, sell data or share it for marketing.</li>
+			<li>sqwer is free and non-commercial. We never ask for payment details, show advertising, use third-party analytics or tracking tools, sell data or share it for marketing.</li>
+			<li>We count page visits with our own first-party analytics <strong>only if you allow it</strong> in the banner shown on your first visit. You can change your choice at any time under <strong>Analytics preferences</strong> at the foot of every page.</li>
 			<li>Account data is stored in the European Union (Ireland). Only the providers that host sqwer receive it, and only to run the service.</li>
 			<li>You can download or delete all of your data at any time from <strong>Account → Your data</strong>, and you may object to processing based on legitimate interests.</li>
 		</ul>
@@ -106,7 +107,8 @@
 			<tbody>
 				<tr><th scope="row">Lawfulness, fairness and transparency</th><td>Every purpose has a stated legal basis (section 7); this Policy describes all processing in plain language.</td></tr>
 				<tr><th scope="row">Purpose limitation</th><td>Data is used only for the purposes in section 7, never for advertising, profiling for marketing or sale.</td></tr>
-				<tr><th scope="row">Data minimisation</th><td>Only an email address and password are required. Practice without an account keeps data in your browser.</td></tr>
+				<tr><th scope="row">Consent and choice</th><td>Visit statistics are collected only after you allow them, refusing is as easy as allowing, and your choice can be changed at any time (paragraph 4.4).</td></tr>
+				<tr><th scope="row">Data minimisation</th><td>Only an email address and password are required. Practice without an account keeps data in your browser. Analytics stores general device, browser and system labels instead of the user agent, and never your IP address.</td></tr>
 				<tr><th scope="row">Accuracy</th><td>You can view and correct your data at any time from your account.</td></tr>
 				<tr><th scope="row">Storage limitation</th><td>Each category has a defined retention period (section 10); deletion is immediate and self-service.</td></tr>
 				<tr><th scope="row">Integrity and confidentiality</th><td>Encryption in transit, hashing of secrets, access restriction and verified database connections (section 11).</td></tr>
@@ -125,7 +127,7 @@
 	<ul>
 		<li>IP addresses used to limit repeated requests are held in the server’s memory only, for at most one hour, and are never written to storage.</li>
 		<li>Security records written by the server (for example, a blocked automated sign-up attempt) contain your IP address only as a keyed, one-way hash that cannot be reversed into the address.</li>
-		<li>We do not use analytics, do not build profiles of visitors and do not combine technical data with other sources.</li>
+		<li>Technical data is not used for analytics. Visit statistics are collected only as described in paragraph 4.4, and only with your consent. We do not build profiles of visitors and do not combine technical data with other sources.</li>
 	</ul>
 	<h3>Verification on account forms</h3>
 	<p>
@@ -149,6 +151,67 @@
 		4.3. Without an account, sqwer stores your settings, your finger map, your examination results and your answers in
 		Getting started <strong>only in your browser</strong>. This information is not sent to us. Every item is listed in the
 		<a href="/cookies">Cookie and Storage Policy</a>, with instructions for removing it.
+	</p>
+
+	<h3 id="analytics">Usage analytics</h3>
+	<p>
+		4.4. sqwer measures how the website is used with its own analytics system, which runs on our servers alongside the
+		website. No analytics provider, advertising network or other third party receives this data, and it is never used
+		for advertising or sold. Analytics has two parts, which rely on different legal bases.
+	</p>
+	<p>
+		4.4.1. <strong>Visit statistics, only with your consent.</strong> On your first visit a banner asks whether sqwer may
+		count your visit. Until you select <strong>Allow</strong>, nothing described in this paragraph is collected and no
+		analytics identifier is stored in your browser. If you allow it, your browser sends us, for each page you open:
+	</p>
+	<ul>
+		<li>the page address, without its query string or fragment (except the <code>utm_source</code>, <code>utm_medium</code> and <code>utm_campaign</code> campaign tags), and the date and time;</li>
+		<li>on the first page of a visit only, the name of the website that linked to sqwer (for example, <code>google.com</code>), never the full address of the linking page;</li>
+		<li>how long the page was visible on your screen;</li>
+		<li>a random visitor identifier stored in your browser’s local storage, and a random visit identifier stored in its session storage that is replaced after 30 minutes without activity. Neither is derived from your device, IP address or any other information about you;</li>
+		<li>whether you were signed in at the time and, if you were, a link to your account.</li>
+	</ul>
+	<p>
+		4.4.2. From the user agent your browser sends with each request, our server records only three general labels: the
+		type of device (desktop, mobile or tablet), the browser family (for example, Firefox) and the operating system family
+		(for example, Android). The user agent itself, your IP address, your screen size, your language and your location are
+		not stored for analytics. Requests from automated clients such as search engine crawlers are not recorded. No
+		fingerprinting technique is used.
+	</p>
+	<p>
+		4.4.3. The legal basis is your consent (Art. 6(1)(a) GDPR). Storing and reading the analytics identifiers in your
+		browser also relies on your consent, as required by Article 5(3) of the ePrivacy Directive (2002/58/EC) and its
+		national implementations, including the UK Privacy and Electronic Communications Regulations 2003. Refusing has no
+		effect on anything else on sqwer. You may withdraw consent at any time under <strong>Analytics preferences</strong> at
+		the foot of every page. Withdrawal deletes both identifiers from your browser at once and stops collection; it does
+		not affect the lawfulness of collection before withdrawal. If your browser sends a Global Privacy Control or Do Not
+		Track signal, sqwer treats it as a refusal and does not ask.
+	</p>
+	<p>
+		4.4.4. <strong>Account and product events, recorded by our server.</strong> Our server records that certain actions
+		took place: a registration, a successful or failed sign-in (with the general reason for a failure, such as an
+		incorrect password, but never the email address or password entered), a password reset, completion of profile
+		setup, a completed test or lesson, a verified ranked result, a placement, a cleared data category and an account
+		deletion. Each record holds the type of action, the time, a few details of the action itself (for example, the
+		lesson completed) and, for actions taken while signed in, a link to the account. These records contain no visitor
+		identifier, IP address, user agent or device information. The legal basis is our legitimate interest in
+		understanding how sqwer is used, keeping the service reliable and detecting abuse such as repeated failed sign-ins
+		(Art. 6(1)(f) GDPR). You may object at any time (section 13).
+	</p>
+	<p>
+		4.4.5. <strong>Who can see analytics.</strong> Analytics is shown only in aggregated form on a dashboard available to
+		the controller and to administrators designated by the controller. Administrator rights are assigned in the database
+		from the server’s command line and cannot be obtained through the website. The dashboard and its exports never show
+		email addresses, account identifiers or visitor identifiers. Statistics derived from analytics may be published only
+		in aggregated form that does not identify anyone.
+	</p>
+	<p>
+		4.4.6. <strong>Retention.</strong> Individual analytics records are deleted automatically 13 months after they were
+		made. Before deletion, each day is summarised into daily totals (such as the number of page views and registrations
+		that day), which contain no personal data and are kept to show long-term trends. When an account is deleted, the
+		link between its analytics records and the account is removed at once; the remaining records cannot be attributed to
+		anyone without the browser identifiers, which are kept only on the visitor’s device. Your analytics records are
+		included in the download available under <strong>Account → Your data</strong>.
 	</p>
 
 	<h2 id="account">5. Data processed with an account</h2>
@@ -231,6 +294,16 @@
 					<td>Legitimate interest in demonstrating compliance and handling infringement claims, and accountability (Art. 6(1)(f) and Art. 5(2) GDPR)</td>
 				</tr>
 				<tr>
+					<td>Measuring visits: pages viewed, time on page, referring sites, campaign tags, device type, browser and operating system (paragraph 4.4.1)</td>
+					<td>Visit statistics and the analytics identifiers in your browser</td>
+					<td>Your consent (Art. 6(1)(a) GDPR; Art. 5(3) ePrivacy Directive), which you may withdraw at any time</td>
+				</tr>
+				<tr>
+					<td>Understanding how sqwer is used and keeping it reliable: registrations, sign-ins, completed tests and lessons, and other account and product events (paragraph 4.4.4)</td>
+					<td>Account and product events</td>
+					<td>Legitimate interest in improving and operating the service and detecting abuse (Art. 6(1)(f) GDPR)</td>
+				</tr>
+				<tr>
 					<td>Protecting accounts and the service against unauthorised access, automated abuse and fraud</td>
 					<td>Technical data, verification check, signed-in devices, security activity</td>
 					<td>Legitimate interest in keeping the service and your account secure (Art. 6(1)(f) GDPR; Recital 49)</td>
@@ -255,9 +328,9 @@
 	</div>
 	<p>
 		7.1. Where we rely on legitimate interests, we have balanced them against your interests, rights and freedoms and
-		concluded that the processing is necessary, limited and expected; you may object at any time (section 13). We do not
-		rely on consent for any processing in this Policy and do not use personal data for any purpose other than those
-		listed.
+		concluded that the processing is necessary, limited and expected; you may object at any time (section 13). The only
+		processing based on consent is the measurement of visits (paragraph 4.4.1). We do not use personal data for any
+		purpose other than those listed.
 	</p>
 	<p>
 		7.2. Equivalent bases apply under the UK GDPR, the Saudi Personal Data Protection Law (“PDPL”), Brazil’s Lei Geral de
@@ -352,6 +425,8 @@
 				<tr><td>IP addresses and network prefixes used for rate limiting and risk scoring</td><td>In server memory only, at most one day</td></tr>
 				<tr><td>Used verification challenges, form tickets and verification tokens</td><td>One-way hashes only, until the token would have expired (at most two hours)</td></tr>
 				<tr><td>Server security logs (hashed IP addresses)</td><td>At most 14 days</td></tr>
+				<tr><td>Analytics records: visit statistics and account and product events (paragraph 4.4)</td><td>13 months, then deleted automatically; only daily totals without personal data are kept</td></tr>
+				<tr><td>Analytics identifiers in your browser</td><td>The visitor identifier until you withdraw consent or clear your browser storage; the visit identifier until the browser tab is closed</td></tr>
 				<tr><td>Database backups</td><td>14 days on a rolling basis; deleted data disappears from backups within 14 days</td></tr>
 				<tr><td>Correspondence and infringement notices</td><td>As long as needed to deal with the matter, and no longer than two years, unless needed for a legal claim</td></tr>
 				<tr><td>Data in your browser</td><td>Until you remove it (see the <a href="/cookies">Cookie and Storage Policy</a>)</td></tr>
@@ -419,7 +494,7 @@
 				<tr><th scope="row">Portability</th><td>To receive your data in a structured, machine-readable format (Art. 20 GDPR).</td><td>The download is provided in JSON.</td></tr>
 				<tr><th scope="row">Objection</th><td>To object to processing based on legitimate interests (Art. 21 GDPR).</td><td>By email.</td></tr>
 				<tr><th scope="row">Automated decisions</th><td>Not to be subject to solely automated decisions with legal or similarly significant effects (Art. 22 GDPR).</td><td>No such decisions are made (section 16).</td></tr>
-				<tr><th scope="row">Withdraw consent</th><td>To withdraw consent at any time, where processing is based on it (Art. 7(3) GDPR).</td><td>Not applicable today; we do not rely on consent.</td></tr>
+				<tr><th scope="row">Withdraw consent</th><td>To withdraw consent at any time, where processing is based on it (Art. 7(3) GDPR).</td><td>Analytics preferences, at the foot of every page (paragraph 4.4.3).</td></tr>
 				<tr><th scope="row">Complaint</th><td>To complain to a data protection authority (Art. 77 GDPR).</td><td>See section 15.</td></tr>
 			</tbody>
 		</table>
@@ -455,8 +530,8 @@
 	<p>
 		sqwer is non-commercial and does not meet the thresholds of state consumer privacy laws such as the California
 		Consumer Privacy Act. Nevertheless: we do not sell or share personal information for cross-context behavioural
-		advertising, do not use sensitive personal information, and honour the rights in section 13 for all users. Because
-		no tracking takes place, browser signals such as Global Privacy Control have nothing further to switch off. sqwer is
+		advertising, do not use sensitive personal information, and honour the rights in section 13 for all users. A Global
+		Privacy Control or Do Not Track signal from your browser is honoured as a refusal of analytics. sqwer is
 		not directed at children under 13 (Children’s Online Privacy Protection Act).
 	</p>
 	<h3>Other countries</h3>
@@ -519,8 +594,9 @@
 	<h2 id="cookies">19. Cookies, storage and device voices</h2>
 	<p>
 		19.1. sqwer sets one strictly necessary cookie to keep you signed in, and stores your settings and practice data in
-		your browser. Nothing is used for advertising, analytics or tracking, and no third party sets cookies through sqwer.
-		Details are in the <a href="/cookies">Cookie and Storage Policy</a>.
+		your browser. With your consent only, it also stores two analytics identifiers in your browser (paragraph 4.4). Nothing
+		is used for advertising or cross-site tracking, and no third party sets cookies through sqwer. Details are in the
+		<a href="/cookies">Cookie and Storage Policy</a>.
 	</p>
 	<p>
 		19.2. The listening exercises in the Courses use a voice built into your device. Only voices that run on your device
@@ -539,7 +615,8 @@
 				<tr><th scope="col">Version</th><th scope="col">Effective</th><th scope="col">Changes</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>2.2</td><td>{doc.effective}</td><td>Experience and levels, competitive results and their checks, leaderboards, and the adaptive pace of the Courses.</td></tr>
+				<tr><td>2.3</td><td>{doc.effective}</td><td>First-party usage analytics: visit statistics with consent, account and product events, administrator access, 13-month retention and the consent banner.</td></tr>
+				<tr><td>2.2</td><td>16 October 2026</td><td>Experience and levels, competitive results and their checks, leaderboards, and the adaptive pace of the Courses.</td></tr>
 				<tr><td>2.1</td><td>15 October 2026</td><td>Profile headline, pronouns, banner and showcase choices, and what public profiles show.</td></tr>
 				<tr><td>2.0</td><td>15 October 2026</td><td>Controller named; records of acceptance and picture rights confirmation; new verification check; principles, security, breach and regional sections expanded.</td></tr>
 				<tr><td>1.0</td><td>14 October 2026</td><td>First published version.</td></tr>

@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { track } from '#lib/server/analytics/track.ts';
 import { eq } from 'drizzle-orm';
 import { logSecurity } from '#lib/server/security-log.ts';
 import { db, schema } from '#lib/server/db/index.ts';
@@ -60,10 +61,12 @@ export const actions: Actions = {
 		if (!ipLimit.ok || !netLimit.ok || !emailLimit.ok || !emailAllLimit.ok) {
 			await logSecurity('rate_limited', { ip, detail: 'signin' });
 			const wait = Math.max(ipLimit.retryAfter, netLimit.retryAfter, emailLimit.retryAfter, emailAllLimit.retryAfter);
+			track('signin_failed', { props: { reason: 'rate_limited' } });
 			return again(429, { values, errors: { form: rateLimitMessage(wait) } });
 		}
 		const guard = await guardForm(event, form, 'signin');
 		if (!guard.ok) {
+			track('signin_failed', { props: { reason: guard.field === 'form' ? 'blocked' : 'verification' } });
 			return again(guard.status, { values, challenge: guard.challenge, fallback: guard.fallback, errors: { [guard.field]: guard.message } });
 		}
 		const password = String(form.get('password') ?? '');
@@ -71,6 +74,7 @@ export const actions: Actions = {
 			recordFailure(emailKey);
 			recordFailure(emailAllKey);
 			recordAbuse(ip, 'signin');
+			track('signin_failed', { props: { reason: 'credentials' } });
 			return again(400, { values, challenge: true, errors: { form: INVALID } });
 		}
 
@@ -81,6 +85,7 @@ export const actions: Actions = {
 
 		if (user?.lockedUntil && user.lockedUntil.getTime() > Date.now()) {
 			await logSecurity('sign_in_failed', { userId: user.id, ip, userAgent, detail: 'locked' });
+			track('signin_failed', { props: { reason: 'locked' } });
 			return again(429, { values, errors: { form: rateLimitMessage((user.lockedUntil.getTime() - Date.now()) / 1000) } });
 		}
 		if (!user || !ok) {
@@ -96,12 +101,14 @@ export const actions: Actions = {
 					.where(eq(schema.users.id, user.id));
 				await logSecurity(lock ? 'account_locked' : 'sign_in_failed', { userId: user.id, ip, userAgent });
 			}
+			track('signin_failed', { props: { reason: 'credentials' } });
 			// After a failure the next attempt from this address is asked to verify.
 			return again(400, { values, challenge: true, errors: { form: INVALID } });
 		}
 
 		await d.update(schema.users).set({ failedLogins: 0, lockedUntil: null }).where(eq(schema.users.id, user.id));
 		await logSecurity('signed_in', { userId: user.id, ip, userAgent });
+		track('signin_succeeded', { userId: user.id });
 		const session = await createSession(user.id, userAgent);
 		setSessionCookie(cookies, session.token, session.expiresAt, url.protocol === 'https:');
 

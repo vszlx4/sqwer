@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { track } from '#lib/server/analytics/track.ts';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '#lib/server/db/index.ts';
 import {
@@ -64,6 +65,7 @@ export const actions: Actions = {
 			.where(eq(schema.users.id, user.id));
 		await deleteUserSessions(user.id);
 		await logSecurity('password_reset', { userId: user.id, ip, userAgent: request.headers.get('user-agent') });
+		track('password_reset', { userId: user.id });
 		const session = await createSession(user.id, request.headers.get('user-agent'));
 		setSessionCookie(cookies, session.token, session.expiresAt, url.protocol === 'https:');
 		redirect(303, '/account/security?reset=1');

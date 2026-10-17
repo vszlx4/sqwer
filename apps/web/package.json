@@ -13,7 +13,8 @@
 		"test:e2e": "playwright test",
 		"db:generate": "drizzle-kit generate",
 		"start": "node scripts/start.js",
-		"db:backup": "bash scripts/backup-db.sh"
+		"db:backup": "bash scripts/backup-db.sh",
+		"admin": "node scripts/admin.mjs"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.13.0",
