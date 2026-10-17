@@ -8,44 +8,46 @@ import {
 	newUserId,
 	setSessionCookie
 } from '#lib/server/auth.ts';
-import { CAPTCHA_MESSAGES, verifyCaptcha } from '#lib/server/captcha.ts';
+import { guardForm, humanCheck } from '#lib/server/bot/guard.ts';
+import { issueTicket } from '#lib/server/bot/ticket.ts';
+import { networkOf } from '#lib/server/bot/risk.ts';
 import { ACCEPTANCE_VERSION } from '#lib/site/legal.ts';
 import { logSecurity } from '#lib/server/security-log.ts';
 import { rateLimit, rateLimitMessage } from '#lib/server/rate-limit.ts';
 import { emailSchema, passwordSchema } from '#lib/server/validation.ts';
 import type { Actions, PageServerLoad } from './$types';
 
-/** Forms submitted faster than this are almost certainly automated. */
-const MIN_FILL_MS = 2500;
-
-export const load: PageServerLoad = async ({ locals }) => {
-	if (locals.user) redirect(303, '/account');
-	return { startedAt: Date.now() };
+export const load: PageServerLoad = async (event) => {
+	if (event.locals.user) redirect(303, '/account');
+	return { human: humanCheck(event, 'signup') };
 };
 
 export const actions: Actions = {
-	default: async ({ request, cookies, getClientAddress, url }) => {
+	default: async (event) => {
+		const { request, cookies, getClientAddress, url } = event;
 		const form = await request.formData();
+		// Tickets are single-use: every refusal carries a fresh one for the next attempt.
+		const again = <T extends Record<string, unknown>>(status: number, data: T) =>
+			fail(status, { ...data, ticket: issueTicket('signup', request.headers.get('user-agent')) });
 		const email = String(form.get('email') ?? '');
 		const values = { email };
 
 		const ip = getClientAddress();
-		const limit = rateLimit(`signup:${ip}`, 5, 60 * 60 * 1000);
-		if (!limit.ok) {
+		// Accounts per address, per network and across the whole site, so that automated
+		// registration is slow even when spread over many addresses.
+		const limits = [
+			rateLimit(`signup:${ip}`, 5, 60 * 60 * 1000),
+			rateLimit(`signup:net:${networkOf(ip)}`, 20, 60 * 60 * 1000),
+			rateLimit('signup:all', 300, 60 * 60 * 1000)
+		];
+		const blocked = limits.find((l) => !l.ok);
+		if (blocked) {
 			await logSecurity('rate_limited', { ip, detail: 'signup' });
-			return fail(429, { values, errors: { form: rateLimitMessage(limit.retryAfter) } });
+			return again(429, { values, errors: { form: rateLimitMessage(blocked.retryAfter) } });
 		}
-
-		// Bot traps: a hidden field people never fill in, and a minimum fill time.
-		const startedAt = Number(form.get('startedAt') ?? 0);
-		if (form.get('website') || !startedAt || Date.now() - startedAt < MIN_FILL_MS) {
-			await logSecurity('bot_trap', { ip, detail: 'signup' });
-			return fail(400, { values, errors: { form: 'The form could not be submitted. Please try again.' } });
-		}
-		const captcha = await verifyCaptcha(form);
-		if (captcha !== 'ok') {
-			await logSecurity('captcha_failed', { ip, detail: 'signup' });
-			return fail(400, { values, errors: { captcha: CAPTCHA_MESSAGES[captcha] } });
+		const guard = await guardForm(event, form, 'signup');
+		if (!guard.ok) {
+			return again(guard.status, { values, challenge: guard.challenge, fallback: guard.fallback, errors: { [guard.field]: guard.message } });
 		}
 
 		const errors: Record<string, string> = {};
@@ -60,11 +62,11 @@ export const actions: Actions = {
 		if (form.get('confirmPassword') !== password) errors.confirmPassword = 'The passwords do not match.';
 		if (form.get('acceptTerms') !== 'on') errors.acceptTerms = 'You must accept the Terms and Conditions and the Privacy Policy.';
 		if (form.get('ageConfirm') !== 'on') errors.ageConfirm = 'You must confirm that you are at least 16 years old.';
-		if (Object.keys(errors).length || !parsedEmail.success) return fail(400, { values, errors });
+		if (Object.keys(errors).length || !parsedEmail.success) return again(400, { values, errors });
 
 		if (await findUserByEmail(parsedEmail.data)) {
 			// Deliberately general, so the form cannot be used to discover registered addresses.
-			return fail(400, {
+			return again(400, {
 				values,
 				errors: { form: 'An account could not be created with these details. If you already have an account, please sign in.' }
 			});

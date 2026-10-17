@@ -16,10 +16,11 @@
 | `DATABASE_CA_FILE` | With a hosted database | Certificate authority of the database server (for Supabase, `supabase-ca.crt`), so the TLS connection is verified. A relative path is resolved next to the `.env` file. |
 | `CAPTCHA_HMAC_SECRET`, `CAPTCHA_HMAC_KEY_SECRET` | Recommended | Secrets that sign the verification challenges (proof of work and the typed challenge). Generated and stored in `SQWER_DATA_DIR/secrets.json` when absent. |
 | `LOG_HASH_SECRET` | Recommended | Key used to hash IP addresses in security logs. Generated when absent. |
+| `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Recommended | Cloudflare Turnstile keys (free). When both are set, Turnstile protects sign-up, sign-in and password reset, with sqwer's own check as the automatic fallback. When unset, sqwer's own check is used. See [BOT_PROTECTION.md](BOT_PROTECTION.md). |
 | `SQWER_DATA_DIR` | No | Directory for the embedded database and generated secrets. Defaults to `.data` in the working directory. |
 | `BODY_SIZE_LIMIT` | No | Maximum request body size. The start script sets `6M`, enough for a large finger map. |
 | `PORT`, `HOST` | No | Listening address for the Node server (default port 3000). |
-| `ADDRESS_HEADER`, `XFF_DEPTH` | Behind a proxy | Set `ADDRESS_HEADER=x-forwarded-for` and `XFF_DEPTH=1` so rate limiting sees real client addresses. |
+| `ADDRESS_HEADER`, `XFF_DEPTH` | Behind a proxy (essential) | Set `ADDRESS_HEADER=x-forwarded-for` and `XFF_DEPTH=1` (one proxy) so rate limiting and bot protection see real client addresses. Behind Cloudflare's proxy, use `ADDRESS_HEADER=cf-connecting-ip` instead. Without this, every visitor shares the proxy's address and limits apply to everyone at once. |
 | `PROTOCOL_HEADER`, `HOST_HEADER` | Behind a proxy | Set to `x-forwarded-proto` and `x-forwarded-host` if the proxy rewrites them. |
 
 Generate secrets with `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`.

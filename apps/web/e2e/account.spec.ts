@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { answerQuestion } from './human.ts';
 import { playFalling, playRace, proceed, typeDrill } from './play.ts';
 
 test.describe.configure({ mode: 'serial' });
@@ -7,20 +8,6 @@ const email = `typist-${Date.now()}@example.com`;
 const password = 'correct-horse-battery';
 const newPassword = 'another-long-passphrase';
 let codes: string[] = [];
-
-const NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
-const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth'];
-
-/** Answers a verification text question, as a person using a screen reader would. */
-export function answerQuestion(question: string): string {
-	let m = question.match(/the (\w+) letter of the word “(\w+)”/);
-	if (m) return m[2]![ORDINALS.indexOf(m[1]!)]!;
-	m = question.match(/What is (\w+) plus (\w+)\?/);
-	if (m) return String(NUMBERS.indexOf(m[1]!) + NUMBERS.indexOf(m[2]!));
-	m = question.match(/last word in this list: (.+)\./);
-	if (m) return m[1]!.split(', ').at(-1)!;
-	throw new Error(`Unknown question: ${question}`);
-}
 
 /** Completes the verification using its text question, and waits for the background check to finish. */
 async function solveCaptcha(page: Page, answer?: string) {

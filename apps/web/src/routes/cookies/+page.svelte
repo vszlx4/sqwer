@@ -137,7 +137,7 @@
 	<ul>
 		<li><strong>Speech:</strong> the listening exercises use a voice built into your device. Only voices that run on your device are used; the words are not sent anywhere.</li>
 		<li><strong>Sound:</strong> the Echo game plays soft notes generated in your browser, and can be muted. No audio is recorded.</li>
-		<li><strong>Verification:</strong> the check on account forms performs a computation in your browser and stores nothing on your device.</li>
+		<li><strong>Verification:</strong> sqwer’s own check on account forms performs a computation in your browser and stores nothing on your device. Where Cloudflare Turnstile is enabled, its check runs in a frame from challenges.cloudflare.com, under Cloudflare’s Turnstile privacy terms; Cloudflare states that the data is used only to tell people from bots and not for advertising.</li>
 	</ul>
 
 	<h2 id="not-used">6. What sqwer does not use</h2>

@@ -5,6 +5,7 @@ import { clearCategory, dataCounts } from '#lib/server/data.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { fingerMapCount, requireUser } from '#lib/server/account.ts';
 import { clearSessionCookie, verifyPassword } from '#lib/server/auth.ts';
+import { rateLimit } from '#lib/server/rate-limit.ts';
 import { logSecurity } from '#lib/server/security-log.ts';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -14,7 +15,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	return { fingerMap: { count: fm.count, updatedAt: fm.updatedAt?.toISOString() ?? null }, counts };
 };
 
-async function passwordMatches(userId: string, password: string): Promise<boolean> {
+/**
+ * Checks the account password before a destructive action. Attempts are limited per account, so a
+ * borrowed or stolen session cannot be used to guess the password here.
+ */
+async function passwordMatches(userId: string, password: string): Promise<boolean | 'limited'> {
+	if (!rateLimit(`password-check:${userId}`, 10, 60 * 60 * 1000).ok) return 'limited';
 	const rows = await (await db()).select({ hash: schema.users.passwordHash }).from(schema.users).where(eq(schema.users.id, userId)).limit(1);
 	return !!rows[0] && (await verifyPassword(rows[0].hash, password));
 }
@@ -26,8 +32,9 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const category = String(form.get('category') ?? '') as DataCategory;
 		if (!DATA_CATEGORY_IDS.includes(category)) return fail(400, { category, errors: { password: 'Choose what to clear.' } });
-		if (!(await passwordMatches(user.id, String(form.get('password') ?? '')))) {
-			return fail(400, { category, errors: { password: 'The password is incorrect.' } });
+		const match = await passwordMatches(user.id, String(form.get('password') ?? ''));
+		if (match !== true) {
+			return fail(match === 'limited' ? 429 : 400, { category, errors: { password: match === 'limited' ? 'Too many attempts. Please try again later.' : 'The password is incorrect.' } });
 		}
 		const at = await clearCategory(user.id, category);
 		await logSecurity('data_cleared', { userId: user.id, detail: category });
@@ -38,9 +45,8 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const errors: Record<string, string> = {};
 		if (form.get('confirm') !== 'DELETE') errors.confirm = 'Type DELETE in capital letters to confirm.';
-		if (!(await passwordMatches(user.id, String(form.get('password') ?? '')))) {
-			errors.password = 'The password is incorrect.';
-		}
+		const match = await passwordMatches(user.id, String(form.get('password') ?? ''));
+		if (match !== true) errors.password = match === 'limited' ? 'Too many attempts. Please try again later.' : 'The password is incorrect.';
 		if (Object.keys(errors).length) return fail(400, { errors });
 
 		// Profile, sessions, recovery codes and the finger map are removed by cascade.
