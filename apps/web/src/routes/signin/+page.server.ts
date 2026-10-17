@@ -3,19 +3,30 @@ import { eq } from 'drizzle-orm';
 import { logSecurity } from '#lib/server/security-log.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { createSession, dummyPasswordHash, findUserByEmail, setSessionCookie, verifyPassword } from '#lib/server/auth.ts';
-import { CAPTCHA_MESSAGES, verifyCaptcha } from '#lib/server/captcha.ts';
+import { guardForm, humanCheck } from '#lib/server/bot/guard.ts';
+import { issueTicket } from '#lib/server/bot/ticket.ts';
+import { networkOf, recordAbuse } from '#lib/server/bot/risk.ts';
 import { failureLimit, rateLimit, rateLimitMessage, recordFailure } from '#lib/server/rate-limit.ts';
 import { emailSchema, safeRedirect } from '#lib/server/validation.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 const INVALID = 'The email address or password is incorrect.';
-/** Failed attempts before an account is locked, and for how long. */
+/**
+ * Failed attempts allowed for one account from one address, and for one account from all
+ * addresses together, within LOCK_MS. The first stops guessing from one place; the second stops
+ * credential stuffing spread over many addresses, while the account itself is only locked after
+ * ACCOUNT_LOCK_AFTER consecutive failures, so a stranger cannot keep someone locked out cheaply.
+ */
 const MAX_FAILURES = 5;
+const MAX_FAILURES_ALL_ADDRESSES = 30;
+const ACCOUNT_LOCK_AFTER = 10;
 const LOCK_MS = 15 * 60 * 1000;
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async (event) => {
+	const { locals, url } = event;
 	if (locals.user) redirect(303, safeRedirect(url.searchParams.get('redirectTo'), '/account'));
 	return {
+		human: humanCheck(event, 'signin'),
 		notice:
 			url.searchParams.get('deleted') === '1'
 				? 'Your account and its data have been deleted.'
@@ -26,8 +37,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, cookies, getClientAddress, url }) => {
+	default: async (event) => {
+		const { request, cookies, getClientAddress, url } = event;
 		const form = await request.formData();
+		// Tickets are single-use: every refusal carries a fresh one for the next attempt.
+		const again = <T extends Record<string, unknown>>(status: number, data: T) =>
+			fail(status, { ...data, ticket: issueTicket('signin', request.headers.get('user-agent')) });
 		const email = String(form.get('email') ?? '')
 			.trim()
 			.toLowerCase();
@@ -36,22 +51,27 @@ export const actions: Actions = {
 		const ip = getClientAddress();
 		const userAgent = request.headers.get('user-agent');
 		// The per-email failure limit applies whether or not the account exists, so it reveals nothing.
-		const emailKey = `signin:email:${email}`;
+		const emailKey = `signin:email:${email}:${ip}`;
+		const emailAllKey = `signin:email:${email}`;
 		const ipLimit = rateLimit(`signin:ip:${ip}`, 20, LOCK_MS);
+		const netLimit = rateLimit(`signin:net:${networkOf(ip)}`, 100, LOCK_MS);
 		const emailLimit = failureLimit(emailKey, MAX_FAILURES, LOCK_MS);
-		if (!ipLimit.ok || !emailLimit.ok) {
+		const emailAllLimit = failureLimit(emailAllKey, MAX_FAILURES_ALL_ADDRESSES, LOCK_MS);
+		if (!ipLimit.ok || !netLimit.ok || !emailLimit.ok || !emailAllLimit.ok) {
 			await logSecurity('rate_limited', { ip, detail: 'signin' });
-			return fail(429, { values, errors: { form: rateLimitMessage(Math.max(ipLimit.retryAfter, emailLimit.retryAfter)) } });
+			const wait = Math.max(ipLimit.retryAfter, netLimit.retryAfter, emailLimit.retryAfter, emailAllLimit.retryAfter);
+			return again(429, { values, errors: { form: rateLimitMessage(wait) } });
 		}
-		const captcha = await verifyCaptcha(form);
-		if (captcha !== 'ok') {
-			await logSecurity('captcha_failed', { ip, detail: 'signin' });
-			return fail(400, { values, errors: { captcha: CAPTCHA_MESSAGES[captcha] } });
+		const guard = await guardForm(event, form, 'signin');
+		if (!guard.ok) {
+			return again(guard.status, { values, challenge: guard.challenge, fallback: guard.fallback, errors: { [guard.field]: guard.message } });
 		}
 		const password = String(form.get('password') ?? '');
 		if (!emailSchema.safeParse(email).success || !password) {
 			recordFailure(emailKey);
-			return fail(400, { values, errors: { form: INVALID } });
+			recordFailure(emailAllKey);
+			recordAbuse(ip, 'signin');
+			return again(400, { values, challenge: true, errors: { form: INVALID } });
 		}
 
 		const user = await findUserByEmail(email);
@@ -61,20 +81,23 @@ export const actions: Actions = {
 
 		if (user?.lockedUntil && user.lockedUntil.getTime() > Date.now()) {
 			await logSecurity('sign_in_failed', { userId: user.id, ip, userAgent, detail: 'locked' });
-			return fail(429, { values, errors: { form: rateLimitMessage((user.lockedUntil.getTime() - Date.now()) / 1000) } });
+			return again(429, { values, errors: { form: rateLimitMessage((user.lockedUntil.getTime() - Date.now()) / 1000) } });
 		}
 		if (!user || !ok) {
 			recordFailure(emailKey);
+			recordFailure(emailAllKey);
+			recordAbuse(ip, 'signin');
 			if (user) {
 				const failures = user.failedLogins + 1;
-				const lock = failures >= MAX_FAILURES;
+				const lock = failures >= ACCOUNT_LOCK_AFTER;
 				await d
 					.update(schema.users)
 					.set({ failedLogins: lock ? 0 : failures, lockedUntil: lock ? new Date(Date.now() + LOCK_MS) : null })
 					.where(eq(schema.users.id, user.id));
 				await logSecurity(lock ? 'account_locked' : 'sign_in_failed', { userId: user.id, ip, userAgent });
 			}
-			return fail(400, { values, errors: { form: INVALID } });
+			// After a failure the next attempt from this address is asked to verify.
+			return again(400, { values, challenge: true, errors: { form: INVALID } });
 		}
 
 		await d.update(schema.users).set({ failedLogins: 0, lockedUntil: null }).where(eq(schema.users.id, user.id));

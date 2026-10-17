@@ -129,11 +129,20 @@
 	</ul>
 	<h3>Verification on account forms</h3>
 	<p>
-		4.2. The registration, sign-in and password reset forms include a verification check operated by sqwer itself. Your
-		browser receives a signed challenge from our server, performs a short computation in the background, and you type the
-		characters shown or answer a short text question. The check uses no third-party service, sets no cookie and stores no
-		personal data. Used challenges are remembered only in server memory, by a random identifier, for at most ten
-		minutes, so that they cannot be reused.
+		4.2. To protect accounts from automated abuse (fake registrations, password guessing and credential stuffing), the
+		registration, sign-in and password reset forms are protected in several ways, all checked on our server:
+	</p>
+	<ul>
+		<li><strong>A signed form ticket</strong> issued when the page loads, which shows that the form was opened in a browser and when. It contains a short hash of your browser’s user agent, not the user agent itself.</li>
+		<li><strong>A summary of how the form was filled</strong>: how many keys were pressed (not which keys), whether a pointer was used, how many fields were focused or pasted into, how long the form was open, and whether the browser reports that it is under automation. Nothing you type is included, and the summary is discarded once the request has been checked.</li>
+		<li><strong>Request characteristics</strong> such as the user agent and language headers, and recent failed attempts from your address or network, which together decide whether a verification is needed. Most people sign in without one.</li>
+		<li><strong>A verification</strong>. Where Cloudflare Turnstile is enabled, your browser runs Cloudflare’s check, and our server confirms the result with Cloudflare, sending the verification token and your IP address. Otherwise, or if Cloudflare cannot be reached, sqwer’s own check is used: your browser performs a short computation and you type the characters shown or answer a short text question. sqwer’s own check uses no third party and sets no cookie.</li>
+	</ul>
+	<p>
+		4.2.1. The legal basis is our legitimate interest in keeping accounts and the service secure (Article 6(1)(f) GDPR),
+		which these measures serve with as little data as possible. Used tokens are recorded only as one-way hashes, until
+		they would have expired anyway, so that none can be reused. No decision with legal or similarly significant effects is
+		made by these measures alone: a person who is asked to verify can always complete the verification.
 	</p>
 	<h3>Data kept only in your browser</h3>
 	<p>
@@ -279,6 +288,12 @@
 					<td>Technical data; account data in transit</td>
 					<td>{LEGAL.webHostLocation}</td>
 				</tr>
+				<tr>
+					<td>Cloudflare, Inc., United States (only where Turnstile is enabled)</td>
+					<td>Bot protection on the registration, sign-in and password reset forms</td>
+					<td>IP address, browser and device characteristics observed by the check, the verification token</td>
+					<td>Cloudflare’s global network; transfers to the United States under the EU–US Data Privacy Framework and Standard Contractual Clauses</td>
+				</tr>
 			</tbody>
 		</table>
 	</div>
@@ -334,8 +349,8 @@
 				<tr><td>Usage statistics</td><td>Until you delete them (Account → Statistics) or your account</td></tr>
 				<tr><td>Signed-in devices</td><td>Until you sign out, or after 30 days without use</td></tr>
 				<tr><td>Security activity on your account</td><td>While your account exists</td></tr>
-				<tr><td>IP addresses used for rate limiting</td><td>In server memory only, at most one hour</td></tr>
-				<tr><td>Verification challenges</td><td>In server memory only, at most ten minutes</td></tr>
+				<tr><td>IP addresses and network prefixes used for rate limiting and risk scoring</td><td>In server memory only, at most one day</td></tr>
+				<tr><td>Used verification challenges, form tickets and verification tokens</td><td>One-way hashes only, until the token would have expired (at most two hours)</td></tr>
 				<tr><td>Server security logs (hashed IP addresses)</td><td>At most 14 days</td></tr>
 				<tr><td>Database backups</td><td>14 days on a rolling basis; deleted data disappears from backups within 14 days</td></tr>
 				<tr><td>Correspondence and infringement notices</td><td>As long as needed to deal with the matter, and no longer than two years, unless needed for a legal claim</td></tr>

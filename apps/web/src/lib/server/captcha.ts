@@ -2,6 +2,8 @@ import { createHmac, randomBytes, randomInt as cryptoRandomInt, timingSafeEqual 
 import { randomInt } from 'altcha-lib';
 import { deriveKey } from 'altcha-lib/algorithms/pbkdf2';
 import { CappedMap, create } from 'altcha-lib/frameworks/sveltekit';
+import { consumeOnce } from './bot/replay.ts';
+import { uaHash, type ProtectedAction } from './bot/ticket.ts';
 import { secret } from './config.ts';
 
 /*
@@ -13,16 +15,23 @@ import { secret } from './config.ts';
  * 2. A challenge a person answers: characters drawn as distorted lines that must be typed, or,
  *    for anyone who cannot see the image, a short text question (WCAG 2.2 success criterion 1.1.1).
  *
- * Both are signed with server secrets, expire after ten minutes and can be used only once.
+ * Both are signed with server secrets, expire after ten minutes and can be used only once; their
+ * use is recorded in the database, so a restart does not make them reusable. A challenge is bound
+ * to the action it was requested for and to the browser that requested it, so it cannot be solved
+ * for one form and spent on another, or solved in one browser and spent from another.
+ *
+ * This is the fallback when Cloudflare Turnstile is not configured or not reachable. It slows bulk
+ * automation and stops simple scripts, but a determined attacker with an image-reading model or a
+ * paid solving service can pass it; the other layers (tickets, risk scoring, rate limits) do not
+ * depend on it.
  */
 
 const hmacSignatureSecret = secret('CAPTCHA_HMAC_SECRET');
 const hmacKeySignatureSecret = secret('CAPTCHA_HMAC_KEY_SECRET');
 const LIFETIME_MS = 10 * 60 * 1000;
 
-/** Solved proofs and used challenges are remembered so neither can be replayed. */
+/** The library's own replay memory; the database record below is what makes replay impossible. */
 const powStore = new CappedMap<string, boolean>({ maxSize: 20_000 });
-const usedChallenges = new CappedMap<string, boolean>({ maxSize: 20_000 });
 
 const pow = create({
 	deriveKey,
@@ -128,23 +137,44 @@ const WORDS = ['keyboard', 'letter', 'finger', 'practice', 'lesson', 'meadow', '
 const NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth'];
 
-/** Short questions that can be answered with a screen reader or without sight. */
+/**
+ * Short questions that can be answered with a screen reader or without sight. Each kind is asked
+ * in several phrasings, so a script cannot recognise it from fixed wording. No text question stops
+ * a determined program, which is why the other layers do not depend on this one.
+ */
 function textQuestion(): { question: string; answers: string[] } {
 	switch (cryptoRandomInt(0, 3)) {
 		case 0: {
 			const word = pick(WORDS);
 			const n = cryptoRandomInt(0, ORDINALS.length);
-			return { question: `What is the ${ORDINALS[n]} letter of the word “${word}”?`, answers: [word[n]!] };
+			const q = pick([
+				`What is the ${ORDINALS[n]} letter of the word “${word}”?`,
+				`Which letter comes ${ORDINALS[n]} in “${word}”?`,
+				`In the word “${word}”, type the letter in position ${NUMBERS[n + 1]}.`
+			]);
+			return { question: q, answers: [word[n]!] };
 		}
 		case 1: {
 			const a = cryptoRandomInt(2, 11);
 			const b = cryptoRandomInt(2, 10);
-			return { question: `What is ${NUMBERS[a]} plus ${NUMBERS[b]}? You may answer in digits.`, answers: [String(a + b), NUMBERS[a + b]!] };
+			const q = pick([
+				`What is ${NUMBERS[a]} plus ${NUMBERS[b]}? You may answer in digits.`,
+				`Add ${NUMBERS[b]} to ${NUMBERS[a]}. What do you get? Digits are fine.`,
+				`If you have ${NUMBERS[a]} keys and press ${NUMBERS[b]} more, how many is that in total?`
+			]);
+			return { question: q, answers: [String(a + b), NUMBERS[a + b]!] };
 		}
 		default: {
 			const list = [...new Set(Array.from({ length: 6 }, () => pick(WORDS)))].slice(0, 3);
 			while (list.length < 3) list.push(pick(WORDS.filter((w) => !list.includes(w))));
-			return { question: `Type the last word in this list: ${list.join(', ')}.`, answers: [list[2]!] };
+			const which = cryptoRandomInt(0, 3);
+			const position = ['first', 'second', 'last'][which]!;
+			const q = pick([
+				`Type the ${position} word in this list: ${list.join(', ')}.`,
+				`Of the words ${list.join(', ')}, which one is ${position}?`,
+				`Here are three words: ${list.join(', ')}. Type the ${position} one.`
+			]);
+			return { question: q, answers: [list[which]!] };
 		}
 	}
 }
@@ -154,10 +184,10 @@ function textQuestion(): { question: string; answers: string[] } {
 const normalise = (s: string) => s.normalize('NFKC').trim().toLowerCase().replace(/\s+/g, '');
 const mac = (data: string) => createHmac('sha256', hmacSignatureSecret).update(data).digest('base64url');
 
-function sign(kind: ChallengeKind, answers: string[]): string {
+function sign(kind: ChallengeKind, answers: string[], action: ProtectedAction, ua: string | null): string {
 	const id = randomBytes(12).toString('base64url');
 	const body = Buffer.from(
-		JSON.stringify({ id, kind, exp: Date.now() + LIFETIME_MS, answers: answers.map((a) => mac(`${id}:${normalise(a)}`)) })
+		JSON.stringify({ id, kind, act: action, ua: uaHash(ua), exp: Date.now() + LIFETIME_MS, answers: answers.map((a) => mac(`${id}:${normalise(a)}`)) })
 	).toString('base64url');
 	return `${body}.${mac(body)}`;
 }
@@ -168,13 +198,13 @@ function equal(a: string, b: string): boolean {
 	return x.length === y.length && timingSafeEqual(x, y);
 }
 
-export function createChallenge(kind: ChallengeKind): PublicChallenge {
+export function createChallenge(kind: ChallengeKind, action: ProtectedAction, ua: string | null): PublicChallenge {
 	if (kind === 'text') {
 		const { question, answers } = textQuestion();
-		return { kind, token: sign(kind, answers), question };
+		return { kind, token: sign(kind, answers, action, ua), question };
 	}
 	const text = Array.from({ length: CHARACTER_COUNT }, () => pick(ALPHABET)).join('');
-	return { kind, token: sign(kind, [text]), svg: drawCharacters(text) };
+	return { kind, token: sign(kind, [text], action, ua), svg: drawCharacters(text) };
 }
 
 /** Issues a proof-of-work challenge in the format the browser solves. */
@@ -182,20 +212,23 @@ export async function createProofOfWork(): Promise<unknown> {
 	return (await pow.challengeHandler()).json();
 }
 
-/** Checks a person's answer. Each token is accepted once, whether the answer is right or wrong. */
-export function checkAnswer(token: unknown, answer: unknown): boolean {
+/**
+ * Checks a person's answer. Each token is accepted once, whether the answer is right or wrong, and
+ * only for the action and the browser it was issued to.
+ */
+export async function checkAnswer(token: unknown, answer: unknown, action: ProtectedAction, ua: string | null, now = Date.now()): Promise<boolean> {
 	if (typeof token !== 'string' || typeof answer !== 'string' || !answer.trim() || token.length > 2_000) return false;
 	const [body, signature] = token.split('.');
 	if (!body || !signature || !equal(signature, mac(body))) return false;
-	let data: { id?: string; exp?: number; answers?: string[] };
+	let data: { id?: string; act?: string; ua?: string; exp?: number; answers?: string[] };
 	try {
 		data = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'));
 	} catch {
 		return false;
 	}
-	if (!data.id || !data.exp || !Array.isArray(data.answers) || data.exp < Date.now()) return false;
-	if (usedChallenges.has(data.id)) return false;
-	usedChallenges.set(data.id, true);
+	if (!data.id || !data.exp || !Array.isArray(data.answers) || data.exp < now) return false;
+	if (data.act !== action || data.ua !== uaHash(ua)) return false;
+	if (!(await consumeOnce('challenge', data.id, data.exp))) return false;
 	const given = mac(`${data.id}:${normalise(answer)}`);
 	return data.answers.some((a) => typeof a === 'string' && equal(a, given));
 }
@@ -203,14 +236,16 @@ export function checkAnswer(token: unknown, answer: unknown): boolean {
 export type CaptchaOutcome = 'ok' | 'incomplete' | 'incorrect';
 
 /** Verifies both layers from a submitted form. */
-export async function verifyCaptcha(form: FormData): Promise<CaptchaOutcome> {
+export async function verifyCaptcha(form: FormData, action: ProtectedAction, ua: string | null): Promise<CaptchaOutcome> {
 	const payload = form.get('altcha');
 	const token = form.get('captchaToken');
 	const answer = form.get('captchaAnswer');
-	if (typeof payload !== 'string' || !payload || typeof answer !== 'string' || !answer.trim()) return 'incomplete';
+	if (typeof payload !== 'string' || !payload || payload.length > 4_000 || typeof answer !== 'string' || !answer.trim()) return 'incomplete';
 	const proof = await pow.verify(payload, deriveKey, hmacSignatureSecret, hmacKeySignatureSecret, powStore);
 	if (proof.error || !proof.verification?.verified) return 'incomplete';
-	return checkAnswer(token, answer) ? 'ok' : 'incorrect';
+	// A solved proof of work is spent once, even across restarts.
+	if (!(await consumeOnce('pow', payload, Date.now() + LIFETIME_MS))) return 'incomplete';
+	return (await checkAnswer(token, answer, action, ua)) ? 'ok' : 'incorrect';
 }
 
 export const CAPTCHA_MESSAGES: Record<Exclude<CaptchaOutcome, 'ok'>, string> = {

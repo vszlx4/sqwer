@@ -7,7 +7,15 @@
 	 * characters shown, or answers a text question instead. `resetKey` changes after each submission,
 	 * because every challenge can be used only once.
 	 */
-	let { error = null, resetKey }: { error?: string | null; resetKey?: unknown } = $props();
+	interface Props {
+		error?: string | null;
+		resetKey?: unknown;
+		/** The form this verification is for; the server accepts it for that form only. */
+		action: 'signin' | 'signup' | 'reset';
+		/** Shown in place of Turnstile, when that could not run. */
+		fallback?: boolean;
+	}
+	let { error = null, resetKey, action, fallback = false }: Props = $props();
 
 	interface Pow {
 		parameters: Record<string, unknown>;
@@ -51,7 +59,7 @@
 		answer = '';
 		payload = '';
 		try {
-			const res = await fetch(`/api/captcha?kind=${kind}`, { signal: ctrl.signal, cache: 'no-store' });
+			const res = await fetch(`/api/captcha?kind=${kind}&action=${action}`, { signal: ctrl.signal, cache: 'no-store' });
 			if (!res.ok) throw new Error(String(res.status));
 			const data = (await res.json()) as { pow: Pow; challenge: Challenge };
 			challenge = data.challenge;
@@ -171,7 +179,7 @@
 	<noscript><p class="error">Verification requires JavaScript. Please enable it to continue.</p></noscript>
 	{#if error}<p class="error" id={`${uid}-error`} role="alert">{error}</p>{/if}
 	<p class="about" id={`${uid}-about`}>
-		This check is run by sqwer itself. No third party is contacted and no cookie is set.
+		{fallback ? 'The usual check could not run, so sqwer is checking this itself.' : 'This check is run by sqwer itself.'} No third party is contacted and no cookie is set.
 	</p>
 </fieldset>
 

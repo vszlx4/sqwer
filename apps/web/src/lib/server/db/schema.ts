@@ -155,6 +155,20 @@ export const courseState = pgTable('course_state', {
 }).enableRLS();
 
 /**
+ * One-time tokens that have been used: verification challenges, proof-of-work solutions, form
+ * tickets and Turnstile tokens. Only a hash is kept, until the token would have expired anyway, so
+ * a token cannot be replayed, even after a restart or on another server process.
+ */
+export const usedTokens = pgTable(
+	'used_tokens',
+	{
+		key: text('key').primaryKey(),
+		expiresAt: timestamp('expires_at', { withTimezone: true }).notNull()
+	},
+	(t) => [index('used_tokens_expiry_idx').on(t.expiresAt)]
+).enableRLS();
+
+/**
  * Experience granted by the operator rather than earned from a result or lesson, for example XP
  * carried over from another typing service. Counted in the account level like any other XP.
  */

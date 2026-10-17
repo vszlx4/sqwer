@@ -75,7 +75,7 @@ test('pages are served with a Content Security Policy', async ({ request }) => {
 	const csp = res.headers()['content-security-policy'] ?? '';
 	expect(csp).toContain("default-src 'self'");
 	expect(csp).toContain("frame-ancestors 'none'");
-	expect(csp).toMatch(/script-src 'self' 'nonce-/);
+	expect(csp).toMatch(/script-src 'self' https:\/\/challenges\.cloudflare\.com 'nonce-/);
 });
 
 test('robots.txt and the sitemap are served', async ({ request }) => {
