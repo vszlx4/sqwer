@@ -63,32 +63,6 @@ export async function playEcho(page: Page) {
 	}
 }
 
-/** Rhythm: presses each lane's key as a note reaches the line. */
-export async function playRhythm(page: Page) {
-	await expect(page.getByRole('button', { name: /^Start/ })).toBeVisible();
-	await page.evaluate(() => {
-		const lanes = [...document.querySelectorAll('.lane')];
-		const keys = lanes.map((l) => l.querySelector('.key')!.textContent!.trim().toLowerCase());
-		const line = document.querySelector('.line')!.getBoundingClientRect().top;
-		const pressed = new Set<Element>();
-		const frame = () => {
-			lanes.forEach((lane, i) => {
-				for (const note of lane.querySelectorAll('.note:not(.missed)')) {
-					const r = note.getBoundingClientRect();
-					if (Math.abs(r.top + r.height / 2 - line) < 6 && !pressed.has(note)) {
-						pressed.add(note);
-						document.body.dispatchEvent(new KeyboardEvent('keydown', { key: keys[i], bubbles: true }));
-					}
-				}
-			});
-			if (document.querySelector('.lane')) requestAnimationFrame(frame);
-		};
-		requestAnimationFrame(frame);
-	});
-	await page.keyboard.press('Space');
-	await expect(page.locator('.outcome')).toBeVisible({ timeout: 60_000 });
-}
-
 /** Falling words or letters: types whatever is lowest on the screen. */
 export async function playFalling(page: Page) {
 	await start(page);

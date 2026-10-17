@@ -5,7 +5,6 @@
 	import KeyHunt from '#lib/courses/steps/KeyHunt.svelte';
 	import ListenType from '#lib/courses/steps/ListenType.svelte';
 	import Race from '#lib/courses/steps/Race.svelte';
-	import RhythmGame from '#lib/courses/steps/RhythmGame.svelte';
 	import type { StepResult } from '#lib/courses/types.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import {
@@ -192,8 +191,6 @@
 					<Echo pool={LETTERS} start={settings.start!} target={settings.target!} showMs={settings.showMs} {words} oncomplete={done} />
 				{:else if game.id === 'listen'}
 					<ListenType pool={LETTERS} focus="" {words} count={settings.count!} target={settings.target!} oncomplete={done} />
-				{:else if game.id === 'rhythm'}
-					<RhythmGame keys={['f', 'j', 'd', 'k']} pool={LETTERS} bpm={settings.bpm!} target={settings.target!} oncomplete={done} />
 				{:else}
 					<KeyHunt pool={LETTERS} focus="" target={settings.target!} pace={settings.pace} oncomplete={done} />
 				{/if}

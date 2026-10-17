@@ -96,7 +96,7 @@
 				</p>
 				<div class="preview">
 					<span class="cap">F</span><span class="cap">J</span>
-					<p><b>Lesson 1 · {FIRST_LESSON.title}</b><br />{FIRST_LESSON.steps.length} short steps, including a rhythm game.</p>
+					<p><b>Lesson 1 · {FIRST_LESSON.title}</b><br />{FIRST_LESSON.steps.length} short steps, with games along the way.</p>
 				</div>
 				<div class="actions">
 					<button type="button" class="btn btn-primary btn-lg" onclick={() => startAt(FIRST_LESSON.id)}>

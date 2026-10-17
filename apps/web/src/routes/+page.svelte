@@ -62,11 +62,11 @@
 
 	const GAMES = [
 		{ kind: 'falling', title: 'Falling letters', body: 'Letters drop from the top. Type each one before it lands.' },
-		{ kind: 'rhythm', title: 'Rhythm keys', body: 'Notes travel down like piano keys and spell real words. Press each on the beat.' },
+		{ kind: 'words', title: 'Falling words', body: 'Whole words fall instead of letters. Type each before it lands; they speed up as you go.' },
 		{ kind: 'listen', title: 'Listen and type', body: 'Hear a word and type it, without seeing it first.' },
 		{ kind: 'keyhunt', title: 'Key hunt', body: 'A key lights up. Find it by touch before its light runs out.' },
 		{ kind: 'race', title: 'Race', body: 'Type a passage before the pacer reaches the finish line.' },
-		{ kind: 'echo', title: 'Echo', body: 'Watch a sequence of keys, then repeat it from memory. It grows each round.' }
+		{ kind: 'echo', title: 'Echo', body: 'The letters of a word light up one at a time and fade. Type the word from memory.' }
 	] as const;
 
 	const site = $derived(page.data.siteUrl ?? '');
@@ -164,15 +164,9 @@
 							{#each ['f', 'j', 'k', 'd', 'g'] as l, n (l)}<span class="fl" style:left={`${10 + n * 19}%`} style:--n={n}>{l}</span>{/each}
 							<span class="pop"></span>
 							<span class="floor"></span>
-						{:else if g.kind === 'rhythm'}
-							<span class="spell">{#each ['f', 'a', 'd'] as c, n (n)}<span style:--n={n}>{c}</span>{/each}</span>
-							{#each ['a', 'd', 'f'] as k, lane (k)}
-								<span class="lane" style:--lane={lane}>
-									{#each [0, 1] as n (n)}<span class="note" style:--n={lane * 0.5 + n * 1.25}></span>{/each}
-									<span class="lane-key">{k}</span>
-								</span>
-							{/each}
-							<span class="hit"></span>
+						{:else if g.kind === 'words'}
+							{#each ['steady', 'hand', 'river', 'quiet'] as w, n (w)}<span class="fl fw" style:left={`${6 + n * 23}%`} style:--n={n}>{w}</span>{/each}
+							<span class="floor"></span>
 						{:else if g.kind === 'listen'}
 							<span class="speaker"><span class="wave">{#each [0, 1, 2, 3, 4, 5, 6, 7, 8] as n (n)}<span style:--n={n}></span>{/each}</span></span>
 							<span class="typed">steady<span class="caret"></span></span>
@@ -625,75 +619,13 @@
 		border-top: 2px solid var(--accent);
 		box-shadow: 0 -10px 24px -8px rgb(204 249 0 / 0.5);
 	}
-	/* Rhythm: notes fall in lanes and spell a word above them. */
-	.p-rhythm {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-	}
-	.spell {
-		position: absolute;
-		top: 8px;
-		left: 50%;
-		z-index: 2;
-		display: flex;
-		justify-content: center;
-		gap: 2px;
-		padding: 2px 10px;
-		border-radius: 3px;
-		background: #0b0b0b;
-		box-shadow: 0 0 0 1px #262626;
-		transform: translateX(-50%);
-		font-family: var(--font-mono);
-		font-size: 18px;
-		font-weight: 600;
-		color: #5a5a55;
-	}
-	.spell span {
-		animation: spell 3.75s steps(1) infinite;
-		animation-delay: calc(var(--n) * 1.25s);
-	}
-	@keyframes spell {
-		0%,
-		33% {
-			color: var(--accent);
-		}
-	}
-	.lane {
-		position: relative;
-		border-right: 1px solid #1f1f1f;
-		background: linear-gradient(to bottom, transparent, rgb(255 255 255 / calc(0.02 + var(--lane) * 0.01)));
-	}
-	.note {
-		position: absolute;
-		top: -20px;
-		left: 18%;
-		right: 18%;
-		height: 14px;
-		border-radius: 3px;
-		background: var(--accent);
-		box-shadow: 0 0 14px rgb(204 249 0 / 0.55);
-		animation: fall 2.5s linear infinite;
-		animation-delay: calc(var(--n) * -1s);
-	}
-	.lane-key {
-		position: absolute;
-		left: 50%;
-		bottom: 6px;
-		transform: translateX(-50%);
-		font-family: var(--font-mono);
-		font-size: 12px;
-		font-weight: 600;
-		color: #b9b9b3;
-		text-transform: uppercase;
-	}
-	.hit {
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: 28px;
-		height: 2px;
-		background: #f2f2ee;
-		box-shadow: 0 0 10px rgb(242 242 238 / 0.6);
+	/* Falling words: whole words drop in place of letters. */
+	.fw {
+		width: auto;
+		padding: 0 8px;
+		font-size: 13px;
+		animation-duration: 4.4s;
+		animation-delay: calc(var(--n) * -1.1s);
 	}
 	/* Listening: a voice wave and the word appearing as it is typed. */
 	.p-listen,
@@ -1099,11 +1031,9 @@
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.fl,
-		.note,
 		.wave span,
 		.caret,
 		.pop,
-		.spell span,
 		.mk.target,
 		.fuse,
 		.trail,
@@ -1113,9 +1043,6 @@
 		}
 		.fl {
 			top: 40px;
-		}
-		.note {
-			top: 50px;
 		}
 	}
 </style>

@@ -124,7 +124,7 @@ export function drawCharacters(text: string): string {
 
 /* ----------------------------------------------------------- text questions */
 
-const WORDS = ['keyboard', 'letter', 'finger', 'practice', 'lesson', 'rhythm', 'accuracy', 'record', 'window', 'garden', 'planet', 'river', 'orange', 'winter', 'silver', 'market'];
+const WORDS = ['keyboard', 'letter', 'finger', 'practice', 'lesson', 'meadow', 'accuracy', 'record', 'window', 'garden', 'planet', 'river', 'orange', 'winter', 'silver', 'market'];
 const NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth'];
 

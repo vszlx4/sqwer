@@ -8,6 +8,7 @@
 	import { keyName } from '../catalog.ts';
 	import { seeded } from '../generate.ts';
 	import type { StepResult } from '../types.ts';
+	import Icon from '#lib/ui/Icon.svelte';
 	import GameFrame from './GameFrame.svelte';
 
 	/**
@@ -34,11 +35,20 @@
 	const layout = qwertyAnsi(resolvedPlatform());
 	const rand = seeded(Date.now() % 100000);
 	const keys = untrack(() => [...new Set([...pool])].filter((c) => c.trim()));
-	let sound = true;
+	const SOUND_KEY = 'sqwer:sound';
+	let sound = $state(true);
 	try {
-		sound = localStorage.getItem('sqwer:sound') !== 'off';
+		sound = localStorage.getItem(SOUND_KEY) !== 'off';
 	} catch {
 		// Storage unavailable: sound stays on.
+	}
+	function toggleSound() {
+		sound = !sound;
+		try {
+			localStorage.setItem(SOUND_KEY, sound ? 'on' : 'off');
+		} catch {
+			// Storage unavailable: the choice lasts for this visit.
+		}
 	}
 
 	let length = $state(untrack(() => start));
@@ -205,6 +215,9 @@
 	height={380}
 >
 	<div class="echo">
+		<button type="button" class="sound" onclick={toggleSound} aria-pressed={sound}>
+			<Icon name={sound ? 'volume' : 'mute'} size={15} /> Sound {sound ? 'on' : 'off'}
+		</button>
 		<p class="message" class:turn={mode === 'answering'} aria-live="polite">{message || ' '}</p>
 		<ol class="slots" aria-label={`Sequence of ${sequence.length} keys`}>
 			{#each sequence as k, i (i)}
@@ -221,11 +234,37 @@
 
 <style>
 	.echo {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: 16px;
 		padding: 22px 18px 18px;
+	}
+	.sound {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 5px 10px;
+		border-radius: 3px;
+		border: 1px solid var(--line-strong);
+		background: var(--bg);
+		color: var(--ink-2);
+		font: inherit;
+		font-size: 13px;
+		cursor: pointer;
+		transition: border-color 140ms ease;
+	}
+	.sound:hover {
+		border-color: var(--ink);
+		color: var(--ink);
+	}
+	.sound:focus-visible {
+		outline: 2px solid var(--ink);
+		outline-offset: 2px;
 	}
 	.message {
 		font-family: var(--font-serif);

@@ -191,7 +191,7 @@ describe('course variety', () => {
 
 	it('uses every game, and no two lessons in a row share the same set of steps', () => {
 		const kinds = new Set(LESSONS.flatMap((l) => l.steps.map((s) => s.kind)));
-		for (const k of ['falling', 'rhythm', 'keyhunt', 'race', 'echo', 'listen']) expect(kinds.has(k as never)).toBe(true);
+		for (const k of ['falling', 'keyhunt', 'race', 'echo', 'listen']) expect(kinds.has(k as never)).toBe(true);
 		const shape = (i: number) => LESSONS[i]!.steps.map((s) => s.kind).join(',');
 		const same: string[] = [];
 		for (let i = 1; i < LESSONS.length; i++) {
@@ -204,7 +204,7 @@ describe('course variety', () => {
 	it('gives every game a target instead of a time limit', () => {
 		for (const lesson of LESSONS)
 			for (const step of lesson.steps) {
-				if (step.kind === 'falling' || step.kind === 'rhythm' || step.kind === 'keyhunt') expect(step.target).toBeGreaterThan(0);
+				if (step.kind === 'falling' || step.kind === 'keyhunt') expect(step.target).toBeGreaterThan(0);
 				expect('seconds' in step && step.kind !== 'checkpoint').toBe(false);
 			}
 	});
