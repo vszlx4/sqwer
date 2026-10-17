@@ -3,6 +3,7 @@ import { track } from '#lib/server/analytics/track.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import {
 	createSession,
+	deleteSession,
 	findUserByEmail,
 	hashPassword,
 	issueRecoveryCodes,
@@ -65,26 +66,36 @@ export const actions: Actions = {
 		if (form.get('ageConfirm') !== 'on') errors.ageConfirm = 'You must confirm that you are at least 16 years old.';
 		if (Object.keys(errors).length || !parsedEmail.success) return again(400, { values, errors });
 
-		if (await findUserByEmail(parsedEmail.data)) {
-			// Deliberately general, so the form cannot be used to discover registered addresses.
-			return again(400, {
+		// The password is hashed before the address is looked up, so the response takes as long
+		// whether or not the address is registered.
+		const passwordHash = await hashPassword(password);
+		// Deliberately general, so the form cannot be used to discover registered addresses.
+		const taken = () =>
+			again(400, {
 				values,
 				errors: { form: 'An account could not be created with these details. If you already have an account, please sign in.' }
 			});
-		}
+		if (await findUserByEmail(parsedEmail.data)) return taken();
 
 		const id = newUserId();
 		const now = new Date();
-		// What was accepted, and when, is kept as evidence of acceptance and of the age confirmation.
-		await (await db()).insert(schema.users).values({
-			id,
-			email: parsedEmail.data,
-			passwordHash: await hashPassword(password),
-			termsVersion: ACCEPTANCE_VERSION,
-			termsAcceptedAt: now,
-			ageConfirmedAt: now
-		});
+		try {
+			// What was accepted, and when, is kept as evidence of acceptance and of the age confirmation.
+			await (await db()).insert(schema.users).values({
+				id,
+				email: parsedEmail.data,
+				passwordHash,
+				termsVersion: ACCEPTANCE_VERSION,
+				termsAcceptedAt: now,
+				ageConfirmedAt: now
+			});
+		} catch (e) {
+			// Two registrations for the same address at once: the second gets the same answer as above.
+			if ((e as { code?: string; cause?: { code?: string } })?.code === '23505' || (e as { cause?: { code?: string } })?.cause?.code === '23505') return taken();
+			throw e;
+		}
 		const codes = await issueRecoveryCodes(id);
+		if (event.locals.sessionId) await deleteSession(event.locals.sessionId);
 		const session = await createSession(id, request.headers.get('user-agent'));
 		await logSecurity('account_created', { userId: id, ip, userAgent: request.headers.get('user-agent') });
 		track('signup_completed', { userId: id });

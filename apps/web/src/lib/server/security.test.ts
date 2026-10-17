@@ -23,6 +23,16 @@ describe('safeRedirect', () => {
 		expect(safeRedirect('/\\evil.example', '/x')).toBe('/x');
 		expect(safeRedirect(null, '/x')).toBe('/x');
 	});
+
+	it('rejects targets that a browser would resolve to another site', () => {
+		// Browsers drop tabs and newlines from addresses: "/\t/evil.example" becomes "//evil.example".
+		for (const t of ['/\t/evil.example', '/\n/evil.example', '/\r\n/evil.example', '/\\/evil.example', '/\t\\evil.example']) {
+			expect(safeRedirect(t, '/x')).toBe('/x');
+		}
+		expect(safeRedirect('/admin/analytics?range=7d#top', '/x')).toBe('/admin/analytics?range=7d#top');
+		expect(safeRedirect('/%09/evil.example', '/x')).toBe('/%09/evil.example');
+		expect(new URL(safeRedirect('/%09/evil.example', '/x'), 'https://sqwer.example').host).toBe('sqwer.example');
+	});
 });
 
 describe('input sanitising and validation', () => {
@@ -108,6 +118,19 @@ describe('verification challenge', async () => {
 		expect(svg.startsWith('<svg')).toBe(true);
 		expect(svg).not.toMatch(/<text|AC347/);
 		expect(svg.match(/<path/g)!.length).toBeGreaterThan(5 + 2);
+	});
+
+	it('never reveals a character through its path data or the element order', () => {
+		// The glyph paths for A and T, as defined in captcha.ts: a script could look these up.
+		const svg = drawCharacters('ATATA');
+		expect(svg).not.toContain('M0 14 L5 0 L10 14');
+		expect(svg).not.toContain('M0 0 H10 M5 0 V14');
+		expect(svg).not.toMatch(/transform=|scale\(/);
+		// The same character is never drawn with the same path twice.
+		const glyphPaths = (s: string) => [...s.matchAll(/<path d="([^"]+)" stroke-width="[\d.]+"\/>/g)].map((m) => m[1]!).filter((d) => d.split(' ').length > 6);
+		const first = glyphPaths(drawCharacters('AAAAA'));
+		expect(new Set(first).size).toBe(first.length);
+		expect(first.some((d) => glyphPaths(drawCharacters('AAAAA')).includes(d))).toBe(false);
 	});
 
 	const UA = 'Mozilla/5.0 test browser';

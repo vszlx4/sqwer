@@ -28,6 +28,8 @@ Weaknesses found:
 | 7 | The password checks on Account → Your data (clear data, delete account) had no rate limit. | A stolen session could be used to guess the password. |
 | 8 | Every sign-in required the full challenge; there were no risk signals. | Unnecessary friction for people, no extra scrutiny for suspicious requests. |
 | 9 | The Content Security Policy allowed only sqwer's own scripts and frames. | A third-party widget such as Turnstile could not load. |
+| 10 | (Security audit, October 2026.) Each character of the image challenge was drawn from a fixed path, with the distortion applied as a separate `transform`. | A script could read the answer from the SVG markup by matching the path data, without recognising any image. Characters are now drawn with the distortion and random jitter applied to every point, and the elements are shuffled, so the markup reveals neither the characters nor their order. |
+| 11 | (Security audit, October 2026.) A registered account was locked after ten failures, while an unregistered address kept getting "incorrect". | The lock message revealed which email addresses are registered. Both are now locked by the same count with the same message. |
 
 ## 2. Options evaluated
 
@@ -53,9 +55,11 @@ Each protected submission passes, in order:
 
 1. **Rate limits**, checked before anything else:
    - Sign-up: 5 per address, 20 per network (/24 or /48) and 300 across the site, per hour.
-   - Sign-in: 20 per address and 100 per network per 15 minutes; 5 failures per account and address, and 30 per
-     account from all addresses, per 15 minutes. The account itself is locked only after 10 consecutive failures, so a
-     stranger cannot cheaply lock someone out.
+   - Sign-in: 20 per address and 100 per network per 15 minutes; 5 failures per email address and client address, and
+     10 per email address from all client addresses, per 15 minutes, after which sign-in for that email address is locked
+     for 15 minutes. Both counts are kept for every email address entered, registered or not, and give the same answer,
+     so the lock does not reveal which addresses have accounts. Existing accounts are also locked in the database, so
+     the lock survives a restart.
    - Password reset: 6 per address and 5 per account, per hour.
    - Challenge endpoint: 60 per address and 300 per network per 10 minutes.
 2. **Hidden field.** A field people never see or fill in. If it is filled, the request is refused.

@@ -83,7 +83,8 @@ tables. Run the owner role again only when deploying a version with new migratio
 - Passwords hashed with scrypt; recovery codes and session tokens stored only as SHA-256 hashes.
 - All sessions are ended when a password is changed or reset; recovery codes are single-use.
 - Generic error messages and constant-time password checks prevent account enumeration.
-- Account lock for 15 minutes after five failed sign-ins; rate limits on sign-up, sign-in, password reset and APIs.
+- Sign-in locked for 15 minutes after five failures from one address or ten from all addresses, with the same answer for registered and unregistered email addresses; rate limits on sign-up, sign-in, password reset and APIs.
+- Redirect targets after sign-in are resolved as a browser would and must stay on the site.
 - sqwer's own verification on account forms: a background proof-of-work check plus distorted characters to type, with a text question as an accessible alternative; every challenge is signed, expires after ten minutes and is single-use. Also a hidden trap field and a minimum form-fill time.
 - Content Security Policy limiting scripts, styles, images, fonts and connections to the site's own origin, with a nonce for inline scripts; `frame-ancestors 'none'`.
 - Acceptance of the Terms and Privacy Policy (version and time), the age confirmation, and the rights confirmation for profile pictures are recorded.
