@@ -12,9 +12,10 @@ type Row = Record<string, unknown>;
 const rowsOf = (r: unknown) => (r as { rows: Row[] }).rows;
 
 /**
- * The public leaderboards are the same for every visitor and need a pass over all listed players,
- * so they are computed at most once per PUBLIC_TTL_MS; a new result appears within that time. A
- * player's own standing is never cached.
+ * The leaderboards are the same for every visitor and need a pass over all listed players, so they
+ * are computed at most once per PUBLIC_TTL_MS. Anything that changes who is listed or a listed
+ * speed (a verified competitive result, a profile change, cleared ranked results, a deleted account)
+ * calls invalidateLeaderboards(), so changes, and above all withdrawals, show at once.
  */
 const PUBLIC_TTL_MS = 30_000;
 const publicCache = new Map<string, { at: number; value: Promise<unknown> }>();
@@ -23,9 +24,15 @@ function cachedPublic<T>(key: string, compute: () => Promise<T>): Promise<T> {
 	if (hit && Date.now() - hit.at < PUBLIC_TTL_MS) return hit.value as Promise<T>;
 	const value = compute();
 	publicCache.set(key, { at: Date.now(), value });
-	// A failed computation is not kept, so the next request tries again.
-	value.catch(() => publicCache.delete(key));
+	// A failed computation is not kept, so the next request tries again (unless already replaced).
+	value.catch(() => {
+		if (publicCache.get(key)?.value === value) publicCache.delete(key);
+	});
 	return value;
+}
+
+export function invalidateLeaderboards() {
+	publicCache.clear();
 }
 
 /** Per-user XP as a SQL fragment: examination XP, course points and any XP granted to the account. */
@@ -134,7 +141,11 @@ export function competitiveBests(): Promise<number[]> {
 	return cachedPublic('bests', async () => (await listedBests()).map((r) => r.best));
 }
 
-async function listedBests(): Promise<{ userId: string; best: number }[]> {
+function listedBests(): Promise<{ userId: string; best: number }[]> {
+	return cachedPublic('listed', computeListedBests);
+}
+
+async function computeListedBests(): Promise<{ userId: string; best: number }[]> {
 	const res = await (await db()).execute(sql`
 		select r.user_id, max(r.wpm) as best from results r
 		join profiles p on p.user_id = r.user_id and p.show_on_leaderboard

@@ -1,6 +1,6 @@
 import { createHash, randomBytes, randomUUID, scrypt as scryptCb, timingSafeEqual, type ScryptOptions } from 'node:crypto';
 import type { Cookies } from '@sveltejs/kit';
-import { and, eq, gt, isNull, lt, ne } from 'drizzle-orm';
+import { and, eq, gt, isNull, lt, ne, or } from 'drizzle-orm';
 import { db, schema } from './db/index.ts';
 
 const { users, sessions, recoveryCodes } = schema;
@@ -124,8 +124,11 @@ export async function deleteUserSessions(userId: string, keepId?: string) {
 	await d.delete(sessions).where(keepId ? and(eq(sessions.userId, userId), ne(sessions.id, keepId)) : eq(sessions.userId, userId));
 }
 
+/** The oldest sign-in time a session may still have (see MAX_SESSION_DAYS). */
+const oldestSignIn = () => new Date(Date.now() - MAX_SESSION_DAYS * DAY);
+
 export async function deleteExpiredSessions() {
-	await (await db()).delete(sessions).where(lt(sessions.expiresAt, new Date()));
+	await (await db()).delete(sessions).where(or(lt(sessions.expiresAt, new Date()), lt(sessions.createdAt, oldestSignIn())));
 }
 
 export function setSessionCookie(cookies: Cookies, token: string, expiresAt: Date, secure: boolean) {
@@ -200,6 +203,6 @@ export async function activeSessions(userId: string) {
 	return (await db())
 		.select({ id: sessions.id, device: sessions.device, createdAt: sessions.createdAt, lastSeenAt: sessions.lastSeenAt })
 		.from(sessions)
-		.where(and(eq(sessions.userId, userId), gt(sessions.expiresAt, new Date())))
+		.where(and(eq(sessions.userId, userId), gt(sessions.expiresAt, new Date()), gt(sessions.createdAt, oldestSignIn())))
 		.orderBy(sessions.lastSeenAt);
 }

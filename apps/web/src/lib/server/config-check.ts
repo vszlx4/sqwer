@@ -1,3 +1,4 @@
+import { LEGAL } from '../site/links.ts';
 import { SITE_URL } from './config.ts';
 
 /*
@@ -20,8 +21,10 @@ export function isPublicSite(siteUrl = SITE_URL): boolean {
 const SECRETS = ['CAPTCHA_HMAC_SECRET', 'CAPTCHA_HMAC_KEY_SECRET', 'LOG_HASH_SECRET'] as const;
 
 /** The problems found, as short messages (also used by the tests). */
-export function configurationProblems(env: NodeJS.ProcessEnv = process.env, siteUrl = SITE_URL): string[] {
+export function configurationProblems(rawEnv: NodeJS.ProcessEnv = process.env, siteUrl = SITE_URL): string[] {
 	if (!isPublicSite(siteUrl)) return [];
+	// Read the values as the app does: surrounding spaces (a common .env slip) are ignored.
+	const env = Object.fromEntries(Object.entries(rawEnv).map(([k, v]) => [k, v?.trim() || undefined]));
 	const problems: string[] = [];
 	if (new URL(siteUrl).protocol !== 'https:') {
 		problems.push('PUBLIC_SITE_URL is not HTTPS: the session cookie is sent without Secure and HSTS is off.');
@@ -35,6 +38,7 @@ export function configurationProblems(env: NodeJS.ProcessEnv = process.env, site
 	if (!!env.TURNSTILE_SITE_KEY !== !!env.TURNSTILE_SECRET_KEY) {
 		problems.push('Only one of TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY is set: Turnstile stays off.');
 	}
+	if (!LEGAL.webHost) problems.push('The web host is not named in the Privacy Policy: set LEGAL.webHost in src/lib/site/links.ts.');
 	if (env.TURNSTILE_SECRET_KEY && isTurnstileTestSecret(env.TURNSTILE_SECRET_KEY)) {
 		problems.push('TURNSTILE_SECRET_KEY is one of Cloudflare’s test secrets: it is refused on a public site and Turnstile stays off.');
 	}

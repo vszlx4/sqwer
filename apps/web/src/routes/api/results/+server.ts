@@ -7,6 +7,7 @@ import { categoryOfExam } from '#lib/data/categories.ts';
 import { clearedAt } from '#lib/server/data.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
+import { invalidateLeaderboards } from '#lib/server/progress.ts';
 import { verifyCompetitive, verifyMinute } from '#lib/progress/competitive.ts';
 import { examXp } from '#lib/progress/xp.ts';
 import { EXAM_IDS } from '#lib/results/types.ts';
@@ -78,6 +79,12 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		.values({ id: r.id, userId: locals.user.id, exam: r.exam, createdAt: new Date(r.at), data: r, xp, wpm: r.wpm, verified })
 		.onConflictDoNothing();
 	if (r.status === 'completed') track('test_completed', { userId: locals.user.id, props: { exam: r.exam } });
-	if (verified && r.exam === 'competitive') track('ranked_verified', { userId: locals.user.id });
+	if (verified && r.exam === 'competitive') {
+		track('ranked_verified', { userId: locals.user.id });
+		invalidateLeaderboards();
+	} else if (xp > 0) {
+		// The level leaderboard orders by experience.
+		invalidateLeaderboards();
+	}
 	return json({ ok: true, xp, verified });
 };

@@ -21,11 +21,11 @@ function loadEnv() {
 /**
  * Opens the database. Returns `query(text, params)` and `close()`. With `migrate: true`, pending
  * migrations are applied (this needs the owner role); otherwise the schema must already be up to date.
- * `url` overrides DATABASE_URL, for example with MIGRATION_DATABASE_URL.
+ * With `owner: true`, MIGRATION_DATABASE_URL is used when set (after the .env file is read).
  */
-export async function open({ migrate: apply = false, url: override } = {}) {
+export async function open({ migrate: apply = false, owner = false } = {}) {
 	loadEnv();
-	const url = (override ?? process.env.DATABASE_URL)?.trim();
+	const url = ((owner && process.env.MIGRATION_DATABASE_URL?.trim()) || process.env.DATABASE_URL?.trim()) || undefined;
 	let query, close, transaction;
 	if (url) {
 		const { default: pg } = await import('pg');
@@ -58,12 +58,12 @@ export async function open({ migrate: apply = false, url: override } = {}) {
 		transaction = (fn) => db.transaction((tx) => fn(async (text, params = []) => (await tx.query(text, params)).rows));
 		close = () => db.close();
 	}
-	const applied = await migrate(query, transaction, apply);
+	const applied = await migrate(query, transaction, apply, !!url);
 	return { query, close, applied };
 }
 
 /** Read-only check first, as in the app (src/lib/server/db/index.ts); returns the migrations applied. */
-async function migrate(query, transaction, apply) {
+async function migrate(query, transaction, apply, server) {
 	const [{ present }] = await query("SELECT to_regclass('public.sqwer_migrations') IS NOT NULL AS present");
 	const done = new Set(present ? (await query('SELECT name FROM sqwer_migrations')).map((r) => r.name) : []);
 	const dir = path.join(APP_DIR, 'drizzle');
@@ -72,7 +72,7 @@ async function migrate(query, transaction, apply) {
 		.sort();
 	if (!pending.length) return [];
 	// The embedded database is only ever used by this app, so it is kept up to date automatically.
-	if (!apply && process.env.DATABASE_URL) {
+	if (!apply && server) {
 		throw new Error(`The database schema is out of date (${pending.length} pending). Run \`npm run db:migrate -w web\` first.`);
 	}
 	if (!present) {
@@ -104,6 +104,8 @@ export async function grantAppRole(query, role) {
 	await query(`GRANT USAGE ON SCHEMA public TO ${r}`);
 	await query(`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${r}`);
 	await query(`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${r}`);
+	// The record of applied migrations is only read by the app, never changed by it.
+	await query(`REVOKE INSERT, UPDATE, DELETE ON public.sqwer_migrations FROM ${r}`);
 	const tables = await query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename");
 	const covered = [];
 	for (const { tablename } of tables) {
@@ -112,7 +114,9 @@ export async function grantAppRole(query, role) {
 			"SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = $1 AND policyname = 'sqwer_app_access') AS present",
 			[tablename]
 		);
-		if (!present) await query(`CREATE POLICY sqwer_app_access ON public."${tablename}" FOR ALL TO ${r} USING (true) WITH CHECK (true)`);
+		const command = tablename === 'sqwer_migrations' ? 'SELECT' : 'ALL';
+		const check = command === 'ALL' ? ' WITH CHECK (true)' : '';
+		if (!present) await query(`CREATE POLICY sqwer_app_access ON public."${tablename}" FOR ${command} TO ${r} USING (true)${check}`);
 		covered.push(tablename);
 	}
 	return covered;

@@ -10,7 +10,7 @@
 // table, including new ones, and nothing more (see grantAppRole).
 import { grantAppRole, open } from './lib/db.mjs';
 
-const db = await open({ migrate: true, url: process.env.MIGRATION_DATABASE_URL || undefined });
+const db = await open({ migrate: true, owner: true });
 try {
 	console.log(db.applied.length ? `Applied: ${db.applied.join(', ')}` : 'The database schema is up to date.');
 	const role = process.env.DATABASE_APP_ROLE?.trim();
