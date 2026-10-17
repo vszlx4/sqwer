@@ -1,4 +1,5 @@
 import { error, json } from '@sveltejs/kit';
+import { track } from '#lib/server/analytics/track.ts';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { lessonById } from '#lib/courses/catalog.ts';
@@ -60,6 +61,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		.values({ userId, lessonId: r.lessonId, ...next })
 		.onConflictDoUpdate({ target: [schema.courseProgress.userId, schema.courseProgress.lessonId], set: next });
 	if (completed) await d.insert(schema.courseDays).values({ userId, day: r.day }).onConflictDoNothing();
+	if (completed) track('lesson_completed', { userId, props: { lesson: r.lessonId, stars: r.stars } });
 	return json(await load(userId));
 };
 

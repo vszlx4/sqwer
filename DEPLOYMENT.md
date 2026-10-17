@@ -17,6 +17,8 @@
 | `CAPTCHA_HMAC_SECRET`, `CAPTCHA_HMAC_KEY_SECRET` | Recommended | Secrets that sign the verification challenges (proof of work and the typed challenge). Generated and stored in `SQWER_DATA_DIR/secrets.json` when absent. |
 | `LOG_HASH_SECRET` | Recommended | Key used to hash IP addresses in security logs. Generated when absent. |
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Recommended | Cloudflare Turnstile keys (free). When both are set, Turnstile protects sign-up, sign-in and password reset, with sqwer's own check as the automatic fallback. When unset, sqwer's own check is used. See [BOT_PROTECTION.md](BOT_PROTECTION.md). |
+| `ANALYTICS_DISABLED` | No | `1` turns off browser analytics (no consent banner); server events are still recorded. See [ANALYTICS.md](ANALYTICS.md). |
+| `ANALYTICS_RETENTION_DAYS` | No | Days raw analytics events are kept (default 395, about 13 months, as the Privacy Policy states). |
 | `SQWER_DATA_DIR` | No | Directory for the embedded database and generated secrets. Defaults to `.data` in the working directory. |
 | `BODY_SIZE_LIMIT` | No | Maximum request body size. The start script sets `6M`, enough for a large finger map. |
 | `PORT`, `HOST` | No | Listening address for the Node server (default port 3000). |
@@ -35,6 +37,17 @@ PUBLIC_SITE_URL=https://sqwer.example DATABASE_URL=postgres://... npm start
 
 Database migrations in `apps/web/drizzle` are applied automatically on start-up. To create a new migration after
 changing `apps/web/src/lib/server/db/schema.ts`, run `npm run db:generate -w web`.
+
+## Administrators
+
+The analytics dashboard at `/admin/analytics` is available only to administrators. After deploying, grant yourself
+the role from the server (it cannot be granted through the website):
+
+```sh
+npm run admin -w web -- grant you@example.com
+```
+
+`list` and `revoke <email>` are also available. See [ANALYTICS.md](ANALYTICS.md).
 
 ## Database permissions
 
@@ -88,3 +101,5 @@ Rate limits are held in memory and apply per server process. If you run several 
   policy and update its date in `apps/web/src/lib/site/legal.ts` before then.
 - **Legal documents:** when a document changes in substance, raise its version and effective date in
   `apps/web/src/lib/site/legal.ts` and add a line to its version history.
+- **Analytics:** daily totals and the 13-month retention run automatically inside the server every six hours; nothing
+  needs scheduling. Review the administrators with `npm run admin -w web -- list` from time to time.

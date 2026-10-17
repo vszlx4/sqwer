@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { sequence, type Handle } from '@sveltejs/kit/hooks';
+import { sequence, type Handle, type ServerInit } from '@sveltejs/kit/hooks';
 import {
 	clearSessionCookie,
 	deleteExpiredSessions,
@@ -7,6 +7,12 @@ import {
 	setSessionCookie,
 	validateSession
 } from '#lib/server/auth.ts';
+import { startAnalyticsMaintenance } from '#lib/server/analytics/maintenance.ts';
+
+/** Background upkeep of analytics (daily totals and retention), once per server process. */
+export const init: ServerInit = () => {
+	startAnalyticsMaintenance();
+};
 
 /** Expired sessions are purged at most once an hour. */
 let lastPurge = 0;

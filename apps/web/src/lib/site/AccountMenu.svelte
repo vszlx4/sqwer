@@ -22,6 +22,7 @@
 			level: LevelStatus;
 			best: number | null;
 			pace: { tests: number; wpm: number | null; accuracy: number | null };
+			isAdmin?: boolean;
 		};
 	}
 
@@ -136,6 +137,7 @@
 						<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
 					{/each}
 					<a href="/history" aria-current={page.url.pathname === '/history' ? 'page' : undefined}>History</a>
+					{#if user.isAdmin}<a href="/admin/analytics" aria-current={page.url.pathname.startsWith('/admin') ? 'page' : undefined}>Analytics</a>{/if}
 				{:else}
 					<a href="/account/setup">Complete your profile</a>
 				{/if}

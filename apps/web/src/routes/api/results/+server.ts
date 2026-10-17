@@ -1,4 +1,5 @@
 import { error, json } from '@sveltejs/kit';
+import { track } from '#lib/server/analytics/track.ts';
 import { desc, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { FINGERS } from '@sqwer/layouts';
@@ -76,5 +77,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		.insert(schema.results)
 		.values({ id: r.id, userId: locals.user.id, exam: r.exam, createdAt: new Date(r.at), data: r, xp, wpm: r.wpm, verified })
 		.onConflictDoNothing();
+	if (r.status === 'completed') track('test_completed', { userId: locals.user.id, props: { exam: r.exam } });
+	if (verified && r.exam === 'competitive') track('ranked_verified', { userId: locals.user.id });
 	return json({ ok: true, xp, verified });
 };

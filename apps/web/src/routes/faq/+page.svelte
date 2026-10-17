@@ -54,7 +54,7 @@
 		},
 		{
 			q: 'Does sqwer use cookies or tracking?',
-			a: 'sqwer sets one strictly necessary cookie to keep you signed in, and stores your settings and practice data in your browser. It does not use advertising, analytics or tracking technologies. The Cookie and Storage Policy lists everything.'
+			a: 'sqwer sets one strictly necessary cookie to keep you signed in, and stores your settings and practice data in your browser. It does not use advertising, cross-site tracking or third-party analytics. With your permission only, its own analytics counts which pages are visited; you can change your choice under Analytics preferences at the foot of every page. The Cookie and Storage Policy lists everything.'
 		},
 		{
 			q: 'Where is my data stored?',

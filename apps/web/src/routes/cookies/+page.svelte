@@ -23,7 +23,26 @@
 		{ name: 'sqwer:endless', purpose: 'For each endless game: your best run, the level adaptive difficulty reached and the difficulty you chose last.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:resets', purpose: 'When this browser last discarded its copy of data you cleared from your account, so that it is not uploaded again.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:pace', purpose: 'The adaptive pace of the Courses, which makes games and drills gentler or brisker according to how your exercises go.', lasts: 'Until you remove it', sent: 'Never' },
+		{ name: 'sqwer:analytics-consent', purpose: 'Your answer to the analytics question (allow or refuse) and when you gave it, so that you are not asked again. It contains no identifier.', lasts: 'Until you remove it, or until what analytics collects changes and you are asked again', sent: 'Never' },
 		{ name: 'sqwer:device', purpose: 'A random identifier for this browser, created only while you are signed in, so that its usage statistics are kept separate from your other devices.', lasts: 'Until you remove it', sent: 'With your usage statistics, while signed in' }
+	];
+
+	/** Set only after the visitor selects Allow in the analytics banner; removed on withdrawal. */
+	const ANALYTICS: (Item & { store: string })[] = [
+		{
+			name: 'sqwer:analytics-id',
+			store: 'Local storage',
+			purpose: 'A random visitor identifier, so that repeat visits from this browser are counted as one visitor. It is not derived from your device or any information about you.',
+			lasts: 'Until you withdraw consent or remove it',
+			sent: 'With each analytics event'
+		},
+		{
+			name: 'sqwer:analytics-session',
+			store: 'Session storage',
+			purpose: 'A random visit identifier and the time of your last activity, so that pages opened during one visit are grouped together. A new identifier is created after 30 minutes without activity.',
+			lasts: 'Until the browser tab is closed, or you withdraw consent',
+			sent: 'With each analytics event'
+		}
 	];
 
 	const INDEXED: Item[] = [
@@ -37,6 +56,7 @@
 		{ id: 'law', label: 'Legal framework' },
 		{ id: 'cookie', label: 'The cookie sqwer sets' },
 		{ id: 'storage', label: 'Browser storage' },
+		{ id: 'analytics', label: 'Analytics, only with consent' },
 		{ id: 'other', label: 'Other device features' },
 		{ id: 'not-used', label: 'What sqwer does not use' },
 		{ id: 'manage', label: 'Managing and removing' },
@@ -49,7 +69,7 @@
 <Prose
 	kicker="Legal"
 	title={doc.title}
-	lede="sqwer uses one strictly necessary cookie, and browser storage only for features you use. Nothing is used for advertising, analytics or tracking, and nothing is set by third parties. For this reason, sqwer does not display a cookie consent banner."
+	lede="sqwer uses one strictly necessary cookie and browser storage for features you use. Two analytics identifiers are stored only if you allow analytics in the banner shown on your first visit. Nothing is used for advertising or cross-site tracking, and nothing is set by third parties."
 	crumbs={[{ href: '/legal', label: 'Legal centre' }, { href: doc.href, label: doc.title }]}
 	{doc}
 	{toc}
@@ -73,10 +93,16 @@
 		requested.
 	</p>
 	<p>
-		2.2. Every item in this policy falls within that exemption: each is required for a feature you choose to use, such
-		as staying signed in, keeping your settings, or saving practice data without an account. None is used for any other
-		purpose. Consent is therefore not required, and no consent banner is shown. If sqwer ever proposed to use anything
-		that is not strictly necessary, it would ask for your consent before doing so, and you could withdraw it at any time.
+		2.2. Every item in sections 3 and 4 falls within that exemption: each is required for a feature you choose to use,
+		such as staying signed in, keeping your settings, saving practice data without an account, or remembering your
+		answer to the analytics question. None is used for any other purpose, so consent is not required for them.
+	</p>
+	<p>
+		2.3. The analytics identifiers in section 5 are not strictly necessary. They are stored only after you give consent
+		by selecting <strong>Allow</strong> in the analytics banner, which offers <strong>No, thanks</strong> with equal
+		prominence. Nothing is stored before you choose, and closing or ignoring the banner is not taken as consent. You can
+		withdraw consent at any time under <strong>Analytics preferences</strong> at the foot of every page, which deletes
+		both identifiers at once. A Global Privacy Control or Do Not Track signal from your browser is treated as a refusal.
 	</p>
 
 	<h2 id="cookie">3. The cookie sqwer sets</h2>
@@ -133,23 +159,46 @@
 		</table>
 	</div>
 
-	<h2 id="other">5. Other device features</h2>
+	<h2 id="analytics">5. Analytics, only with consent</h2>
+	<p>
+		5.1. If you allow analytics, sqwer stores the following items, which its own analytics uses to count visitors and
+		visits. They are read only by sqwer and sent only to sqwer. What is collected, why and for how long is described in
+		paragraph 4.4 of the <a href="/privacy#analytics">Privacy Policy</a>.
+	</p>
+	<div class="table-wrap">
+		<table>
+			<thead>
+				<tr><th scope="col">Name</th><th scope="col">Where</th><th scope="col">Purpose</th><th scope="col">Duration</th><th scope="col">Sent to sqwer</th></tr>
+			</thead>
+			<tbody>
+				{#each ANALYTICS as item (item.name)}
+					<tr><th scope="row"><code>{item.name}</code></th><td>{item.store}</td><td>{item.purpose}</td><td>{item.lasts}</td><td>{item.sent}</td></tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
+	<p>
+		5.2. Analytics events are sent to <code>/api/analytics</code> on sqwer’s own server, which records them as described
+		in the Privacy Policy. No analytics cookie is set, and no third-party analytics service is used.
+	</p>
+
+	<h2 id="other">6. Other device features</h2>
 	<ul>
 		<li><strong>Speech:</strong> the listening exercises use a voice built into your device. Only voices that run on your device are used; the words are not sent anywhere.</li>
 		<li><strong>Sound:</strong> the Echo game plays soft notes generated in your browser, and can be muted. No audio is recorded.</li>
 		<li><strong>Verification:</strong> sqwer’s own check on account forms performs a computation in your browser and stores nothing on your device. Where Cloudflare Turnstile is enabled, its check runs in a frame from challenges.cloudflare.com, under Cloudflare’s Turnstile privacy terms; Cloudflare states that the data is used only to tell people from bots and not for advertising.</li>
 	</ul>
 
-	<h2 id="not-used">6. What sqwer does not use</h2>
+	<h2 id="not-used">7. What sqwer does not use</h2>
 	<ul>
-		<li>No advertising, analytics, social media or tracking cookies, pixels, beacons or fingerprinting.</li>
-		<li>No third-party scripts, fonts, embeds or content delivery networks: everything is served by sqwer itself.</li>
-		<li>No cross-site tracking. Browser signals such as Global Privacy Control or Do Not Track are respected by default, because there is nothing to opt out of.</li>
+		<li>No advertising, social media or tracking cookies, pixels or fingerprinting, and no analytics cookies of any kind.</li>
+		<li>No third-party analytics, scripts, fonts, embeds or content delivery networks: everything is served by sqwer itself, except Cloudflare’s verification frame where Turnstile is enabled (section 6).</li>
+		<li>No cross-site tracking. Global Privacy Control and Do Not Track signals are honoured as a refusal of analytics.</li>
 	</ul>
 
-	<h2 id="manage">7. Managing and removing</h2>
+	<h2 id="manage">8. Managing and removing</h2>
 	<p>
-		7.1. You can remove the cookie and all stored items at any time by clearing the site data for sqwer in your browser:
+		8.1. You can remove the cookie and all stored items at any time by clearing the site data for sqwer in your browser:
 	</p>
 	<ul>
 		<li><strong>Chrome and Edge:</strong> Settings → Privacy and security → Site settings (or Cookies and site permissions) → View data stored on sites.</li>
@@ -157,14 +206,14 @@
 		<li><strong>Safari:</strong> Settings → Privacy → Manage Website Data.</li>
 	</ul>
 	<p>
-		7.2. Removing the cookie signs you out. Removing browser storage deletes your settings and any practice data that is
+		8.2. Removing the cookie signs you out. Removing browser storage deletes your settings and any practice data that is
 		not saved to an account; data saved to your account is not affected and returns when you sign in again. You can also
 		block cookies entirely, in which case you can still use sqwer without an account.
 	</p>
 
-	<h2 id="changes">8. Changes and contact</h2>
+	<h2 id="changes">9. Changes and contact</h2>
 	<p>
-		8.1. This policy is updated before any change to the cookies or storage sqwer uses takes effect. Questions:
+		9.1. This policy is updated before any change to the cookies or storage sqwer uses takes effect. Questions:
 		<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
 	</p>
 </Prose>

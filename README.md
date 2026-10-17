@@ -13,7 +13,9 @@ npm run dev            # dev server with hot reload
 
 Settings are read from `apps/web/.env` (never committed). With `DATABASE_URL` set, accounts are stored in
 PostgreSQL (the project uses Supabase in the EU); without it, an embedded PostgreSQL is created in `.data/`, so no
-database installation is needed to try the site. See [DEPLOYMENT.md](DEPLOYMENT.md) for configuration and security.
+database installation is needed to try the site. See [DEPLOYMENT.md](DEPLOYMENT.md) for configuration and security,
+[BOT_PROTECTION.md](BOT_PROTECTION.md) for the account form protections and [ANALYTICS.md](ANALYTICS.md) for analytics
+and the administrator dashboard.
 
 ## Test
 
@@ -41,7 +43,8 @@ The legal documents live in `apps/web/src/routes` (`/legal`, `/terms`, `/privacy
 details are in `apps/web/src/lib/site/links.ts`.
 
 Without an account, settings and practice data are stored only in the visitor's browser. There is one strictly
-necessary cookie (the session), no analytics and no third-party resources.
+necessary cookie (the session) and no third-party resources. Visit statistics are collected by sqwer's own
+first-party analytics, only after the visitor allows it; see [ANALYTICS.md](ANALYTICS.md).
 
 ## Third-party assets
 

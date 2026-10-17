@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { answerQuestion } from './human.ts';
+import { solveCaptcha } from './human.ts';
 import { playFalling, playRace, proceed, typeDrill } from './play.ts';
 
 test.describe.configure({ mode: 'serial' });
@@ -8,17 +8,6 @@ const email = `typist-${Date.now()}@example.com`;
 const password = 'correct-horse-battery';
 const newPassword = 'another-long-passphrase';
 let codes: string[] = [];
-
-/** Completes the verification using its text question, and waits for the background check to finish. */
-async function solveCaptcha(page: Page, answer?: string) {
-	const toText = page.getByRole('button', { name: 'Use a text question' });
-	if (await toText.isVisible()) await toText.click();
-	const question = page.locator('.captcha .question');
-	await expect(question).toHaveText(/\?|\.$/);
-	const text = (await question.textContent())!.trim();
-	await page.getByRole('textbox', { name: 'Your answer' }).fill(answer ?? answerQuestion(text));
-	await expect.poll(async () => page.locator('input[name="altcha"]').inputValue(), { timeout: 30_000 }).not.toBe('');
-}
 
 /** Submits a form and waits for the server's response, so later steps see the new state. */
 async function submit(page: Page, name: string) {
