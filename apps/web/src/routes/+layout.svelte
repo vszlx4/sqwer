@@ -1,6 +1,8 @@
 <script lang="ts">
 	import '../app.css';
+	import { onMount } from 'svelte';
 	import { onNavigate } from '$app/navigation';
+	import { installKeyboardGuards } from '#lib/ui/typing-focus.ts';
 	import SiteFooter from '#lib/site/SiteFooter.svelte';
 	import SiteHeader from '#lib/site/SiteHeader.svelte';
 	import FingerMapSync from '#lib/fingermap/FingerMapSync.svelte';
@@ -22,6 +24,9 @@
 			});
 		});
 	});
+
+	// Space never scrolls the page, and running exercises keep the keyboard (lib/ui/typing-focus.ts).
+	onMount(() => installKeyboardGuards());
 </script>
 
 <a class="skip" href="#content">Skip to content</a>

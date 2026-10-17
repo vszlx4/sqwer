@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { claimTyping, releaseFocus } from '#lib/ui/typing-focus.ts';
 	import { onDestroy } from 'svelte';
 	import { pressesFor, qwertyAnsi, type Finger } from '@sqwer/layouts';
 	import Hands from '#lib/hands/Hands.svelte';
@@ -54,6 +55,9 @@
 		if (current.startsWith('Shift')) return e.code === current;
 		return e.key === current;
 	}
+
+	// While this is on screen it has the keyboard: clicks never leave focus on a button.
+	$effect(() => claimTyping({ focus: releaseFocus }));
 
 	function onkeydown(e: KeyboardEvent) {
 		if (finished || e.metaKey || e.ctrlKey || e.altKey) return;

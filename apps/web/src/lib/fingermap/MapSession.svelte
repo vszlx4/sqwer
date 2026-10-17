@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { claimTyping, releaseFocus } from '#lib/ui/typing-focus.ts';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { buildProfile, pickPrompt, predictFinger, type FingerObservation } from '@sqwer/fingermap';
@@ -135,6 +136,9 @@
 	function finish() {
 		goto(`/map${added ? `?saved=${added}` : ''}`);
 	}
+
+	// While this is on screen it has the keyboard: clicks never leave focus on a button.
+	$effect(() => claimTyping({ focus: releaseFocus }));
 
 	function onkeydown(e: KeyboardEvent) {
 		if (e.metaKey || e.ctrlKey || e.altKey) return;
