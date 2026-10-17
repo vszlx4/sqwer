@@ -84,6 +84,22 @@ describe('drill generation', () => {
 		const source = { type: 'patterns', pool: 'fjdk', focus: 'dk', groups: 10 } as const;
 		expect(drillTokens(source, seeded(7))).toEqual(drillTokens(source, seeded(7)));
 	});
+
+	it('never gives a word with a space in it, so Space always moves to the next word', () => {
+		for (const lesson of LESSONS) {
+			for (const step of lesson.steps) {
+				if (step.kind !== 'drill' && step.kind !== 'checkpoint') continue;
+				for (const token of drillTokens(step.source, seeded(3))) expect(token, `${lesson.id}: "${token}"`).not.toMatch(/\s/);
+			}
+		}
+	});
+
+	it('keeps the words of a phrase together and in order', () => {
+		const tokens = drillTokens({ type: 'list', words: ['50%', 'you & me', 'A&B'], repeat: 1 }, seeded(5));
+		expect(tokens).toHaveLength(5);
+		const at = tokens.indexOf('you');
+		expect(tokens.slice(at, at + 3)).toEqual(['you', '&', 'me']);
+	});
 });
 
 describe('stars, points and ranks', () => {
