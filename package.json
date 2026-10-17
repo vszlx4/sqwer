@@ -17,6 +17,6 @@
 	},
 	"devDependencies": {
 		"@sveltejs/kit": "^3.0.1",
-		"vitest": "^4.0.0"
+		"vitest": "^5.0.4"
 	}
 }
