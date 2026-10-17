@@ -14,7 +14,7 @@
 
 <Seo title="Sign in" description="Sign in to your sqwer account." />
 
-<AuthShell title="Sign in" lede="Sign in to sync your finger map and manage your profile.">
+<AuthShell title="Sign in" lede="Pick up where you left off: your lessons, results and finger map are waiting." mode="signin">
 	{#if data.notice}<p class="form-alert success" role="status">{data.notice}</p>{/if}
 	<form
 		method="POST"
@@ -31,23 +31,34 @@
 		{#if errors.form}<p class="form-alert" role="alert">{errors.form}</p>{/if}
 		<RequiredNote />
 		<Field label="Email address" name="email" type="email" autocomplete="email" required value={form?.values?.email ?? ''} />
-		<Field label="Password" name="password" type="password" autocomplete="current-password" required />
+		<div class="password">
+			<Field label="Password" name="password" type="password" autocomplete="current-password" required />
+			<a class="forgot" href="/reset-password">Forgot your password?</a>
+		</div>
 		<Captcha error={errors.captcha} resetKey={form} />
-		<button class="btn btn-primary btn-block" type="submit" disabled={submitting}>{submitting ? 'Signing in…' : 'Sign in'}</button>
-		<a class="forgot" href="/reset-password">Forgot your password?</a>
+		<button class="btn btn-primary btn-lg btn-block" type="submit" disabled={submitting} aria-busy={submitting}>{submitting ? 'Signing in…' : 'Sign in'}</button>
 	</form>
 
 	{#snippet footer()}
-		Do not have an account? <a href="/signup">Create an account</a>
+		New to sqwer? <a href="/signup">Create a free account</a>
 	{/snippet}
 </AuthShell>
 
 <style>
+	.password {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
 	.forgot {
-		align-self: center;
-		font-size: 14.5px;
+		align-self: flex-end;
+		font-size: 13.5px;
 		font-weight: 600;
-		color: var(--ink);
+		color: var(--ink-2);
 		text-decoration: none;
+		transition: color 140ms ease;
+	}
+	.forgot:hover {
+		color: var(--ink);
 	}
 </style>
