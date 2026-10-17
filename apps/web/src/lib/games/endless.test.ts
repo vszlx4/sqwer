@@ -13,7 +13,7 @@ describe('endless mode', () => {
 		for (const game of GAME_IDS) {
 			const low = roundSettings(game, 1);
 			const high = roundSettings(game, MAX_LEVEL);
-			const harder = (high.pacerWpm ?? 0) > (low.pacerWpm ?? 0) || (high.target ?? 0) > (low.target ?? 0) || (high.bpm ?? 0) > (low.bpm ?? 0) || (high.start ?? 0) > (low.start ?? 0);
+			const harder = (high.pacerWpm ?? 0) > (low.pacerWpm ?? 0) || (high.target ?? 0) > (low.target ?? 0) || (high.start ?? 0) > (low.start ?? 0);
 			expect(harder, game).toBe(true);
 		}
 	});

@@ -7,7 +7,7 @@
 
 	const RING = 2 * Math.PI * 34;
 	const BARS = [62, 66, 64, 70, 68, 71, 69, 73, 70, 72, 74, 71, 73, 75, 72, 74, 76, 73, 75, 77, 74, 76];
-	const WORDS = ['steady', 'rhythm', 'beats', 'bursts'];
+	const WORDS = ['steady', 'tempo', 'beats', 'bursts'];
 	const KEYS = ['⇧', '7', '&', ';', '?'];
 	// A miniature keyboard coloured by finger, three rows of ten keys.
 	const ROW: Finger[] = ['lp', 'lr', 'lm', 'li', 'li', 'ri', 'ri', 'rm', 'rr', 'rp'];

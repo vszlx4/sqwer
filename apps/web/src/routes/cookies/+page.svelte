@@ -19,7 +19,9 @@
 		{ name: 'sqwer:level', purpose: 'How you described your typing in Getting started.', lasts: 'Until you remove it', sent: 'Copied to your account when you sign in' },
 		{ name: 'sqwer:start', purpose: 'The course lesson you chose to start from.', lasts: 'Until you remove it', sent: 'Copied to your account when you sign in' },
 		{ name: 'sqwer:pending-lesson', purpose: 'Your result in the first lesson when taken without an account, so that it can be saved if you create one.', lasts: 'Until you create an account or remove it', sent: 'When you create an account' },
-		{ name: 'sqwer:sound', purpose: 'Whether sound is on in the rhythm game.', lasts: 'Until you remove it', sent: 'Never' },
+		{ name: 'sqwer:sound', purpose: 'Whether sound is on in the Echo game.', lasts: 'Until you remove it', sent: 'Never' },
+		{ name: 'sqwer:endless', purpose: 'For each endless game: your best run, the level adaptive difficulty reached and the difficulty you chose last.', lasts: 'Until you remove it', sent: 'Never' },
+		{ name: 'sqwer:resets', purpose: 'When this browser last discarded its copy of data you cleared from your account, so that it is not uploaded again.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:pace', purpose: 'The adaptive pace of the Courses, which makes games and drills gentler or brisker according to how your exercises go.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:device', purpose: 'A random identifier for this browser, created only while you are signed in, so that its usage statistics are kept separate from your other devices.', lasts: 'Until you remove it', sent: 'With your usage statistics, while signed in' }
 	];
@@ -134,7 +136,7 @@
 	<h2 id="other">5. Other device features</h2>
 	<ul>
 		<li><strong>Speech:</strong> the listening exercises use a voice built into your device. Only voices that run on your device are used; the words are not sent anywhere.</li>
-		<li><strong>Sound:</strong> the rhythm game plays sounds generated in your browser. No audio is recorded.</li>
+		<li><strong>Sound:</strong> the Echo game plays soft notes generated in your browser, and can be muted. No audio is recorded.</li>
 		<li><strong>Verification:</strong> the check on account forms performs a computation in your browser and stores nothing on your device.</li>
 	</ul>
 

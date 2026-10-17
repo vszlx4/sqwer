@@ -15,7 +15,6 @@
 	import KeyHunt from './steps/KeyHunt.svelte';
 	import ListenType from './steps/ListenType.svelte';
 	import Race from './steps/Race.svelte';
-	import RhythmGame from './steps/RhythmGame.svelte';
 	import TypingDrill from './steps/TypingDrill.svelte';
 	import { STEP_INFO } from './stepInfo.ts';
 	import { results as examResults } from '#lib/results/store.svelte.ts';
@@ -142,7 +141,7 @@
 	 * attempt. Any other step except the chapter check can be skipped after two. Skipped steps do
 	 * not count towards stars, so no learner is ever blocked.
 	 */
-	const isGame = $derived(['falling', 'rhythm', 'keyhunt', 'race', 'echo'].includes(step.kind));
+	const isGame = $derived(['falling', 'keyhunt', 'race', 'echo'].includes(step.kind));
 	const canSkip = $derived(step.kind !== 'checkpoint' && (isGame ? fails >= 1 : fails >= 2));
 	function skipStep() {
 		outcome = { passed: true, graded: false, accuracy: 0, summary: isGame ? 'Game skipped.' : 'Step skipped.' };
@@ -276,8 +275,6 @@
 						<TypingDrill {tokens} seconds={step.seconds} minAccuracy={step.minAccuracy} minWpm={step.minWpm} bind:hints oncomplete={done} />
 					{:else if step.kind === 'falling'}
 						<FallingGame items={step.items} pool={step.pool} focus={step.focus} words={step.words} target={step.target} pace={pace.value} oncomplete={done} />
-					{:else if step.kind === 'rhythm'}
-						<RhythmGame keys={step.keys} pool={step.pool} bpm={Math.round(step.bpm * pace.value)} target={step.target} oncomplete={done} />
 					{:else if step.kind === 'keyhunt'}
 						<KeyHunt pool={step.pool} focus={step.focus} target={step.target} pace={pace.value} oncomplete={done} />
 					{:else if step.kind === 'race'}

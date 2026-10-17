@@ -82,11 +82,6 @@
 					<td>After an unsuccessful attempt, a game can be left out with “Continue without this game”. Skipped games do not affect stars, and every lesson also contains untimed typing drills.</td>
 				</tr>
 				<tr>
-					<th scope="row">Rhythm game</th>
-					<td>Keys must be pressed in time with a visual and audio beat.</td>
-					<td>The beat is both visible and audible, and the game can be left out in the same way.</td>
-				</tr>
-				<tr>
 					<th scope="row">Hand illustrations</th>
 					<td>The finger map and assessment use illustrations whose detail may be hard to perceive with magnification.</td>
 					<td>The same information is provided as a list of fingers with their values.</td>

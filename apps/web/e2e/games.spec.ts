@@ -6,7 +6,7 @@ test('endless games are listed in practice and play round after round at the cho
 	await page.goto('/exams');
 	const games = page.locator('#games');
 	await expect(games.getByRole('heading', { name: 'Endless games' })).toBeVisible();
-	await expect(games.getByRole('link')).toHaveCount(7);
+	await expect(games.getByRole('link')).toHaveCount(6);
 	await games.getByRole('link', { name: /Falling words/ }).click();
 	await expect(page).toHaveURL(/\/play\/falling-words$/);
 

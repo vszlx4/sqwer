@@ -7,7 +7,7 @@ import type { IconName } from '#lib/ui/Icon.svelte';
  * after three failed rounds.
  */
 
-export const GAME_IDS = ['race', 'falling-words', 'falling-letters', 'echo', 'listen', 'rhythm', 'keyhunt'] as const;
+export const GAME_IDS = ['race', 'falling-words', 'falling-letters', 'echo', 'listen', 'keyhunt'] as const;
 export type GameId = (typeof GAME_IDS)[number];
 
 export interface GameInfo {
@@ -23,7 +23,6 @@ export const GAMES: GameInfo[] = [
 	{ id: 'falling-letters', title: 'Falling letters', icon: 'keyboard', summary: 'Single keys fall from the top; press each before it lands.' },
 	{ id: 'echo', title: 'Echo', icon: 'repeat', summary: 'Letters of a word light up one at a time and fade; type the word from memory.' },
 	{ id: 'listen', title: 'Listen and type', icon: 'volume', summary: 'Hear a word, type what you heard. Longer words at higher levels.' },
-	{ id: 'rhythm', title: 'Rhythm', icon: 'play', summary: 'Notes fall in lanes and spell words; press each key on the beat.' },
 	{ id: 'keyhunt', title: 'Key hunt', icon: 'target', summary: 'A key lights up somewhere on the keyboard; find it and press it.' }
 ];
 
@@ -78,8 +77,6 @@ export interface RoundSettings {
 	pace?: number;
 	/** Echo: length of the first sequence. */
 	start?: number;
-	/** Rhythm: beats per minute. */
-	bpm?: number;
 	/** Echo: how long each letter stays lit, in milliseconds. */
 	showMs?: number;
 }
@@ -101,8 +98,6 @@ export function roundSettings(game: GameId, level: number): RoundSettings {
 		}
 		case 'listen':
 			return { count: 6, target: L <= 4 ? 4 : 5 };
-		case 'rhythm':
-			return { bpm: 70 + 8 * L, target: 12 + L };
 		case 'keyhunt':
 			return { target: 12 + 2 * L, pace: 0.75 + 0.06 * L };
 	}

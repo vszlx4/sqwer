@@ -52,7 +52,7 @@ export const RANKS: Rank[] = (
 		{ level: 3, name: 'Apprentice', note: 'All eight fingers know their home.', tier: 'silver' },
 		{ level: 4, name: 'Typist', note: 'The whole alphabet, without looking.', tier: 'silver' },
 		{ level: 5, name: 'Adept', note: 'Letters have become words.', tier: 'gold' },
-		{ level: 6, name: 'Skilled', note: 'An even, steady rhythm.', tier: 'gold' },
+		{ level: 6, name: 'Skilled', note: 'An even, steady pace.', tier: 'gold' },
 		{ level: 7, name: 'Expert', note: 'Speed that keeps its accuracy.', tier: 'emerald' },
 		{ level: 8, name: 'Master', note: 'Whole sentences without a pause.', tier: 'emerald' },
 		{ level: 9, name: 'Virtuoso', note: 'The whole course, completed with at least 75% of its stars.', tier: 'diamond' },
