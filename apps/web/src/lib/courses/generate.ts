@@ -63,7 +63,9 @@ export function drillTokens(source: DrillSource, rand: () => number): string[] {
 			return repeated(shuffle(shortlist, rand).slice(0, source.count), source.repeat);
 		}
 		case 'list':
-			return repeated(shuffle(source.words, rand), source.repeat);
+			// An item can be a short phrase ("you & me"): its words are typed in order, each followed
+			// by a space like any other word, so the space inside a phrase never skips the rest of it.
+			return repeated(shuffle(source.words, rand), source.repeat).flatMap((item) => item.split(/\s+/).filter(Boolean));
 		case 'sentences':
 			return shuffle(source.sentences, rand)
 				.slice(0, source.count)
