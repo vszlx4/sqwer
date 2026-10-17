@@ -29,16 +29,6 @@ export type StepSpec =
 			weak?: boolean;
 	  }
 	| {
-			/** Notes move to a line in lanes, one per key; press the key on the beat. */
-			kind: 'rhythm';
-			keys: string[];
-			/** When set, notes spell real words made from these letters, and the lanes are their letters. */
-			pool?: string;
-			bpm: number;
-			/** Notes to hit on the beat; the game ends as soon as they are hit. */
-			target: number;
-	  }
-	| {
 			/** A key lights up on the keyboard; press it before it fades. Teaches where keys are. */
 			kind: 'keyhunt';
 			pool: string;

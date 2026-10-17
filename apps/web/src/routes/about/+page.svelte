@@ -18,8 +18,8 @@
 	<h2>The course</h2>
 	<p>
 		The <a href="/learn">Courses</a> are one long road of short lessons in twelve chapters, from the first two keys,
-		F and J, to fluent typing. Each lesson adds a little, using guided drills and six games (key hunt, race, echo,
-		falling letters, rhythm and listening), so that every chapter prepares you for the next. Games end when you reach
+		F and J, to fluent typing. Each lesson adds a little, using guided drills and five games (key hunt, race, echo,
+		falling letters and words, and listening), so that every chapter prepares you for the next. Games end when you reach
 		their goal, not when a clock runs out. Lessons earn stars; stars earn points and
 		ranks, which measure your own progress. <a href="/start">Getting started</a> recommends where to begin.
 	</p>
@@ -77,7 +77,7 @@
 		<dt>Accuracy</dt>
 		<dd>The proportion of keystrokes that were correct. Errors corrected with Backspace are still counted.</dd>
 		<dt>Consistency</dt>
-		<dd>How evenly your speed was maintained from one second to the next. A value of 100% indicates a perfectly even rhythm.</dd>
+		<dd>How evenly your speed was maintained from one second to the next. A value of 100% indicates a perfectly even pace.</dd>
 		<dt>Characters</dt>
 		<dd>Correct, incorrect, extra (typed beyond the end of a word) and missed (omitted when space was pressed early).</dd>
 	</dl>

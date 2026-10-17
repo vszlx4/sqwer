@@ -24,7 +24,7 @@ export function guidance(r: ResultSummary, ctx: { previousBest: number | null })
 		insights.push(`Errors reduced net speed by ${Math.round(errorCost)} WPM (raw speed ${Math.round(r.raw)} WPM, net speed ${Math.round(r.wpm)} WPM).`);
 	}
 	if (r.consistency < 70) {
-		insights.push(`Consistency was ${Math.round(r.consistency)}%, which indicates alternating bursts and pauses rather than an even rhythm.`);
+		insights.push(`Consistency was ${Math.round(r.consistency)}%, which indicates alternating bursts and pauses rather than an even pace.`);
 	} else {
 		insights.push(`Consistency was ${Math.round(r.consistency)}%.`);
 	}

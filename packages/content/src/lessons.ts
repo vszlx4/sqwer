@@ -172,9 +172,9 @@ export const NUMBER_SENTENCES: readonly string[] = [
 	'The plant grew 30 centimetres.'
 ];
 
-/** Short original sentences for rhythm, accuracy and endurance practice. */
+/** Short original sentences for pace, accuracy and endurance practice. */
 export const PRACTICE_SENTENCES: readonly string[] = [
-	'a steady rhythm is faster than a rush of keys',
+	'a steady pace is faster than a rush of keys',
 	'keep your eyes on the screen and your hands at home',
 	'every key has a finger and every finger has a home',
 	'type the word you see and then the next one',

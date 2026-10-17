@@ -1,5 +1,5 @@
 /*
- * Sound for the course activities: short synthesised tones for the rhythm game and
+ * Sound for the course activities: short synthesised tones for the Echo game and
  * the device's own speech synthesis for dictation. Nothing is downloaded, recorded or sent anywhere.
  */
 
@@ -55,11 +55,6 @@ export function tone(frequency: number, duration = 0.35, volume = 0.08) {
 	overtone.start(now);
 	osc.stop(now + duration);
 	overtone.stop(now + duration);
-}
-
-/** A quiet, low click for counting in, like a soft woodblock rather than a beep. */
-export function tick(accent = false) {
-	tone(accent ? 523.25 : 392, 0.08, accent ? 0.05 : 0.03);
 }
 
 /** Notes of a pentatonic scale, which sound pleasant in any order. */

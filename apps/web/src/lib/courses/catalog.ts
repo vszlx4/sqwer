@@ -41,14 +41,10 @@ const sentencesOf = (sentences: readonly string[], count: number): DrillSource =
 const keyhunt = (pool: string, focus: string, target = 14, weak = false): StepSpec => ({ kind: 'keyhunt', pool, focus, target, ...(weak ? { weak } : {}) });
 const fallingLetters = (pool: string, focus: string, target = 14, weak = false): StepSpec => ({ kind: 'falling', items: 'letters', pool, focus, target, ...(weak ? { weak } : {}) });
 const fallingWords = (pool: string, focus: string, target = 10, words?: readonly string[]): StepSpec => ({ kind: 'falling', items: 'words', pool, focus, words, target });
-const rhythm = (keys: string[], bpm: number, target = 16, pool?: string): StepSpec => ({ kind: 'rhythm', keys, bpm, target, ...(pool ? { pool } : {}) });
 const echo = (pool: string, start = 3, target = 5, weak = false): StepSpec => ({ kind: 'echo', pool, start, target, ...(weak ? { weak } : {}) });
 const race = (pool: string, focus: string, pacerWpm: number, count = 10, words?: readonly string[]): StepSpec => ({ kind: 'race', pool, focus, words, count, pacerWpm });
 const raceSentences = (sentences: readonly string[], pacerWpm: number, count = 14): StepSpec => ({ kind: 'race', pool: LETTERS, focus: '', sentences, count, pacerWpm });
 const listen = (pool: string, words?: readonly string[], count = 8, target = 6): StepSpec => ({ kind: 'listen', pool, focus: '', words, count, target });
-
-/** Rhythm lanes for a key lesson: the new keys and the most recent known ones. */
-const lanesFor = (keys: string, known: string) => [...keys, ...[...known].filter((c) => /[a-z;]/.test(c)).slice(-2)].slice(0, 4);
 
 interface KeyPlan {
 	title: string;
@@ -60,7 +56,7 @@ interface KeyPlan {
  * Two lessons for each pair of new keys: one that introduces them, and one that puts them to use.
  * The games change from pair to pair, so neighbouring lessons never feel the same.
  */
-function keyLessons(plan: KeyPlan, known: string, chapter: number, n: number, bpm: number, pacer: number): Draft[] {
+function keyLessons(plan: KeyPlan, known: string, chapter: number, n: number, pacer: number): Draft[] {
 	const pool = known + plan.keys;
 	const L = lettersOf(pool);
 	const F = lettersOf(plan.keys);
@@ -75,7 +71,7 @@ function keyLessons(plan: KeyPlan, known: string, chapter: number, n: number, bp
 	if (known) learn.push(drill('Mix them with the keys you know', patterns(pool, plan.keys, 12)));
 	learn.push(odd ? fallingLetters(pool, plan.keys, 14) : echo(pool, 3, 5));
 	if (hasWords) learn.push(drill('Real words', wordsFrom(L, F, 10), 90));
-	learn.push(rhythm(lanesFor(plan.keys, known), bpm, 14, hasWords ? L : undefined));
+	learn.push(hasWords ? fallingWords(L, F, 8) : keyhunt(pool, '', 14));
 
 	const use: StepSpec[] = [
 		drill('Warm up', patterns(pool, plan.keys, 12)),
@@ -83,7 +79,7 @@ function keyLessons(plan: KeyPlan, known: string, chapter: number, n: number, bp
 		hasWords ? drill('Words with the new keys', wordsFrom(L, F, 14), 90) : drill('Longer groups', patterns(pool, plan.keys, 14)),
 		hasWords ? race(L, F, pacer, 10) : keyhunt(pool, '', 16),
 		drill('Everything so far', patterns(pool, '', 12)),
-		hasWords ? fallingWords(L, F, 10) : rhythm(lanesFor(plan.keys, known), bpm + 8, 18)
+		hasWords ? fallingWords(L, F, 10) : keyhunt(pool, plan.keys, 18)
 	];
 
 	return [
@@ -112,14 +108,14 @@ function rowWordLessons(chapter: number, pool: string, focus: string, name: stri
 				race(L, focus, pacer, 10),
 				listen(L, undefined, 8, 6),
 				fallingWords(L, focus, 12),
-				rhythm(['a', 's', 'd', 'f'], 84, 16, L),
+				keyhunt(pool, focus, 16),
 				drill('Once more, quicker', wordsFrom(L, focus, 14), 90)
 			]
 		},
 		{
 			chapter,
 			title: `${name} in flow`,
-			summary: 'Longer runs of words with an even rhythm, and a memory round.',
+			summary: 'Longer runs of words at an even pace, and a memory round.',
 			newKeys: [],
 			steps: [
 				drill('Warm up', patterns(pool, focus, 12)),
@@ -205,7 +201,7 @@ function capitalWords(hand: 'left' | 'right', count: number, skip = 0): string[]
 }
 
 /** Words and short phrases, split for lessons that use them in turn. */
-type WordGame = 'race' | 'listen' | 'falling' | 'rhythm' | 'echo';
+type WordGame = 'race' | 'listen' | 'falling' | 'echo';
 function wordGame(game: WordGame, words: readonly string[], pacer: number): StepSpec {
 	switch (game) {
 		case 'race':
@@ -214,8 +210,6 @@ function wordGame(game: WordGame, words: readonly string[], pacer: number): Step
 			return listen(LETTERS, words, 8, 6);
 		case 'falling':
 			return fallingWords(LETTERS, '', 12, words);
-		case 'rhythm':
-			return rhythm(['a', 's', 'd', 'f'], 96, 18, LETTERS);
 		case 'echo':
 			return echo(LETTERS, 4, 7);
 	}
@@ -225,10 +219,10 @@ function wordGame(game: WordGame, words: readonly string[], pacer: number): Step
 function wordsLesson(title: string, summary: string, chapter: number, group: readonly string[], n: number, pacer: number): Draft {
 	const ORDERS: WordGame[][] = [
 		['listen', 'race', 'falling'],
-		['falling', 'rhythm', 'race'],
+		['falling', 'echo', 'race'],
 		['race', 'listen', 'echo'],
 		['echo', 'falling', 'listen'],
-		['rhythm', 'race', 'listen'],
+		['echo', 'race', 'listen'],
 		['race', 'echo', 'falling']
 	];
 	const [a, b, c] = ORDERS[n % ORDERS.length]!;
@@ -307,8 +301,8 @@ function build(): Chapter[] {
 		{ number: 6, title: 'Numbers', summary: 'The number row, one finger for each pair of digits.', readyIf: 'You type sentences with punctuation comfortably.' },
 		{ number: 7, title: 'Common words, part one', summary: 'The hundred most frequent words, until they are automatic.', readyIf: 'You know where every key is and type at about 20 WPM.' },
 		{ number: 8, title: 'Common words, part two', summary: 'The next hundred words, for everyday writing.', readyIf: 'The most common short words feel automatic.' },
-		{ number: 9, title: 'Sentences and flow', summary: 'Reading ahead and typing whole sentences in a steady rhythm.', readyIf: 'You type common words without thinking about the keys.' },
-		{ number: 10, title: 'Building speed', summary: 'Letter pairs, word endings, sprints and quicker rhythm.', readyIf: 'You type sentences steadily at 30 WPM or faster.' },
+		{ number: 9, title: 'Sentences and flow', summary: 'Reading ahead and typing whole sentences at a steady pace.', readyIf: 'You type common words without thinking about the keys.' },
+		{ number: 10, title: 'Building speed', summary: 'Letter pairs, word endings, sprints and a quicker pace.', readyIf: 'You type sentences steadily at 30 WPM or faster.' },
 		{ number: 11, title: 'Accuracy and endurance', summary: 'Longer passages with near-perfect accuracy.', readyIf: 'You reach about 35 WPM and want to make it last.' },
 		{ number: 12, title: 'Symbols', summary: 'The symbols used in email, prices and code.', readyIf: 'You type fluently and need the less common keys.' }
 	];
@@ -317,11 +311,10 @@ function build(): Chapter[] {
 	const add = (...l: Draft[]) => lessons.push(...l);
 
 	// Chapters 1 to 3: the letters, two lessons for each pair of keys.
-	const rows: { chapter: number; name: string; bpm: number; pacer: number; seconds: number; minWpm: number; plans: KeyPlan[] }[] = [
+	const rows: { chapter: number; name: string; pacer: number; seconds: number; minWpm: number; plans: KeyPlan[] }[] = [
 		{
 			chapter: 1,
 			name: 'Home row',
-			bpm: 72,
 			pacer: 10,
 			seconds: 30,
 			minWpm: 8,
@@ -336,7 +329,6 @@ function build(): Chapter[] {
 		{
 			chapter: 2,
 			name: 'Top row',
-			bpm: 80,
 			pacer: 13,
 			seconds: 40,
 			minWpm: 12,
@@ -351,7 +343,6 @@ function build(): Chapter[] {
 		{
 			chapter: 3,
 			name: 'Bottom row',
-			bpm: 88,
 			pacer: 16,
 			seconds: 45,
 			minWpm: 15,
@@ -369,7 +360,7 @@ function build(): Chapter[] {
 	for (const row of rows) {
 		const start = known;
 		for (const plan of row.plans) {
-			add(...keyLessons(plan, known, row.chapter, pair++, row.bpm, row.pacer));
+			add(...keyLessons(plan, known, row.chapter, pair++, row.pacer));
 			known += plan.keys;
 		}
 		const focus = lettersOf(known.slice(start.length));
@@ -479,13 +470,13 @@ function build(): Chapter[] {
 	const FLOW = [...PRACTICE_SENTENCES];
 	const flowNames = [
 		['Reading ahead', 'Read the next word while your fingers type the current one.'],
-		['Steady rhythm', 'An even pace is faster than bursts and pauses.'],
+		['Even pace', 'Keeping an even speed is faster than bursts and pauses.'],
 		['Light hands', 'Sentences about posture, typed with relaxed hands.'],
 		['Phrases, not letters', 'Common phrases typed as single movements.'],
 		['Longer sentences', 'Sentences that need you to keep going.'],
 		['Flow practice', 'A mix of everything in this chapter.']
 	] as const;
-	const flowGames: StepSpec[] = [listen(LETTERS, COMMON_1.slice(0, 50), 8, 6), rhythm(['a', 's', 'd', 'f'], 100, 20, LETTERS), echo(LETTERS, 4, 7), keyhunt(LETTERS, '', 18), listen(LETTERS, COMMON_2.slice(0, 50), 8, 6), rhythm(['j', 'k', 'l', ';'], 108, 20, LETTERS)];
+	const flowGames: StepSpec[] = [listen(LETTERS, COMMON_1.slice(0, 50), 8, 6), fallingWords(LETTERS, '', 12, COMMON_1.slice(0, 60)), echo(LETTERS, 4, 7), keyhunt(LETTERS, '', 18), listen(LETTERS, COMMON_2.slice(0, 50), 8, 6), race(LETTERS, '', 28, 12, COMMON_2)];
 	chunks(FLOW.slice(0, 42), 7).forEach((set, i) => add(sentenceLesson(flowNames[i]![0], flowNames[i]![1], 9, set, 24 + i * 2, [flowGames[i]!])));
 	add(weakLesson(9, LETTERS), check('Flow check', 9, sentencesOf(FLOW.slice(42), FLOW.length - 42), 60, 25));
 
@@ -528,10 +519,10 @@ function build(): Chapter[] {
 		},
 		{
 			chapter: 10,
-			title: 'Faster rhythm',
-			summary: 'The rhythm game at a quicker tempo, with a memory round between.',
+			title: 'Quick reactions',
+			summary: 'Key hunts and falling words at a quicker pace, with a memory round between.',
 			newKeys: [],
-			steps: [rhythm(['s', 'd', 'k', 'l'], 120, 20, LETTERS), echo(LETTERS, 5, 8), rhythm(['a', 'f', 'j', ';'], 132, 22, LETTERS), drill('Steady words', listOf(COMMON_2.slice(0, 24)), 92)]
+			steps: [keyhunt(LETTERS, '', 22), echo(LETTERS, 5, 8), fallingWords(LETTERS, '', 14, COMMON_2), drill('Steady words', listOf(COMMON_2.slice(0, 24)), 92)]
 		},
 		{
 			chapter: 10,

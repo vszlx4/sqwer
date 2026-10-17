@@ -223,7 +223,7 @@
 		<div class="stage-text">
 			<Words {session} {rev} idle={!session.started} />
 		</div>
-		<p class="muted center">{session.started ? 'Keep a steady rhythm.' : 'Begin typing to start the stage.'}</p>
+		<p class="muted center">{session.started ? 'Keep a steady pace.' : 'Begin typing to start the stage.'}</p>
 		<div class="stage-hands">
 			<Hands label={`This stage measures your ${stages[stageIndex]!.title.toLowerCase()}.`} tone={stageTone} />
 		</div>
