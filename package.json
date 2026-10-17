@@ -16,7 +16,7 @@
 		"check": "npm run check -w web"
 	},
 	"devDependencies": {
-		"@sveltejs/kit": "^3.0.1",
+		"@sveltejs/kit": "^3.1.0",
 		"vitest": "^4.0.0"
 	}
 }
