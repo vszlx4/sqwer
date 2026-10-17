@@ -94,6 +94,53 @@ const rand = (min: number, max: number) => min + (cryptoRandomInt(0, 1_000_000) 
 const pick = <T>(list: readonly T[]): T => list[cryptoRandomInt(0, list.length)]!;
 const r1 = (n: number) => Math.round(n * 10) / 10;
 
+/**
+ * Rewrites a glyph's path with every point moved by the given transform and a little random
+ * jitter, in absolute coordinates. The markup therefore never contains a glyph's own path data
+ * (which a script could look up in a table) and no two drawings of a character are alike: reading
+ * the challenge takes recognising the shapes, not the source.
+ */
+function distort(glyph: string, map: (x: number, y: number) => [number, number]): string {
+	const tokens = glyph.match(/[MLHVCZ]|-?\d*\.?\d+/g) ?? [];
+	const out: string[] = [];
+	let cx = 0;
+	let cy = 0;
+	let i = 0;
+	const num = () => Number(tokens[i++]);
+	const point = (x: number, y: number) => {
+		const [px, py] = map(x, y);
+		return `${r1(px + rand(-0.7, 0.7))} ${r1(py + rand(-0.7, 0.7))}`;
+	};
+	while (i < tokens.length) {
+		const cmd = tokens[i++]!;
+		if (cmd === 'M' || cmd === 'L') {
+			cx = num();
+			cy = num();
+			out.push(`${cmd}${point(cx, cy)}`);
+		} else if (cmd === 'H' || cmd === 'V') {
+			if (cmd === 'H') cx = num();
+			else cy = num();
+			out.push(`L${point(cx, cy)}`);
+		} else if (cmd === 'C') {
+			const pts = [num(), num(), num(), num(), num(), num()];
+			[cx, cy] = [pts[4]!, pts[5]!];
+			out.push(`C${point(pts[0]!, pts[1]!)} ${point(pts[2]!, pts[3]!)} ${point(cx, cy)}`);
+		} else if (cmd === 'Z') {
+			out.push('Z');
+		}
+	}
+	return out.join(' ');
+}
+
+/** Shuffles in place with a cryptographic source, so element order reveals nothing. */
+function shuffle<T>(list: T[]): T[] {
+	for (let i = list.length - 1; i > 0; i--) {
+		const j = cryptoRandomInt(0, i + 1);
+		[list[i], list[j]] = [list[j]!, list[i]!];
+	}
+	return list;
+}
+
 /** Draws the characters with random position, size, rotation and slant, crossed by noise lines. */
 export function drawCharacters(text: string): string {
 	const W = 280;
@@ -110,14 +157,19 @@ export function drawCharacters(text: string): string {
 	const step = (W - 40) / text.length;
 	[...text].forEach((ch, i) => {
 		const scale = rand(3.1, 3.7);
-		const x = r1(22 + i * step + rand(-4, 4));
-		const y = r1((H - 14 * scale) / 2 + rand(-6, 6));
-		const rotate = r1(rand(-20, 20));
-		const skew = r1(rand(-14, 14));
-		const width = r1(rand(2.6, 3.4));
-		parts.push(
-			`<path d="${GLYPHS[ch]}" transform="translate(${x} ${y}) rotate(${rotate} ${r1(5 * scale)} ${r1(7 * scale)}) skewX(${skew}) scale(${r1(scale)})" stroke-width="${width}" vector-effect="non-scaling-stroke"/>`
-		);
+		const x0 = 22 + i * step + rand(-4, 4);
+		const y0 = (H - 14 * scale) / 2 + rand(-6, 6);
+		const angle = (rand(-20, 20) * Math.PI) / 180;
+		const slant = Math.tan((rand(-14, 14) * Math.PI) / 180);
+		const [ox, oy] = [5 * scale, 7 * scale];
+		const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+		// Scale, slant, then rotate about the glyph's centre, then move into place.
+		const map = (gx: number, gy: number): [number, number] => {
+			const sx = gx * scale + slant * gy * scale - ox;
+			const sy = gy * scale - oy;
+			return [x0 + ox + sx * cos - sy * sin, y0 + oy + sx * sin + sy * cos];
+		};
+		parts.push(`<path d="${distort(GLYPHS[ch]!, map)}" stroke-width="${r1(rand(2.6, 3.4))}"/>`);
 	});
 
 	// Two curves cross every character so the shapes cannot be separated by simple segmentation.
@@ -128,7 +180,7 @@ export function drawCharacters(text: string): string {
 		);
 	}
 
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">${parts.join('')}</svg>`;
+	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">${shuffle(parts).join('')}</svg>`;
 }
 
 /* ----------------------------------------------------------- text questions */

@@ -3,25 +3,29 @@ import { track } from '#lib/server/analytics/track.ts';
 import { eq } from 'drizzle-orm';
 import { logSecurity } from '#lib/server/security-log.ts';
 import { db, schema } from '#lib/server/db/index.ts';
-import { createSession, dummyPasswordHash, findUserByEmail, setSessionCookie, verifyPassword } from '#lib/server/auth.ts';
+import { createSession, deleteSession, dummyPasswordHash, findUserByEmail, setSessionCookie, verifyPassword } from '#lib/server/auth.ts';
 import { guardForm, humanCheck } from '#lib/server/bot/guard.ts';
 import { issueTicket } from '#lib/server/bot/ticket.ts';
 import { networkOf, recordAbuse } from '#lib/server/bot/risk.ts';
-import { failureLimit, rateLimit, rateLimitMessage, recordFailure } from '#lib/server/rate-limit.ts';
+import { countRecent, failureLimit, rateLimit, rateLimitMessage, recordFailure } from '#lib/server/rate-limit.ts';
 import { emailSchema, safeRedirect } from '#lib/server/validation.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 const INVALID = 'The email address or password is incorrect.';
 /**
- * Failed attempts allowed for one account from one address, and for one account from all
- * addresses together, within LOCK_MS. The first stops guessing from one place; the second stops
- * credential stuffing spread over many addresses, while the account itself is only locked after
- * ACCOUNT_LOCK_AFTER consecutive failures, so a stranger cannot keep someone locked out cheaply.
+ * Failed attempts allowed for one email address from one client address (MAX_FAILURES), and from
+ * all client addresses together (LOCK_AFTER), within LOCK_MS. The first stops guessing from one
+ * place; the second stops credential stuffing spread over many addresses.
+ *
+ * Both are counted for every email address entered, whether or not an account uses it, and give
+ * the same answer either way, so the lock cannot be used to find out which addresses are
+ * registered. An existing account is also locked in the database, so the lock survives a restart.
  */
 const MAX_FAILURES = 5;
-const MAX_FAILURES_ALL_ADDRESSES = 30;
-const ACCOUNT_LOCK_AFTER = 10;
+const LOCK_AFTER = 10;
 const LOCK_MS = 15 * 60 * 1000;
+/** Longer than any password the site accepts; longer input is refused without being hashed. */
+const MAX_PASSWORD = 1024;
 
 export const load: PageServerLoad = async (event) => {
 	const { locals, url } = event;
@@ -57,7 +61,7 @@ export const actions: Actions = {
 		const ipLimit = rateLimit(`signin:ip:${ip}`, 20, LOCK_MS);
 		const netLimit = rateLimit(`signin:net:${networkOf(ip)}`, 100, LOCK_MS);
 		const emailLimit = failureLimit(emailKey, MAX_FAILURES, LOCK_MS);
-		const emailAllLimit = failureLimit(emailAllKey, MAX_FAILURES_ALL_ADDRESSES, LOCK_MS);
+		const emailAllLimit = failureLimit(emailAllKey, LOCK_AFTER, LOCK_MS);
 		if (!ipLimit.ok || !netLimit.ok || !emailLimit.ok || !emailAllLimit.ok) {
 			await logSecurity('rate_limited', { ip, detail: 'signin' });
 			const wait = Math.max(ipLimit.retryAfter, netLimit.retryAfter, emailLimit.retryAfter, emailAllLimit.retryAfter);
@@ -70,7 +74,7 @@ export const actions: Actions = {
 			return again(guard.status, { values, challenge: guard.challenge, fallback: guard.fallback, errors: { [guard.field]: guard.message } });
 		}
 		const password = String(form.get('password') ?? '');
-		if (!emailSchema.safeParse(email).success || !password) {
+		if (!emailSchema.safeParse(email).success || !password || password.length > MAX_PASSWORD) {
 			recordFailure(emailKey);
 			recordFailure(emailAllKey);
 			recordAbuse(ip, 'signin');
@@ -94,7 +98,8 @@ export const actions: Actions = {
 			recordAbuse(ip, 'signin');
 			if (user) {
 				const failures = user.failedLogins + 1;
-				const lock = failures >= ACCOUNT_LOCK_AFTER;
+				// The same count that locks every other address entered (see LOCK_AFTER).
+				const lock = countRecent(emailAllKey, LOCK_MS) >= LOCK_AFTER;
 				await d
 					.update(schema.users)
 					.set({ failedLogins: lock ? 0 : failures, lockedUntil: lock ? new Date(Date.now() + LOCK_MS) : null })
@@ -109,6 +114,8 @@ export const actions: Actions = {
 		await d.update(schema.users).set({ failedLogins: 0, lockedUntil: null }).where(eq(schema.users.id, user.id));
 		await logSecurity('signed_in', { userId: user.id, ip, userAgent });
 		track('signin_succeeded', { userId: user.id });
+		// A session the browser already had is ended, so no earlier session carries over.
+		if (event.locals.sessionId) await deleteSession(event.locals.sessionId);
 		const session = await createSession(user.id, userAgent);
 		setSessionCookie(cookies, session.token, session.expiresAt, url.protocol === 'https:');
 

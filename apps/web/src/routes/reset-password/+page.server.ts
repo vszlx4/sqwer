@@ -5,6 +5,7 @@ import { db, schema } from '#lib/server/db/index.ts';
 import {
 	consumeRecoveryCode,
 	createSession,
+	deleteSession,
 	deleteUserSessions,
 	findUserByEmail,
 	hashPassword,
@@ -64,6 +65,8 @@ export const actions: Actions = {
 			.set({ passwordHash: await hashPassword(password), passwordChangedAt: new Date(), failedLogins: 0, lockedUntil: null })
 			.where(eq(schema.users.id, user.id));
 		await deleteUserSessions(user.id);
+		// Also a session of another account that this browser may still have.
+		if (event.locals.sessionId) await deleteSession(event.locals.sessionId);
 		await logSecurity('password_reset', { userId: user.id, ip, userAgent: request.headers.get('user-agent') });
 		track('password_reset', { userId: user.id });
 		const session = await createSession(user.id, request.headers.get('user-agent'));
