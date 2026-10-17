@@ -3,7 +3,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { eq, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/pglite';
 import { afterEach, describe, expect, it } from 'vitest';
-import { createSession, validateSession } from './auth.ts';
+import { activeSessions, createSession, deleteExpiredSessions, validateSession } from './auth.ts';
 import { turnstileConfig } from './bot/turnstile.ts';
 import { configurationProblems, isPublicSite } from './config-check.ts';
 import { db, migrate, schema, type Database } from './db/index.ts';
@@ -35,7 +35,8 @@ describe('production configuration check', () => {
 	it('stays quiet on this machine and for a complete public configuration', () => {
 		expect(isPublicSite('http://localhost:3000')).toBe(false);
 		expect(configurationProblems({}, 'http://localhost:3000')).toEqual([]);
-		expect(configurationProblems(good, 'https://sqwer.example')).toEqual([]);
+		// Until the web host is named in the Privacy Policy, that is the only remaining problem.
+		expect(configurationProblems(good, 'https://sqwer.example').filter((p) => !p.includes('web host'))).toEqual([]);
 	});
 
 	it('reports what is unsafe on a public site', () => {
@@ -44,6 +45,9 @@ describe('production configuration check', () => {
 		expect(problems.join('\n')).toMatch(/LOG_HASH_SECRET is shorter/);
 		expect(problems.join('\n')).toMatch(/test secrets/);
 		expect(configurationProblems({}, 'https://sqwer.example').filter((p) => p.includes('is not set'))).toHaveLength(4);
+		// Values are read as the app reads them, without surrounding spaces.
+		expect(configurationProblems({ ...good, TURNSTILE_SITE_KEY: 'k', TURNSTILE_SECRET_KEY: ' 1x0000000000000000000000000000000AA ' }, 'https://sqwer.example').join()).toMatch(/test secrets/);
+		expect(configurationProblems({ ...good, TURNSTILE_SITE_KEY: ' ', TURNSTILE_SECRET_KEY: 'secret' }, 'https://sqwer.example').join()).toMatch(/Only one/);
 	});
 });
 
@@ -74,6 +78,12 @@ describe('session lifetime', () => {
 		await d.update(schema.sessions).set({ createdAt: new Date(Date.now() - 91 * 864e5) }).where(eq(schema.sessions.id, id));
 		expect(await validateSession(token)).toBeNull();
 		expect(await d.select().from(schema.sessions).where(eq(schema.sessions.id, id))).toHaveLength(0);
+		// A session past the cap whose sliding expiry is still ahead is neither listed nor kept.
+		const second = await createSession(userId, null);
+		await d.update(schema.sessions).set({ createdAt: new Date(Date.now() - 100 * 864e5) }).where(eq(schema.sessions.id, second.id));
+		expect(await activeSessions(userId)).toHaveLength(0);
+		await deleteExpiredSessions();
+		expect(await d.select().from(schema.sessions).where(eq(schema.sessions.id, second.id))).toHaveLength(0);
 	});
 });
 
@@ -98,6 +108,9 @@ describe('migrations under a restricted database role', () => {
 		// The app role reads and writes rows...
 		expect((await pg.query('SELECT id FROM users')).rows).toHaveLength(1);
 		await pg.exec(`UPDATE users SET failed_logins = 1 WHERE id = 'u1'`);
+		// ...but cannot change the record of applied migrations.
+		await expect(pg.exec(`DELETE FROM sqwer_migrations`)).rejects.toThrow(/permission denied/);
+		await expect(pg.exec(`INSERT INTO sqwer_migrations (name) VALUES ('fake.sql')`)).rejects.toThrow(/permission denied/);
 		// And the role really cannot change the schema.
 		await expect(pg.exec('CREATE TABLE intruder (id int)')).rejects.toThrow(/permission denied/);
 		const rows = (await owner.execute(sql`select count(*)::int as n from sqwer_migrations`)) as unknown as { rows: { n: number }[] };

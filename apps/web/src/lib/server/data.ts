@@ -1,6 +1,7 @@
 import { and, eq, ne, sql } from 'drizzle-orm';
 import type { DataCategory, DataResets } from '#lib/data/categories.ts';
 import { db, schema } from './db/index.ts';
+import { invalidateLeaderboards } from './progress.ts';
 
 /*
  * Clearing one category of account data. The rows are deleted and the time is recorded, so that
@@ -37,6 +38,7 @@ export async function clearCategory(userId: string, category: DataCategory): Pro
 			.values({ userId, category, clearedAt: now })
 			.onConflictDoUpdate({ target: [schema.dataResets.userId, schema.dataResets.category], set: { clearedAt: now } });
 	});
+	if (category === 'ranked' || category === 'practice' || category === 'learning') invalidateLeaderboards();
 	return now;
 }
 
