@@ -69,7 +69,7 @@ export const sessions = pgTable('sessions', {
 	lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
 	/** Short browser description, e.g. "Chrome on macOS". */
 	device: text('device').notNull().default('')
-}).enableRLS();
+}, (t) => [index('sessions_user_idx').on(t.userId), index('sessions_expiry_idx').on(t.expiresAt)]).enableRLS();
 
 export const recoveryCodes = pgTable('recovery_codes', {
 	id: serial('id').primaryKey(),
@@ -78,7 +78,7 @@ export const recoveryCodes = pgTable('recovery_codes', {
 		.references(() => users.id, { onDelete: 'cascade' }),
 	codeHash: text('code_hash').notNull(),
 	usedAt: timestamp('used_at', { withTimezone: true })
-}).enableRLS();
+}, (t) => [index('recovery_codes_user_idx').on(t.userId)]).enableRLS();
 
 export const fingerMaps = pgTable('finger_maps', {
 	userId: text('user_id')
@@ -103,7 +103,7 @@ export const results = pgTable('results', {
 	wpm: real('wpm').notNull().default(0),
 	/** For competitive and placement results: whether the server's plausibility check passed. */
 	verified: boolean('verified').notNull().default(false)
-}, (t) => [index('results_competitive_idx').on(t.exam, t.verified, t.wpm)]).enableRLS();
+}, (t) => [index('results_competitive_idx').on(t.exam, t.verified, t.wpm), index('results_user_idx').on(t.userId, t.createdAt)]).enableRLS();
 
 /** Usage statistics, one document per device so that totals can be added without double counting. */
 export const usageStats = pgTable(
@@ -245,7 +245,7 @@ export const xpGrants = pgTable('xp_grants', {
 	xp: integer('xp').notNull(),
 	reason: text('reason').notNull(),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
-}).enableRLS();
+}, (t) => [index('xp_grants_user_idx').on(t.userId)]).enableRLS();
 
 /**
  * When the user last cleared a category of their data (see lib/data/categories.ts). Copies older
@@ -284,7 +284,7 @@ export const securityEvents = pgTable('security_events', {
 	type: text('type').notNull(),
 	device: text('device').notNull().default(''),
 	createdAt: created()
-}).enableRLS();
+}, (t) => [index('security_events_user_idx').on(t.userId, t.createdAt)]).enableRLS();
 
 export type User = typeof users.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;

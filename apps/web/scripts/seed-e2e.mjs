@@ -22,7 +22,7 @@ export const ACCOUNTS = [
 	{ email: 'lockout@e2e.test', password: 'E2e-lockout-pass-2026', role: 'user' }
 ];
 
-const db = await open();
+const db = await open({ migrate: true });
 try {
 	for (const a of ACCOUNTS) {
 		await db.query(

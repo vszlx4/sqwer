@@ -234,7 +234,7 @@
 				<tr><th scope="row">Usage statistics</th><td>Recorded only while you are signed in: active time per section of the site, active days and hours, tests started and completed, keystroke and word counts, and per-word counts and speeds. Kept separately for each of your devices by means of a random device identifier.</td></tr>
 				<tr><th scope="row">Recovery codes</th><td>One-way hashes of your recovery codes and whether each has been used.</td></tr>
 				<tr><th scope="row">Signed-in devices</th><td>For each device: a hash of the session identifier, a short browser description (for example, “Chrome on macOS”), and the sign-in and last-activity times.</td></tr>
-				<tr><th scope="row">Security activity</th><td>Security events on your account, such as sign-ins, failed sign-in attempts and password changes, with the browser description and time.</td></tr>
+				<tr><th scope="row">Security activity</th><td>Security events on your account, such as sign-ins, failed sign-in attempts, password changes and downloads of your data, with the browser description and time.</td></tr>
 				<tr><th scope="row">Correspondence</th><td>If you write to us: your email address, the content of your message and our reply.</td></tr>
 			</tbody>
 		</table>
@@ -420,7 +420,7 @@
 				<tr><td>Account, profile, profile picture, examination results, course progress, finger map and recovery codes</td><td>Until you delete them or your account</td></tr>
 				<tr><td>Records of acceptance and picture confirmation times</td><td>While your account (or picture) exists</td></tr>
 				<tr><td>Usage statistics</td><td>Until you delete them (Account → Statistics) or your account</td></tr>
-				<tr><td>Signed-in devices</td><td>Until you sign out, or after 30 days without use</td></tr>
+				<tr><td>Signed-in devices</td><td>Until you sign out, after 30 days without use, or at most 90 days after signing in</td></tr>
 				<tr><td>Security activity on your account</td><td>While your account exists</td></tr>
 				<tr><td>IP addresses and network prefixes used for rate limiting and risk scoring</td><td>In server memory only, at most one day</td></tr>
 				<tr><td>Used verification challenges, form tickets and verification tokens</td><td>One-way hashes only, until the token would have expired (at most two hours)</td></tr>
@@ -615,7 +615,8 @@
 				<tr><th scope="col">Version</th><th scope="col">Effective</th><th scope="col">Changes</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>2.3</td><td>{doc.effective}</td><td>First-party usage analytics: visit statistics with consent, account and product events, administrator access, 13-month retention and the consent banner.</td></tr>
+				<tr><td>2.4</td><td>{doc.effective}</td><td>Signed-in devices end at most 90 days after signing in; downloads of your data appear in your security activity.</td></tr>
+				<tr><td>2.3</td><td>18 October 2026</td><td>First-party usage analytics: visit statistics with consent, account and product events, administrator access, 13-month retention and the consent banner.</td></tr>
 				<tr><td>2.2</td><td>16 October 2026</td><td>Experience and levels, competitive results and their checks, leaderboards, and the adaptive pace of the Courses.</td></tr>
 				<tr><td>2.1</td><td>15 October 2026</td><td>Profile headline, pronouns, banner and showcase choices, and what public profiles show.</td></tr>
 				<tr><td>2.0</td><td>15 October 2026</td><td>Controller named; records of acceptance and picture rights confirmation; new verification check; principles, security, breach and regional sections expanded.</td></tr>

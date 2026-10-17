@@ -21,10 +21,36 @@ export const emailSchema = z
 	.max(254, 'Enter an email address of 254 characters or fewer.')
 	.pipe(z.email('Enter a valid email address.'));
 
+/**
+ * Passwords that meet the length rule but are among the first an attacker tries (NIST SP 800-63B,
+ * section 5.1.1.2: compare new passwords against commonly used ones). Compared case-insensitively
+ * after removing spaces.
+ */
+const COMMON_PASSWORDS = new Set([
+	'1234567890', '12345678910', '123456789a', '1234567890a', '0987654321', '1111111111', '1q2w3e4r5t', '1qaz2wsx3edc',
+	'qwertyuiop', 'qwertyuiop1', 'qwerty1234', 'qwerty12345', 'asdfghjkl1', 'asdfghjkl;', 'zxcvbnm123', 'qazwsxedcrfv',
+	'password12', 'password123', 'password1234', 'password!1', 'passw0rd123', 'p@ssw0rd123', 'p@ssword123', 'passwordpassword',
+	'iloveyou12', 'iloveyou123', 'letmein123', 'welcome123', 'welcome1234', 'admin12345', 'administrator', 'changeme123',
+	'trustno1234', 'football123', 'baseball123', 'princess123', 'sunshine123', 'superman123', 'starwars123', 'monkey12345',
+	'dragon12345', 'abcdefghij', 'abcdefghijk', 'abcd123456', 'abc1234567', 'a1b2c3d4e5', 'aaaaaaaaaa', 'qwerty123456',
+	'sqwer12345', 'sqwerpassword', 'keyboard123', 'typing12345'
+]);
+const RUNS = ['01234567890', 'abcdefghijklmnopqrstuvwxyz', 'qwertyuiopasdfghjklzxcvbnm'];
+
+/** Whether a password is a well-known one, one repeated character, or a straight run of keys or digits. */
+export function isWeakPassword(password: string): boolean {
+	const p = password.toLowerCase().replace(/\s+/g, '');
+	if (COMMON_PASSWORDS.has(p)) return true;
+	if (new Set(p).size <= 2) return true;
+	const reversed = [...p].reverse().join('');
+	return RUNS.some((run) => run.includes(p) || run.includes(reversed));
+}
+
 export const passwordSchema = z
 	.string()
 	.min(10, PASSWORD_RULE)
-	.max(128, 'Use 128 characters or fewer.');
+	.max(128, 'Use 128 characters or fewer.')
+	.refine((p) => !isWeakPassword(p), 'This password is too common or predictable. Choose a less obvious one.');
 
 export const usernameSchema = z
 	.string()

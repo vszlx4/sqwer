@@ -20,7 +20,10 @@ export type SecurityEvent =
 	| 'data_cleared'
 	| 'captcha_failed'
 	| 'rate_limited'
-	| 'bot_trap';
+	| 'bot_trap'
+	| 'data_exported'
+	| 'admin_export'
+	| 'admin_denied';
 
 /** Events stored with the account and shown on its Security page. */
 const ACCOUNT_VISIBLE = new Set<SecurityEvent>([
@@ -33,7 +36,8 @@ const ACCOUNT_VISIBLE = new Set<SecurityEvent>([
 	'recovery_codes_regenerated',
 	'session_revoked',
 	'other_sessions_revoked',
-	'data_cleared'
+	'data_cleared',
+	'data_exported'
 ]);
 
 export const EVENT_LABELS: Partial<Record<SecurityEvent, string>> = {
@@ -46,8 +50,21 @@ export const EVENT_LABELS: Partial<Record<SecurityEvent, string>> = {
 	recovery_codes_regenerated: 'New recovery codes generated',
 	session_revoked: 'A device was signed out',
 	other_sessions_revoked: 'All other devices were signed out',
-	data_cleared: 'Part of your data was cleared'
+	data_cleared: 'Part of your data was cleared',
+	data_exported: 'Your data was downloaded'
 };
+
+/**
+ * The client address for a log entry, or undefined when it cannot be read (for example when the
+ * proxy header is missing). Logging must never make the request itself fail.
+ */
+export function addressOf(event: { getClientAddress: () => string }): string | undefined {
+	try {
+		return event.getClientAddress();
+	} catch {
+		return undefined;
+	}
+}
 
 /** IP addresses are logged only as a keyed hash, enough to correlate abuse without storing the address. */
 function hashIp(ip: string | undefined) {
