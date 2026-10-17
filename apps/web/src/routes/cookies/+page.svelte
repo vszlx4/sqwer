@@ -115,7 +115,7 @@
 				<tr>
 					<th scope="row"><code>sqwer_session</code></th>
 					<td>Keeps you signed in. Set only when you sign in or create an account. It contains a random token; the server stores only a hash of it.</td>
-					<td>30 days, renewed while you use sqwer; removed when you sign out</td>
+					<td>30 days, renewed while you use sqwer, and at most 90 days after you sign in; removed when you sign out</td>
 					<td><code>HttpOnly</code>, <code>Secure</code>, <code>SameSite=Lax</code>, first-party only</td>
 				</tr>
 			</tbody>

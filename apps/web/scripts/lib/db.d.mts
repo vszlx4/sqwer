@@ -1,0 +1,10 @@
+// Types for db.mjs, the database helper of the command-line scripts.
+export type Query = (text: string, params?: unknown[]) => Promise<Record<string, unknown>[]>;
+
+export function open(options?: { migrate?: boolean; url?: string }): Promise<{
+	query: Query;
+	close: () => Promise<void>;
+	applied: string[];
+}>;
+
+export function grantAppRole(query: Query, role: string): Promise<string[]>;

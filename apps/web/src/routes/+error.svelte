@@ -20,9 +20,12 @@
 				? page.error.message
 				: 'The address may be incorrect, or the page may have been moved or removed.'}
 		{:else}
-			{page.error?.message ?? 'An unexpected error occurred. Please try again.'}
+			{page.error?.message === 'Internal Error' ? 'An unexpected error occurred. Please try again.' : (page.error?.message ?? 'An unexpected error occurred. Please try again.')}
 		{/if}
 	</p>
+	{#if page.error?.id}
+		<p class="ref">If this keeps happening, contact us and quote the reference <code>{page.error.id}</code>.</p>
+	{/if}
 	<div class="links">
 		<a class="btn btn-primary" href="/">Return to the home page</a>
 		{#if notFound}
@@ -34,6 +37,14 @@
 </section>
 
 <style>
+	.ref {
+		font-size: 14px;
+		color: var(--ink-2);
+	}
+	.ref code {
+		font-family: var(--font-mono);
+		color: var(--ink);
+	}
 	.error-page {
 		display: flex;
 		flex-direction: column;

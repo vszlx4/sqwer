@@ -1,6 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import { analyticsEnabled } from '#lib/server/analytics/config.ts';
 import { batchSchema, ingest } from '#lib/server/analytics/ingest.ts';
+import { networkOf } from '#lib/server/bot/risk.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
 import type { RequestHandler } from './$types';
 
@@ -11,7 +12,17 @@ import type { RequestHandler } from './$types';
  */
 export const POST: RequestHandler = async ({ request, locals, getClientAddress }) => {
 	if (!analyticsEnabled()) return new Response(null, { status: 204 });
-	if (!rateLimit(`analytics:${getClientAddress()}`, 240, 10 * 60 * 1000).ok) error(429, 'Too many requests.');
+	// Per address, per network, and for the whole site: events are stored for anyone who allowed
+	// analytics, so the total written per period is bounded however many addresses send them.
+	const ip = getClientAddress();
+	const window = 10 * 60 * 1000;
+	if (
+		!rateLimit(`analytics:${ip}`, 240, window).ok ||
+		!rateLimit(`analytics:net:${networkOf(ip)}`, 1_200, window).ok ||
+		!rateLimit('analytics:all', 20_000, window).ok
+	) {
+		error(429, 'Too many requests.');
+	}
 	if (Number(request.headers.get('content-length') ?? 0) > 32_768) error(413, 'Too large.');
 	const parsed = batchSchema.safeParse(await request.json().catch(() => null));
 	if (!parsed.success) error(400, 'Invalid events.');

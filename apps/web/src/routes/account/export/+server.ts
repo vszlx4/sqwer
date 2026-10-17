@@ -4,11 +4,18 @@ import { requireUser } from '#lib/server/account.ts';
 import { activeSessions } from '#lib/server/auth.ts';
 import { dataResets } from '#lib/server/data.ts';
 import { accountLevel, competitiveBest } from '#lib/server/progress.ts';
+import { rateLimit } from '#lib/server/rate-limit.ts';
+import { addressOf, logSecurity } from '#lib/server/security-log.ts';
+import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
 /** Data portability: everything stored about the signed-in account, as JSON. */
-export const GET: RequestHandler = async ({ locals, url }) => {
+export const GET: RequestHandler = async (event) => {
+	const { locals, url, request } = event;
 	const user = requireUser(locals, url);
+	// Each download reads everything stored for the account.
+	if (!rateLimit(`export:${user.id}`, 10, 60 * 60 * 1000).ok) error(429, 'Too many downloads. Please try again in an hour.');
+	await logSecurity('data_exported', { userId: user.id, ip: addressOf(event), userAgent: request.headers.get('user-agent') });
 	const d = await db();
 	const [profile] = await d.select().from(schema.profiles).where(eq(schema.profiles.userId, user.id));
 	const [fingerMap] = await d.select().from(schema.fingerMaps).where(eq(schema.fingerMaps.userId, user.id));

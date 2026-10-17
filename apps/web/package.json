@@ -14,7 +14,8 @@
 		"db:generate": "drizzle-kit generate",
 		"start": "node scripts/start.js",
 		"db:backup": "bash scripts/backup-db.sh",
-		"admin": "node scripts/admin.mjs"
+		"admin": "node scripts/admin.mjs",
+		"db:migrate": "node scripts/migrate.mjs"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.13.0",

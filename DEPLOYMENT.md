@@ -19,6 +19,11 @@
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Recommended | Cloudflare Turnstile keys (free). When both are set, Turnstile protects sign-up, sign-in and password reset, with sqwer's own check as the automatic fallback. When unset, sqwer's own check is used. See [BOT_PROTECTION.md](BOT_PROTECTION.md). |
 | `ANALYTICS_DISABLED` | No | `1` turns off browser analytics (no consent banner); server events are still recorded. See [ANALYTICS.md](ANALYTICS.md). |
 | `ANALYTICS_RETENTION_DAYS` | No | Days raw analytics events are kept (default 395, about 13 months, as the Privacy Policy states). |
+| `DATABASE_MIGRATIONS` | Recommended in production | `manual`: the app never changes the schema and refuses to start while a migration is pending, with an instruction to run `npm run db:migrate -w web`. Unset: pending migrations are applied when the app first connects (needs the owner role). |
+| `MIGRATION_DATABASE_URL` | With `manual` | Connection string of the owner role, used only by `npm run db:migrate -w web`. Never give it to the running app. |
+| `DATABASE_APP_ROLE` | With a restricted role | Name of the application role (for example `sqwer_app`). `db:migrate` then grants it row access to every table, including new ones, and nothing more. |
+| `DATABASE_POOL_SIZE` | No | Connections per server process (default 5). Keep the total across processes below the database's limit. |
+| `DATABASE_STATEMENT_TIMEOUT_MS` | No | Longest a single query may run (default 15000). Connections time out after 10 s and idle transactions after 30 s. |
 | `SQWER_DATA_DIR` | No | Directory for the embedded database and generated secrets. Defaults to `.data` in the working directory. |
 | `BODY_SIZE_LIMIT` | No | Maximum request body size. The start script sets `6M`, enough for a large finger map. |
 | `PORT`, `HOST` | No | Listening address for the Node server (default port 3000). |
@@ -35,8 +40,19 @@ PUBLIC_SITE_URL=https://sqwer.example npm run build
 PUBLIC_SITE_URL=https://sqwer.example DATABASE_URL=postgres://... npm start
 ```
 
-Database migrations in `apps/web/drizzle` are applied automatically on start-up. To create a new migration after
-changing `apps/web/src/lib/server/db/schema.ts`, run `npm run db:generate -w web`.
+Database migrations live in `apps/web/drizzle`. In production, apply them before starting a new version, with the
+owner role, then start the app with the restricted role (see below):
+
+```sh
+MIGRATION_DATABASE_URL=postgresql://sqwer_owner:…@host/sqwer DATABASE_APP_ROLE=sqwer_app npm run db:migrate -w web
+```
+
+Without `DATABASE_MIGRATIONS=manual`, the app applies pending migrations itself when it first connects, which needs
+the owner role. To create a migration after changing `apps/web/src/lib/server/db/schema.ts`, run
+`npm run db:generate -w web`.
+
+`GET /healthz` answers `{"status":"ok"}` (200) when the server can reach its database and 503 otherwise, for the
+host's health checks.
 
 ## Administrators
 
@@ -47,33 +63,40 @@ the role from the server (it cannot be granted through the website):
 npm run admin -w web -- grant you@example.com
 ```
 
-`list` and `revoke <email>` are also available. See [ANALYTICS.md](ANALYTICS.md).
+`list` and `revoke <email>` are also available, and for incidents `signout <email>` (ends every session of one
+account) and `signout-everyone`. See [ANALYTICS.md](ANALYTICS.md).
 
 ## Database permissions
 
-Run migrations with an owner role and serve requests with a restricted role that can only read and write rows.
+Serve requests with a role that can only read and write rows, and change the schema only with an owner role, so a
+compromised application cannot drop tables, create functions or read other databases. Every table has row-level
+security enabled with no general policies, so roles other than the owner see nothing unless they are given a policy;
+this keeps Supabase's public API roles (`anon`, `authenticated`) out. `db:migrate` gives the application role one
+policy per table.
 
 ```sql
--- As a superuser
+-- As a superuser (self-hosted PostgreSQL)
 CREATE ROLE sqwer_owner LOGIN PASSWORD '…';
-CREATE ROLE sqwer_app LOGIN PASSWORD '…';
+CREATE ROLE sqwer_app LOGIN PASSWORD '…' NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
 CREATE DATABASE sqwer OWNER sqwer_owner;
-
 \c sqwer
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT USAGE ON SCHEMA public TO sqwer_app;
-
--- After the first start with DATABASE_URL pointing at sqwer_owner (which creates the tables):
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO sqwer_app;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO sqwer_app;
-ALTER DEFAULT PRIVILEGES FOR ROLE sqwer_owner IN SCHEMA public
-	GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO sqwer_app;
-ALTER DEFAULT PRIVILEGES FOR ROLE sqwer_owner IN SCHEMA public
-	GRANT USAGE, SELECT ON SEQUENCES TO sqwer_app;
 ```
 
-Then run the application with `DATABASE_URL` pointing at `sqwer_app`. The app role cannot create, alter or drop
-tables. Run the owner role again only when deploying a version with new migrations.
+On Supabase, run only the second statement in the SQL editor (the tables are owned by `postgres`, which acts as the
+owner role), and connect through the session pooler with the user name `sqwer_app.<project-ref>`.
+
+Then, for the first deployment and every deployment with new migrations:
+
+```sh
+MIGRATION_DATABASE_URL=<owner connection string> DATABASE_APP_ROLE=sqwer_app npm run db:migrate -w web
+```
+
+and run the app with `DATABASE_URL` pointing at `sqwer_app` and `DATABASE_MIGRATIONS=manual`. The app role cannot
+create, alter or drop tables, bypass row-level security or create roles. This setup is covered by a unit test
+(`apps/web/src/lib/server/hardening.test.ts`) that runs the migrations, grants the role and checks what it can and
+cannot do.
 
 ## Security measures in place
 
@@ -92,6 +115,17 @@ tables. Run the owner role again only when deploying a version with new migratio
 - Security events written as structured JSON to standard output, with IP addresses hashed; recent events shown to the user.
 - Security headers: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`.
 
+- Sessions end 30 days after last use and at most 90 days after sign-in; signing in, signing up or resetting a
+  password ends any session the browser already had.
+- New passwords are checked against a list of very common passwords and against repeated or sequential characters.
+- Cross-Origin-Opener-Policy and Cross-Origin-Resource-Policy `same-origin`; `X-Permitted-Cross-Domain-Policies: none`.
+- Unexpected errors show a short reference; the details are logged on the server only (`"kind":"error"`).
+- Database connections time out; queries are limited to 15 seconds; per-user tables are indexed.
+- The public leaderboards are computed at most every 30 seconds; data downloads and analytics exports are rate limited
+  and recorded; analytics ingestion is limited per address, per network and for the whole site.
+- At start-up the server logs a warning (`"kind":"config"`) for unsafe settings on a public site: no HTTPS, missing or
+  short secrets, no `DATABASE_URL`, an incomplete Turnstile key pair, or a Turnstile test secret (which is refused).
+
 Rate limits are held in memory and apply per server process. If you run several instances, move them to a shared store.
 
 ## Recurring tasks
@@ -104,3 +138,56 @@ Rate limits are held in memory and apply per server process. If you run several 
   `apps/web/src/lib/site/legal.ts` and add a line to its version history.
 - **Analytics:** daily totals and the 13-month retention run automatically inside the server every six hours; nothing
   needs scheduling. Review the administrators with `npm run admin -w web -- list` from time to time.
+
+## Infrastructure the application cannot provide
+
+The application limits abuse per address, network and account, but it cannot absorb volumetric or distributed
+denial-of-service attacks, terminate TLS or filter traffic before it arrives. Provide these in front of it:
+
+- **HTTPS only**, with HTTP redirected to HTTPS and TLS 1.2 or later (Caddy, nginx, or the platform's load balancer).
+- **A CDN or managed DDoS protection with a web application firewall**, for example Cloudflare in proxy mode (then set
+  `ADDRESS_HEADER=cf-connecting-ip`). Rate-limit rules at the edge for `/signin`, `/signup`, `/reset-password` and
+  `/api/` add a layer the application cannot be overwhelmed past.
+- **Only the proxy may reach the Node server**: bind it to localhost or a private network and firewall the port.
+  `ADDRESS_HEADER` must only be trusted when every request comes through that proxy.
+- **The database must not be open to the internet**: on Supabase, enable network restrictions to the server's address
+  and keep SSL enforcement on; use the session pooler with the certificate in `DATABASE_CA_FILE`.
+- **One server process**, or a shared store for rate limits (see above). Run it under a process manager that restarts
+  it (systemd, the platform's runner) and point health checks at `/healthz`.
+- **Logs**: keep standard output and standard error for 14 days (as the Privacy Policy states), readable only by
+  administrators, and alert on bursts of `"event":"sign_in_failed"`, `"account_locked"`, `"captcha_failed"`,
+  `"bot_trap"`, `"admin_denied"` and `"kind":"error"`.
+- **Backups**: run `npm run db:backup -w web` daily on a machine whose disk is encrypted, copy the files off the
+  server, and test a restore regularly (see below). Supabase's own backups depend on the plan.
+
+## Production checklist
+
+Before the first public deployment:
+
+1. Set `PUBLIC_SITE_URL` to the HTTPS address, and generate `CAPTCHA_HMAC_SECRET`, `CAPTCHA_HMAC_KEY_SECRET` and
+   `LOG_HASH_SECRET` (32 random bytes each) in the server's environment, not in the repository.
+2. Create the restricted database role, run `npm run db:migrate -w web` with the owner role and `DATABASE_APP_ROLE`,
+   and start the app with the restricted role and `DATABASE_MIGRATIONS=manual`.
+3. Put the server behind the HTTPS proxy, set `ADDRESS_HEADER` and `XFF_DEPTH` to match it, and firewall the port.
+4. Configure Turnstile with a real (not test) key pair for the production hostname.
+5. Restrict database network access; confirm row-level security is enabled on every table (Supabase: Advisors).
+6. Start the server and check the log: there must be no `"kind":"config"` warnings. Open `/healthz`.
+7. Grant yourself administrator rights and sign in once; check the response headers (`Strict-Transport-Security`,
+   `Content-Security-Policy`) and that the session cookie is `Secure`.
+8. Schedule the daily backup and test one restore into a separate database.
+9. Set up log retention and the alerts above.
+
+## Incident response
+
+| Situation | What to do |
+| --- | --- |
+| An account may be compromised | `npm run admin -w web -- signout <email>`; ask the owner to reset their password with a recovery code; review `security_events` for the account. If it is an administrator, `revoke` first. |
+| Sessions or the database may have leaked | `npm run admin -w web -- signout-everyone`. Session tokens are stored only as hashes, so a database copy does not contain usable cookies, but ending every session is cheap and certain. |
+| A secret is exposed | Database password: change it at the provider, update `DATABASE_URL`, restart. `CAPTCHA_HMAC_SECRET` or `CAPTCHA_HMAC_KEY_SECRET`: replace and restart (open forms and challenges must be reloaded). `LOG_HASH_SECRET`: replace and restart (older log hashes no longer match new ones). Turnstile secret: rotate it in the Cloudflare dashboard. Then remove the secret from wherever it leaked; if it was committed, treat it as public even after removal. |
+| Suspicious activity | Search the logs for the `kind`/`event` fields above and for the error reference users report. IP addresses appear only as keyed hashes, which can be compared with the hash of a known address using `LOG_HASH_SECRET`. |
+| Data loss or corruption | Stop the app; restore the latest good backup into a new database with `pg_restore --clean --if-exists --no-owner -d <new database> <file>`, check it, point `DATABASE_URL` at it, run `npm run db:migrate -w web`, start. |
+| A security fix must ship now | Fix on `main`, run `npm run check -w web`, `npm test` and `npm run test:e2e`, build, deploy, and confirm `/healthz`. To roll back, deploy the previous commit; migrations only add, so the previous version runs against the newer schema. |
+| Personal data breach | The Privacy Policy (section 12) commits to notifying the supervisory authority within 72 hours where required and affected people without undue delay. Record what happened, when, which data and which accounts. |
+
+Security reports from others arrive through `/.well-known/security.txt` and the Security Policy page.
+

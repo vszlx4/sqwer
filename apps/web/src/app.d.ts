@@ -22,6 +22,8 @@ declare global {
 		}
 		interface Error {
 			message: string;
+			/** For unexpected errors: a reference to the full details in the server log. */
+			id?: string;
 		}
 	}
 }

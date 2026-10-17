@@ -11,6 +11,23 @@ import { db } from './db/index.ts';
 type Row = Record<string, unknown>;
 const rowsOf = (r: unknown) => (r as { rows: Row[] }).rows;
 
+/**
+ * The public leaderboards are the same for every visitor and need a pass over all listed players,
+ * so they are computed at most once per PUBLIC_TTL_MS; a new result appears within that time. A
+ * player's own standing is never cached.
+ */
+const PUBLIC_TTL_MS = 30_000;
+const publicCache = new Map<string, { at: number; value: Promise<unknown> }>();
+function cachedPublic<T>(key: string, compute: () => Promise<T>): Promise<T> {
+	const hit = publicCache.get(key);
+	if (hit && Date.now() - hit.at < PUBLIC_TTL_MS) return hit.value as Promise<T>;
+	const value = compute();
+	publicCache.set(key, { at: Date.now(), value });
+	// A failed computation is not kept, so the next request tries again.
+	value.catch(() => publicCache.delete(key));
+	return value;
+}
+
 /** Per-user XP as a SQL fragment: examination XP, course points and any XP granted to the account. */
 const XP_OF = (user: ReturnType<typeof sql>) => sql`(
 	coalesce((select sum(r.xp) from results r where r.user_id = ${user}), 0)
@@ -77,7 +94,11 @@ export interface LeaderboardEntry {
  * The top typists, by best verified competitive speed or by XP. Only people with a profile who
  * have not switched off "Appear on leaderboards" are listed; profiles link only when public.
  */
-export async function leaderboard(by: 'speed' | 'xp', limit = 100): Promise<LeaderboardEntry[]> {
+export function leaderboard(by: 'speed' | 'xp', limit = 100): Promise<LeaderboardEntry[]> {
+	return cachedPublic(`leaderboard:${by}:${limit}`, () => computeLeaderboard(by, limit));
+}
+
+async function computeLeaderboard(by: 'speed' | 'xp', limit: number): Promise<LeaderboardEntry[]> {
 	const best = sql`(select max(r.wpm) from results r where r.user_id = p.user_id and r.exam = 'competitive' and r.verified)`;
 	const xp = XP_OF(sql`p.user_id`);
 	const res = await (await db()).execute(sql`
@@ -109,8 +130,8 @@ export async function leaderboard(by: 'speed' | 'xp', limit = 100): Promise<Lead
 }
 
 /** Best verified competitive speed of every listed player, for the distribution across ranks. */
-export async function competitiveBests(): Promise<number[]> {
-	return (await listedBests()).map((r) => r.best);
+export function competitiveBests(): Promise<number[]> {
+	return cachedPublic('bests', async () => (await listedBests()).map((r) => r.best));
 }
 
 async function listedBests(): Promise<{ userId: string; best: number }[]> {

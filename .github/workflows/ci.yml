@@ -1,0 +1,42 @@
+# Checks every push and pull request to main: dependency audit, type check, unit tests and a
+# production build. The end-to-end suite needs a browser and runs locally (npm run test:e2e).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Read-only: this workflow never needs to write to the repository or use any secret.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      # Installs exactly what package-lock.json records, verifying each package's integrity hash.
+      - run: npm ci
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=moderate
+      - name: Type check
+        run: npm run check -w web
+      - name: Unit tests
+        run: npx vitest run
+      - name: Production build
+        run: npm run build -w web
+        env:
+          PUBLIC_SITE_URL: https://sqwer.invalid
