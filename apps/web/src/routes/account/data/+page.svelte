@@ -3,7 +3,9 @@
 	import { invalidateAll } from '$app/navigation';
 	import { DATA_CATEGORIES, type DataCategory } from '#lib/data/categories.ts';
 	import { forgetLocal } from '#lib/data/local.ts';
+	import SettingsSection from '#lib/account/SettingsSection.svelte';
 	import Seo from '#lib/site/Seo.svelte';
+	import Icon from '#lib/ui/Icon.svelte';
 	import Field from '#lib/ui/Field.svelte';
 	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import type { PageProps } from './$types';
@@ -47,11 +49,13 @@
 
 <Seo title="Your data" description="Export or delete your sqwer account data." noindex />
 
-<div class="stack">
-	<h1>Your data</h1>
+<div class="page">
+	<header class="page-head">
+		<h1>Your data</h1>
+		<p>What sqwer keeps for your account, and how to download it, clear part of it or delete it all.</p>
+	</header>
 
-	<section class="card" aria-labelledby="sync-title">
-		<h2 id="sync-title">Finger map sync</h2>
+	<SettingsSection title="Sync" description="While you are signed in, your finger map, results and progress are saved to your account and kept in step on every device.">
 		<p class="text">
 			{#if data.fingerMap.count}
 				Your account holds {data.fingerMap.count} tagged keystrokes, last updated
@@ -62,15 +66,12 @@
 				account automatically.
 			{/if}
 		</p>
-	</section>
+	</SettingsSection>
 
-	<section class="card" aria-labelledby="clear-title">
-		<h2 id="clear-title">Clear part of your data</h2>
-		<p class="text">
-			Each kind of data can be cleared on its own; everything else stays exactly as it is. Clearing is permanent and
-			applies to every device you use: copies kept in a browser are discarded on its next visit. Copies in backups
-			disappear within 14 days.
-		</p>
+	<SettingsSection
+		title="Clear part of your data"
+		description="Each kind of data can be cleared on its own; everything else stays exactly as it is. Clearing is permanent and applies to every device: copies kept in a browser are discarded on its next visit. Copies in backups disappear within 14 days."
+	>
 		{#if cleared}
 			<p class="form-alert success" role="status">{title(cleared)} cleared. Everything else is unchanged.</p>
 		{/if}
@@ -102,20 +103,17 @@
 				</li>
 			{/each}
 		</ul>
-	</section>
+	</SettingsSection>
 
-	<section class="card" aria-labelledby="export-title">
-		<h2 id="export-title">Download your data</h2>
+	<SettingsSection title="Download your data" description="A copy of everything sqwer stores about your account, as one JSON file.">
 		<p class="text">
-			Download a copy of everything sqwer stores about your account, in JSON format: your email address, profile, profile
-			picture, examination results, course progress, finger map, usage statistics, signed-in devices, security activity and
-			which recovery codes have been used.
+			Your email address, profile, profile picture, examination results, course progress, finger map, usage statistics,
+			signed-in devices, security activity and which recovery codes have been used.
 		</p>
-		<a class="btn" href="/account/export" download>Download my data</a>
-	</section>
+		<a class="btn start" href="/account/export" download><Icon name="download" size={16} /> Download my data</a>
+	</SettingsSection>
 
-	<section class="card danger" aria-labelledby="delete-title">
-		<h2 id="delete-title">Delete your account</h2>
+	<SettingsSection title="Delete your account" danger description="Permanent. Everything stored with your account is removed and cannot be recovered.">
 		<p class="text">
 			Deleting your account permanently removes everything stored with it: profile, profile picture, examination results,
 			course progress, finger map, usage statistics, recovery codes, signed-in devices and security activity. Copies in
@@ -132,39 +130,29 @@
 				</div>
 			</form>
 		{:else}
-			<button class="btn" type="button" onclick={() => (confirming = true)}>Delete my account</button>
+			<button class="btn start" type="button" onclick={() => (confirming = true)}>Delete my account</button>
 		{/if}
-	</section>
+	</SettingsSection>
 </div>
 
 <style>
-	.stack {
-		display: flex;
-		flex-direction: column;
-		gap: 24px;
+	.page-head {
+		margin-bottom: 8px;
+	}
+	.page-head p {
+		margin-top: 6px;
+		max-width: 64ch;
+		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(30px, 4vw, 42px);
+		font-size: clamp(28px, 3.2vw, 36px);
 	}
-	.card {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 14px;
-		padding: 22px;
-		border-radius: 3px;
-		border: 1px solid var(--line);
-		background: var(--surface);
-	}
-	.card.danger {
-		border-left: 4px solid var(--error);
-	}
-	h2 {
-		font-size: 24px;
+	.start {
+		align-self: flex-start;
 	}
 	.text {
 		max-width: 640px;
-		font-size: 15px;
+		font-size: 14.5px;
 		line-height: 1.6;
 		color: var(--ink-2);
 	}
@@ -177,11 +165,15 @@
 		list-style: none;
 		padding: 0;
 		margin: 0;
-		border-top: 1px solid var(--line);
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--surface);
 	}
 	.categories li {
-		padding: 16px 0;
-		border-bottom: 1px solid var(--line);
+		padding: 14px 16px;
+	}
+	.categories li + li {
+		border-top: 1px solid var(--line);
 	}
 	.category {
 		display: flex;

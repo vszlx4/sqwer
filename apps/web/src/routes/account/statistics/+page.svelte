@@ -39,6 +39,7 @@
 	const sections = $derived(Object.entries(u.sections).sort((a, b) => b[1] - a[1]));
 	const maxSection = $derived(Math.max(1, ...sections.map(([, v]) => v)));
 	const completionRate = $derived(u.tests.started ? (u.tests.completed / u.tests.started) * 100 : 0);
+	const takenExams = $derived(EXAMS.filter((e) => e.id !== 'finger-map' && ((u.tests.byExam[e.id]?.started ?? 0) > 0 || data.byExam[e.id])));
 	const errorRate = $derived(u.typing.keystrokes ? (u.typing.incorrect / u.typing.keystrokes) * 100 : 0);
 
 	const dur = (ms: number) => {
@@ -62,7 +63,7 @@
 <Seo title="Statistics" description="How you use sqwer: time, tests and typing." noindex />
 
 <div class="stack">
-	<header>
+	<header class="page-head">
 		<h1>Statistics</h1>
 		<p class="lede">
 			Usage statistics recorded across {Math.max(1, data.devices)} {data.devices > 1 ? 'devices' : 'device'} since {date(u.firstSeen)}.
@@ -71,9 +72,16 @@
 	</header>
 	{#if message}<p class="form-alert success" role="status">{message}</p>{/if}
 
+	<dl class="highlights">
+		<div><dt>Active time</dt><dd>{dur(u.activeMs)}</dd></div>
+		<div><dt>Tests completed</dt><dd>{n(u.tests.completed)}</dd></div>
+		<div><dt>Words typed</dt><dd>{n(u.typing.words)}</dd></div>
+		<div><dt>Keystroke accuracy</dt><dd>{u.typing.keystrokes ? `${(100 - errorRate).toFixed(1)}%` : '—'}</dd></div>
+	</dl>
+
 	<section aria-labelledby="time-title">
 		<h2 id="time-title">Time</h2>
-		<dl class="tiles">
+		<dl class="tiles three">
 			<div><dt>Active time on sqwer</dt><dd>{dur(u.activeMs)}</dd></div>
 			<div><dt>Time typing in tests</dt><dd>{dur(u.tests.ms)}</dd></div>
 			<div><dt>Active days</dt><dd>{activeDays.length}</dd></div>
@@ -105,6 +113,9 @@
 			<div><dt>Not completed</dt><dd>{n(u.tests.abandoned)}</dd></div>
 			<div><dt>Completion rate</dt><dd>{Math.round(completionRate)}%</dd></div>
 		</dl>
+		{#if !takenExams.length}
+			<p class="empty">No tests yet. <a href="/test?exam=timed" data-sveltekit-reload>Take a timed test</a> and your figures appear here.</p>
+		{:else}
 		<table>
 			<thead>
 				<tr>
@@ -118,7 +129,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each EXAMS.filter((e) => e.id !== 'finger-map') as e (e.id)}
+				{#each takenExams as e (e.id)}
 					{@const t = u.tests.byExam[e.id]}
 					{@const r = data.byExam[e.id]}
 					<tr>
@@ -133,6 +144,7 @@
 				{/each}
 			</tbody>
 		</table>
+		{/if}
 	</section>
 
 	<section aria-labelledby="typing-title">
@@ -145,6 +157,7 @@
 			<div><dt>Words typed correctly</dt><dd>{u.typing.words ? Math.round((u.typing.correctWords / u.typing.words) * 100) : 0}%</dd></div>
 			<div><dt>Different words</dt><dd>{n(Object.keys(u.words).length)}</dd></div>
 			<div><dt>Finger map entries</dt><dd>{n(u.mapping.entries)}</dd></div>
+			<div><dt>Keystroke accuracy</dt><dd>{u.typing.keystrokes ? `${(100 - errorRate).toFixed(1)}%` : '—'}</dd></div>
 		</dl>
 	</section>
 
@@ -181,7 +194,7 @@
 		gap: 32px;
 	}
 	h1 {
-		font-size: clamp(30px, 4vw, 42px);
+		font-size: clamp(28px, 3.2vw, 36px);
 	}
 	.lede {
 		margin-top: 8px;
@@ -191,19 +204,44 @@
 		color: var(--ink-2);
 	}
 	h2 {
-		font-size: 26px;
+		font-size: 20px;
 		margin-bottom: 12px;
 	}
+	/* Figures sit in one panel divided by hairlines; column counts match each group, so no cell is empty. */
+	.highlights,
 	.tiles {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-		gap: 10px;
-	}
-	.tiles div {
-		padding: 14px 16px;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 1px;
+		margin: 0;
+		overflow: hidden;
 		border-radius: 3px;
 		border: 1px solid var(--line);
+		background: var(--line);
+	}
+	.tiles.three {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+	.highlights div,
+	.tiles div {
+		padding: 14px 16px;
 		background: var(--surface);
+	}
+	.highlights dd {
+		font-size: 28px;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		font-variant-numeric: tabular-nums;
+	}
+	.empty {
+		padding: 18px;
+		border-radius: 3px;
+		border: 1px dashed var(--line-strong);
+		color: var(--ink-2);
+	}
+	.empty a {
+		color: var(--ink);
+		font-weight: 600;
 	}
 	dt {
 		font-size: 13px;
@@ -268,6 +306,11 @@
 	@media (max-width: 760px) {
 		table {
 			font-size: 13px;
+		}
+		.highlights,
+		.tiles,
+		.tiles.three {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
 	}
 </style>
