@@ -136,3 +136,59 @@ test('the password reset form is protected in the same way', async ({ browser })
 	await expect(page.getByRole('alert')).toContainText('The email address or recovery code is incorrect.');
 	await context.close();
 });
+
+test('the sign-in lock gives the same answer whether or not an account exists', async ({ browser }) => {
+	test.setTimeout(240_000);
+	/** Fails sign-in five times from one address (the per-address limit), solving every verification. */
+	async function failFrom(ip: string, email: string) {
+		const { context, page } = await contextAt(browser, ip);
+		await page.goto('/signin');
+		for (let i = 0; i < 5; i++) {
+			await page.getByLabel('Email address').fill(email);
+			await page.getByLabel('Password').fill(`wrong-password-${i}`);
+			if (await page.locator('.captcha').isVisible()) await solve(page);
+			await Promise.all([page.waitForResponse((r) => r.request().method() === 'POST'), page.getByRole('button', { name: 'Sign in' }).click()]);
+		}
+		await context.close();
+	}
+	/** The message shown for one more attempt from a fresh address. */
+	async function nextAnswer(ip: string, email: string) {
+		const { context, page } = await contextAt(browser, ip);
+		await page.goto('/signin');
+		await page.getByLabel('Email address').fill(email);
+		await page.getByLabel('Password').fill('another-wrong-password');
+		if (await page.locator('.captcha').isVisible()) await solve(page);
+		await Promise.all([page.waitForResponse((r) => r.request().method() === 'POST'), page.getByRole('button', { name: 'Sign in' }).click()]);
+		const text = (await page.getByRole('alert').first().textContent())!.trim();
+		await context.close();
+		return text;
+	}
+	// Ten failures from two addresses (each in its own network), for a real account and for an address nobody uses.
+	await failFrom('198.51.110.1', 'lockout@e2e.test');
+	await failFrom('198.51.111.1', 'lockout@e2e.test');
+	await failFrom('198.51.112.1', 'nobody-here@example.com');
+	await failFrom('198.51.113.1', 'nobody-here@example.com');
+	const real = await nextAnswer('198.51.114.1', 'lockout@e2e.test');
+	const unknown = await nextAnswer('198.51.115.1', 'nobody-here@example.com');
+	expect(real).toMatch(/^Too many attempts\. Please try again in \d+ minutes?\.$/);
+	expect(unknown).toBe(real);
+});
+
+test('a sign-in redirect never leaves the site', async ({ browser }) => {
+	const { context, page } = await contextAt(browser, '198.51.116.1');
+	await page.goto('/signin');
+	await page.getByLabel('Email address').fill('member@e2e.test');
+	await page.getByLabel('Password').fill('E2e-member-pass-2026');
+	if (await page.locator('.captcha').isVisible()) await solve(page);
+	await page.getByRole('button', { name: 'Sign in' }).click();
+	await expect(page).toHaveURL(/\/account\/setup$/);
+	// Signed in, /signin forwards to redirectTo. A tab inside it once turned "/\t/evil.example" into "//evil.example".
+	for (const target of ['%2F%09%2Fevil.example', '%2F%0A%2Fevil.example', '%2F%5C%2Fevil.example', '%2F%2Fevil.example', 'https%3A%2F%2Fevil.example']) {
+		const res = await page.request.get(`/signin?redirectTo=${target}`, { maxRedirects: 0 });
+		expect(res.status()).toBe(303);
+		expect(new URL(res.headers().location!, ORIGIN).origin).toBe(ORIGIN);
+	}
+	const kept = await page.request.get('/signin?redirectTo=%2Fexams%3Fx%3D1', { maxRedirects: 0 });
+	expect(kept.headers().location).toBe('/exams?x=1');
+	await context.close();
+});

@@ -1,5 +1,5 @@
-// Creates the accounts the end-to-end tests sign in with: one administrator and one ordinary
-// member. Runs before the test server starts, against the test database only.
+// Creates the accounts the end-to-end tests sign in with: an administrator, an ordinary member
+// and an account the lockout test locks. Runs before the test server starts, against the test database only.
 import { randomBytes, randomUUID, scryptSync } from 'node:crypto';
 import { open } from './lib/db.mjs';
 
@@ -17,7 +17,9 @@ function hash(password) {
 
 export const ACCOUNTS = [
 	{ email: 'admin@e2e.test', password: 'E2e-admin-pass-2026', role: 'admin' },
-	{ email: 'member@e2e.test', password: 'E2e-member-pass-2026', role: 'user' }
+	{ email: 'member@e2e.test', password: 'E2e-member-pass-2026', role: 'user' },
+	// Locked on purpose by the account enumeration test.
+	{ email: 'lockout@e2e.test', password: 'E2e-lockout-pass-2026', role: 'user' }
 ];
 
 const db = await open();

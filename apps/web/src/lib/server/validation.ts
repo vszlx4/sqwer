@@ -104,8 +104,23 @@ export function readProfileForm(form: FormData) {
 	});
 }
 
-/** Only allow same-site relative redirects. */
+/**
+ * Only allow same-site relative redirects. The target is resolved the way a browser would resolve
+ * it, which ignores tab and newline characters and treats `\` like `/`, so that `/\t/evil.example`
+ * cannot pass as a path and lead to another site; anything that does not stay on this site, or
+ * contains control characters, falls back.
+ */
 export function safeRedirect(target: string | null, fallback: string): string {
-	if (!target || !target.startsWith('/') || target.startsWith('//') || target.startsWith('/\\')) return fallback;
-	return target;
+	if (!target || target.length > 2000 || !target.startsWith('/')) return fallback;
+	// eslint-disable-next-line no-control-regex
+	if (/[\u0000-\u001F\u007F\\]/.test(target)) return fallback;
+	const base = 'https://sqwer.invalid';
+	let resolved: URL;
+	try {
+		resolved = new URL(target, base);
+	} catch {
+		return fallback;
+	}
+	if (resolved.origin !== base) return fallback;
+	return `${resolved.pathname}${resolved.search}${resolved.hash}`;
 }
