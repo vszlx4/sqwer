@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { claimTyping, releaseFocus } from '#lib/ui/typing-focus.ts';
 	import { onDestroy, untrack } from 'svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import { activityWords, seeded, shuffle } from '../generate.ts';
@@ -88,6 +89,9 @@
 		over = { won, text: summary };
 		setTimeout(() => oncomplete({ passed: won, accuracy, wpm, summary }), 1200);
 	}
+
+	// While this is on screen it has the keyboard: clicks never leave focus on a button.
+	$effect(() => claimTyping({ focus: releaseFocus }));
 
 	function onkeydown(e: KeyboardEvent) {
 		if (!running || paused || over || e.metaKey || e.ctrlKey || e.altKey) return;
