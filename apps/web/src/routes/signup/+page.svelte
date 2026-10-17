@@ -12,6 +12,7 @@
 
 	let { data, form }: PageProps = $props();
 	let submitting = $state(false);
+	let password = $state('');
 	const errors = $derived((form && 'errors' in form ? form.errors : {}) as Record<string, string | undefined>);
 	const values = $derived((form && 'values' in form ? form.values : { email: '' }) as { email: string });
 </script>
@@ -19,12 +20,12 @@
 <Seo title="Create an account" description="Create a free sqwer account to save your finger map and build your typing profile." noindex={!!form?.created} />
 
 {#if form?.created}
-	<AuthShell title="Your account has been created" lede="Thank you for registering. Before you continue, please save your recovery codes.">
+	<AuthShell title="Your account has been created" lede="Thank you for registering. Before you continue, please save your recovery codes." mode="done">
 		<RecoveryCodes codes={form.codes} email={form.email} />
-		<a class="btn btn-primary btn-block" href="/account/setup" data-sveltekit-reload>Continue to profile setup</a>
+		<a class="btn btn-primary btn-lg btn-block" href="/account/setup" data-sveltekit-reload>Continue to profile setup</a>
 	</AuthShell>
 {:else}
-	<AuthShell title="Create an account" lede="An account saves your finger map across devices and lets you build a typing profile.">
+	<AuthShell title="Create an account" lede="It takes a minute. Your progress, results and finger map are then saved to your account." mode="signup">
 		<form
 			method="POST"
 			class="form"
@@ -56,8 +57,10 @@
 				maxlength={128}
 				hint={PASSWORD_RULE}
 				error={errors.password}
+				strength
+				bind:value={password}
 			/>
-			<Field label="Confirm password" name="confirmPassword" type="password" autocomplete="new-password" required error={errors.confirmPassword} />
+			<Field label="Confirm password" name="confirmPassword" type="password" autocomplete="new-password" required matches={password} error={errors.confirmPassword} />
 
 			<div class="honeypot" aria-hidden="true">
 				<label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
@@ -82,7 +85,7 @@
 
 			<Captcha error={errors.captcha} resetKey={form} />
 
-			<button class="btn btn-primary btn-block" type="submit" disabled={submitting}>
+			<button class="btn btn-primary btn-lg btn-block" type="submit" disabled={submitting} aria-busy={submitting}>
 				{submitting ? 'Creating account…' : 'Create account'}
 			</button>
 		</form>
@@ -98,5 +101,9 @@
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
+		padding: 14px 16px;
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--surface);
 	}
 </style>

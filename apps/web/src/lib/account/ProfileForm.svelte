@@ -293,9 +293,23 @@
 	}
 	legend {
 		font-family: var(--font-serif);
-		font-size: 26px;
+		font-size: 22px;
 		margin-bottom: 14px;
 		color: var(--ink);
+	}
+	/* When editing, each part of the form is its own panel, and the save button stays in reach. */
+	.builder:not(.setup) fieldset {
+		padding: 20px 22px 24px;
+		margin-bottom: 14px;
+		border-radius: 3px;
+		border: 1px solid var(--line);
+		background: var(--surface);
+	}
+	.builder:not(.setup) legend {
+		float: left;
+		width: 100%;
+		margin-bottom: 4px;
+		font-size: 19px;
 	}
 	.stepper {
 		display: grid;
@@ -428,7 +442,14 @@
 		padding-top: 6px;
 	}
 	.builder:not(.setup) .buttons {
+		position: sticky;
+		bottom: 0;
+		z-index: 5;
 		justify-content: flex-start;
+		margin-top: 0;
+		padding: 12px 0 16px;
+		border-top: 1px solid var(--line);
+		background: var(--bg);
 	}
 	.preview {
 		position: sticky;

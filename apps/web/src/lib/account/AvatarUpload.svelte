@@ -50,7 +50,7 @@
 </script>
 
 <section class="upload" aria-labelledby="pfp-title">
-	<h2 id="pfp-title">Profile picture</h2>
+	<h2 id="pfp-title" class="sr-only">Profile picture</h2>
 	<div class="row">
 		<Avatar {name} {color} size={88} src={preview ?? src} />
 		<div class="controls">
@@ -125,13 +125,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 12px;
-		padding: 22px;
-		border-radius: 3px;
-		border: 1px solid var(--line);
-		background: var(--surface);
-	}
-	h2 {
-		font-size: 24px;
 	}
 	.row {
 		display: flex;

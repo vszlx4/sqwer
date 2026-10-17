@@ -10,6 +10,7 @@
 
 	let { form }: PageProps = $props();
 	let submitting = $state(false);
+	let password = $state('');
 	const errors = $derived((form?.errors ?? {}) as Record<string, string | undefined>);
 </script>
 
@@ -18,6 +19,7 @@
 <AuthShell
 	title="Reset your password"
 	lede="Enter your email address, one of the recovery codes you saved when you created your account, and a new password."
+	mode="reset"
 >
 	<form
 		method="POST"
@@ -35,10 +37,10 @@
 		<RequiredNote />
 		<Field label="Email address" name="email" type="email" autocomplete="email" required value={form?.values?.email ?? ''} />
 		<Field label="Recovery code" name="code" autocomplete="one-time-code" required hint="For example: ABCD-EFGH-JKMN" />
-		<Field label="New password" name="password" type="password" autocomplete="new-password" required hint={PASSWORD_RULE} error={errors.password} />
-		<Field label="Confirm new password" name="confirmPassword" type="password" autocomplete="new-password" required error={errors.confirmPassword} />
+		<Field label="New password" name="password" type="password" autocomplete="new-password" required hint={PASSWORD_RULE} error={errors.password} strength bind:value={password} />
+		<Field label="Confirm new password" name="confirmPassword" type="password" autocomplete="new-password" required matches={password} error={errors.confirmPassword} />
 		<Captcha error={errors.captcha} resetKey={form} />
-		<button class="btn btn-primary btn-block" type="submit" disabled={submitting}>{submitting ? 'Resetting…' : 'Reset password'}</button>
+		<button class="btn btn-primary btn-lg btn-block" type="submit" disabled={submitting} aria-busy={submitting}>{submitting ? 'Resetting…' : 'Reset password'}</button>
 	</form>
 	<p class="note">
 		Resetting your password signs you out on every other device. If you no longer have any recovery codes, the password
