@@ -20,7 +20,7 @@
 				? page.error.message
 				: 'The address may be incorrect, or the page may have been moved or removed.'}
 		{:else}
-			{page.error?.message === 'Internal Error' ? 'An unexpected error occurred. Please try again.' : (page.error?.message ?? 'An unexpected error occurred. Please try again.')}
+			{!page.error?.message || page.error.message === 'Internal Error' ? 'An unexpected error occurred. Please try again.' : page.error.message}
 		{/if}
 	</p>
 	{#if page.error?.id}

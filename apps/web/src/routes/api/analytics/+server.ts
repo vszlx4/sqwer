@@ -16,16 +16,15 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 	// analytics, so the total written per period is bounded however many addresses send them.
 	const ip = getClientAddress();
 	const window = 10 * 60 * 1000;
-	if (
-		!rateLimit(`analytics:${ip}`, 240, window).ok ||
-		!rateLimit(`analytics:net:${networkOf(ip)}`, 1_200, window).ok ||
-		!rateLimit('analytics:all', 20_000, window).ok
-	) {
-		error(429, 'Too many requests.');
-	}
+	if (!rateLimit(`analytics:${ip}`, 240, window).ok) error(429, 'Too many requests.');
 	if (Number(request.headers.get('content-length') ?? 0) > 32_768) error(413, 'Too large.');
 	const parsed = batchSchema.safeParse(await request.json().catch(() => null));
 	if (!parsed.success) error(400, 'Invalid events.');
+	// Only batches that would be stored count towards the network and site-wide limits. Under a
+	// flood that reaches the site-wide limit, analytics is what gives way, never the site itself.
+	if (!rateLimit(`analytics:net:${networkOf(ip)}`, 1_200, window).ok || !rateLimit('analytics:all', 20_000, window).ok) {
+		error(429, 'Too many requests.');
+	}
 	try {
 		const accepted = await ingest(parsed.data.events, { userId: locals.user?.id ?? null, userAgent: request.headers.get('user-agent') });
 		return json({ accepted }, { status: 202 });

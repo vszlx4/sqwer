@@ -22,15 +22,10 @@ export function turnstileConfig() {
 	if (!siteKey || !secretKey) return null;
 	// A test secret passes every token, so on a public site it would switch verification off; sqwer's
 	// own check is used instead (and the start-up check logs the problem).
-	if (isTestSecret(secretKey) && isPublicSite()) return null;
+	if (isTurnstileTestSecret(secretKey) && isPublicSite()) return null;
 	return { siteKey, secretKey };
 }
 
-/**
- * Cloudflare's published test secrets (always pass, always fail, already spent) answer for any
- * hostname and action, so those two checks are skipped for them; they are for development only.
- */
-const isTestSecret = isTurnstileTestSecret;
 
 export type TurnstileOutcome = 'ok' | 'invalid' | 'replayed' | 'unavailable';
 
@@ -86,7 +81,9 @@ export async function verifyTurnstile(
 		}
 		return codes.includes('timeout-or-duplicate') ? 'replayed' : 'invalid';
 	}
-	if (!isTestSecret(opts.secretKey)) {
+	// Cloudflare's test secrets answer for any hostname and action, so those two checks are skipped
+	// for them; turnstileConfig() never returns one on a public site.
+	if (!isTurnstileTestSecret(opts.secretKey)) {
 		const expectedHost = new URL(SITE_URL).hostname;
 		if (data.hostname !== expectedHost) return 'invalid';
 		if (data.action !== opts.action) return 'invalid';

@@ -8,6 +8,7 @@ import { fingerMapCount, requireUser } from '#lib/server/account.ts';
 import { clearSessionCookie, verifyPassword } from '#lib/server/auth.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
 import { logSecurity } from '#lib/server/security-log.ts';
+import { invalidateLeaderboards } from '#lib/server/progress.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -53,6 +54,7 @@ export const actions: Actions = {
 
 		// Profile, sessions, recovery codes and the finger map are removed by cascade.
 		await (await db()).delete(schema.users).where(eq(schema.users.id, user.id));
+		invalidateLeaderboards();
 		await logSecurity('account_deleted', { detail: user.id });
 		// Recorded without the account, which no longer exists.
 		track('account_deleted');

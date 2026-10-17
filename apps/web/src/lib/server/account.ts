@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import { and, eq, ne } from 'drizzle-orm';
 import { db, schema } from './db/index.ts';
+import { invalidateLeaderboards } from './progress.ts';
 import type { ProfileInput } from './validation.ts';
 
 export function requireUser(locals: App.Locals, url: URL) {
@@ -28,6 +29,8 @@ export async function saveProfile(userId: string, input: ProfileInput) {
 		.insert(schema.profiles)
 		.values({ userId, ...values })
 		.onConflictDoUpdate({ target: schema.profiles.userId, set: values });
+	// The name, picture or leaderboard choice may have changed.
+	invalidateLeaderboards();
 }
 
 export async function fingerMapCount(userId: string) {
