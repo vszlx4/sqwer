@@ -18,11 +18,36 @@ const MIGRATIONS = import.meta.glob('/drizzle/*.sql', { query: '?raw', import: '
  * is verified. Hosted providers such as Supabase sign with their own certificate authority, which
  * is given as a file in DATABASE_CA_FILE. Only a database on this machine may skip encryption.
  */
+/**
+ * Reads DATABASE_URL, explaining the usual mistakes instead of a bare "Invalid URL". The address
+ * itself is never printed, because it contains the database password.
+ */
+function databaseHost(url: string): string {
+	let parsed: URL;
+	try {
+		parsed = new URL(url.trim());
+	} catch {
+		throw new Error(
+			'DATABASE_URL is not a valid address. It should look like postgresql://USER:PASSWORD@HOST:5432/postgres, on one line, ' +
+				'without spaces. If the password contains @ # / : ? % or a space, write them as %40 %23 %2F %3A %3F %25 %20 ' +
+				'(a # without quotes also starts a comment in the .env file). A DATABASE_URL set in the system environment ' +
+				'takes precedence over the .env file.'
+		);
+	}
+	if (!/^postgres(ql)?:$/.test(parsed.protocol)) throw new Error('DATABASE_URL must start with postgresql://');
+	return parsed.hostname;
+}
+
 function tls(url: string): false | { ca?: string; rejectUnauthorized: true } {
-	const host = new URL(url).hostname;
+	const host = databaseHost(url);
 	if (['localhost', '127.0.0.1', '::1', '[::1]'].includes(host)) return false;
-	const caFile = process.env.DATABASE_CA_FILE;
-	return { ca: caFile ? readFileSync(caFile, 'utf8') : undefined, rejectUnauthorized: true };
+	const caFile = process.env.DATABASE_CA_FILE?.trim();
+	if (!caFile) return { rejectUnauthorized: true };
+	try {
+		return { ca: readFileSync(caFile, 'utf8'), rejectUnauthorized: true };
+	} catch {
+		throw new Error(`DATABASE_CA_FILE points to a file that cannot be read: ${caFile}`);
+	}
 }
 
 async function connect(): Promise<Database> {
@@ -30,7 +55,7 @@ async function connect(): Promise<Database> {
 	if (url) {
 		const { default: pg } = await import('pg');
 		const { drizzle } = await import('drizzle-orm/node-postgres');
-		const pool = new pg.Pool({ connectionString: url, max: Number(process.env.DATABASE_POOL_SIZE ?? 5), ssl: tls(url) });
+		const pool = new pg.Pool({ connectionString: url.trim(), max: Number(process.env.DATABASE_POOL_SIZE ?? 5), ssl: tls(url) });
 		return drizzle(pool, { schema }) as unknown as Database;
 	}
 	// No server configured: use an embedded PostgreSQL stored on disk.
