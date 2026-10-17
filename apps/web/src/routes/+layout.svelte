@@ -5,6 +5,7 @@
 	import SiteHeader from '#lib/site/SiteHeader.svelte';
 	import FingerMapSync from '#lib/fingermap/FingerMapSync.svelte';
 	import ActivityTracker from '#lib/usage/ActivityTracker.svelte';
+	import Analytics from '#lib/analytics/Analytics.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -37,6 +38,7 @@
 
 <FingerMapSync />
 <ActivityTracker />
+<Analytics />
 
 <style>
 	.shell {

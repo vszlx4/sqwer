@@ -1,4 +1,5 @@
 import { error, json } from '@sveltejs/kit';
+import { track } from '#lib/server/analytics/track.ts';
 import { and, eq, sql } from 'drizzle-orm';
 import { CHAPTERS } from '#lib/courses/catalog.ts';
 import { recommendedChapter } from '#lib/courses/progression.ts';
@@ -70,5 +71,6 @@ export const POST: RequestHandler = async ({ locals }) => {
 		.insert(schema.courseState)
 		.values({ userId, level: null, startLesson, updatedAt: now })
 		.onConflictDoUpdate({ target: schema.courseState.userId, set: { startLesson, updatedAt: now } });
+	track('placement_applied', { userId, props: { chapter } });
 	return json({ chapter, credited: rows.length, snapshot: await loadCourses(userId) });
 };

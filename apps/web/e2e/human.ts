@@ -1,3 +1,5 @@
+import { expect, type Page } from '@playwright/test';
+
 const NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth'];
 
@@ -19,4 +21,15 @@ export function answerQuestion(q: string): string {
 	const list = q.match(/(?:list: |words |words: )([a-z]+, [a-z]+, [a-z]+)/);
 	if (position && list) return list[1]!.split(', ')[['first', 'second', 'last'].indexOf(position[1]!)]!;
 	throw new Error(`Unknown question: ${q}`);
+}
+
+/** Completes the verification using its text question, and waits for the background check to finish. */
+export async function solveCaptcha(page: Page, answer?: string) {
+	const toText = page.getByRole('button', { name: 'Use a text question' });
+	if (await toText.isVisible()) await toText.click();
+	const question = page.locator('.captcha .question');
+	await expect(question).toHaveText(/\?|\.$/);
+	const text = (await question.textContent())!.trim();
+	await page.getByRole('textbox', { name: 'Your answer' }).fill(answer ?? answerQuestion(text));
+	await expect.poll(async () => page.locator('input[name="altcha"]').inputValue(), { timeout: 30_000 }).not.toBe('');
 }

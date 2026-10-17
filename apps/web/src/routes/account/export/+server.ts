@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { db, schema } from '#lib/server/db/index.ts';
 import { requireUser } from '#lib/server/account.ts';
 import { activeSessions } from '#lib/server/auth.ts';
@@ -32,6 +32,24 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		.select({ xp: schema.xpGrants.xp, reason: schema.xpGrants.reason, grantedAt: schema.xpGrants.createdAt })
 		.from(schema.xpGrants)
 		.where(eq(schema.xpGrants.userId, user.id));
+	// Analytics events linked to the account (kept for 13 months), newest first.
+	const analytics = await d
+		.select({
+			at: schema.analyticsEvents.occurredAt,
+			source: schema.analyticsEvents.source,
+			event: schema.analyticsEvents.name,
+			page: schema.analyticsEvents.path,
+			referrer: schema.analyticsEvents.referrerHost,
+			device: schema.analyticsEvents.device,
+			browser: schema.analyticsEvents.browser,
+			os: schema.analyticsEvents.os,
+			visibleMs: schema.analyticsEvents.durationMs,
+			details: schema.analyticsEvents.props
+		})
+		.from(schema.analyticsEvents)
+		.where(eq(schema.analyticsEvents.userId, user.id))
+		.orderBy(desc(schema.analyticsEvents.occurredAt))
+		.limit(50_000);
 	const codes = await d.select({ usedAt: schema.recoveryCodes.usedAt }).from(schema.recoveryCodes).where(eq(schema.recoveryCodes.userId, user.id));
 	const body = {
 		exportedAt: new Date().toISOString(),
@@ -50,6 +68,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			practiceDays: courseDays.map((r) => r.day)
 		},
 		securityActivity: security,
+		analyticsEvents: analytics,
 		clearedData: Object.fromEntries(Object.entries(await dataResets(user.id)).map(([k, v]) => [k, new Date(v).toISOString()])),
 		recoveryCodes: { total: codes.length, used: codes.filter((c) => c.usedAt).map((c) => c.usedAt) },
 		profilePicture: avatar

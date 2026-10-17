@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { track } from '#lib/server/analytics/track.ts';
 import { eq } from 'drizzle-orm';
 import { DATA_CATEGORY_IDS, type DataCategory } from '#lib/data/categories.ts';
 import { clearCategory, dataCounts } from '#lib/server/data.ts';
@@ -38,6 +39,7 @@ export const actions: Actions = {
 		}
 		const at = await clearCategory(user.id, category);
 		await logSecurity('data_cleared', { userId: user.id, detail: category });
+		track('data_cleared', { userId: user.id, props: { category } });
 		return { cleared: category, at: at.getTime() };
 	},
 	delete: async ({ request, locals, url, cookies }) => {
@@ -52,6 +54,8 @@ export const actions: Actions = {
 		// Profile, sessions, recovery codes and the finger map are removed by cascade.
 		await (await db()).delete(schema.users).where(eq(schema.users.id, user.id));
 		await logSecurity('account_deleted', { detail: user.id });
+		// Recorded without the account, which no longer exists.
+		track('account_deleted');
 		clearSessionCookie(cookies);
 		redirect(303, '/signin?deleted=1');
 	}

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import LogoWordmark from '#lib/brand/LogoWordmark.svelte';
+	import { page } from '$app/state';
+	import { consent } from '#lib/analytics/consent.svelte.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import { CONTACT_EMAIL, FOOTER_GROUPS, LEGAL } from './links.ts';
 
@@ -36,6 +38,9 @@
 				<a href="/terms">Terms</a>
 				<a href="/privacy">Privacy</a>
 				<a href="/cookies">Cookies</a>
+				{#if page.data.analytics !== false}
+					<button type="button" class="prefs" onclick={() => ((consent.ready || consent.load()), (consent.open = true))}>Analytics preferences</button>
+				{/if}
 			</span>
 		</div>
 	</div>
@@ -145,13 +150,23 @@
 	}
 	.links {
 		display: flex;
+		flex-wrap: wrap;
 		gap: 16px;
 	}
-	.links a {
+	.links a,
+	.prefs {
 		color: #a3a39c;
 		text-decoration: none;
 	}
-	.links a:hover {
+	.prefs {
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		cursor: pointer;
+	}
+	.links a:hover,
+	.prefs:hover {
 		color: #ffffff;
 	}
 	.site-footer :global(:focus-visible) {

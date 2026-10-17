@@ -85,6 +85,13 @@
       "when": 1792260478435,
       "tag": "0011_used_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792266130858,
+      "tag": "0012_analytics",
+      "breakpoints": true
     }
   ]
 }

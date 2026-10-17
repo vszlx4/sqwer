@@ -4,11 +4,13 @@ import { avatarUrl } from '#lib/server/avatar.ts';
 import { dataResets } from '#lib/server/data.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { accountLevel, competitiveBest, paceSummary } from '#lib/server/progress.ts';
+import { analyticsEnabled } from '#lib/server/analytics/config.ts';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals, depends }) => {
 	depends('app:user');
-	if (!locals.user) return { user: null, siteUrl: SITE_URL };
+	const analytics = analyticsEnabled();
+	if (!locals.user) return { user: null, siteUrl: SITE_URL, analytics };
 	const userId = locals.user.id;
 	const [rows, level, best, pace, avatar, resets] = await Promise.all([
 		(await db())
@@ -27,7 +29,8 @@ export const load: LayoutServerLoad = async ({ locals, depends }) => {
 		dataResets(userId)
 	]);
 	return {
-		user: { email: locals.user.email, profile: rows[0] ?? null, avatar, level, best, pace, resets },
-		siteUrl: SITE_URL
+		user: { email: locals.user.email, profile: rows[0] ?? null, avatar, level, best, pace, resets, isAdmin: locals.user.role === 'admin' },
+		siteUrl: SITE_URL,
+		analytics
 	};
 };

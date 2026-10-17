@@ -91,6 +91,7 @@
 				<li class="sep" aria-hidden="true"></li>
 				<li><a href="/history"><Icon name="history" size={17} /> History</a></li>
 				{#if p.isPublic}<li><a href={`/u/${p.username}`}><Icon name="eye" size={17} /> Public profile</a></li>{/if}
+				{#if user?.isAdmin}<li><a href="/admin/analytics"><Icon name="chart" size={17} /> Site analytics</a></li>{/if}
 			</ul>
 		</nav>
 		<div class="content">
