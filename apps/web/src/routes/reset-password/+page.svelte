@@ -2,13 +2,13 @@
 	import { enhance } from '$app/forms';
 	import AuthShell from '#lib/account/AuthShell.svelte';
 	import Seo from '#lib/site/Seo.svelte';
-	import Captcha from '#lib/ui/Captcha.svelte';
+	import HumanCheck from '#lib/ui/HumanCheck.svelte';
 	import Field from '#lib/ui/Field.svelte';
 	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import { PASSWORD_RULE } from '#lib/profile.ts';
 	import type { PageProps } from './$types';
 
-	let { form }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 	let submitting = $state(false);
 	let password = $state('');
 	const errors = $derived((form?.errors ?? {}) as Record<string, string | undefined>);
@@ -39,7 +39,7 @@
 		<Field label="Recovery code" name="code" autocomplete="one-time-code" required hint="For example: ABCD-EFGH-JKMN" />
 		<Field label="New password" name="password" type="password" autocomplete="new-password" required hint={PASSWORD_RULE} error={errors.password} strength bind:value={password} />
 		<Field label="Confirm new password" name="confirmPassword" type="password" autocomplete="new-password" required matches={password} error={errors.confirmPassword} />
-		<Captcha error={errors.captcha} resetKey={form} />
+		<HumanCheck check={data.human} result={form} error={errors.captcha} resetKey={form} />
 		<button class="btn btn-primary btn-lg btn-block" type="submit" disabled={submitting} aria-busy={submitting}>{submitting ? 'Resetting…' : 'Reset password'}</button>
 	</form>
 	<p class="note">

@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import AuthShell from '#lib/account/AuthShell.svelte';
 	import Seo from '#lib/site/Seo.svelte';
-	import Captcha from '#lib/ui/Captcha.svelte';
+	import HumanCheck from '#lib/ui/HumanCheck.svelte';
 	import Field from '#lib/ui/Field.svelte';
 	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import type { PageProps } from './$types';
@@ -35,7 +35,7 @@
 			<Field label="Password" name="password" type="password" autocomplete="current-password" required />
 			<a class="forgot" href="/reset-password">Forgot your password?</a>
 		</div>
-		<Captcha error={errors.captcha} resetKey={form} />
+		<HumanCheck check={data.human} result={form} error={errors.captcha} resetKey={form} />
 		<button class="btn btn-primary btn-lg btn-block" type="submit" disabled={submitting} aria-busy={submitting}>{submitting ? 'Signing in…' : 'Sign in'}</button>
 	</form>
 

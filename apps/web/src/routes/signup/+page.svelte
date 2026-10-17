@@ -4,7 +4,7 @@
 	import AuthShell from '#lib/account/AuthShell.svelte';
 	import RecoveryCodes from '#lib/account/RecoveryCodes.svelte';
 	import Seo from '#lib/site/Seo.svelte';
-	import Captcha from '#lib/ui/Captcha.svelte';
+	import HumanCheck from '#lib/ui/HumanCheck.svelte';
 	import Field from '#lib/ui/Field.svelte';
 	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import { PASSWORD_RULE } from '#lib/profile.ts';
@@ -62,10 +62,6 @@
 			/>
 			<Field label="Confirm password" name="confirmPassword" type="password" autocomplete="new-password" required matches={password} error={errors.confirmPassword} />
 
-			<div class="honeypot" aria-hidden="true">
-				<label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
-			</div>
-			<input type="hidden" name="startedAt" value={data.startedAt} />
 
 			<div class="consents">
 				<label class="check">
@@ -83,7 +79,7 @@
 				{#if errors.ageConfirm}<p class="field-error">{errors.ageConfirm}</p>{/if}
 			</div>
 
-			<Captcha error={errors.captcha} resetKey={form} />
+			<HumanCheck check={data.human} result={form} error={errors.captcha} resetKey={form} />
 
 			<button class="btn btn-primary btn-lg btn-block" type="submit" disabled={submitting} aria-busy={submitting}>
 				{submitting ? 'Creating account…' : 'Create account'}

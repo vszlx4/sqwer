@@ -110,39 +110,64 @@ describe('verification challenge', async () => {
 		expect(svg.match(/<path/g)!.length).toBeGreaterThan(5 + 2);
 	});
 
-	it('rejects wrong answers, spent tokens and malformed tokens', () => {
-		const a = createChallenge('image');
-		const b = createChallenge('image');
-		expect(checkAnswer(a.token, 'wrong')).toBe(false);
+	const UA = 'Mozilla/5.0 test browser';
+
+	it('rejects wrong answers, spent tokens and malformed tokens', async () => {
+		const a = createChallenge('image', 'signin', UA);
+		const b = createChallenge('image', 'signin', UA);
+		expect(await checkAnswer(a.token, 'wrong', 'signin', UA)).toBe(false);
 		// A token is spent by any attempt, so it cannot be guessed repeatedly.
-		expect(checkAnswer(a.token, 'anything')).toBe(false);
-		expect(checkAnswer(b.token + 'x', 'abc')).toBe(false);
-		expect(checkAnswer('not.a-token', 'abc')).toBe(false);
+		expect(await checkAnswer(a.token, 'anything', 'signin', UA)).toBe(false);
+		expect(await checkAnswer(b.token + 'x', 'abc', 'signin', UA)).toBe(false);
+		expect(await checkAnswer('not.a-token', 'abc', 'signin', UA)).toBe(false);
 	});
 
-	it('issues answerable text questions, accepted once each', () => {
-		const numbers = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
-		const ordinals = ['first', 'second', 'third', 'fourth', 'fifth'];
-		const solve = (q: string) => {
-			let m = q.match(/the (\w+) letter of the word “(\w+)”/);
-			if (m) return m[2]![ordinals.indexOf(m[1]!)]!;
-			m = q.match(/What is (\w+) plus (\w+)\?/);
-			if (m) return String(numbers.indexOf(m[1]!) + numbers.indexOf(m[2]!));
-			return q.match(/list: (.+)\./)![1]!.split(', ').at(-1)!;
-		};
-		for (let i = 0; i < 30; i++) {
-			const c = createChallenge('text');
+	const numbers = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+	const ordinals = ['first', 'second', 'third', 'fourth', 'fifth'];
+	/** A solver for every phrasing, as a determined script would write one. */
+	const solve = (q: string) => {
+		let m = q.match(/the (\w+) letter of the word “(\w+)”|Which letter comes (\w+) in “(\w+)”|In the word “(\w+)”, type the letter in position (\w+)/);
+		if (m) {
+			const word = m[2] ?? m[4] ?? m[5]!;
+			const index = m[1] ? ordinals.indexOf(m[1]) : m[3] ? ordinals.indexOf(m[3]) : numbers.indexOf(m[6]!) - 1;
+			return word[index]!;
+		}
+		m = q.match(/What is (\w+) plus (\w+)\?|Add (\w+) to (\w+)\.|have (\w+) keys and press (\w+) more/);
+		if (m) {
+			const [x, y] = [m[1] ?? m[3] ?? m[5], m[2] ?? m[4] ?? m[6]].map((w) => numbers.indexOf(w!));
+			return String(x! + y!);
+		}
+		m = q.match(/(first|second|last)/)!;
+		const list = q.match(/(?:list: |words |words: )([a-z]+, [a-z]+, [a-z]+)/)![1]!.split(', ');
+		return list[['first', 'second', 'last'].indexOf(m[1]!)]!;
+	};
+
+	it('issues answerable text questions, accepted once each', async () => {
+		for (let i = 0; i < 40; i++) {
+			const c = createChallenge('text', 'signup', UA);
 			expect(c.svg).toBeUndefined();
 			const answer = solve(c.question!);
-			expect(checkAnswer(c.token, ` ${answer.toUpperCase()} `)).toBe(true);
-			expect(checkAnswer(c.token, answer)).toBe(false);
+			expect(await checkAnswer(c.token, ` ${answer.toUpperCase()} `, 'signup', UA)).toBe(true);
+			expect(await checkAnswer(c.token, answer, 'signup', UA)).toBe(false);
 		}
 	});
 
-	it('rejects a tampered token', () => {
-		const { token } = createChallenge('text');
+	it('accepts a challenge only for the form and the browser it was issued to', async () => {
+		const forSignin = createChallenge('text', 'signin', UA);
+		expect(await checkAnswer(forSignin.token, solve(forSignin.question!), 'signup', UA)).toBe(false);
+		const elsewhere = createChallenge('text', 'signin', UA);
+		expect(await checkAnswer(elsewhere.token, solve(elsewhere.question!), 'signin', 'curl/8.0')).toBe(false);
+	});
+
+	it('rejects an expired challenge', async () => {
+		const c = createChallenge('text', 'reset', UA);
+		expect(await checkAnswer(c.token, solve(c.question!), 'reset', UA, Date.now() + 11 * 60 * 1000)).toBe(false);
+	});
+
+	it('rejects a tampered token', async () => {
+		const { token } = createChallenge('text', 'signin', UA);
 		const [body, sig] = token.split('.');
-		const forged = Buffer.from(JSON.stringify({ ...JSON.parse(Buffer.from(body!, 'base64url').toString()), exp: Date.now() + 1e9 })).toString('base64url');
-		expect(checkAnswer(`${forged}.${sig}`, 'x')).toBe(false);
+		const forged = Buffer.from(JSON.stringify({ ...JSON.parse(Buffer.from(body!, 'base64url').toString()), exp: Date.now() + 1e9, act: 'signup' })).toString('base64url');
+		expect(await checkAnswer(`${forged}.${sig}`, 'x', 'signup', UA)).toBe(false);
 	});
 });
