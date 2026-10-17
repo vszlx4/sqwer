@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { claimTyping } from '#lib/ui/typing-focus.ts';
 	import { onDestroy, onMount, untrack } from 'svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import { canSpeak, speak, voicesReady } from '../audio.ts';
@@ -117,6 +118,25 @@
 		}
 	}
 
+	$effect(() =>
+		claimTyping({
+			focus: () => {
+				if (phase !== 'ready') input?.focus({ preventScroll: true });
+			},
+			key: (e) => {
+				if (phase === 'ready') {
+					if (e.key === ' ') begin();
+					return;
+				}
+				if (!input || input.disabled) return;
+				input.focus({ preventScroll: true });
+				if (e.key === ' ') onkeydown(e);
+				else if (e.key === 'Backspace') value = value.slice(0, -1);
+				else value += e.key;
+			}
+		})
+	);
+
 	function onWindowKeydown(e: KeyboardEvent) {
 		if (phase !== 'ready' || (e.target as HTMLElement | null)?.closest('button, a, input')) return;
 		if (e.key === ' ' || e.key === 'Enter') {
@@ -166,6 +186,7 @@
 			<span class="sr-only">Your answer</span>
 			<input
 				bind:this={input}
+				data-typing-input
 				bind:value
 				{onkeydown}
 				type="text"

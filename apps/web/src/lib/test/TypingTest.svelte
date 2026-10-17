@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { claimTyping } from '#lib/ui/typing-focus.ts';
 	import { onDestroy, onMount, untrack } from 'svelte';
 	import { computeStats, liveWpm, TypingSession, type TestMode } from '@sqwer/engine';
 	import { EXAM_WORDS, WordGenerator } from '@sqwer/content';
@@ -283,6 +284,19 @@
 		}
 	}
 
+	// While a test is on screen (not its results) it has the keyboard: keys pressed with focus
+	// elsewhere are typed, and focus returns to it after any click.
+	$effect(() => {
+		if (record) return;
+		return claimTyping({
+			focus: () => input?.focus({ preventScroll: true }),
+			key: (e) => {
+				input?.focus({ preventScroll: true });
+				onkeydown(e);
+			}
+		});
+	});
+
 	function onSettingsChange() {
 		platform = resolvedPlatform();
 		restart();
@@ -418,6 +432,7 @@
 				spellcheck="false"
 				aria-label="Typing input. Type the words shown. Press Tab to restart."
 				data-testid="typing-input"
+				data-typing-input
 				{onkeydown}
 				{onkeyup}
 				{onbeforeinput}

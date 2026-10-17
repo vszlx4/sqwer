@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { claimTyping, releaseFocus } from '#lib/ui/typing-focus.ts';
 	import { onDestroy, onMount } from 'svelte';
 	import { TypingSession } from '@sqwer/engine';
 	import { ENGLISH_WORDS, MAPPING_WORDS } from '@sqwer/content';
@@ -107,6 +108,9 @@
 		usage.testEnded(r);
 		await results.add(r);
 	}
+
+	// While this is on screen it has the keyboard: clicks never leave focus on a button.
+	$effect(() => claimTyping({ focus: releaseFocus }));
 
 	function onkeydown(e: KeyboardEvent) {
 		if (e.metaKey || e.ctrlKey || e.altKey) return;

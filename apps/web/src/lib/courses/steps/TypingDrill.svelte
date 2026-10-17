@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { claimTyping } from '#lib/ui/typing-focus.ts';
 	import { onDestroy, onMount, untrack } from 'svelte';
 	import { computeStats, TypingSession } from '@sqwer/engine';
 	import { pressesFor, qwertyAnsi, type Finger } from '@sqwer/layouts';
@@ -93,6 +94,16 @@
 		rev++;
 	}
 
+	$effect(() =>
+		claimTyping({
+			focus: () => input?.focus({ preventScroll: true }),
+			key: (e) => {
+				input?.focus({ preventScroll: true });
+				onkeydown(e);
+			}
+		})
+	);
+
 	function onkeydown(e: KeyboardEvent) {
 		if (e.isComposing || e.metaKey || (e.ctrlKey && e.key !== 'Backspace')) return;
 		if (e.key === 'Backspace') {
@@ -163,6 +174,7 @@
 	<div class="stage" onclick={() => input?.focus()}>
 		<input
 			bind:this={input}
+			data-typing-input
 			class="capture"
 			type="text"
 			autocomplete="off"
