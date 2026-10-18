@@ -46,6 +46,7 @@
 		"altcha-lib": "^2.6.0",
 		"drizzle-orm": "^0.45.4",
 		"pg": "^8.23.1",
+		"qrcode-generator": "2.0.4",
 		"zod": "^4.6.7"
 	}
 }

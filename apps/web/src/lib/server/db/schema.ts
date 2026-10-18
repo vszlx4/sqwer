@@ -28,7 +28,19 @@ export const users = pgTable('users', {
 	 * 'user' or 'admin'. Administrators can open the analytics dashboard. The role can only be
 	 * changed from the server's command line (`npm run admin -w web`), never through the website.
 	 */
-	role: text('role').notNull().default('user')
+	role: text('role').notNull().default('user'),
+	/** When the account was suspended; a suspended account cannot sign in and all its sessions end. */
+	suspendedAt: timestamp('suspended_at', { withTimezone: true }),
+	suspendedReason: text('suspended_reason'),
+	/**
+	 * Authenticator-app (TOTP, RFC 6238) secret, encrypted with AES-256-GCM (lib/server/totp.ts).
+	 * Required for administrators. `totpPending` holds a secret during set-up, until it is confirmed.
+	 */
+	totpSecret: text('totp_secret'),
+	totpPending: text('totp_pending'),
+	totpEnabledAt: timestamp('totp_enabled_at', { withTimezone: true }),
+	/** The last time step accepted, so a code can never be used twice. */
+	totpLastStep: integer('totp_last_step')
 }).enableRLS();
 
 export const profiles = pgTable('profiles', {
@@ -68,7 +80,9 @@ export const sessions = pgTable('sessions', {
 	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
 	lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
 	/** Short browser description, e.g. "Chrome on macOS". */
-	device: text('device').notNull().default('')
+	device: text('device').notNull().default(''),
+	/** When this session passed the authenticator-app check (administrators only). */
+	mfaVerifiedAt: timestamp('mfa_verified_at', { withTimezone: true })
 }, (t) => [index('sessions_user_idx').on(t.userId), index('sessions_expiry_idx').on(t.expiresAt)]).enableRLS();
 
 export const recoveryCodes = pgTable('recovery_codes', {

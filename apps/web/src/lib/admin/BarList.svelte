@@ -71,7 +71,7 @@
 	}
 	.measure {
 		font-size: 12px;
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	ol {
 		display: flex;

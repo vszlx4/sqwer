@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page, type Request } from '@playwright/test';
 import { solveCaptcha } from './human.ts';
+import { freshCode } from './totp.ts';
 
 /*
  * Analytics end to end, against the real server: consent before any collection, server events
@@ -11,6 +12,15 @@ import { solveCaptcha } from './human.ts';
 const ADMIN = { email: 'admin@e2e.test', password: 'E2e-admin-pass-2026' };
 const MEMBER = { email: 'member@e2e.test', password: 'E2e-member-pass-2026' };
 const NO_STORAGE = { cookies: [], origins: [] };
+/** The administrator's authenticator secret, set up in the first administrator test. */
+let adminSecret = '';
+
+/** Passes the authenticator check that administrator sessions need. */
+async function confirmCode(page: Page) {
+	await expect(page).toHaveURL(/\/admin\/2fa\?/);
+	await page.getByLabel('Authenticator code').fill(await freshCode(adminSecret));
+	await page.getByRole('button', { name: 'Confirm' }).click();
+}
 
 // Its own client address, so the limits it reaches do not affect other files.
 test.use({ extraHTTPHeaders: { 'x-forwarded-for': '10.20.0.1' } });
@@ -127,10 +137,26 @@ test.describe.serial('administrator', () => {
 		await page.getByRole('button', { name: 'Sign in' }).click();
 		await expect(page).toHaveURL(/\/account\/setup$/);
 
+		// Before the authenticator app is set up and confirmed, neither pages nor the export open.
+		expect((await page.request.get('/admin/analytics/export')).status()).toBe(403);
 		await page.goto('/admin/analytics?range=7d');
+		await expect(page).toHaveURL(/\/admin\/2fa\/setup\?next=%2Fadmin%2Fanalytics/);
+		await page.getByLabel('Your password').fill('not-the-password-1');
+		await page.getByRole('button', { name: 'Continue' }).click();
+		await expect(page.getByRole('alert')).toContainText('The password is incorrect.');
+		await page.getByLabel('Your password').fill(ADMIN.password);
+		await page.getByRole('button', { name: 'Continue' }).click();
+		await expect(page.getByRole('img', { name: /QR code/ })).toBeVisible();
+		adminSecret = (await page.getByTestId('totp-secret').textContent())!.replace(/\s/g, '');
+		await page.getByLabel('The six-digit code it shows').fill('000000');
+		await page.getByRole('button', { name: 'Confirm and continue' }).click();
+		await expect(page.getByRole('alert')).toContainText('That code is not valid.');
+		await page.getByLabel('The six-digit code it shows').fill(await freshCode(adminSecret));
+		await page.getByRole('button', { name: 'Confirm and continue' }).click();
+
 		await expect(page.getByRole('heading', { level: 1, name: 'Analytics' })).toBeVisible();
 		await expect(page.getByRole('region', { name: 'Key figures' })).toBeVisible();
-		await expect(page.getByRole('navigation', { name: 'Analytics views' })).toBeVisible();
+		await expect(page.getByRole('navigation', { name: 'Administration sections' })).toBeVisible();
 		const axe = await new AxeBuilder({ page }).include('main').analyze();
 		expect(axe.violations).toEqual([]);
 
@@ -156,10 +182,40 @@ test.describe.serial('administrator', () => {
 		expect(csv).not.toContain(ADMIN.email);
 	});
 
-	test('pages through events with a cursor', async ({ page }) => {
+	test('pages through events with a cursor, after confirming a code in the new session', async ({ page }) => {
 		await signIn(page, ADMIN);
-		const res = await page.goto('/admin/analytics/events?range=7d&after=garbage');
-		expect(res?.status()).toBe(200);
+		await page.goto('/admin/analytics/events?range=7d&after=garbage');
+		await confirmCode(page);
+		await expect(page).toHaveURL(/\/admin\/analytics\/events\?range=7d&after=garbage$/);
 		await expect(page.getByRole('heading', { level: 1, name: 'Events' })).toBeVisible();
+	});
+
+	test('suspends an account, which is signed out at once and cannot sign in until restored', async ({ browser, page }) => {
+		const SUSPEND = { email: 'suspend@e2e.test', password: 'E2e-suspend-pass-2026' };
+		// The member, signed in in another browser.
+		const member = await browser.newContext({ extraHTTPHeaders: { 'x-forwarded-for': '10.20.0.7' }, storageState: { cookies: [], origins: [{ origin: 'http://localhost:4321', localStorage: [{ name: 'sqwer:analytics-consent', value: '{"v":1,"choice":"denied","at":"2026-01-01T00:00:00.000Z"}' }] }] } });
+		const mp = await member.newPage();
+		await signIn(mp, SUSPEND);
+		await expect(mp).toHaveURL(/\/account\/setup$/);
+
+		await signIn(page, ADMIN);
+		await page.goto(`/admin/users?q=${encodeURIComponent(SUSPEND.email)}`);
+		await confirmCode(page);
+		await expect(page.getByRole('region', { name: 'Account' })).toContainText(SUSPEND.email);
+		await page.getByLabel(/Reason, kept with the account/).fill('Testing moderation');
+		await page.getByRole('button', { name: 'Suspend and sign out everywhere' }).click();
+		await expect(page.getByRole('status')).toContainText('is suspended');
+
+		// Signed out at once, and refused after the right password.
+		await mp.goto('/account');
+		await expect(mp).toHaveURL(/\/signin/);
+		await signIn(mp, SUSPEND);
+		await expect(mp.getByRole('alert')).toContainText('This account has been suspended.');
+
+		await page.getByRole('button', { name: 'Lift the suspension' }).click();
+		await expect(page.getByRole('status')).toContainText('is no longer suspended');
+		await signIn(mp, SUSPEND);
+		await expect(mp).toHaveURL(/\/account\/setup$/);
+		await member.close();
 	});
 });

@@ -53,6 +53,27 @@ export function countRecent(key: string, windowMs: number): number {
 	return recentOf(key, windowMs, Date.now()).length;
 }
 
+/**
+ * A weighted allowance: `amount` is taken from `max` per window if it fits. Used where requests
+ * differ in size, such as typing time that earns XP.
+ */
+const budgets = new Map<string, { at: number; amount: number }[]>();
+export function spendBudget(key: string, amount: number, max: number, windowMs: number): boolean {
+	const now = Date.now();
+	const recent = (budgets.get(key) ?? []).filter((e) => now - e.at < windowMs);
+	const used = recent.reduce((n, e) => n + e.amount, 0);
+	if (used + amount > max) {
+		budgets.set(key, recent);
+		return false;
+	}
+	recent.push({ at: now, amount });
+	budgets.delete(key);
+	budgets.set(key, recent);
+	// Bounded like the other limits: the least recently used keys go first.
+	if (budgets.size > MAX_KEYS) for (const k of budgets.keys()) if (budgets.size > MAX_KEYS * 0.9) budgets.delete(k); else break;
+	return true;
+}
+
 export function rateLimitMessage(retryAfter: number) {
 	const minutes = Math.max(1, Math.ceil(retryAfter / 60));
 	return `Too many attempts. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`;
@@ -76,4 +97,5 @@ export function recordFailure(key: string) {
 /** For tests: forgets every recorded attempt. */
 export function resetRateLimits() {
 	hits.clear();
+	budgets.clear();
 }

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { solveCaptcha } from './human.ts';
+import { solveCaptcha, typeLikeAPerson } from './human.ts';
 import { playFalling, playRace, proceed, typeDrill } from './play.ts';
 
 test.describe.configure({ mode: 'serial' });
@@ -242,13 +242,13 @@ test('a verified placement test marks the earlier chapters complete and earns th
 
 	await page.goto('/test?exam=placement');
 	await page.getByTestId('typing-input').focus();
-	// About 200 WPM: fast enough for the last chapter, within the server's plausibility limits.
+	// Fast enough for the last chapter, typed with a person's uneven rhythm (the server checks it).
 	while ((await page.getByTestId('result-wpm').count()) === 0) {
 		const words = await page.$$eval('[data-word]', (els) =>
 			els.filter((e) => !e.querySelector('.correct, .incorrect')).slice(0, 8).map((e) => e.textContent ?? '')
 		);
 		if (!words.length) break;
-		await page.keyboard.type(words.join(' ') + ' ', { delay: 55 });
+		await typeLikeAPerson(page, words.join(' ') + ' ', 50);
 	}
 	await expect(page.getByTestId('result-wpm')).toBeVisible();
 

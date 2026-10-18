@@ -18,7 +18,7 @@ export function isPublicSite(siteUrl = SITE_URL): boolean {
 	}
 }
 
-const SECRETS = ['CAPTCHA_HMAC_SECRET', 'CAPTCHA_HMAC_KEY_SECRET', 'LOG_HASH_SECRET'] as const;
+const SECRETS = ['CAPTCHA_HMAC_SECRET', 'CAPTCHA_HMAC_KEY_SECRET', 'LOG_HASH_SECRET', 'TOTP_ENCRYPTION_SECRET'] as const;
 
 /** The problems found, as short messages (also used by the tests). */
 export function configurationProblems(rawEnv: NodeJS.ProcessEnv = process.env, siteUrl = SITE_URL): string[] {

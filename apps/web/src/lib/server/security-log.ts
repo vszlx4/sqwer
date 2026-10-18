@@ -23,7 +23,14 @@ export type SecurityEvent =
 	| 'bot_trap'
 	| 'data_exported'
 	| 'admin_export'
-	| 'admin_denied';
+	| 'admin_denied'
+	| 'admin_action'
+	| 'account_suspended'
+	| 'account_unsuspended'
+	| 'mfa_enabled'
+	| 'mfa_failed'
+	| 'mfa_reset'
+	| 'result_rejected';
 
 /** Events stored with the account and shown on its Security page. */
 const ACCOUNT_VISIBLE = new Set<SecurityEvent>([
@@ -37,7 +44,12 @@ const ACCOUNT_VISIBLE = new Set<SecurityEvent>([
 	'session_revoked',
 	'other_sessions_revoked',
 	'data_cleared',
-	'data_exported'
+	'data_exported',
+	'account_suspended',
+	'account_unsuspended',
+	'mfa_enabled',
+	'mfa_failed',
+	'mfa_reset'
 ]);
 
 export const EVENT_LABELS: Partial<Record<SecurityEvent, string>> = {
@@ -51,7 +63,12 @@ export const EVENT_LABELS: Partial<Record<SecurityEvent, string>> = {
 	session_revoked: 'A device was signed out',
 	other_sessions_revoked: 'All other devices were signed out',
 	data_cleared: 'Part of your data was cleared',
-	data_exported: 'Your data was downloaded'
+	data_exported: 'Your data was downloaded',
+	account_suspended: 'The account was suspended',
+	account_unsuspended: 'The suspension was lifted',
+	mfa_enabled: 'Authenticator app set up',
+	mfa_failed: 'Wrong authenticator code',
+	mfa_reset: 'Authenticator app removed'
 };
 
 /**
