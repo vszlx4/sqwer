@@ -415,7 +415,7 @@
 	.value.muted {
 		font-size: 18px;
 		font-weight: 600;
-		color: var(--ink-3);
+		color: var(--ink-2);
 		padding: 5px 0 2px;
 	}
 	.sub,
@@ -426,7 +426,7 @@
 	.hint {
 		margin-top: auto;
 		padding-top: 6px;
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	.change {
 		display: inline-flex;
@@ -448,11 +448,11 @@
 		color: var(--chart-raw);
 	}
 	.change.flat [aria-hidden] {
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	.vs {
 		font-weight: 500;
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	.panel {
 		padding: 18px;

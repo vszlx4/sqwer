@@ -33,3 +33,18 @@ export async function solveCaptcha(page: Page, answer?: string) {
 	await page.getByRole('textbox', { name: 'Your answer' }).fill(answer ?? answerQuestion(text));
 	await expect.poll(async () => page.locator('input[name="altcha"]').inputValue(), { timeout: 30_000 }).not.toBe('');
 }
+
+/**
+ * Types text with uneven gaps between keys, as a person does (a fixed delay looks generated, and
+ * the server does not rate results typed like that). `mean` is the average gap in milliseconds.
+ */
+export async function typeLikeAPerson(page: Page, text: string, mean = 60) {
+	let i = 0;
+	for (const ch of text) {
+		await page.keyboard.type(ch);
+		// A spread of about ±45 %, with an occasional longer pause between words.
+		const jitter = 0.55 + ((i * 37 + 11) % 90) / 100;
+		await page.waitForTimeout(Math.round(mean * jitter + (ch === ' ' && i % 3 === 0 ? mean : 0)));
+		i++;
+	}
+}

@@ -7,6 +7,7 @@ import { activeSessions, createSession, deleteExpiredSessions, validateSession }
 import { turnstileConfig } from './bot/turnstile.ts';
 import { configurationProblems, isPublicSite } from './config-check.ts';
 import { db, migrate, schema, type Database } from './db/index.ts';
+import { grantAppRole } from './db/roles.ts';
 import { isWeakPassword, passwordSchema } from './validation.ts';
 
 describe('password blocklist', () => {
@@ -29,6 +30,7 @@ describe('production configuration check', () => {
 		CAPTCHA_HMAC_SECRET: 'x'.repeat(40),
 		CAPTCHA_HMAC_KEY_SECRET: 'y'.repeat(40),
 		LOG_HASH_SECRET: 'z'.repeat(40),
+		TOTP_ENCRYPTION_SECRET: 'w'.repeat(40),
 		DATABASE_URL: 'postgresql://app@db.example/sqwer'
 	};
 
@@ -44,7 +46,7 @@ describe('production configuration check', () => {
 		expect(problems.join('\n')).toMatch(/not HTTPS/);
 		expect(problems.join('\n')).toMatch(/LOG_HASH_SECRET is shorter/);
 		expect(problems.join('\n')).toMatch(/test secrets/);
-		expect(configurationProblems({}, 'https://sqwer.example').filter((p) => p.includes('is not set'))).toHaveLength(4);
+		expect(configurationProblems({}, 'https://sqwer.example').filter((p) => p.includes('is not set'))).toHaveLength(5);
 		// Values are read as the app reads them, without surrounding spaces.
 		expect(configurationProblems({ ...good, TURNSTILE_SITE_KEY: 'k', TURNSTILE_SECRET_KEY: ' 1x0000000000000000000000000000000AA ' }, 'https://sqwer.example').join()).toMatch(/test secrets/);
 		expect(configurationProblems({ ...good, TURNSTILE_SITE_KEY: ' ', TURNSTILE_SECRET_KEY: 'secret' }, 'https://sqwer.example').join()).toMatch(/Only one/);
@@ -94,7 +96,6 @@ describe('migrations under a restricted database role', () => {
 		await migrate(owner);
 		// The role DEPLOYMENT.md recommends for the running app: rows only, no schema changes.
 		await pg.exec('CREATE ROLE sqwer_app NOLOGIN; CREATE ROLE anon NOLOGIN; REVOKE ALL ON SCHEMA public FROM PUBLIC;');
-		const { grantAppRole } = await import('../../../scripts/lib/db.mjs');
 		const query = async (text: string, params: unknown[] = []) => (await pg.query<Record<string, unknown>>(text, params)).rows;
 		expect((await grantAppRole(query, 'sqwer_app')).length).toBeGreaterThan(15);
 		// Running it again changes nothing.
@@ -119,5 +120,16 @@ describe('migrations under a restricted database role', () => {
 		await pg.exec('RESET ROLE; SET ROLE anon');
 		expect((await pg.query('SELECT id FROM users')).rows).toHaveLength(0);
 		await pg.close();
+	});
+});
+
+describe('the application connection', () => {
+	it('serves requests as the restricted role, which cannot change the schema', async () => {
+		const d = await db();
+		const rows = (q: ReturnType<typeof sql>) => d.execute(q).then((r) => (r as unknown as { rows: Record<string, unknown>[] }).rows);
+		expect((await rows(sql`select current_user as name`))[0]!.name).toBe('sqwer_app');
+		await expect(d.execute(sql`create table intruder (id int)`)).rejects.toThrow();
+		await expect(d.execute(sql`drop table users`)).rejects.toThrow();
+		await expect(d.execute(sql`delete from sqwer_migrations`)).rejects.toThrow();
 	});
 });

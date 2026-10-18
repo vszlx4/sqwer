@@ -7,6 +7,8 @@ import { LEVELS } from '#lib/courses/state.ts';
 import { loadCourses as load } from '#lib/server/courses.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
+import { maxStarsFor } from '#lib/server/anticheat.ts';
+import { logSecurity } from '#lib/server/security-log.ts';
 import type { RequestHandler } from './$types';
 
 const lessonId = z.string().refine((id) => !!lessonById(id), 'Unknown lesson');
@@ -40,6 +42,16 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	if (!parsed.success) error(400, 'The lesson result is not valid.');
 	const r = parsed.data;
 	const userId = locals.user.id;
+	// Stars follow from accuracy by the course's own rule; more than it allows is not a real attempt.
+	if (r.stars > maxStarsFor(r.accuracy)) {
+		await logSecurity('result_rejected', { userId, detail: `lesson:${r.lessonId}:stars` });
+		error(400, 'The lesson result is not valid.');
+	}
+	// A lesson has several steps and takes minutes: completions cannot arrive faster than a person
+	// works through them (server time, whatever the browser claims).
+	if (r.stars > 0 && (!rateLimit(`lesson-pace:${userId}`, 1, 30_000).ok || !rateLimit(`lesson-hour:${userId}`, 40, 60 * 60 * 1000).ok)) {
+		error(429, 'Lessons are being completed faster than they can be taken. Please try again in a moment.');
+	}
 	const d = await db();
 	const now = new Date();
 	const [existing] = await d

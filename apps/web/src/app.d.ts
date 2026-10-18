@@ -2,8 +2,10 @@
 declare global {
 	namespace App {
 		interface Locals {
-			user: { id: string; email: string; createdAt: Date; role: string } | null;
+			user: { id: string; email: string; createdAt: Date; role: string; totpEnabledAt: Date | null } | null;
 			sessionId: string | null;
+			/** When this session passed the authenticator-app check (administrators). */
+			sessionMfaAt: Date | null;
 		}
 		interface PageData {
 			user?: {
@@ -19,6 +21,8 @@ declare global {
 			siteUrl?: string;
 			/** Whether browser analytics is switched on for this site (ANALYTICS_DISABLED). */
 			analytics?: boolean;
+			/** Signed token for sending analytics events (lib/server/analytics/token.ts). */
+			analyticsToken?: string | null;
 		}
 		interface Error {
 			message: string;

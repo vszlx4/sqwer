@@ -194,7 +194,7 @@
 	.filters :global(label > span) {
 		font-size: 12px;
 		font-weight: 600;
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	.controls :global(select),
 	input[type='date'] {

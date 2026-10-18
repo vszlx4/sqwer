@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync } from 'node:fs';
 import { sql } from 'drizzle-orm';
 import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core';
 import { DATA_DIR } from '../config.ts';
+import { appRoleName, canManageSchema, ensureAppRole, type Query } from './roles.ts';
 import * as schema from './schema.ts';
 
 export type Database = PgDatabase<PgQueryResultHKT, typeof schema>;
@@ -50,32 +51,109 @@ function tls(url: string): false | { ca?: string; rejectUnauthorized: true } {
 	}
 }
 
+/** Rows of a raw query, for the role set-up (lib/server/db/roles.ts). */
+type Rows = { rows: Record<string, unknown>[] };
+
+/**
+ * Connects and prepares the database, then serves every request as the restricted application role
+ * (DATABASE_APP_ROLE, default `sqwer_app`; see roles.ts):
+ *
+ * 1. Pending migrations are applied over a separate, short-lived connection with the owner
+ *    credentials (MIGRATION_DATABASE_URL, or DATABASE_URL when that is the owner), and the role is
+ *    created and granted row access.
+ * 2. Requests use DATABASE_URL. When it already is the restricted role, it is used as it is;
+ *    when it is the owner, every connection switches to the restricted role before its first query.
+ *
+ * The switch is checked before the first request: if requests would not run as the role, the
+ * database is not used at all.
+ */
 async function connect(): Promise<Database> {
-	const url = process.env.DATABASE_URL;
+	const url = process.env.DATABASE_URL?.trim();
+	const role = appRoleName();
+	const manual = process.env.DATABASE_MIGRATIONS === 'manual';
 	if (url) {
 		const { default: pg } = await import('pg');
 		const { drizzle } = await import('drizzle-orm/node-postgres');
-		const pool = new pg.Pool({
-			connectionString: url.trim(),
-			max: Number(process.env.DATABASE_POOL_SIZE ?? 5),
-			ssl: tls(url),
-			application_name: 'sqwer',
-			// A slow or stuck query, connection or transaction is ended instead of holding a connection
-			// from the small pool, so one expensive request cannot starve every other.
-			connectionTimeoutMillis: 10_000,
-			statement_timeout: Number(process.env.DATABASE_STATEMENT_TIMEOUT_MS ?? 15_000),
-			idle_in_transaction_session_timeout: 30_000
-		});
-		// An idle connection that the server drops must not crash the process.
-		pool.on('error', (e) => console.error(JSON.stringify({ kind: 'database', error: String(e?.message ?? e).slice(0, 200) })));
-		return drizzle(pool, { schema }) as unknown as Database;
+
+		// 1. Migrations and the role, with the owner credentials.
+		const ownerUrl = process.env.MIGRATION_DATABASE_URL?.trim() || url;
+		const owner = new pg.Client({ connectionString: ownerUrl, ssl: tls(ownerUrl), application_name: 'sqwer-migrate', connectionTimeoutMillis: 10_000 });
+		await owner.connect();
+		try {
+			await migrate(drizzle(owner, { schema }) as unknown as Database);
+			const query: Query = async (text, params = []) => ((await owner.query(text, params)) as Rows).rows;
+			if (role && !manual && (await canManageSchema(query))) await ensureAppRole(query, role);
+		} finally {
+			await owner.end().catch(() => {});
+		}
+
+		// 2. Requests, as the restricted role: switch to it unless DATABASE_URL already is it.
+		let switchTo: string | null = null;
+		if (role) {
+			const probe = new pg.Client({ connectionString: url, ssl: tls(url), connectionTimeoutMillis: 10_000 });
+			await probe.connect();
+			try {
+				const [me] = ((await probe.query('SELECT current_user AS name')) as Rows).rows;
+				if (me?.name !== role) switchTo = role;
+			} finally {
+				await probe.end().catch(() => {});
+			}
+		}
+		return connectPool(pg, drizzle, url, switchTo, role);
 	}
-	// No server configured: use an embedded PostgreSQL stored on disk.
+	// No server configured: an embedded PostgreSQL stored on disk, with the same restricted role.
 	const { PGlite } = await import('@electric-sql/pglite');
 	const { drizzle } = await import('drizzle-orm/pglite');
 	const dir = path.join(DATA_DIR, 'pglite');
 	mkdirSync(dir, { recursive: true });
-	return drizzle(new PGlite(dir), { schema }) as unknown as Database;
+	const pglite = new PGlite(dir);
+	const d = drizzle(pglite, { schema }) as unknown as Database;
+	await migrate(d);
+	if (role) {
+		await ensureAppRole(async (text, params = []) => (await pglite.query<Record<string, unknown>>(text, params)).rows, role);
+		await pglite.exec(`SET ROLE "${role}"`);
+		await assertRole((text) => pglite.query<Record<string, unknown>>(text).then((r) => r.rows), role);
+	}
+	return d;
+}
+
+/** The request pool: every connection switches to `switchTo` first, and the role is checked before use. */
+async function connectPool(
+	pg: typeof import('pg').default,
+	drizzle: typeof import('drizzle-orm/node-postgres').drizzle,
+	url: string,
+	switchTo: string | null,
+	role: string | null
+): Promise<Database> {
+	const pool = new pg.Pool({
+		connectionString: url,
+		max: Number(process.env.DATABASE_POOL_SIZE ?? 5),
+		ssl: tls(url),
+		application_name: 'sqwer',
+		// A slow or stuck query, connection or transaction is ended instead of holding a connection
+		// from the small pool, so one expensive request cannot starve every other.
+		connectionTimeoutMillis: 10_000,
+		statement_timeout: Number(process.env.DATABASE_STATEMENT_TIMEOUT_MS ?? 15_000),
+		idle_in_transaction_session_timeout: 30_000,
+		// Every new connection switches to the restricted role before it is handed out; if the switch
+		// fails, the connection is closed and the request fails, never runs with the owner's rights.
+		...(switchTo ? { onConnect: async (client: import('pg').ClientBase) => void (await client.query(`SET ROLE "${switchTo}"`)) } : {})
+	});
+	// An idle connection that the server drops must not crash the process.
+	pool.on('error', (e) => console.error(JSON.stringify({ kind: 'database', error: String(e?.message ?? e).slice(0, 200) })));
+	if (role) await assertRole(async (text) => ((await pool.query(text)) as Rows).rows, role);
+	return drizzle(pool, { schema }) as unknown as Database;
+}
+
+/** Refuses to serve requests unless they run as the restricted role. */
+async function assertRole(query: (text: string) => Promise<Record<string, unknown>[]>, role: string) {
+	const [me] = await query('SELECT current_user AS name');
+	if (me?.name !== role) {
+		throw new Error(
+			`Requests would not run as the restricted database role "${role}" (they run as "${String(me?.name)}"). ` +
+				'Check that the role exists and that the DATABASE_URL user may switch to it (see DEPLOYMENT.md), or set DATABASE_APP_ROLE=none.'
+		);
+	}
 }
 
 /**
@@ -122,13 +200,9 @@ export async function migrate(db: Database) {
 let ready: Promise<Database> | null = null;
 let lastFailure = '';
 
-/** The database, connected and migrated on first use. */
+/** The database, migrated and connected as the restricted role on first use. */
 export function db(): Promise<Database> {
 	ready ??= connect()
-		.then(async (d) => {
-			await migrate(d);
-			return d;
-		})
 		.catch((e) => {
 			// Retry on the next request instead of failing every request until a restart.
 			ready = null;
