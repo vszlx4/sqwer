@@ -10,6 +10,8 @@ export default defineConfig({
 			DATABASE_URL: '',
 			PUBLIC_SITE_URL: 'https://sqwer.example'
 		},
-		setupFiles: ['./vitest.setup.ts']
+		setupFiles: ['./vitest.setup.ts'],
+		// The first database use in a file runs every migration, which is slow on a busy machine.
+		testTimeout: 30_000
 	}
 });
