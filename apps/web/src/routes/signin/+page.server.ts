@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { track } from '#lib/server/analytics/track.ts';
 import { eq } from 'drizzle-orm';
 import { logSecurity } from '#lib/server/security-log.ts';
+import { SUSPENDED_MESSAGE } from '#lib/server/moderation.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import { createSession, deleteSession, dummyPasswordHash, findUserByEmail, setSessionCookie, verifyPassword } from '#lib/server/auth.ts';
 import { guardForm, humanCheck } from '#lib/server/bot/guard.ts';
@@ -111,6 +112,12 @@ export const actions: Actions = {
 			return again(400, { values, challenge: true, errors: { form: INVALID } });
 		}
 
+		// Only someone who knows the password learns that the account is suspended.
+		if (user.suspendedAt) {
+			await logSecurity('sign_in_failed', { userId: user.id, ip, userAgent, detail: 'suspended' });
+			track('signin_failed', { props: { reason: 'suspended' } });
+			return again(403, { values, errors: { form: SUSPENDED_MESSAGE } });
+		}
 		await d.update(schema.users).set({ failedLogins: 0, lockedUntil: null }).where(eq(schema.users.id, user.id));
 		await logSecurity('signed_in', { userId: user.id, ip, userAgent });
 		track('signin_succeeded', { userId: user.id });

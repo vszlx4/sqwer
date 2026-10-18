@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { json } from '@sveltejs/kit';
 import { sequence, type Handle, type HandleServerError, type ServerInit } from '@sveltejs/kit/hooks';
 import { checkConfiguration } from '#lib/server/config-check.ts';
+import { checkBody } from '#lib/server/body-limits.ts';
 import {
 	clearSessionCookie,
 	deleteExpiredSessions,
@@ -41,6 +42,15 @@ export const handleError: HandleServerError = (input) => {
 	return { message: 'Internal Error', id };
 };
 
+/** Request bodies are limited per route (lib/server/body-limits.ts) before anything reads them. */
+const bodyLimits: Handle = ({ event, resolve }) => {
+	const verdict = checkBody(event.request.method, event.url, event.request.headers);
+	if (verdict === 'ok') return resolve(event);
+	const status = verdict === 'too-large' ? 413 : 411;
+	const message = verdict === 'too-large' ? 'The request is too large.' : 'The request must state its length.';
+	return event.url.pathname.startsWith('/api/') ? json({ message }, { status }) : new Response(message, { status, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+};
+
 /** Requests that look proxied while client addresses are not read from the proxy. */
 let proxyWarned = false;
 const proxyCheck: Handle = ({ event, resolve }) => {
@@ -67,12 +77,16 @@ const authenticate: Handle = async ({ event, resolve }) => {
 	}
 	event.locals.user = null;
 	event.locals.sessionId = null;
+	event.locals.sessionMfaAt = null;
 	const token = event.cookies.get(SESSION_COOKIE);
+	// The unprefixed cookie of earlier versions is no longer read on HTTPS sites, and is removed.
+	if (SESSION_COOKIE !== 'sqwer_session' && event.cookies.get('sqwer_session')) event.cookies.delete('sqwer_session', { path: '/' });
 	if (token) {
 		const result = await validateSession(token);
 		if (result) {
 			event.locals.user = result.user;
 			event.locals.sessionId = result.session.id;
+			event.locals.sessionMfaAt = result.session.mfaVerifiedAt;
 			if (result.renewed) setSessionCookie(event.cookies, token, result.session.expiresAt, event.url.protocol === 'https:');
 		} else {
 			clearSessionCookie(event.cookies);
@@ -123,4 +137,4 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
-export const handle = sequence(securityHeaders, proxyCheck, apiGuard, authenticate);
+export const handle = sequence(securityHeaders, bodyLimits, proxyCheck, apiGuard, authenticate);

@@ -92,33 +92,5 @@ async function migrate(query, transaction, apply, server) {
 	return pending;
 }
 
-/**
- * Lets the restricted application role read and write rows, and nothing else: no schema changes.
- * Every table has row-level security enabled without policies (so Supabase's public API roles see
- * nothing); this adds one policy per table for the application role only. Safe to run repeatedly,
- * and run after each migration so that new tables are covered.
- */
-export async function grantAppRole(query, role) {
-	if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error('DATABASE_APP_ROLE must be a plain lower-case role name.');
-	const r = `"${role}"`;
-	await query(`GRANT USAGE ON SCHEMA public TO ${r}`);
-	await query(`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${r}`);
-	await query(`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${r}`);
-	// The record of applied migrations is only read by the app, never changed by it.
-	await query(`REVOKE INSERT, UPDATE, DELETE ON public.sqwer_migrations FROM ${r}`);
-	const tables = await query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename");
-	const covered = [];
-	for (const { tablename } of tables) {
-		if (!/^[a-z_][a-z0-9_]*$/.test(tablename)) continue;
-		const [{ present }] = await query(
-			"SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = $1 AND policyname = 'sqwer_app_access') AS present",
-			[tablename]
-		);
-		const command = tablename === 'sqwer_migrations' ? 'SELECT' : 'ALL';
-		const check = command === 'ALL' ? ' WITH CHECK (true)' : '';
-		if (!present) await query(`CREATE POLICY sqwer_app_access ON public."${tablename}" FOR ${command} TO ${r} USING (true)${check}`);
-		covered.push(tablename);
-	}
-	return covered;
-}
-
+// The restricted application role, shared with the app.
+export { appRoleName, ensureAppRole, grantAppRole } from '../../src/lib/server/db/roles.ts';

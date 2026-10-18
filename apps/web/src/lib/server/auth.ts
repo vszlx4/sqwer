@@ -1,6 +1,7 @@
 import { createHash, randomBytes, randomUUID, scrypt as scryptCb, timingSafeEqual, type ScryptOptions } from 'node:crypto';
 import type { Cookies } from '@sveltejs/kit';
 import { and, eq, gt, isNull, lt, ne, or } from 'drizzle-orm';
+import { SITE_URL } from './config.ts';
 import { db, schema } from './db/index.ts';
 
 const { users, sessions, recoveryCodes } = schema;
@@ -40,7 +41,14 @@ export function dummyPasswordHash() {
 
 // ---------------------------------------------------------------- sessions
 
-export const SESSION_COOKIE = 'sqwer_session';
+/**
+ * On an HTTPS site the session cookie carries the `__Host-` prefix: browsers then accept it only
+ * with Secure, Path=/ and no Domain, so no subdomain or insecure page can set or replace it. Plain
+ * HTTP (local development) cannot use the prefix, so the cookie keeps its plain name there.
+ */
+const HTTPS = SITE_URL.startsWith('https:');
+const LEGACY_COOKIE = 'sqwer_session';
+export const SESSION_COOKIE = HTTPS ? '__Host-sqwer_session' : LEGACY_COOKIE;
 const SESSION_DAYS = 30;
 const RENEW_WHEN_DAYS_LEFT = 15;
 /**
@@ -89,7 +97,11 @@ export async function validateSession(token: string) {
 	const d = await db();
 	const id = sha256(token);
 	const rows = await d
-		.select({ session: sessions, user: { id: users.id, email: users.email, createdAt: users.createdAt, role: users.role } })
+		.select({
+			session: sessions,
+			user: { id: users.id, email: users.email, createdAt: users.createdAt, role: users.role, totpEnabledAt: users.totpEnabledAt },
+			suspendedAt: users.suspendedAt
+		})
 		.from(sessions)
 		.innerJoin(users, eq(sessions.userId, users.id))
 		.where(eq(sessions.id, id))
@@ -98,7 +110,8 @@ export async function validateSession(token: string) {
 	if (!row) return null;
 	const now = Date.now();
 	const absoluteEnd = row.session.createdAt.getTime() + MAX_SESSION_DAYS * DAY;
-	if (row.session.expiresAt.getTime() <= now || absoluteEnd <= now) {
+	// A suspended account keeps no session, even one created a moment before the suspension.
+	if (row.session.expiresAt.getTime() <= now || absoluteEnd <= now || row.suspendedAt) {
 		await d.delete(sessions).where(eq(sessions.id, id));
 		return null;
 	}
@@ -132,11 +145,13 @@ export async function deleteExpiredSessions() {
 }
 
 export function setSessionCookie(cookies: Cookies, token: string, expiresAt: Date, secure: boolean) {
-	cookies.set(SESSION_COOKIE, token, { path: '/', httpOnly: true, sameSite: 'lax', secure, expires: expiresAt });
+	cookies.set(SESSION_COOKIE, token, { path: '/', httpOnly: true, sameSite: 'lax', secure: HTTPS || secure, expires: expiresAt });
 }
 
 export function clearSessionCookie(cookies: Cookies) {
-	cookies.delete(SESSION_COOKIE, { path: '/' });
+	cookies.delete(SESSION_COOKIE, { path: '/', secure: HTTPS });
+	// A cookie from before the prefix was introduced is removed as well.
+	if (HTTPS && cookies.get(LEGACY_COOKIE)) cookies.delete(LEGACY_COOKIE, { path: '/' });
 }
 
 // ---------------------------------------------------------------- users

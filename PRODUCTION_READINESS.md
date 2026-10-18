@@ -137,3 +137,18 @@ New settings: `DATABASE_MIGRATIONS`, `MIGRATION_DATABASE_URL`, `DATABASE_APP_ROL
 commands: `npm run db:migrate -w web`, `npm run admin -w web -- signout <email> | signout-everyone`. New endpoint:
 `GET /healthz`. New files: `.github/workflows/ci.yml`, `.github/dependabot.yml`, `PRIVACY_RECORDS.md`, this report.
 Documents updated: `DEPLOYMENT.md`, Privacy Policy 2.4, Cookie and Storage Policy 2.3. No dependency versions changed.
+
+## Follow-up hardening (application and database level)
+
+| Item | What changed |
+| --- | --- |
+| Database role (C2) | Every request runs as the restricted `sqwer_app` role by default: migrations use a separate owner connection, the role is created and granted row access automatically, request connections switch to it through pg-pool's `onConnect` (fail closed), and start-up refuses the database if requests would not run as the role. Verified on the embedded database (unit tests) and over the PostgreSQL wire protocol (role created without login, superuser or RLS bypass; 18 policies; a missing role gives 503 and a logged reason). Full separation still needs `sqwer_app` as its own login in `DATABASE_URL`. |
+| Administrator 2FA (D1) | TOTP (RFC 6238, verified against the RFC test vectors) required for every administrator page and the export: set-up after the password, QR code or key, secrets encrypted with AES-256-GCM (`TOTP_ENCRYPTION_SECRET`), one step of drift, every code usable once (atomic), 5 attempts per 15 minutes, per-session confirmation valid 12 hours, recovery with `reset-2fa`. |
+| Suspension (D4) | `users.suspended_at` and reason (migration 0014). Suspended accounts lose every session at once, cannot sign in (told only after the right password) or reset their password, and disappear from leaderboards, public profiles and pictures. Admin dashboard **Users** page and `suspend`/`unsuspend` commands; administrators only from the server. |
+| Anti-cheat (D3) | The server replays every result's keystrokes with the typing engine. Refused: future timestamps, out-of-order or miscounted keystrokes, keystrokes after the end, figures the keystrokes do not produce, sustained speed or one-second bursts beyond human limits. Not rated (stored, no XP, no rank): no keystroke record, machine-regular timing, overlap with another rated result, more than an hour of typing per hour. XP uses recomputed figures and active typing time. Lessons: stars limited by accuracy, at most one completion per 30 seconds and 40 per hour. |
+| Body limits (D11) | 64 KB by default (forms, sign-in, most APIs), 32 KB analytics, 1 MB results and statistics, 1.5 MB profile pictures, 6 MB finger map only; chunked bodies without a length refused. |
+| Session cookie (D14) | `__Host-sqwer_session` on HTTPS sites (Secure, Path=/, no Domain); plain `sqwer_session` on HTTP development, where browsers refuse the prefix. |
+| Analytics (D12) | Events need a signed token issued with a page load (bound to the browser, 24 hours, issuance limited per address and network); limits per token and per visit; network and site-wide limits count only batches that passed everything else. |
+
+Tests after these changes: type check clean; 174 unit tests and 83 end-to-end tests pass.
+

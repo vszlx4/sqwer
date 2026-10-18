@@ -201,7 +201,7 @@
 	}
 	.tick {
 		font-size: 11px;
-		fill: var(--ink-3);
+		fill: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
 	.tip {

@@ -113,6 +113,7 @@ async function computeLeaderboard(by: 'speed' | 'xp', limit: number): Promise<Le
 			a.updated_at as avatar_at, p.user_id,
 			${best} as best, ${xp}::int as xp
 		from profiles p
+		join users u on u.id = p.user_id and u.suspended_at is null
 		left join avatars a on a.user_id = p.user_id
 		where p.show_on_leaderboard
 			and ${by === 'speed' ? sql`${best} is not null` : sql`${xp} > 0`}
@@ -149,6 +150,7 @@ async function computeListedBests(): Promise<{ userId: string; best: number }[]>
 	const res = await (await db()).execute(sql`
 		select r.user_id, max(r.wpm) as best from results r
 		join profiles p on p.user_id = r.user_id and p.show_on_leaderboard
+		join users u on u.id = r.user_id and u.suspended_at is null
 		where r.exam = 'competitive' and r.verified
 		group by r.user_id
 	`);

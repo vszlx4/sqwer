@@ -15,6 +15,7 @@ import { guardForm, humanCheck } from '#lib/server/bot/guard.ts';
 import { issueTicket } from '#lib/server/bot/ticket.ts';
 import { recordAbuse } from '#lib/server/bot/risk.ts';
 import { logSecurity } from '#lib/server/security-log.ts';
+import { SUSPENDED_MESSAGE } from '#lib/server/moderation.ts';
 import { rateLimit, rateLimitMessage } from '#lib/server/rate-limit.ts';
 import { emailSchema, passwordSchema } from '#lib/server/validation.ts';
 import type { Actions, PageServerLoad } from './$types';
@@ -59,6 +60,8 @@ export const actions: Actions = {
 			recordAbuse(ip, 'reset');
 			return again(400, { values, errors: { form: INVALID } });
 		}
+		// A recovery code cannot be used to get round a suspension.
+		if (user.suspendedAt) return again(403, { values, errors: { form: SUSPENDED_MESSAGE } });
 
 		await (await db())
 			.update(schema.users)

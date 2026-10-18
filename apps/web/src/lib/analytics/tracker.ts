@@ -12,6 +12,12 @@ import { consent, SESSION_KEY, VISITOR_KEY } from './consent.svelte.ts';
 const SESSION_IDLE_MS = 30 * 60 * 1000;
 const ENDPOINT = '/api/analytics';
 
+/** The token issued with the page (lib/server/analytics/token.ts); nothing is sent without one. */
+let token: string | null = null;
+export function setAnalyticsToken(value: string | null | undefined) {
+	token = value ?? null;
+}
+
 interface Pending {
 	id: string;
 	type: 'pageview' | 'engagement';
@@ -58,8 +64,8 @@ let queue: Pending[] = [];
 let flushTimer: ReturnType<typeof setTimeout> | undefined;
 
 function send(events: Pending[], beacon = false) {
-	if (!events.length) return;
-	const body = JSON.stringify({ events });
+	if (!events.length || !token) return;
+	const body = JSON.stringify({ token, events });
 	if (beacon && navigator.sendBeacon?.(ENDPOINT, new Blob([body], { type: 'application/json' }))) return;
 	void fetch(ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json' }, body, keepalive: true }).catch(() => {});
 }

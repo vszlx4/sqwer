@@ -15,17 +15,18 @@
 | `DATABASE_URL` with Supabase | | Use the **session pooler** address (Supabase dashboard: Connect, then Session pooler), for example `postgresql://postgres.<project-ref>:<password>@aws-0-eu-west-1.pooler.supabase.com:5432/postgres`. The direct `db.<project-ref>.supabase.co` host has only an IPv6 address and fails with `ENOTFOUND` on networks without IPv6. |
 | `DATABASE_CA_FILE` | With a hosted database | Certificate authority of the database server (for Supabase, `supabase-ca.crt`), so the TLS connection is verified. A relative path is resolved next to the `.env` file. |
 | `CAPTCHA_HMAC_SECRET`, `CAPTCHA_HMAC_KEY_SECRET` | Recommended | Secrets that sign the verification challenges (proof of work and the typed challenge). Generated and stored in `SQWER_DATA_DIR/secrets.json` when absent. |
+| `TOTP_ENCRYPTION_SECRET` | Recommended | Key that encrypts administrators' authenticator-app secrets (AES-256-GCM). Generated when absent. **Changing it makes every administrator set up their app again** (`npm run admin -w web -- reset-2fa <email>`). |
 | `LOG_HASH_SECRET` | Recommended | Key used to hash IP addresses in security logs. Generated when absent. |
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Recommended | Cloudflare Turnstile keys (free). When both are set, Turnstile protects sign-up, sign-in and password reset, with sqwer's own check as the automatic fallback. When unset, sqwer's own check is used. See [BOT_PROTECTION.md](BOT_PROTECTION.md). |
 | `ANALYTICS_DISABLED` | No | `1` turns off browser analytics (no consent banner); server events are still recorded. See [ANALYTICS.md](ANALYTICS.md). |
 | `ANALYTICS_RETENTION_DAYS` | No | Days raw analytics events are kept (default 395, about 13 months, as the Privacy Policy states). |
 | `DATABASE_MIGRATIONS` | Recommended in production | `manual`: the app never changes the schema and refuses to start while a migration is pending, with an instruction to run `npm run db:migrate -w web`. Unset: pending migrations are applied when the app first connects (needs the owner role). |
 | `MIGRATION_DATABASE_URL` | With `manual` | Connection string of the owner role, used only by `npm run db:migrate -w web`. Never give it to the running app. |
-| `DATABASE_APP_ROLE` | With a restricted role | Name of the application role (for example `sqwer_app`). `db:migrate` then grants it row access to every table, including new ones, and nothing more. |
+| `DATABASE_APP_ROLE` | No | The restricted role every request runs as (default `sqwer_app`; `none` switches this off). The app creates it if needed, grants it row access to every table and nothing more, and refuses to start if requests would not run as it. When `DATABASE_URL` is the owner, each connection switches to the role with `SET ROLE`; for full separation give the role its own login and use it as `DATABASE_URL` (below). |
 | `DATABASE_POOL_SIZE` | No | Connections per server process (default 5). Keep the total across processes below the database's limit. |
 | `DATABASE_STATEMENT_TIMEOUT_MS` | No | Longest a single query may run (default 15000). Connections time out after 10 s and idle transactions after 30 s. |
 | `SQWER_DATA_DIR` | No | Directory for the embedded database and generated secrets. Defaults to `.data` in the working directory. |
-| `BODY_SIZE_LIMIT` | No | Maximum request body size. The start script sets `6M`, enough for a large finger map. |
+| `BODY_SIZE_LIMIT` | No | The server's overall ceiling (6M in the start script, for the finger map). Each route has a smaller limit on top (`src/lib/server/body-limits.ts`): 64 KB for forms and most endpoints, 1 MB for results and statistics, 1.5 MB for profile pictures, 6 MB only for the finger map. |
 | `PORT`, `HOST` | No | Listening address for the Node server (default port 3000). |
 | `ADDRESS_HEADER`, `XFF_DEPTH` | Behind a proxy (essential) | Set `ADDRESS_HEADER=x-forwarded-for` and `XFF_DEPTH=1` (one proxy) so rate limiting and bot protection see real client addresses. Behind Cloudflare's proxy, use `ADDRESS_HEADER=cf-connecting-ip` instead. Without this, every visitor shares the proxy's address and limits apply to everyone at once. |
 | `PROTOCOL_HEADER`, `HOST_HEADER` | Behind a proxy | Set to `x-forwarded-proto` and `x-forwarded-host` if the proxy rewrites them. |
@@ -66,13 +67,27 @@ npm run admin -w web -- grant you@example.com
 `list` and `revoke <email>` are also available, and for incidents `signout <email>` (ends every session of one
 account) and `signout-everyone`. See [ANALYTICS.md](ANALYTICS.md).
 
+Administrators must set up an authenticator app (any TOTP app) before the dashboard opens, and confirm a code at the
+start of each session (valid for 12 hours). If an administrator loses their app, remove it from the server with
+`npm run admin -w web -- reset-2fa <email>`; it is set up again at the next visit, after the password.
+
+Accounts can be suspended from the dashboard (**Users**) or the server: `suspend <email> "<reason>"` blocks sign-in,
+ends every session at once and hides the account from leaderboards and public pages; `unsuspend <email>` restores it.
+Administrators can only be suspended from the server.
+
 ## Database permissions
 
 Serve requests with a role that can only read and write rows, and change the schema only with an owner role, so a
 compromised application cannot drop tables, create functions or read other databases. Every table has row-level
 security enabled with no general policies, so roles other than the owner see nothing unless they are given a policy;
-this keeps Supabase's public API roles (`anon`, `authenticated`) out. `db:migrate` gives the application role one
-policy per table.
+this keeps Supabase's public API roles (`anon`, `authenticated`) out. The application role gets one policy per table.
+
+**By default the app already serves every request as `sqwer_app`**, whatever `DATABASE_URL` is: at start-up it
+applies migrations over a separate owner connection, creates the role if needed, grants it row access, and then
+switches every request connection to it (and refuses to start if that fails). This works with your current
+`DATABASE_URL` unchanged. Its limit: if `DATABASE_URL` is the owner, code running inside the server could switch back
+with `RESET ROLE`. For full separation, give the role its own login as below, so the server never holds owner
+credentials.
 
 ```sql
 -- As a superuser (self-hosted PostgreSQL)

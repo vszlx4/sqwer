@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import { buildProfile } from '@sqwer/fingermap';
 import { qwertyAnsi, type Platform } from '@sqwer/layouts';
 import { lessonPoints, localDay, rankFor, streak } from '#lib/courses/progression.ts';
@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		.select({ profile: schema.profiles, createdAt: schema.users.createdAt })
 		.from(schema.profiles)
 		.innerJoin(schema.users, eq(schema.users.id, schema.profiles.userId))
-		.where(and(eq(schema.profiles.username, params.username.toLowerCase()), eq(schema.profiles.isPublic, true)))
+		.where(and(eq(schema.profiles.username, params.username.toLowerCase()), eq(schema.profiles.isPublic, true), isNull(schema.users.suspendedAt)))
 		.limit(1);
 	if (!row) error(404, 'This profile does not exist or is private.');
 

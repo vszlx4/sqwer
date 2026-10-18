@@ -267,7 +267,7 @@
 		display: block;
 		font-size: 12px;
 		font-weight: 500;
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	a.sub {
 		color: var(--ink-2);
@@ -275,7 +275,7 @@
 	.dim {
 		font-family: var(--font-sans);
 		font-size: 13.5px;
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	.details {
 		max-width: 260px;

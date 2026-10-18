@@ -322,7 +322,11 @@ describe('dashboard parameters', () => {
 
 describe('administrator access', () => {
 	const url = new URL('https://sqwer.example/admin/analytics?range=7d');
-	const as = (role: string | null) => ({ user: role ? { id: 'u', email: 'a@b.c', role } : null }) as unknown as App.Locals;
+	const as = (role: string | null, mfa: { enabled?: boolean; verifiedAgoMs?: number } = { enabled: true, verifiedAgoMs: 0 }) =>
+		({
+			user: role ? { id: 'u', email: 'a@b.c', role, totpEnabledAt: mfa.enabled ? new Date() : null } : null,
+			sessionMfaAt: mfa.verifiedAgoMs === undefined ? null : new Date(Date.now() - mfa.verifiedAgoMs)
+		}) as unknown as App.Locals;
 	const thrown = (fn: () => unknown) => {
 		try {
 			fn();
@@ -338,6 +342,20 @@ describe('administrator access', () => {
 		const e = thrown(() => requireAdmin(as('user'), url));
 		expect(isHttpError(e) && e.status).toBe(404);
 		expect(thrown(() => requireAdmin(as('admin'), url))).toBeNull();
+	});
+
+	it('requires an authenticator app, confirmed in this session within 12 hours', () => {
+		const setup = thrown(() => requireAdmin(as('admin', { enabled: false }), url));
+		expect(isRedirect(setup) && setup.location).toBe('/admin/2fa/setup?next=%2Fadmin%2Fanalytics%3Frange%3D7d');
+		const check = thrown(() => requireAdmin(as('admin', { enabled: true }), url));
+		expect(isRedirect(check) && check.location).toBe('/admin/2fa?next=%2Fadmin%2Fanalytics%3Frange%3D7d');
+		const stale = thrown(() => requireAdmin(as('admin', { enabled: true, verifiedAgoMs: 13 * 60 * 60 * 1000 }), url));
+		expect(isRedirect(stale) && stale.location).toContain('/admin/2fa?');
+		// The set-up and check pages themselves only need the role.
+		expect(thrown(() => requireAdmin(as('admin', { enabled: false }), url, { mfa: false }))).toBeNull();
+		const api = thrown(() => requireAdminApi(as('admin', { enabled: true })));
+		expect(isHttpError(api) && api.status).toBe(403);
+		expect(thrown(() => requireAdminApi(as('admin')))).toBeNull();
 	});
 
 	it('answers 401 and 403 from the API', () => {

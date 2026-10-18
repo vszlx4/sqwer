@@ -1,12 +1,14 @@
 import { error, json } from '@sveltejs/kit';
 import { track } from '#lib/server/analytics/track.ts';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, gt, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { FINGERS } from '@sqwer/layouts';
 import { categoryOfExam } from '#lib/data/categories.ts';
 import { clearedAt } from '#lib/server/data.ts';
 import { db, schema } from '#lib/server/db/index.ts';
-import { rateLimit } from '#lib/server/rate-limit.ts';
+import { rateLimit, spendBudget } from '#lib/server/rate-limit.ts';
+import { checkResult } from '#lib/server/anticheat.ts';
+import { logSecurity } from '#lib/server/security-log.ts';
 import { invalidateLeaderboards } from '#lib/server/progress.ts';
 import { verifyCompetitive, verifyMinute } from '#lib/progress/competitive.ts';
 import { examXp } from '#lib/progress/xp.ts';
@@ -60,31 +62,70 @@ export const GET: RequestHandler = async ({ locals }) => {
 export const POST: RequestHandler = async ({ locals, request }) => {
 	if (!locals.user) error(401, 'Sign in to save your results.');
 	if (!rateLimit(`results:${locals.user.id}`, 120, 60 * 60 * 1000).ok) error(429, 'Too many requests.');
-	if (Number(request.headers.get('content-length') ?? 0) > 1_048_576) error(413, 'The result is too large.');
 	const parsed = recordSchema.safeParse(await request.json().catch(() => null));
 	if (!parsed.success) error(400, 'The result is not valid.');
 	const r = parsed.data;
 	// A result from before its category was cleared is a stale copy from a browser: it is not kept.
 	if (r.at <= (await clearedAt(locals.user.id, categoryOfExam(r.exam)))) error(409, 'This result belongs to data you cleared.');
-	// XP and the competitive check are worked out here, never taken from the browser.
-	const xp = examXp(r);
+	const userId = locals.user.id;
+	const d = await db();
+	// The same result sent again (browsers re-send while syncing) keeps what it was given the first time.
+	const [stored] = await d
+		.select({ xp: schema.results.xp, verified: schema.results.verified })
+		.from(schema.results)
+		.where(and(eq(schema.results.id, r.id), eq(schema.results.userId, userId)))
+		.limit(1);
+	if (stored) return json({ ok: true, xp: stored.xp, verified: stored.verified });
+
+	// The keystrokes are replayed on the server; XP and ranks come from what they produce, never
+	// from the browser's own figures (lib/server/anticheat.ts).
+	const verdict = checkResult(r);
+	if (verdict.kind === 'reject') {
+		await logSecurity('result_rejected', { userId, detail: `${r.exam}:${verdict.reason}` });
+		error(400, 'The result could not be accepted.');
+	}
+	let trusted = verdict.kind === 'trusted';
+	let reason: string | null = verdict.kind === 'untrusted' ? verdict.reason : null;
+	const stats = verdict.stats;
+	const hour = 60 * 60 * 1000;
+	if (trusted && stats && r.status === 'completed') {
+		// Typing time cannot be counted twice: a result overlapping another that earned XP earns none.
+		const end = new Date(r.at - 2000);
+		const start = new Date(r.at - stats.activeSeconds * 1000 + 2000);
+		const [overlap] = await d
+			.select({ id: schema.results.id })
+			.from(schema.results)
+			.where(
+				and(
+					eq(schema.results.userId, userId),
+					gt(schema.results.xp, 0),
+					gt(schema.results.createdAt, start),
+					sql`${schema.results.createdAt} - make_interval(secs => (${schema.results.data}->>'seconds')::float) < ${end}`
+				)
+			)
+			.limit(1);
+		if (overlap) [trusted, reason] = [false, 'overlaps-another-result'];
+		// And no more than an hour of typing earns XP per hour, however many results arrive.
+		else if (!spendBudget(`typing-time:${userId}`, stats.activeSeconds, 3900, hour)) [trusted, reason] = [false, 'typing-time-budget'];
+	}
+	const xp = trusted && stats ? examXp({ status: r.status, wpm: stats.wpm, accuracy: stats.accuracy, seconds: stats.activeSeconds }) : 0;
 	// Competitive and placement results are checked, because they earn a rank or course credit.
-	const check = r.detail ? { seconds: r.seconds, wpm: r.wpm, accuracy: r.accuracy, chars: r.detail.chars, words: r.detail.words, replay: r.detail.replay } : null;
+	const check = trusted && stats && r.detail ? { seconds: r.seconds, wpm: stats.wpm, accuracy: stats.accuracy, chars: r.detail.chars, words: r.detail.words, replay: r.detail.replay } : null;
 	const verified =
 		r.status === 'completed' &&
 		!!check &&
 		(r.exam === 'competitive' ? verifyCompetitive(check) : r.exam === 'placement' ? verifyMinute(check, 0) : false);
 	await (await db())
 		.insert(schema.results)
-		.values({ id: r.id, userId: locals.user.id, exam: r.exam, createdAt: new Date(r.at), data: r, xp, wpm: r.wpm, verified })
+		.values({ id: r.id, userId, exam: r.exam, createdAt: new Date(r.at), data: r, xp, wpm: stats?.wpm ?? r.wpm, verified })
 		.onConflictDoNothing();
-	if (r.status === 'completed') track('test_completed', { userId: locals.user.id, props: { exam: r.exam } });
+	if (r.status === 'completed') track('test_completed', { userId, props: { exam: r.exam } });
 	if (verified && r.exam === 'competitive') {
-		track('ranked_verified', { userId: locals.user.id });
+		track('ranked_verified', { userId });
 		invalidateLeaderboards();
 	} else if (xp > 0) {
 		// The level leaderboard orders by experience.
 		invalidateLeaderboards();
 	}
-	return json({ ok: true, xp, verified });
+	return json({ ok: true, xp, verified, ...(reason ? { unrated: reason } : {}) });
 };

@@ -113,17 +113,19 @@
 			</thead>
 			<tbody>
 				<tr>
-					<th scope="row"><code>sqwer_session</code></th>
+					<th scope="row"><code>__Host-sqwer_session</code></th>
 					<td>Keeps you signed in. Set only when you sign in or create an account. It contains a random token; the server stores only a hash of it.</td>
 					<td>30 days, renewed while you use sqwer, and at most 90 days after you sign in; removed when you sign out</td>
-					<td><code>HttpOnly</code>, <code>Secure</code>, <code>SameSite=Lax</code>, first-party only</td>
+					<td><code>HttpOnly</code>, <code>Secure</code>, <code>SameSite=Lax</code>, <code>__Host-</code> prefix, first-party only</td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
 	<p>
 		3.1. <code>HttpOnly</code> means scripts cannot read the cookie; <code>Secure</code> means it is sent only over
-		encrypted connections; <code>SameSite=Lax</code> means other websites cannot use it to make requests on your behalf.
+		encrypted connections; <code>SameSite=Lax</code> means other websites cannot use it to make requests on your behalf; the
+		<code>__Host-</code> prefix means browsers accept it only from sqwer's own address over an encrypted connection, so no
+		other site or subdomain can set or replace it.
 		If you never sign in, sqwer sets no cookie at all.
 	</p>
 

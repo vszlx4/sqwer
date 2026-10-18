@@ -3,13 +3,14 @@
 	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { consent } from './consent.svelte.ts';
-	import { startTracking, trackPage } from './tracker.ts';
+	import { setAnalyticsToken, startTracking, trackPage } from './tracker.ts';
 
 	/**
 	 * Asks for analytics consent and, once given, records page views. Nothing is collected, and no
 	 * identifier is created, before the visitor allows it.
 	 */
 	const enabled = $derived(page.data.analytics !== false);
+	$effect.pre(() => setAnalyticsToken(page.data.analyticsToken as string | null | undefined));
 	let lastPath = '';
 
 	onMount(() => {
