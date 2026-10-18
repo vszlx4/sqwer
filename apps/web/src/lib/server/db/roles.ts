@@ -66,10 +66,14 @@ export async function ensureAppRole(query: Query, role: string): Promise<void> {
 	if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error('DATABASE_APP_ROLE must be a plain lower-case role name.');
 	const [{ exists } = { exists: false }] = await query('SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = $1) AS exists', [role]);
 	if (!exists) await query(`CREATE ROLE "${role}" NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT`);
-	const [{ member } = { member: false }] = await query(
-		`SELECT r.rolsuper OR pg_has_role(current_user, $1, 'MEMBER') AS member FROM pg_roles r WHERE r.rolname = current_user`,
-		[role]
-	);
-	if (!member) await query(`GRANT "${role}" TO CURRENT_USER`);
+	// PostgreSQL 16+ separates membership from the right to SET ROLE (Supabase's creator gets ADMIN only).
+	const canSet = async () => {
+		const sql = (privilege: string) => `SELECT r.rolsuper OR pg_has_role(current_user, $1, '${privilege}') AS ok FROM pg_roles r WHERE r.rolname = current_user`;
+		const [row] = await query(sql('SET'), [role]).catch(() => query(sql('MEMBER'), [role]));
+		return row?.ok === true;
+	};
+	if (!(await canSet())) {
+		await query(`GRANT "${role}" TO CURRENT_USER WITH SET TRUE, INHERIT FALSE`).catch(() => query(`GRANT "${role}" TO CURRENT_USER`));
+	}
 	await grantAppRole(query, role);
 }
