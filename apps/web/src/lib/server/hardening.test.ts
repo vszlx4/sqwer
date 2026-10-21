@@ -133,3 +133,13 @@ describe('the application connection', () => {
 		await expect(d.execute(sql`delete from sqwer_migrations`)).rejects.toThrow();
 	});
 });
+
+describe('row-level security', () => {
+	it('is enabled on every table', async () => {
+		const d = await db();
+		const res = (await d.execute(sql`select tablename from pg_tables where schemaname = 'public' and not rowsecurity`)) as unknown as { rows: unknown[] };
+		const all = (await d.execute(sql`select count(*)::int as n from pg_tables where schemaname = 'public'`)) as unknown as { rows: { n: number }[] };
+		expect(all.rows[0]!.n).toBeGreaterThanOrEqual(18);
+		expect(res.rows).toEqual([]);
+	});
+});
