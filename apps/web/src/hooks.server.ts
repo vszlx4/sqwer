@@ -60,7 +60,7 @@ const proxyCheck: Handle = ({ event, resolve }) => {
 			JSON.stringify({
 				kind: 'config',
 				warning:
-					'Requests arrive through a proxy (X-Forwarded-For) but ADDRESS_HEADER is not set, so every visitor appears to come from the proxy and shares its rate limits. Set ADDRESS_HEADER and XFF_DEPTH (DEPLOYMENT.md).'
+					'Requests arrive through a proxy (X-Forwarded-For) but ADDRESS_HEADER is not set, so every visitor appears to come from the proxy and shares its rate limits. Set ADDRESS_HEADER and XFF_DEPTH (docs/operations/DEPLOYMENT.md).'
 			})
 		);
 	}
