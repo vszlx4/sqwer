@@ -41,11 +41,13 @@ export async function grantAppRole(query: Query, role: string): Promise<string[]
 	await query(`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${r}`);
 	// The record of applied migrations is only read by the app, never changed by it.
 	await query(`REVOKE INSERT, UPDATE, DELETE ON public.sqwer_migrations FROM ${r}`);
-	const tables = await query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename");
+	const tables = await query("SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename");
 	const covered: string[] = [];
-	for (const { tablename } of tables) {
+	for (const { tablename, rowsecurity } of tables) {
 		const name = String(tablename);
 		if (!/^[a-z_][a-z0-9_]*$/.test(name)) continue;
+		// Every table keeps row-level security on, so Supabase's public API roles can never read it.
+		if (rowsecurity !== true) await query(`ALTER TABLE public."${name}" ENABLE ROW LEVEL SECURITY`);
 		const [{ present } = { present: false }] = await query(
 			"SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = $1 AND policyname = 'sqwer_app_access') AS present",
 			[name]
