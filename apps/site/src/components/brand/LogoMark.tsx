@@ -1,0 +1,8 @@
+// Converted from apps/web/src/lib/brand/LogoMark.svelte; drawn in currentColor.
+export function LogoMark({ className = '' }: { className?: string }) {
+	return (
+		<svg role="img" aria-label="sqwer" className={className} viewBox="0 0 335 335" fill="none">
+		<path d="M117.5 67.5C117.5 39.8858 95.1142 17.5 67.5 17.5C39.8858 17.5 17.5 39.8858 17.5 67.5C17.5 95.1142 39.8858 117.5 67.5 117.5H267.5C295.114 117.5 317.5 95.1142 317.5 67.5C317.5 39.8858 295.114 17.5 267.5 17.5C239.886 17.5 217.5 39.8858 217.5 67.5V267.5C217.5 295.114 239.886 317.5 267.5 317.5C295.114 317.5 317.5 295.114 317.5 267.5C317.5 239.886 295.114 217.5 267.5 217.5H67.5C39.8858 217.5 17.5 239.886 17.5 267.5C17.5 295.114 39.8858 317.5 67.5 317.5C95.1142 317.5 117.5 295.114 117.5 267.5V67.5Z" stroke="currentColor" strokeWidth="35"/>
+		</svg>
+	);
+}
