@@ -151,14 +151,14 @@ async function assertRole(query: (text: string) => Promise<Record<string, unknow
 	if (me?.name !== role) {
 		throw new Error(
 			`Requests would not run as the restricted database role "${role}" (they run as "${String(me?.name)}"). ` +
-				'Check that the role exists and that the DATABASE_URL user may switch to it (see DEPLOYMENT.md), or set DATABASE_APP_ROLE=none.'
+				'Check that the role exists and that the DATABASE_URL user may switch to it (see docs/operations/DEPLOYMENT.md), or set DATABASE_APP_ROLE=none.'
 		);
 	}
 }
 
 /**
  * Applies pending migrations. The check is read-only, so an application role that may only read
- * and write rows (see DEPLOYMENT.md) starts normally when the schema is up to date; schema changes
+ * and write rows (see docs/operations/DEPLOYMENT.md) starts normally when the schema is up to date; schema changes
  * are made only when a migration is pending, which needs the owner role (`npm run db:migrate`).
  */
 export async function migrate(db: Database) {

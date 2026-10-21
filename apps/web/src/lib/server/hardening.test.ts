@@ -94,7 +94,7 @@ describe('migrations under a restricted database role', () => {
 		const pg = new PGlite();
 		const owner = drizzle(pg, { schema }) as unknown as Database;
 		await migrate(owner);
-		// The role DEPLOYMENT.md recommends for the running app: rows only, no schema changes.
+		// The role docs/operations/DEPLOYMENT.md recommends for the running app: rows only, no schema changes.
 		await pg.exec('CREATE ROLE sqwer_app NOLOGIN; CREATE ROLE anon NOLOGIN; REVOKE ALL ON SCHEMA public FROM PUBLIC;');
 		const query = async (text: string, params: unknown[] = []) => (await pg.query<Record<string, unknown>>(text, params)).rows;
 		expect((await grantAppRole(query, 'sqwer_app')).length).toBeGreaterThan(15);
