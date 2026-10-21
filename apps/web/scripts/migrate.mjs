@@ -4,7 +4,7 @@
 //
 // Uses MIGRATION_DATABASE_URL when set (the owner role, which may change the schema), otherwise
 // DATABASE_URL. Run it before starting a version with new migrations when the app itself connects
-// with the restricted role (DATABASE_MIGRATIONS=manual); see DEPLOYMENT.md.
+// with the restricted role (DATABASE_MIGRATIONS=manual); see docs/operations/DEPLOYMENT.md.
 //
 // The restricted application role (DATABASE_APP_ROLE, default sqwer_app) is then created if needed
 // and given row access to every table, including new ones, and nothing more (src/lib/server/db/roles.ts).
