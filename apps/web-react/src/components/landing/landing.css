@@ -1,3 +1,4 @@
+@import './games.css';
 /* The landing page: an ordinary vertical page. Sections are bands separated by hairlines; the two dark bands
    (the hero and the close) carry the dither. The only scroll-driven moment is the reading section. */
 
@@ -5,8 +6,7 @@
 .land-in { position: relative; max-width: 1180px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); }
 .land-band { background: var(--surface); }
 #rest { border-top: 0; padding-top: clamp(56px, 9vh, 112px); padding-bottom: clamp(56px, 9vh, 104px); min-height: calc(100dvh - 64px); display: flex; flex-direction: column; justify-content: center; }
-#rest .land-in { width: 100%; display: flex; flex-direction: column; }
-@media (max-width: 767px) { #rest ul { margin-bottom: 1.5rem; } }
+#rest .land-in { width: 100%; }
 #begin { padding-bottom: clamp(40px, 6vw, 72px); }
 
 /* Dark bands: the night tokens, applied to a section or the header (same values as the dark theme). */
@@ -29,11 +29,69 @@
 .night-dither { position: absolute; inset: 0; z-index: -1; opacity: 0.55; mask-image: linear-gradient(180deg, transparent 0%, black 22%, black 78%, transparent 100%); }
 .night-dither > * { width: 100%; height: 100%; }
 
-.measure { display: flex; flex-direction: column; border-left: 1px solid var(--line-strong); padding: 28px 24px 8px; min-height: 340px; }
-.measure:first-child { border-left: 0; padding-left: 0; }
-@media (max-width: 639px) { .measure { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); } .measure:first-child { border-top: 0; } }
+.games { border-top: 1px solid var(--line); }
 
-/* Reading: the pinned typewriter. */
+/* ---------- Orbital type: the rotating circle in the hero ---------- */
+.orbital { position: relative; width: clamp(240px, 31vw, 420px); aspect-ratio: 1; }
+.orbital > svg:first-child { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.orbital-ring { transform-box: view-box; transform-origin: 210px 210px; animation: orbit 60s linear infinite; }
+.orbital-inner { animation-direction: reverse; animation-duration: 90s; }
+@keyframes orbit { to { transform: rotate(360deg); } }
+.orbital .orbital-logo { position: absolute; left: 50%; top: 50%; width: 22%; height: auto; transform: translate(-50%, -50%); color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .orbital-ring { animation: none; } }
+
+/* ---------- Rising ink: headings that fill from the baseline ---------- */
+.rising { position: relative; display: inline-block; max-width: 100%; }
+.rising-ghost { display: block; color: var(--ink); opacity: 0.15; }
+.rising-ink { position: absolute; inset: 0; display: block; }
+
+/* ---------- Contact sheet: the course ---------- */
+.sheet { display: grid; gap: 14px; }
+.sheet-head { display: flex; justify-content: space-between; gap: 16px; font: 500 12px/1 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); padding-bottom: 4px; }
+.strip { position: relative; background: #070914; padding: 6px clamp(10px, 2vw, 20px) 8px; border-radius: 3px; --ink: #0e1120; --ink-2: #4a5068; --ink-3: #5e6480; --line: #d6dae8; --line-strong: #bcc2d6; --untyped: #8e94ac; }
+.strip-title { position: absolute; left: clamp(10px, 2vw, 20px); top: 22px; z-index: 2; display: flex; align-items: center; gap: 8px; margin: 0; padding: 3px 10px 3px 8px; border-radius: 3px; background: #070914; font: 600 12.5px/1.2 var(--font-sans); }
+.strip-title span { width: 14px; height: 2px; }
+.film { height: 16px; background: repeating-linear-gradient(90deg, transparent 0 8px, #1c2240 8px 20px, transparent 20px 28px) 0 4px / 28px 8px no-repeat repeat-x; }
+.frames { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(8px, 1.4vw, 16px); margin: 0; padding: 22px 0 8px; }
+.frame { position: relative; display: flex; flex-direction: column; gap: 8px; outline: none; }
+.frame-img { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 2px; background: #f6f7fb; color: var(--ink); padding: clamp(10px, 1.6vw, 18px); transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1); }
+.frame-n { display: block; font: 800 clamp(40px, 5vw, 72px)/1 var(--font-altera-serif), Georgia, serif; color: #bcc2d6; }
+.frame-phrase { position: absolute; left: clamp(10px, 1.6vw, 18px); right: 10px; bottom: clamp(10px, 1.6vw, 18px); }
+.frame-sum { position: absolute; inset: 0; margin: 0; padding: clamp(12px, 1.8vw, 20px); background: #0e1120; color: #eef0fa; font-size: 14px; line-height: 1.5; opacity: 0; transform: translateY(8px); transition: opacity 200ms, transform 280ms cubic-bezier(0.16, 1, 0.3, 1); }
+.frame:hover .frame-sum, .frame:focus-visible .frame-sum, .frame:focus-within .frame-sum { opacity: 1; transform: none; }
+.frame:hover .frame-img, .frame:focus-visible .frame-img { transform: translateY(-3px); }
+.frame:focus-visible .frame-img { outline: 2px solid var(--accent); outline-offset: 3px; }
+.frame-cap { display: grid; gap: 1px; margin: 0; color: #eef0fa; font-size: 14px; line-height: 1.3; }
+.frame-cap b { font: 400 clamp(17px, 1.7vw, 21px)/1.15 var(--font-altera-serif), Georgia, serif; }
+.frame-cap span { font: 400 12px/1.4 var(--font-mono); color: #9298b6; }
+.frame-code { position: absolute; right: 2px; top: -16px; font: 500 10px/1 var(--font-mono); letter-spacing: 0.1em; color: #e8b34b; }
+.frame-pic { position: relative; }
+.grease { position: absolute; left: -8px; right: -10px; top: -10px; bottom: -10px; pointer-events: none; z-index: 3; }
+.grease svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.grease em { position: absolute; right: 12px; top: -13px; padding: 2px 8px; border-radius: 3px; background: var(--accent); color: #fff; font: 600 12.5px/1.3 var(--font-sans); font-style: normal; }
+@media (max-width: 719px) {
+	.frames { grid-template-columns: 1fr; padding-top: 34px; }
+	.frame-sum { position: static; opacity: 1; transform: none; padding: 10px 0 0; background: none; color: var(--ink-2); }
+	.frame-img { aspect-ratio: auto; min-height: 120px; }
+	.frame-phrase { position: static; margin-top: 12px; }
+	.frame-sum { display: none; }
+}
+
+/* ---------- World: the scroll journey ---------- */
+.world { position: relative; border-top: 1px solid var(--line); }
+.world-stage { position: relative; }
+.world-light { padding: clamp(72px, 10vw, 136px) clamp(16px, 4vw, 40px); max-width: 1180px; margin-inline: auto; }
+.world-dark { position: relative; overflow: hidden; min-height: 70vh; display: grid; place-items: center; }
+.world-rings { position: absolute; inset: 0; margin: auto; height: 100%; width: auto; max-width: 100%; opacity: 0.85; }
+.world-notes { position: relative; display: grid; gap: 28px; padding: clamp(40px, 8vw, 96px) clamp(16px, 4vw, 40px); text-align: center; }
+.world-note { max-width: 30ch; margin-inline: auto; }
+.world[data-pinned] .world-stage { height: calc(100dvh - 64px); overflow: hidden; }
+.world[data-pinned] .world-light { position: absolute; inset: 0; display: grid; align-content: center; justify-items: start; padding-inline: max(clamp(16px, 4vw, 40px), calc((100vw - 1180px) / 2 + 40px)); max-width: none; margin: 0; }
+.world[data-pinned] .world-dark { position: absolute; inset: 0; min-height: 0; clip-path: circle(0% at 50% 50%); }
+.world[data-pinned] .world-notes { position: absolute; inset: 0; display: grid; place-items: center; padding: 0; }
+.world[data-pinned] .world-note { position: absolute; opacity: 0; }
+
+/* ---------- Reading: the pinned typewriter ---------- */
 .reading { position: relative; border-top: 1px solid var(--line); padding: clamp(56px, 8vw, 104px) clamp(16px, 4vw, 40px); }
 .reading-stage { position: relative; max-width: 1180px; margin-inline: auto; }
 .reading-line { font-family: var(--font-altera-serif), Georgia, serif; font-size: clamp(30px, 4vw, 52px); line-height: 1.18; letter-spacing: -0.02em; max-width: 24ch; text-wrap: balance; }

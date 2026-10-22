@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-22T12:00:00Z",
+  "generatedAt": "2026-10-22T18:00:00Z",
   "title": "Design System: sqwer",
   "extensions": {
     "colorMeta": {
@@ -202,7 +202,7 @@
       "night": {
         "role": "neutral",
         "displayName": "Night",
-        "purpose": "Night role applied by the .night scope on the hero, the close and the header.",
+        "purpose": "Night role applied by the .night scope on the hero, games, close, world circle and header.",
         "tonalRamp": [
           "#090B13",
           "#21232D",
@@ -583,6 +583,66 @@
           "#ABB7FF",
           "#E5E9FF"
         ]
+      },
+      "film-black": {
+        "role": "neutral",
+        "displayName": "Film Black",
+        "purpose": "Contact sheet strip base and title tags.",
+        "tonalRamp": [
+          "#010204",
+          "#030408",
+          "#04050C",
+          "#060710",
+          "#393A43",
+          "#6A6B72",
+          "#9C9DA1",
+          "#DADADC"
+        ]
+      },
+      "film-edge-amber": {
+        "role": "tertiary",
+        "displayName": "Film Edge Amber",
+        "purpose": "Edge codes above contact sheet frames, on Film Black only.",
+        "tonalRamp": [
+          "#2E240F",
+          "#5D481E",
+          "#8B6B2D",
+          "#BA8F3C",
+          "#EDC26F",
+          "#F1D193",
+          "#F6E1B7",
+          "#FCF4E4"
+        ]
+      },
+      "game-card": {
+        "role": "neutral",
+        "displayName": "Game Card",
+        "purpose": "Near-black game preview cards (1px #262626 border).",
+        "tonalRamp": [
+          "#040404",
+          "#070707",
+          "#0B0B0B",
+          "#0E0E0E",
+          "#414141",
+          "#717171",
+          "#A0A0A0",
+          "#DBDBDB"
+        ]
+      },
+      "game-card-border": {
+        "role": "neutral",
+        "displayName": "Game Card Border",
+        "purpose": "1px border of the game cards.",
+        "tonalRamp": [
+          "#080808",
+          "#0F0F0F",
+          "#171717",
+          "#1E1E1E",
+          "#515151",
+          "#7D7D7D",
+          "#A8A8A8",
+          "#DEDEDE"
+        ]
       }
     },
     "typographyMeta": {
@@ -596,7 +656,7 @@
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Chapter titles; game, rank, test and principle names at 18 to 26px."
+        "purpose": "Game, rank, test and principle names at 18 to 26px; contact sheet captions."
       },
       "numeral": {
         "displayName": "Numeral",
@@ -616,7 +676,7 @@
       },
       "staff": {
         "displayName": "Staff",
-        "purpose": "Typed letters on the hero staff; 64px and 26px on phrases."
+        "purpose": "Phrase glyphs at 26px and 64px (contact sheet, close, keyboard figure)."
       },
       "figure": {
         "displayName": "Figure",
@@ -625,6 +685,14 @@
       "reading": {
         "displayName": "Reading",
         "purpose": "The one long sentence typed out by scroll; nowrap, 10% ghost characters."
+      },
+      "orbital-outer": {
+        "displayName": "Orbital outer",
+        "purpose": "Outer ring of the hero Orbital Type; Altera 30px."
+      },
+      "orbital-inner": {
+        "displayName": "Orbital inner",
+        "purpose": "Inner ring of the Orbital Type; Geist Mono 15px, accent."
       }
     },
     "gradients": [
@@ -633,14 +701,14 @@
         "value": "linear-gradient(90deg, var(--f-pinky), var(--f-ring) 18%, var(--f-middle) 32%, var(--f-index) 46%, var(--f-thumb) 50%, var(--f-index) 54%, var(--f-middle) 68%, var(--f-ring) 82%, var(--f-pinky))",
         "opacity": 0.16,
         "mask": "linear-gradient(transparent, #000 30%, #000 70%, transparent)",
-        "purpose": "The only background gradient on light surfaces; behind the staff only (hero)."
+        "purpose": "Light-surface gradient reserved for behind a staff; currently unused on the landing page (the hero staff was removed)."
       },
       {
         "name": "dither-field",
         "value": "React Bits Dither: waveColor #4A63FF on #05060D, colorNum 4, pixelSize 3, waveSpeed 0.04, waveAmplitude 0.3, waveFrequency 3, mouse interaction on, animation off under reduced motion",
         "opacity": 0.55,
         "mask": "linear-gradient(180deg, transparent 0%, black 22%, black 78%, transparent 100%)",
-        "purpose": "Owner-approved second background texture; behind the dark bands (#rest, #begin) only."
+        "purpose": "Owner-approved texture; behind the hero (#rest), the world circle and the close (#begin) only."
       },
       {
         "name": "reading-fade",
@@ -652,6 +720,16 @@
         "name": "rank-emblem",
         "value": "per tier: linear face (x1 0, y1 0, x2 0.6, y2 1), linear body (top to bottom), radial shine (cx 0.3, cy 0.15, r 0.75, white 75% to 0)",
         "purpose": "Rank emblems only (owner-directed exception to flat)."
+      },
+      {
+        "name": "film-sprocket",
+        "value": "repeating-linear-gradient(90deg, transparent 0 8px, #1c2240 8px 20px, transparent 20px 28px) 0 4px / 28px 8px",
+        "purpose": "Sprocket-hole rails above and below each contact sheet strip; the one texture on Film Black."
+      },
+      {
+        "name": "game-preview-wells",
+        "value": "radial glow of accent at 14% from below + 16px dot grid at 5% white on #0B0B0B",
+        "purpose": "Backing of the dark game preview wells only."
       }
     ],
     "shadows": [
@@ -727,11 +805,6 @@
         "purpose": "Staff playhead and numeral lift (translateY -6px, scale 1.18)."
       },
       {
-        "name": "etude-loop",
-        "value": "3 iterations, then rest; infinite on hover or focus-within",
-        "purpose": "Game miniatures."
-      },
-      {
         "name": "magnet",
         "value": "React Bits Magnet, strength 4, max offset 6px, padding 36px",
         "purpose": "Hero Get started only."
@@ -742,19 +815,39 @@
         "purpose": "Hero headline only."
       },
       {
-        "name": "reading-scrub",
-        "value": "GSAP ScrollTrigger pin, scrub 0.4, start top top+=64, end +=max(2200, 13px per character); caret held at 34% of width; characters 10% ghost to full; from 700px wide with motion allowed",
-        "purpose": "The only scroll-driven moment; below 700px or under reduced motion a plain paragraph."
-      },
-      {
         "name": "rise",
         "value": "ScrollTrigger.batch [data-rise], start top 90%, once; opacity 0 to 1, y 24px to 0, 0.8s out-expo, stagger 0.08",
         "purpose": "The only entrance; headings and figures arriving below the fold. Content on screen at load does not animate."
       },
       {
+        "name": "reading-scrub",
+        "value": "GSAP ScrollTrigger pin, scrub 1.1, start top top+=64, end +=max(1000, 5px per character), letters fade over ~4 characters, caret held at 34% of width and moved by fractions; from 700px wide with motion allowed",
+        "purpose": "Pinned scene 1; below 700px or under reduced motion a plain paragraph."
+      },
+      {
+        "name": "world-journey",
+        "value": "Pin for 3.1 viewport heights, scrub 1; dark clip-path circle(0% to 75% at 50% 50%), light page scale 1.18 and fade; four rings rotate +/-150deg; notes fade in turn; circle closes and the light page returns",
+        "purpose": "Pinned scene 2; under 700px or reduced motion a plain night band listing the parts."
+      },
+      {
+        "name": "rising-ink",
+        "value": "clip-path inset(100% 0 0 0) to inset(0), scrub 0.8, start top 92%, end top 55%; ghost at 15% ink",
+        "purpose": "Every section heading; fully inked without JS or under reduced motion."
+      },
+      {
+        "name": "orbital-turn",
+        "value": "CSS rotate 360deg linear infinite: outer ring 60s, inner ring 90s reverse; none under reduced motion",
+        "purpose": "Hero Orbital Type."
+      },
+      {
+        "name": "game-previews",
+        "value": "Continuous CSS loops: fall 3.4s linear, wave 1.1s, fuse 2.4s, trails 3.6s and 4.4s, echo 3.6s; none under reduced motion",
+        "purpose": "Game cards in the Games band."
+      },
+      {
         "name": "reduced-motion",
         "value": "(prefers-reduced-motion: reduce)",
-        "purpose": "Every animation sits under gsap.matchMedia no-preference; CSS loops, the staff demo, the Reading scrub and the dither motion are removed."
+        "purpose": "Every animation sits under gsap.matchMedia no-preference or a CSS reduced-motion rule; orbital rings, previews, scrubs and dither motion are removed."
       }
     ],
     "breakpoints": [
@@ -782,13 +875,17 @@
     "layout": {
       "column": "1180px",
       "gutter": "clamp(16px, 4vw, 40px)",
-      "chapter-grid": "1 column; 2 from 640px; 3 from 1024px",
       "rank-grid": "2 columns; 3 from 640px; 5 from 1024px",
-      "part-bracket": "2px, movement colour",
       "hero-min-height": "100dvh - 64px",
-      "reading-pin": "at least 2200px of scroll, 13px per character",
+      "reading-pin": "max(1000, 5px per character) of scroll, about 1100px",
       "reading-caret-x": "34% of width",
-      "reading-edge-fade": "clamp(40px, 8vw, 120px)"
+      "reading-edge-fade": "clamp(40px, 8vw, 120px)",
+      "contact-sheet": "4 strips, 3 frames each at 16:10; 1 column below 720px",
+      "game-grid": "3 columns; 2 below 1024px; 1 below 640px; 14px gap",
+      "orbital": "clamp(240px, 31vw, 420px) square",
+      "world-pin": "about 3.1 viewport heights",
+      "section-order": "Rest, Hands, Reading, World, Score, Practise, Games, Grow, Technique, Tempo, Begin",
+      "part-bracket": "2px mark on each strip title tag, movement colour"
     }
   },
   "components": [
@@ -817,20 +914,28 @@
       "css": ".ds-header { display: flex; align-items: center; gap: 32px; height: 64px; padding: 0 24px; border-bottom: 1px solid #1f2540; background: color-mix(in srgb, #05060d 85%, transparent); backdrop-filter: blur(12px); font-family: var(--font-sans); } .ds-word { font-size: 20px; color: #eef0fa; } .ds-header nav { display: flex; gap: 28px; } .ds-header nav a { font-size: 15px; font-weight: 500; color: #a3a9c4; text-decoration: none; transition: color 150ms; } .ds-header nav a:hover { color: #eef0fa; } .ds-right { margin-left: auto; display: flex; align-items: center; gap: 16px; } .ds-signin { font-size: 15px; font-weight: 500; color: #eef0fa; text-decoration: none; } .ds-cta { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 20px; border-radius: 3px; background: #7088ff; color: #050714; font-weight: 600; font-size: 15px; text-decoration: none; } .ds-cta:hover { filter: brightness(1.1); } .ds-header a:focus-visible { outline: 2px solid #eef0fa; outline-offset: 2px; box-shadow: 0 0 0 5px #7088ff; }"
     },
     {
-      "name": "The Staff",
+      "name": "Orbital Type",
       "kind": "custom",
       "refersTo": null,
-      "description": "Signature: home row on five lines over the chord, finger numerals above, bar line between hands, ultramarine playhead.",
-      "html": "<div class=\"ds-staff\"><div class=\"ds-staff-chord\"></div><div class=\"ds-staff-lines\"><i></i><i></i><i></i><i></i><i></i></div><span class=\"ds-staff-bar\"></span><span class=\"ds-staff-playhead\"></span><ol><li class=\"ds-lit\"><b style=\"color:var(--f-pinky)\">5</b><span>a</span><em style=\"background:var(--f-pinky);opacity:0\"></em></li><li class=\"ds-lit\"><b style=\"color:var(--f-ring)\">4</b><span>s</span><em style=\"background:var(--f-ring);opacity:0\"></em></li><li class=\"ds-lit\"><b style=\"color:var(--f-middle)\">3</b><span>d</span><em style=\"background:var(--f-middle);opacity:0\"></em></li><li class=\"ds-lit\"><b style=\"color:var(--f-index)\">2</b><span>f</span><em style=\"background:var(--f-index);opacity:1\"></em></li><li class=\"\"><b style=\"color:var(--f-index)\">2</b><span>j</span><em style=\"background:var(--f-index);opacity:1\"></em></li><li class=\"\"><b style=\"color:var(--f-middle)\">3</b><span>k</span><em style=\"background:var(--f-middle);opacity:0\"></em></li><li class=\"\"><b style=\"color:var(--f-ring)\">4</b><span>l</span><em style=\"background:var(--f-ring);opacity:0\"></em></li><li class=\"\"><b style=\"color:var(--f-pinky)\">5</b><span>;</span><em style=\"background:var(--f-pinky);opacity:0\"></em></li></ol></div>",
-      "css": ".ds-staff { position: relative; isolation: isolate; overflow: hidden; padding: 36px 24px; background: var(--bg); } .ds-staff-chord { position: absolute; inset: 0; z-index: -1; opacity: 0.16; background: linear-gradient(90deg, var(--f-pinky), var(--f-ring) 18%, var(--f-middle) 32%, var(--f-index) 46%, var(--f-thumb) 50%, var(--f-index) 54%, var(--f-middle) 68%, var(--f-ring) 82%, var(--f-pinky)); -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); } .ds-staff-lines { position: absolute; left: 0; right: 0; top: 50%; height: 120px; transform: translateY(-50%); display: flex; flex-direction: column; justify-content: space-between; } .ds-staff-lines i { height: 1px; background: var(--line-strong); } .ds-staff-bar { position: absolute; top: 16%; bottom: 16%; left: 50%; width: 1px; background: var(--ink-3); } .ds-staff-playhead { position: absolute; top: 14%; bottom: 14%; left: 47%; width: 2px; background: var(--accent); transition: transform 300ms cubic-bezier(0.16,1,0.3,1); } .ds-staff ol { position: relative; display: flex; justify-content: space-between; align-items: flex-end; list-style: none; margin: 0; padding: 0; } .ds-staff li { display: flex; flex-direction: column; align-items: center; } .ds-staff li b { font-family: var(--font-serif); font-weight: 800; font-size: 24px; line-height: 1; opacity: 0.35; } .ds-staff li.ds-lit b { opacity: 1; } .ds-staff li span { margin-top: 12px; font-family: var(--font-mono); font-size: 52px; line-height: 1; color: var(--untyped); transition: color 200ms; } .ds-staff li.ds-lit span { color: var(--ink); } .ds-staff li em { margin-top: 8px; width: 24px; height: 3px; border-radius: 2px; }"
+      "description": "Signature hero circle: logo mark centre, outer ring Altera 30px turning 60s, inner ring Geist Mono 15px accent turning 90s in reverse.",
+      "html": "<div class=\"ds-orbital\"><svg viewBox=\"0 0 420 420\" aria-hidden=\"true\"><defs><path id=\"dso\" d=\"M 210 210 m -172 0 a 172 172 0 1 1 344 0 a 172 172 0 1 1 -344 0\"/><path id=\"dsi\" d=\"M 210 210 m -128 0 a 128 128 0 1 1 256 0 a 128 128 0 1 1 -256 0\"/></defs><circle cx=\"210\" cy=\"210\" r=\"196\" fill=\"none\" stroke=\"#2c3354\"/><circle cx=\"210\" cy=\"210\" r=\"104\" fill=\"none\" stroke=\"#2c3354\"/><g class=\"ds-o1\"><text font-size=\"30\" fill=\"#eef0fa\" style=\"font-family:var(--font-serif),Georgia,serif\"><textPath href=\"#dso\" textLength=\"1076\" lengthAdjust=\"spacing\">sqwer · learn to type with every finger · sqwer · one key at a time · </textPath></text></g><g class=\"ds-o2\"><text font-size=\"15\" letter-spacing=\"2\" fill=\"#7088ff\" style=\"font-family:var(--font-mono),monospace\"><textPath href=\"#dsi\" textLength=\"800\" lengthAdjust=\"spacing\">a s d f · j k l ; · home row · 5 4 3 2 · 2 3 4 5 · </textPath></text></g></svg></div>",
+      "css": ".ds-orbital { width: 320px; aspect-ratio: 1; padding: 0; background: #05060d; } .ds-orbital svg { width: 100%; height: 100%; } .ds-o1, .ds-o2 { transform-box: view-box; transform-origin: 210px 210px; animation: ds-orbit 60s linear infinite; } .ds-o2 { animation-direction: reverse; animation-duration: 90s; } @keyframes ds-orbit { to { transform: rotate(360deg); } } @media (prefers-reduced-motion: reduce) { .ds-o1, .ds-o2 { animation: none; } }"
     },
     {
-      "name": "Measure",
+      "name": "Contact sheet strip",
       "kind": "card",
-      "refersTo": "measure",
-      "description": "One chapter in a part grid: serif numeral (Ink Quiet), title, summary, phrase, mono lesson count; the part title sits on a 2px bracket in its movement colour above the grid.",
-      "html": "<div class=\"ds-part\"><h3 class=\"ds-bracket\">Letters</h3><div class=\"ds-measure\"><p class=\"ds-num\">1</p><h4>The home row</h4><p class=\"ds-sum\">Where your fingers rest, and the eight keys under them.</p><p class=\"ds-count\">10 lessons</p></div></div>",
-      "css": ".ds-part { width: 320px; font-family: var(--font-sans); } .ds-bracket { margin: 0; padding-top: 12px; border-top: 2px solid var(--teal); color: var(--teal); font-size: 13.5px; font-weight: 600; } .ds-measure { padding: 28px 24px 8px; border-left: 1px solid var(--line-strong); } .ds-num { margin: 0; font-family: var(--font-serif); font-weight: 800; font-size: 56px; line-height: 1; color: var(--ink-3); } .ds-measure h4 { margin: 12px 0 0; font-family: var(--font-serif); font-weight: 400; font-size: 28px; line-height: 1.1; color: var(--ink); } .ds-sum { margin: 8px 0 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); } .ds-count { margin: 20px 0 0; font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); }"
+      "refersTo": "film-strip",
+      "description": "One part as film: Film Black strip, sprocket rails, title tag, three Porcelain frames with numeral, edge code and caption.",
+      "html": "<div class=\"ds-strip\"><p class=\"ds-st\"><span></span>Letters</p><div class=\"ds-film\"></div><ol class=\"ds-frames\"><li><div class=\"ds-pic\"><div class=\"ds-img\"><b>1</b></div><span class=\"ds-grease\"><em>Start here</em></span></div><p class=\"ds-cap\"><i>The home row</i><span>10 lessons</span></p><span class=\"ds-code\">1A ▸</span></li><li><div class=\"ds-img\"><b>2</b></div><p class=\"ds-cap\"><i>Reaching up</i><span>10 lessons</span></p><span class=\"ds-code\">2A ▸</span></li></ol><div class=\"ds-film\"></div></div>",
+      "css": ".ds-strip { position: relative; width: 420px; background: #070914; padding: 6px 14px 8px; border-radius: 3px; font-family: var(--font-sans); } .ds-st { position: absolute; left: 14px; top: 22px; z-index: 2; display: flex; align-items: center; gap: 8px; margin: 0; padding: 3px 10px 3px 8px; border-radius: 3px; background: #070914; color: #12A088; font-size: 12.5px; font-weight: 600; } .ds-st span { width: 14px; height: 2px; background: #12A088; } .ds-film { height: 16px; background: repeating-linear-gradient(90deg, transparent 0 8px, #1c2240 8px 20px, transparent 20px 28px) 0 4px / 28px 8px no-repeat repeat-x; } .ds-frames { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; list-style: none; margin: 0; padding: 26px 0 8px; } .ds-frames li { position: relative; display: flex; flex-direction: column; gap: 8px; } .ds-pic { position: relative; } .ds-img { aspect-ratio: 16/10; border-radius: 2px; background: #f6f7fb; padding: 12px; transition: transform 280ms cubic-bezier(0.16,1,0.3,1); } .ds-img b { font-family: var(--font-serif); font-weight: 800; font-size: 48px; line-height: 1; color: #bcc2d6; } .ds-frames li:hover .ds-img { transform: translateY(-3px); } .ds-grease { position: absolute; inset: -10px -10px -10px -8px; border: 4px solid #7088ff; border-radius: 50%; transform: rotate(-3deg); pointer-events: none; } .ds-grease em { position: absolute; right: 12px; top: -15px; padding: 2px 8px; border-radius: 3px; background: #7088ff; color: #fff; font-size: 12.5px; font-style: normal; font-weight: 600; transform: rotate(3deg); } .ds-cap { display: grid; margin: 0; color: #eef0fa; } .ds-cap i { font-family: var(--font-serif); font-style: normal; font-size: 18px; } .ds-cap span { font-family: var(--font-mono); font-size: 12px; color: #9298b6; } .ds-code { position: absolute; right: 2px; top: -16px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: #e8b34b; }"
+    },
+    {
+      "name": "Game card",
+      "kind": "card",
+      "refersTo": "game-card",
+      "description": "Near-black card with a live preview well, in the Games night band (key-hunt preview shown, static).",
+      "html": "<article class=\"ds-game\"><div class=\"ds-prev\"><span class=\"ds-mk\">a</span><span class=\"ds-mk ds-t\">f</span><span class=\"ds-mk\">j</span><i class=\"ds-fuse\"></i></div><h3>Key hunt</h3><p>Find the lit key before the fuse runs out.</p></article>",
+      "css": ".ds-game { width: 300px; display: flex; flex-direction: column; gap: 8px; padding: 14px 14px 20px; border-radius: 3px; border: 1px solid #262626; background: #121212; color: #f2f2ee; font-family: var(--font-sans); transition: transform 220ms, border-color 220ms; } .ds-game:hover { transform: translateY(-3px); border-color: #3a3a3a; } .ds-prev { position: relative; height: 170px; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 4px; border-radius: 3px; border: 1px solid #1f1f1f; background: radial-gradient(120% 90% at 50% 120%, rgba(112,136,255,0.14), transparent 60%), #0b0b0b; } .ds-mk { display: grid; place-items: center; width: 20px; height: 22px; border-radius: 3px; border: 1px solid #2c2c2c; border-bottom-width: 2px; background: #151515; color: #77776f; font-family: var(--font-mono); font-size: 10px; font-weight: 600; } .ds-t { border-color: #7088ff; background: #7088ff; color: #05060d; box-shadow: 0 0 16px rgba(112,136,255,0.6); } .ds-fuse { flex-basis: 100%; width: 120px; height: 4px; margin: 14px auto 0; border-radius: 3px; background: linear-gradient(90deg, #7088ff, #9a8cf2); } .ds-game h3 { margin: 8px 0 0; font-size: 18px; font-weight: 700; } .ds-game p { margin: 0; font-size: 14.5px; line-height: 1.5; color: #b9b9b3; }"
     },
     {
       "name": "Step bar",
@@ -860,7 +965,7 @@
       "name": "The Reading",
       "kind": "custom",
       "refersTo": "reading-line",
-      "description": "Static form of the pinned sentence: Altera 400, ghost characters at 10% opacity, 4px ultramarine caret at 34%, edge fades in the surface colour.",
+      "description": "Static form of the pinned sentence: Altera 400, ghost characters at 10% opacity, 4px ultramarine caret at 34% of width, edge fades; scrub 1.1, about 1100px of scroll.",
       "html": "<div class=\"ds-reading\"><p><span class=\"ds-on\">Your fingers already know</span><span class=\"ds-ghost\"> the way home.</span></p><i class=\"ds-caret\"></i></div>",
       "css": ".ds-reading { position: relative; overflow: hidden; padding: 56px 0; background: var(--surface); } .ds-reading p { margin: 0; padding-left: 34%; white-space: nowrap; font-family: var(--font-serif); font-weight: 400; font-size: 64px; line-height: 1.18; letter-spacing: -0.02em; color: var(--ink); } .ds-ghost { opacity: 0.1; } .ds-caret { position: absolute; left: 34%; top: 50%; width: 4px; height: 1.05em; margin-top: -0.55em; font-size: 64px; background: var(--accent); } .ds-reading::before, .ds-reading::after { content: \"\"; position: absolute; top: 0; bottom: 0; width: 8vw; pointer-events: none; } .ds-reading::before { left: 0; background: linear-gradient(90deg, var(--surface), transparent); } .ds-reading::after { right: 0; background: linear-gradient(270deg, var(--surface), transparent); }"
     },
@@ -875,15 +980,16 @@
   ],
   "narrative": {
     "northStar": "The Fingering Edition",
-    "overview": "sqwer is set like a printed piano method. Typing is taught as notation: every typed letter sits on a five-line staff in Geist Mono, its finger number (1 thumb to 5 little finger, counted per hand) engraved above it in that finger's colour, and the course is a score of twelve measures, grouped into movements, read down an ordinary page. Staves, numerals, bar lines and tempo terms are working grammar that carries real information (which finger, which chapter, what speed); they are never ornament, and the page does not dress as a concert hall.\n\nThe paper is cool porcelain, the ink is near-black navy, and one ultramarine does exactly two jobs: the action and the playhead (the staff's cursor, the reading caret). Five finger colours are the only other chromatic voice, and they always travel with a numeral. PP Altera Serif sets titles like engraved score headings; PP Neue Montreal carries prose; Geist Mono carries anything typed or measured. Density is generous and calm: wide sections, long measures, hairlines instead of boxes, so that the typing surface is the loudest thing on any screen. Night is deep navy, not grey, and keeps the same grammar: the hero, the close and the header stand in it on the landing page.\n\nMotion is a playhead. Things sweep left to right, ease out from visible defaults, and stop. The landing page is an ordinary vertical page with exactly one scroll-driven moment, the Reading, where a long sentence is typed out under a held caret as you scroll. Around a typing surface everything else recedes; under reduced motion every loop, scrub and entrance is removed and the content stands complete.",
+    "overview": "sqwer is set like a printed piano method. Typing is taught as notation: every typed letter sits on a five-line staff in Geist Mono, its finger number (1 thumb to 5 little finger, counted per hand) engraved above it in that finger's colour, and the course is laid out as a contact sheet of twelve frames, grouped into four strips, on an ordinary vertical page. Staves, numerals, bar lines and tempo terms are working grammar that carries real information (which finger, which chapter, what speed); they are never ornament, and the page does not dress as a concert hall.\n\nThe paper is cool porcelain, the ink is near-black navy, and one ultramarine does exactly two jobs: the action and the playhead (the staff's cursor, the reading caret). Five finger colours are the only other chromatic voice, and they always travel with a numeral. PP Altera Serif sets titles like engraved score headings; PP Neue Montreal carries prose; Geist Mono carries anything typed or measured. Density is generous and calm: wide sections, long measures, hairlines instead of boxes, so that the typing surface is the loudest thing on any screen. Night is deep navy, not grey, and keeps the same grammar: the hero, the games, the close and the header stand in it on the landing page, and the world journey opens a night circle in the middle of a light page.\n\nMotion is a playhead. Things sweep left to right, ease out from visible defaults, and stop. The landing page is an ordinary vertical page with two pinned scroll moments, the Reading (a long sentence typed out under a held caret) and the World (a circle of night opens and the four parts turn on rings of type), plus headings that fill with ink from the baseline as they arrive. Under reduced motion every loop, scrub and entrance is removed and the content stands complete.",
     "keyCharacteristics": [
       "Every typed glyph is set on a staff with its finger numeral above it, in its finger colour.",
       "One ultramarine (Ultramarine Night on dark bands) for the action and the playhead or caret; nothing else is ultramarine-filled.",
       "Serif titles at weight 400, serif numerals at 800, mono for typed text and figures, sans for prose.",
       "Hairlines and tonal bands, never cards or shadows, structure the page.",
       "Every corner is 3px; numeral discs and the rank emblems are the only rounded forms.",
-      "Light porcelain pages alternate with dark night bands that carry a dithered wave field.",
-      "Only the Reading scrubs with scroll; nothing else moves for long."
+      "Light porcelain pages alternate with dark night bands (hero, games, close) and a scroll-opened night circle; the hero and close carry a dithered wave field.",
+      "Type travels in circles and film: the Orbital Type, the World rings and the contact sheet are the signature forms.",
+      "Only the Reading and the World pin; headings rise with ink; nothing else moves for long."
     ],
     "rules": [
       {
@@ -898,12 +1004,12 @@
       },
       {
         "name": "The Chord Rule",
-        "body": "The only background gradient on a light surface is the chord: a faint (16% opacity) horizontal wash of the five finger colours, mirrored about the thumbs (little, ring, middle, index, thumb, index, middle, ring, little), masked to fade at top and bottom. It sits behind the staff only. A single finger's wash fading from fingertip to palm inside the hands engraving is colouring, not a second gradient. The 8vw edge fades of the Reading are veils of the surface colour, with no hue.",
+        "body": "The only background gradient on a light surface is the chord: a faint (16% opacity) horizontal wash of the five finger colours, mirrored about the thumbs (little, ring, middle, index, thumb, index, middle, ring, little), masked to fade at top and bottom. It sat behind the hero staff, which has been removed; the landing page currently builds no chord, and any future use stays behind a staff. A single finger's wash fading from fingertip to palm inside the hands engraving is colouring, not a second gradient. The 8vw edge fades of the Reading are veils of the surface colour, with no hue.",
         "section": "colors"
       },
       {
         "name": "The Dither Field Rule",
-        "body": "The owner-approved second background texture is the dither: a wave field of Dither Wave on Night (React Bits Dither, four colours, 3px pixels, wave speed 0.04, mouse interaction on, still under reduced motion) at 55% opacity, masked to fade to nothing at top and bottom. It sits behind the dark bands only (the hero and the close), never behind light sections, the header or the staff, and never carries the chord. The chord stays behind the staff; the dither stays behind night.",
+        "body": "The owner-approved second background texture is the dither: a wave field of Dither Wave on Night (React Bits Dither, four colours, 3px pixels, wave speed 0.04, mouse interaction on, still under reduced motion) at 55% opacity, masked to fade to nothing at top and bottom. It sits behind the hero, the world circle and the close only, never behind light sections, the Games band, the header or a staff, and never carries the chord. The Dither component releases its WebGL context only when the canvas leaves the page, so a development remount does not blank it.",
         "section": "colors"
       },
       {
@@ -928,29 +1034,30 @@
       }
     ],
     "dos": [
-      "Do set every typed glyph in Geist Mono on a five-line staff, with its finger numeral (piano convention per hand, thumb 1 to little finger 5) above it in that finger's colour.",
-      "Do keep Ultramarine (#3355FF, or #7088FF on night) to the action, the playhead, the caret and the next-key cue; render every other emphasis in Engraving Ink weight.",
-      "Do use 3px for every rectangular corner, and reserve curves for numeral discs and the rank emblems.",
-      "Do separate sections with hairlines and full-bleed Porcelain Band, not shadows or boxed cards.",
-      "Do move things as a playhead moves: left to right, ease out (out-expo), from visible defaults, then rest; loops play three times and stop.",
-      "Do put every animation under the reduced-motion media condition so it disappears in one place.",
-      "Do let the Reading fall back to a plain paragraph below 700px and under reduced motion, with every character visible.",
-      "Do limit entrance to the rise, and only for headings and figures arriving below the fold; leave what is on screen at load still.",
-      "Do put the dither behind the dark bands only, masked to fade at top and bottom, and keep the light sections plain.",
-      "Do lay chapters out as a grid per part under a 2px bracket in the movement colour.",
-      "Do give every figure a unit and a definition in a caption beneath its scale.",
-      "Do write copy in formal British English, sentence case, with no contractions, exclamation marks or em dashes."
+      "**Do** set every typed glyph in Geist Mono on a five-line staff, with its finger numeral (piano convention per hand, thumb 1 to little finger 5) above it in that finger's colour.",
+      "**Do** keep Ultramarine (#3355FF, or #7088FF on night) to the action, the playhead, the caret and the next-key cue; render every other emphasis in Engraving Ink weight.",
+      "**Do** use 3px for every rectangular corner, and reserve curves for numeral discs and the rank emblems.",
+      "**Do** separate sections with hairlines and full-bleed Porcelain Band, not shadows or boxed cards.",
+      "**Do** move things as a playhead moves: left to right, ease out (out-expo), from visible defaults, then rest; loops play three times and stop.",
+      "**Do** put every animation under the reduced-motion media condition so it disappears in one place.",
+      "**Do** let the Reading and the World fall back to plain content below 700px and under reduced motion, with every character visible and the parts listed.",
+      "**Do** set every section heading in Rising Ink: a 15% ghost with the inked copy rising over it.",
+      "**Do** limit entrance to the rise, and only for headings and figures arriving below the fold; leave what is on screen at load still.",
+      "**Do** put the dither behind the hero, the world circle and the close only, masked to fade at top and bottom, and keep the light sections and the Games band plain.",
+      "**Do** lay the course out as a contact sheet: one strip per part, three frames, the part title in its movement colour.",
+      "**Do** give every figure a unit and a definition in a caption beneath its scale.",
+      "**Do** write copy in formal British English, sentence case, with no contractions, exclamation marks or em dashes."
     ],
     "donts": [
-      "Don't place small labels above headings. In this world labels belong to a mark: a bracket, the playhead, a scale tick.",
-      "Don't use a finger colour without its numeral or a text label.",
-      "Don't add another background gradient or texture: the chord stays behind the staff and the dither behind dark bands.",
-      "Don't scroll anything horizontally or pin anything but the Reading.",
-      "Don't use staves, numerals or tempo terms as ornament: each must carry a real finger, chapter or speed.",
-      "Don't dress the page as a concert hall: no instruments or sheet-music textures.",
-      "Don't add a second filled button beside Get started.",
-      "Don't use drop shadows or metal gradients on anything but the rank emblems.",
-      "Don't animate numbers up to their value in headlines."
+      "**Don't** place small labels above headings. In this world labels belong to a mark: a bracket, the playhead, a scale tick.",
+      "**Don't** use a finger colour without its numeral or a text label.",
+      "**Don't** add another background gradient or texture: the chord stays behind a staff and the dither behind the hero, world and close.",
+      "**Don't** scroll anything horizontally or pin anything but the Reading and the World.",
+      "**Don't** use staves, numerals or tempo terms as ornament: each must carry a real finger, chapter or speed.",
+      "**Don't** dress the page as a concert hall: no instruments or sheet-music textures.",
+      "**Don't** add a second filled button beside Get started.",
+      "**Don't** use drop shadows or metal gradients on anything but the rank emblems.",
+      "**Don't** animate numbers up to their value in headlines."
     ]
   }
 }

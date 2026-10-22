@@ -1,17 +1,19 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { LogoWordmark } from '@/components/brand/LogoWordmark';
 import { ArrowIcon, ButtonLink } from '@/components/ui/Button';
 import Magnet from '@/components/reactbits/Magnet';
 import SplitText from '@/components/reactbits/SplitText';
 import { LINKS } from '@/lib/links';
-import { course, GAMES, LIVE, PART_COLOUR, PRINCIPLES, RANK_AT, STEP_KINDS, TEMPO } from './data';
+import { course, GAMES, LIVE, PRINCIPLES, STEP_KINDS, TEMPO } from './data';
+import { ContactSheet } from './ContactSheet';
+import { GamePreview } from './GamePreview';
 import { HandsFigure } from './HandsFigure';
-import { HeroStaff } from './HeroStaff';
+import { OrbitalType } from './OrbitalType';
+import { RisingInk } from './RisingInk';
 import { NightDither } from './NightDither';
 import { RankBadge } from './RankBadge';
 import { Keyboard } from './Keyboard';
 import { Phrase } from './Phrase';
-import './etude.css';
 
 // The panels of the score, left to right. Each is a measure group; widths apply only while the page is pinned.
 
@@ -65,31 +67,35 @@ export function Header() {
 export function Opening() {
 	return (
 		<Panel id="rest" label="Rest your fingers" night>
-			<h1 id="hero-title" className="font-serif text-[clamp(44px,6.1vw,88px)] leading-[0.98] tracking-[-0.03em]">
-				<span className="block">
-					<SplitText tag="span" text="Learn to type properly," splitType="words" effect="rise" trigger="load" delay={70} duration={0.9} textAlign="left" />
-				</span>
-				<span className="block">
-					<SplitText tag="span" text="one key at a time." splitType="words" effect="rise" trigger="load" delay={400} duration={0.9} textAlign="left" />
-				</span>
-			</h1>
-			<p className={`${LEDE} mt-[clamp(14px,3vh,28px)]`}>
-				Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and for self-taught typists who want to do it right.
-			</p>
-			<ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[14px] font-semibold">
-				{['Free', 'Starts from zero', 'No ads or tracking'].map((f) => (
-					<li key={f} className="flex items-center gap-2">
-						<span aria-hidden="true" className="h-[2px] w-3 bg-accent" />
-						{f}
-					</li>
-				))}
-			</ul>
-			<HeroStaff className="staff-wide my-[clamp(20px,4vh,44px)] max-md:order-2" />
-			<div className="flex flex-wrap items-center gap-x-6 gap-y-3 max-md:order-1 max-md:mb-6">
-				<GetStarted large />
-				<p className="text-[15px] text-ink-2">
-					Begin with <b className="font-semibold text-ink">F and J</b>, about four minutes. <a href="#score" className="font-semibold text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink">See the whole course</a>
-				</p>
+			<div className="grid items-center gap-[clamp(32px,5vw,72px)] lg:grid-cols-[1fr_auto]">
+				<div>
+					<h1 id="hero-title" className="font-serif text-[clamp(44px,5.4vw,80px)] leading-[0.98] tracking-[-0.03em]">
+						<span className="block">
+							<SplitText tag="span" text="Learn to type properly," splitType="words" effect="rise" trigger="load" delay={70} duration={0.9} textAlign="left" />
+						</span>
+						<span className="block">
+							<SplitText tag="span" text="one key at a time." splitType="words" effect="rise" trigger="load" delay={400} duration={0.9} textAlign="left" />
+						</span>
+					</h1>
+					<p className={`${LEDE} mt-[clamp(14px,3vh,28px)]`}>
+						Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and for self-taught typists who want to do it right.
+					</p>
+					<ul className="mt-4 mb-[clamp(24px,4vh,40px)] flex flex-wrap gap-x-5 gap-y-1 text-[14px] font-semibold">
+						{['Free', 'Starts from zero', 'No ads or tracking'].map((f) => (
+							<li key={f} className="flex items-center gap-2">
+								<span aria-hidden="true" className="h-[2px] w-3 bg-accent" />
+								{f}
+							</li>
+						))}
+					</ul>
+					<div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+						<GetStarted large />
+						<p className="text-[15px] text-ink-2">
+							Begin with <b className="font-semibold text-ink">F and J</b>, about four minutes. <a href="#score" className="font-semibold text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink">See the whole course</a>
+						</p>
+					</div>
+				</div>
+				<OrbitalType className="justify-self-center max-lg:order-first" />
 			</div>
 		</Panel>
 	);
@@ -100,8 +106,8 @@ export function HandsPanel() {
 		<Panel id="hands" labelled>
 			<div className="grid items-center gap-[clamp(24px,4vw,64px)] lg:grid-cols-[0.8fr_1.2fr]">
 				<div>
-					<h2 id="hands-title" className={H2} data-rise>
-						Every finger has a number, and a home.
+					<h2 id="hands-title" className={H2}>
+						<RisingInk>Every finger has a number, and a home.</RisingInk>
 					</h2>
 					<p className={`${LEDE} mt-5`}>
 						Counted from the thumb, 1, to the little finger, 5, on each hand. Your fingers rest on the home row; the small bumps on F and J let your index fingers find it without looking. Type on the staff and the hands answer.
@@ -110,7 +116,7 @@ export function HandsPanel() {
 						<b className="font-semibold text-ink">Lesson 1</b> starts with the two index fingers on F and J. Each lesson after that adds one or two keys, always with the finger that owns them. sqwer watches which finger you actually use and brings a key back until the habit settles.
 					</p>
 				</div>
-				<figure data-rise>
+				<figure>
 					<HandsFigure />
 				</figure>
 			</div>
@@ -121,8 +127,8 @@ export function HandsPanel() {
 export function Chapters() {
 	return (
 		<Panel id="score" labelled band>
-			<h2 id="score-title" className={H2} data-rise>
-				One score, {course.chapters.length} measures, {course.lessons} lessons.
+			<h2 id="score-title" className={H2}>
+				<RisingInk>{`One score, ${course.chapters.length} measures, ${course.lessons} lessons.`}</RisingInk>
 			</h2>
 			<p className={`${LEDE} mt-5`}>
 				Each chapter adds a few keys or one skill, and gives you everything the next chapter needs. Start at the beginning, or let a one-minute placement test find your chapter.
@@ -132,40 +138,10 @@ export function Chapters() {
 					Take the placement test
 				</a>
 			</p>
-			<div className="mt-[clamp(40px,6vw,72px)] grid gap-[clamp(36px,5vw,56px)]">
-				{course.parts.map((part, pi) => (
-					<div key={part.id} data-rise>
-						<h3 className="relative border-t-2 pt-3 text-[13.5px] font-semibold" style={{ borderColor: PART_COLOUR[pi], color: PART_COLOUR[pi] }}>
-							{part.title}
-						</h3>
-						<ol className="mt-1 grid sm:grid-cols-2 lg:grid-cols-3">
-							{part.chapters.map((n) => {
-								const c = course.chapters.find((x) => x.number === n)!;
-								const rank = RANK_AT[c.number] ? course.ranks[RANK_AT[c.number] - 1] : null;
-								const keys = c.newKeys.filter((k) => k.length === 1);
-								const groups = keys.length ? [keys.slice(0, 5).join(''), keys.slice(5, 10).join('')].filter(Boolean) : c.words.slice(0, 3);
-								return (
-									<li key={c.number} className="measure">
-										<p className="font-serif text-[clamp(44px,4.6vw,64px)] leading-none font-extrabold text-ink-3">{c.number}</p>
-										<h4 className="mt-3 font-serif text-[clamp(22px,2.2vw,30px)] leading-[1.1]">{c.title}</h4>
-										<p className="mt-2 text-[15px] leading-[1.55] text-ink-2">{c.summary}</p>
-										<Phrase groups={groups} label={keys.length ? `New keys: ${keys.join(' ')}` : `Practised words: ${groups.join(', ')}`} className="mt-6" />
-										<p className="mt-5 font-mono text-[13px] text-ink-2">
-											{c.lessons.length} lessons{keys.length ? '' : c.newKeys.length ? ' · both Shift keys' : ''}
-										</p>
-										{rank && (
-											<p className="mt-auto pt-5 text-[13.5px]">
-												Around here: <b className="font-semibold">{rank.name}</b>
-											</p>
-										)}
-									</li>
-								);
-							})}
-						</ol>
-					</div>
-				))}
+			<div className="mt-[clamp(32px,5vw,56px)]">
+				<ContactSheet />
 			</div>
-			<p className="mt-[clamp(32px,5vw,56px)] border-t border-line pt-5 text-[15px]">
+			<p className="mt-[clamp(28px,4vw,48px)] text-[15px]">
 				<b className="font-serif text-[20px] font-normal">The end of the score.</b> <span className="text-ink-2">The whole course, and the rank of Virtuoso or Legend for those who earn it.</span>{' '}
 				<a href="#" data-unwired={LINKS.learn.href} className="font-semibold underline decoration-line-strong underline-offset-4 hover:decoration-ink">
 					Open the full roadmap
@@ -175,49 +151,22 @@ export function Chapters() {
 	);
 }
 
-function Etude({ kind }: { kind: (typeof GAMES)[number]['kind'] }) {
-	const n = (i: number) => ({ ['--n' as string]: i }) as CSSProperties;
-	return (
-		<div aria-hidden="true" className="etude rounded-[3px] bg-bg">
-			{kind === 'falling' && ['f', 'j', 'k', 'd', 'g'].map((l, i) => <span key={l} className="note" style={{ left: `${12 + i * 18}%`, ...n(i) }}>{l}</span>)}
-			{kind === 'words' && ['steady', 'hand', 'river', 'quiet'].map((t, i) => <span key={t} className="note word" style={{ left: `${6 + i * 23}%`, ...n(i) }}>{t}</span>)}
-			{kind === 'listen' && (
-				<>
-					<span className="wave">{[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <i key={i} style={n(i)} />)}</span>
-					<span className="typed">steady</span>
-				</>
-			)}
-			{kind === 'keyhunt' && (
-				<>
-					<span className="keys">{['a', 's', 'd', 'f', 'j', 'k', 'l'].map((k) => <b key={k} className={k === 'j' ? 'on' : ''}>{k}</b>)}</span>
-					<span className="fuse" />
-				</>
-			)}
-			{kind === 'race' && (
-				<>
-					<span className="lane" style={{ top: 38 }}><i style={{ background: 'var(--accent)' }} /></span>
-					<span className="lane" style={{ top: 74 }}><i style={{ background: 'var(--ink-3)', animationDuration: '4.4s' }} /></span>
-				</>
-			)}
-			{kind === 'echo' && <span className="echo">{['s', 'k', 'd', 'l'].map((k, i) => <b key={i} style={n(i)}>{k}</b>)}</span>}
-		</div>
-	);
-}
-
 export function Practise() {
 	const maxSteps = Math.max(...STEP_KINDS.map((k) => course.steps[k.id]));
 	const totalSteps = Object.values(course.steps).reduce((a, b) => a + b, 0);
 	return (
 		<Panel id="practise" labelled>
-			<div className="grid gap-[clamp(28px,4vw,64px)] xl:grid-cols-[0.82fr_1.18fr]">
+			<div className="grid gap-[clamp(28px,4vw,64px)] lg:grid-cols-[0.8fr_1.2fr]">
 				<div>
-					<h2 id="practise-title" className={H2} data-rise>
-						Every lesson is a short étude.
+					<h2 id="practise-title" className={H2}>
+						<RisingInk>Every lesson is a short étude.</RisingInk>
 					</h2>
 					<p className={`${LEDE} mt-5`}>
 						Lessons mix eight kinds of exercise, so repetition never feels like repetition. Across the course there are {totalSteps} of them.
 					</p>
-					<dl className="mt-[clamp(20px,4vh,40px)] grid gap-x-8 gap-y-[clamp(8px,1.8vh,16px)] sm:grid-cols-2">
+				</div>
+				<div>
+					<dl className="grid gap-x-8 gap-y-[clamp(12px,2vh,18px)] sm:grid-cols-2">
 						{STEP_KINDS.map((k) => (
 							<div key={k.id} className="grid grid-cols-[1fr_auto] items-baseline gap-x-3">
 								<dt className="text-[14.5px] font-semibold">{k.name}</dt>
@@ -225,35 +174,44 @@ export function Practise() {
 								<dd className="col-span-2 mt-1.5 h-[6px] rounded-[2px] bg-surface-2">
 									<span className="block h-full rounded-[2px] bg-accent" style={{ width: `${(course.steps[k.id] / maxSteps) * 100}%` }} />
 								</dd>
+								<dd className="col-span-2 mt-1 text-[13.5px] leading-[1.45] text-ink-2">{k.line}</dd>
 							</div>
 						))}
 					</dl>
-					<p className="mt-3 text-[13px] text-ink-3">Counts of exercises across all {course.lessons} lessons, on one scale from 0 to {maxSteps}.</p>
-				</div>
-				<div>
-					<h3 className="font-serif text-[clamp(24px,min(3vw,4.4vh),36px)] leading-[1.1]">
-						Practice that feels like a game.
-					</h3>
-					<ul className="mt-[clamp(16px,3vh,28px)] grid gap-x-6 gap-y-[clamp(14px,3vh,28px)] sm:grid-cols-2 lg:grid-cols-3">
-						{GAMES.map((g) => (
-							<li key={g.kind}>
-								<Etude kind={g.kind} />
-								<h4 className="mt-3 font-serif text-[20px]">{g.title}</h4>
-								<p className="mt-1 text-[14.5px] leading-[1.5] text-ink-2">{g.body}</p>
-							</li>
-						))}
-					</ul>
+					<p className="mt-4 text-[13px] text-ink-3">Counts of exercises across all {course.lessons} lessons, on one scale from 0 to {maxSteps}.</p>
 				</div>
 			</div>
 		</Panel>
 	);
 }
 
+export function Games() {
+	return (
+		<section id="games" aria-labelledby="games-title" className="land night games">
+			<div className="land-in">
+				<h2 id="games-title" className={H2}>
+					<RisingInk>Practice that feels like a game.</RisingInk>
+				</h2>
+				<p className={`${LEDE} mt-5`}>Every lesson mixes short drills with games, so repetition never feels like repetition.</p>
+				<div className="game-grid">
+					{GAMES.map((g) => (
+						<article key={g.kind} className="game">
+							<GamePreview kind={g.kind} />
+							<h3>{g.title}</h3>
+							<p>{g.body}</p>
+						</article>
+					))}
+				</div>
+			</div>
+		</section>
+	);
+}
+
 export function Grow() {
 	return (
 		<Panel id="grow" labelled band>
-			<h2 id="grow-title" className={H2} data-rise>
-				Watch yourself grow.
+			<h2 id="grow-title" className={H2}>
+				<RisingInk>Watch yourself grow.</RisingInk>
 			</h2>
 			<p className={`${LEDE} mt-5`}>
 				Earn up to three stars in every lesson and climb ten ranks, from Novice to Legend. Your progress is measured against yourself, never against others.
@@ -276,8 +234,8 @@ export function Technique() {
 		<Panel id="technique" labelled>
 			<div className="grid gap-[clamp(24px,4vw,56px)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
 				<div>
-					<h2 id="technique-title" className={H2} data-rise>
-						Already type? See how your hands really type.
+					<h2 id="technique-title" className={H2}>
+						<RisingInk>Already type? See how your hands really type.</RisingInk>
 					</h2>
 					<p className={`${LEDE} mt-5`}>
 						Self-taught typists often use their own fingering. The finger map records which finger you use for every key, and the finger speed assessment measures each finger, so you know exactly what to retrain.
@@ -309,8 +267,8 @@ export function Technique() {
 export function Tempo() {
 	return (
 		<Panel id="tempo" labelled>
-			<h2 id="tempo-title" className={H2} data-rise>
-				Measure your tempo.
+			<h2 id="tempo-title" className={H2}>
+				<RisingInk>Measure your tempo.</RisingInk>
 			</h2>
 			<p className={`${LEDE} mt-5`}>
 				Eight tests, from a one-minute placement to a two-minute endurance run. When you are ready, ranked runs place you in one of eleven leagues, every result replayed on the server before it counts.

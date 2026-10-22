@@ -22,3 +22,8 @@ Links to pages that are not rebuilt yet are placeholders in `src/lib/links.ts` (
 - **React Bits**: `npx shadcn@latest add @react-bits/<Name>-TS-TW` from this folder (registry in `components.json`);
   files land in `src/components/reactbits`. Read a component's props and check it for remote URLs before using it.
 - **Lenis**: active site-wide through `SmoothScroll`. Give inner scroll areas the attribute `data-lenis-prevent`.
+
+## Local changes to React Bits files
+
+- `Dither`: the WebGL context is only released when the canvas has left the page; React's dev-mode remount otherwise reused a lost context and the field stayed blank in `npm run dev`.
+- `Dither`, and any component that reads a colour: colours are parsed in code (`reactbits/colour.ts`) so browsers with fingerprinting protection (Zen, Firefox, Brave) do not blank them.
