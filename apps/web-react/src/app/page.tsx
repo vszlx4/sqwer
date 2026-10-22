@@ -1,10 +1,25 @@
-import { LogoWordmark } from '@/components/brand/LogoWordmark';
+import { Score } from '@/components/landing/Score';
+import { LitProvider } from '@/components/landing/lit';
+import { Begin, Grow, HandsPanel, Header, Opening, Practise, ScorePanels, Tempo, Technique } from '@/components/landing/panels';
+
+// The landing page: one score. See .impeccable/surfaces/src-app-page-tsx.md for the direction contract.
 
 export default function Home() {
 	return (
-		<main id="content" className="mx-auto grid min-h-dvh w-full max-w-[1180px] content-center gap-6 px-[clamp(16px,4vw,40px)]">
-			<LogoWordmark className="h-[26px] w-auto text-ink" />
-			<h1 className="text-[clamp(40px,5vw,72px)] leading-none tracking-[-0.025em]">The React rewrite starts here.</h1>
-		</main>
+		<LitProvider>
+			<Header />
+			<main id="content">
+				<Score>
+					<Opening />
+					<HandsPanel />
+					<ScorePanels />
+					<Practise />
+					<Grow />
+					<Technique />
+					<Tempo />
+					<Begin />
+				</Score>
+			</main>
+		</LitProvider>
 	);
 }
