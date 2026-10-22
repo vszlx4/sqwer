@@ -11,10 +11,6 @@ npm start              # serves on http://localhost:3000
 npm run dev            # dev server with hot reload
 ```
 
-This is the `v2/react-site` branch: the second version, rebuilt in React. `main` holds the stable SvelteKit site
-(`apps/web`), which is unchanged here until the React app replaces it. The design lab and explorations that led to the
-new design are kept in [archive/](archive/README.md).
-
 Settings are read from `apps/web/.env` (never committed). With `DATABASE_URL` set, accounts are stored in
 PostgreSQL (the project uses Supabase in the EU); without it, an embedded PostgreSQL is created in `.data/`, so no
 database installation is needed to try the site. See [DEPLOYMENT.md](docs/operations/DEPLOYMENT.md) for configuration and security,
@@ -29,12 +25,17 @@ npm run test:e2e       # Playwright end-to-end tests against the production buil
 npm run check          # type check
 ```
 
+## Branches and contributing
+
+`main` is the stable site and only changes through pull requests. This branch, `v2/react-rewrite`, is where the React rewrite develops.
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/operations/BRANCHING.md](docs/operations/BRANCHING.md).
+
 ## Layout
 
 | Path | What it is |
 | --- | --- |
-| `apps/web` | SvelteKit site (stable, from `main`) |
-| `archive/` | The design lab and exploration work; not part of the build |
+| `apps/web` | SvelteKit site (the stable one, as on `main`) |
+| `archive/` | The design lab and explorations behind the rewrite; not installed or built |
 | `packages/engine` | Typing session, error model and metrics (framework-free) |
 | `packages/layouts` | Keyboard geometry, finger assignments and key guidance |
 | `packages/content` | Original word lists and the word generator |

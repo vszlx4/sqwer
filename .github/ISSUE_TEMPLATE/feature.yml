@@ -1,0 +1,24 @@
+name: Feature or improvement
+description: A change to what sqwer does
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: Who is stuck, and why
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What would you change? Sketches are welcome
+  - type: dropdown
+    id: target
+    attributes:
+      label: Which version
+      options:
+        - Current site (main)
+        - React rewrite (v2)
+        - Either

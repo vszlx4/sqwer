@@ -1,0 +1,42 @@
+# Keeps names and targets unambiguous: a pull request's branch and title say what it is, and goes to the right base.
+name: Pull request hygiene
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  naming:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check branch name, title and target
+        env:
+          HEAD: ${{ github.head_ref }}
+          BASE: ${{ github.base_ref }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          fail=0
+          # Branch names: <type>/<short-kebab-name>; work for the rewrite starts with v2/ (v2/feat-…, v2/fix-…).
+          if ! [[ "$HEAD" =~ ^(v2/)?(feat|fix|docs|chore|refactor|test|design|security)[/-][a-z0-9][a-z0-9-]*$ || "$HEAD" =~ ^dependabot/ || "$HEAD" =~ ^(main|v2/react-rewrite)$ ]]; then
+            echo "::error::Branch '$HEAD' must look like feat/short-name, fix/short-name, docs/..., chore/..., refactor/..., test/..., design/..., security/... (v2 work: v2/feat-short-name)."
+            fail=1
+          fi
+          # Titles: sentence case, no trailing full stop, 10 to 100 characters.
+          if [ ${#TITLE} -lt 10 ] || [ ${#TITLE} -gt 100 ] || [[ "$TITLE" == *. ]]; then
+            echo "::error::Title '$TITLE' should be 10-100 characters, say what changes, and not end with a full stop."
+            fail=1
+          fi
+          # Targets: v2 work goes into v2/react-rewrite, everything else into main; the rewrite is merged into main only as a whole.
+          if [[ "$HEAD" == v2/* && "$HEAD" != "v2/react-rewrite" && "$BASE" != "v2/react-rewrite" ]]; then
+            echo "::error::'$HEAD' belongs to the rewrite and must target v2/react-rewrite, not $BASE."
+            fail=1
+          fi
+          if [[ "$HEAD" != v2/* && "$BASE" == "v2/react-rewrite" && ! "$HEAD" =~ ^(dependabot/|main$) ]]; then
+            echo "::error::Only v2/* branches may target v2/react-rewrite (got '$HEAD')."
+            fail=1
+          fi
+          exit $fail

@@ -2,8 +2,8 @@
 
 ## Design (`design/`)
 
-The current interface of `apps/web`, written so it can be rebuilt with other libraries. The React rewrite starts from these documents
-and from the archived design work in `archive/site-lab` (DESIGN.md, PRODUCT.md).
+The current interface of `apps/web`, written so it can be rebuilt with other libraries. The React rewrite
+(this branch) starts from these documents and from `archive/site-lab` (`DESIGN.md`, `PRODUCT.md`).
 
 | Document | Covers |
 | --- | --- |
@@ -20,6 +20,7 @@ and from the archived design work in `archive/site-lab` (DESIGN.md, PRODUCT.md).
 | [DEPLOYMENT.md](operations/DEPLOYMENT.md) | Configuration, database roles, security measures, production checklist, incident response |
 | [ANALYTICS.md](operations/ANALYTICS.md) | First-party analytics and the administrator dashboard |
 | [BOT_PROTECTION.md](operations/BOT_PROTECTION.md) | Account form protections, Turnstile set-up |
+| [BRANCHING.md](operations/BRANCHING.md) | Branches, pull requests, checks, releases and repository setup |
 
 ## Security and privacy (`security/`)
 
