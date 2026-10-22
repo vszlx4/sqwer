@@ -10,10 +10,14 @@
 		"dev": "npm run dev -w web",
 		"build": "npm run build -w web",
 		"preview": "npm run preview -w web",
+		"dev:react": "npm run dev -w web-react",
+		"build:react": "npm run build -w web-react",
+		"start:react": "npm run start -w web-react",
 		"start": "node apps/web/scripts/start.js",
 		"test": "vitest run",
 		"test:e2e": "npm run test:e2e -w web",
-		"check": "npm run check -w web"
+		"check": "npm run check -w web",
+		"check:react": "npm run check -w web-react"
 	},
 	"devDependencies": {
 		"@sveltejs/kit": "^3.1.0",

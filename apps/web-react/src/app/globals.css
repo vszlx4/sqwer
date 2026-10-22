@@ -1,0 +1,264 @@
+@import 'tailwindcss';
+@import 'lenis/dist/lenis.css';
+
+/*
+ * sqwer design foundations for the React rewrite.
+ * The core tokens below are the Ultramarine palette (the default; other palettes in lib/palettes.ts).
+ * Supporting and finger colours come from lib/system.ts and are injected in the root layout.
+ */
+
+/* Dark applies when it is chosen, and under "System" when the operating system is dark. */
+@custom-variant dark {
+	&:where([data-theme='dark'], [data-theme='dark'] *) {
+		@slot;
+	}
+	@media (prefers-color-scheme: dark) {
+		&:where(:root:not([data-theme='light']), :root:not([data-theme='light']) *) {
+			@slot;
+		}
+	}
+}
+
+/* ---------- Tokens ---------- */
+:root {
+	color-scheme: light;
+	--accent: #3355ff;
+	--on-accent: #ffffff;
+
+	--bg: #f6f7fb;
+	--surface: #eceef6;
+	--surface-2: #e1e4f0;
+	--line: #d6dae8;
+	--line-strong: #bcc2d6;
+	--ink: #0e1120;
+	--ink-2: #4a5068;
+	--ink-3: #5e6480;
+	--untyped: #8e94ac;
+	--error-soft: #fbe3e6;
+
+	/* Key caps */
+	--key: #fffefa;
+	--key-edge: #d6d1bd;
+	--key-label: #4a4840;
+	--key-pressed: #e6e2d2;
+
+
+
+	/* Result chart series (validated: dataviz, all pairs) */
+	--chart-wpm: #2a78d6;
+	--chart-raw: #eb6834;
+	--chart-acc: #1baf7a;
+	--chart-prev: #8f8b7e;
+	--chart-grid: #e4e0d2;
+	/* Word heatmap, slower → faster */
+	--heat-1: #e3edfb;
+	--heat-2: #b7d0f4;
+	--heat-3: #7fabe8;
+	--heat-4: #3f7fd6;
+	--heat-5: #1d4f9c;
+	--heat-ink-light: #141414;
+	--heat-ink-dark: #ffffff;
+
+
+
+	--shadow: 0 1px 0 rgb(20 20 20 / 0.04), 0 8px 24px -12px rgb(60 50 20 / 0.18);
+	--shadow-lg: 0 1px 0 rgb(20 20 20 / 0.04), 0 24px 60px -24px rgb(60 50 20 / 0.35);
+	--lift: 0 1px 0 rgb(20 20 20 / 0.04), 0 14px 32px -18px rgb(60 50 20 / 0.32);
+	--glass-shine: rgb(255 255 255 / 0.7);
+	--glass-shadow: rgb(60 50 20 / 0.28);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		color-scheme: dark;
+		--accent: #7088ff;
+		--on-accent: #050714;
+		--bg: #05060d;
+		--surface: #0d1020;
+		--surface-2: #151a30;
+		--line: #1f2540;
+		--line-strong: #2c3354;
+		--ink: #eef0fa;
+		--ink-2: #a3a9c4;
+		--ink-3: #9298b6;
+		--untyped: #5f6584;
+		--error-soft: #3a0f16;
+		--key: #121212;
+		--key-edge: #2c2c2c;
+		--key-label: #b5b5ae;
+		--key-pressed: #222222;
+		--chart-wpm: #3987e5;
+		--chart-raw: #d95926;
+		--chart-acc: #199e70;
+		--chart-prev: #8a8a84;
+		--chart-grid: #222222;
+		--heat-1: #14213a;
+		--heat-2: #1d3a68;
+		--heat-3: #275aa2;
+		--heat-4: #4a86d9;
+		--heat-5: #9cc3f3;
+		--heat-ink-light: #ffffff;
+		--heat-ink-dark: #0a0a0a;
+		--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
+		--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
+		--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
+		--glass-shine: rgb(255 255 255 / 0.07);
+		--glass-shadow: rgb(0 0 0 / 0.9);
+	}
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--accent: #7088ff;
+	--on-accent: #050714;
+	--bg: #05060d;
+	--surface: #0d1020;
+	--surface-2: #151a30;
+	--line: #1f2540;
+	--line-strong: #2c3354;
+	--ink: #eef0fa;
+	--ink-2: #a3a9c4;
+	--ink-3: #9298b6;
+	--untyped: #5f6584;
+	--error-soft: #3a0f16;
+	--key: #121212;
+	--key-edge: #2c2c2c;
+	--key-label: #b5b5ae;
+	--key-pressed: #222222;
+	--chart-wpm: #3987e5;
+	--chart-raw: #d95926;
+	--chart-acc: #199e70;
+	--chart-prev: #8a8a84;
+	--chart-grid: #222222;
+	--heat-1: #14213a;
+	--heat-2: #1d3a68;
+	--heat-3: #275aa2;
+	--heat-4: #4a86d9;
+	--heat-5: #9cc3f3;
+	--heat-ink-light: #ffffff;
+	--heat-ink-dark: #0a0a0a;
+	--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
+	--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
+	--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
+	--glass-shine: rgb(255 255 255 / 0.07);
+	--glass-shadow: rgb(0 0 0 / 0.9);
+}
+
+@theme inline {
+	/* Families come from next/font (src/app/fonts.ts). */
+	--font-sans: var(--font-neue-montreal), ui-sans-serif, system-ui, sans-serif;
+	--font-serif: var(--font-altera-serif), ui-serif, Georgia, serif;
+	--font-mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+
+	/* Every corner is 3px (DESIGN_GUIDE.md, section 5). */
+	--radius-sm: 3px;
+	--radius: 3px;
+	--radius-md: 3px;
+	--radius-lg: 3px;
+
+	--color-accent: var(--accent);
+	--color-on-accent: var(--on-accent);
+	--color-bg: var(--bg);
+	--color-surface: var(--surface);
+	--color-surface-2: var(--surface-2);
+	--color-line: var(--line);
+	--color-line-strong: var(--line-strong);
+	--color-ink: var(--ink);
+	--color-ink-2: var(--ink-2);
+	--color-ink-3: var(--ink-3);
+	--color-untyped: var(--untyped);
+	--color-error: var(--error);
+	--color-error-soft: var(--error-soft);
+	--color-sky: var(--sky);
+	--color-teal: var(--teal);
+	--color-brass: var(--brass);
+	--color-coral: var(--coral);
+	--color-iris: var(--iris);
+	--color-rose: var(--rose);
+	--color-f-pinky: var(--f-pinky);
+	--color-f-ring: var(--f-ring);
+	--color-f-middle: var(--f-middle);
+	--color-f-index: var(--f-index);
+	--color-f-thumb: var(--f-thumb);
+
+	--shadow-card: var(--shadow);
+	--shadow-pop: var(--shadow-lg);
+	--shadow-lift: var(--lift);
+
+	/* Easing vocabulary (MOTION.md, section 1); the same names are registered for GSAP in lib/motion.ts. */
+	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+	--ease-out-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+	--ease-out-pop: cubic-bezier(0.2, 0.8, 0.2, 1);
+	--ease-spring: cubic-bezier(0.3, 1.6, 0.5, 1);
+	--ease-spring-soft: cubic-bezier(0.34, 1.56, 0.64, 1);
+	--ease-in-quick: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ---------- Base ---------- */
+html {
+	background: var(--bg);
+	color: var(--ink);
+	font-family: var(--font-sans);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+body {
+	background: var(--bg);
+	min-height: 100dvh;
+	overflow-x: clip;
+}
+
+h1,
+h2 {
+	font-family: var(--font-serif);
+	font-weight: 400;
+}
+
+h1,
+h2,
+h3 {
+	text-wrap: balance;
+}
+
+p,
+li,
+dd {
+	text-wrap: pretty;
+}
+
+/* Anchored sections stay clear of the sticky header; Lenis honours this offset too. */
+[id] {
+	scroll-margin-top: 96px;
+}
+
+a,
+button,
+summary,
+label,
+input,
+select {
+	touch-action: manipulation;
+	-webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+	background: var(--accent);
+	color: var(--on-accent);
+}
+
+:focus-visible {
+	outline: 2px solid var(--ink);
+	outline-offset: 2px;
+	box-shadow: 0 0 0 5px var(--accent);
+	border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
+	}
+}

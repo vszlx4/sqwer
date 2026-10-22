@@ -1,6 +1,9 @@
 web:
   - changed-files:
       - any-glob-to-any-file: ['apps/web/**']
+react:
+  - changed-files:
+      - any-glob-to-any-file: ['apps/web-react/**']
 packages:
   - changed-files:
       - any-glob-to-any-file: ['packages/**']

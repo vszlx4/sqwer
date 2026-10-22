@@ -1,0 +1,634 @@
+{
+	"source": "apps/web/src/lib (catalog, progression, exams, progress/competitive)",
+	"lessons": 125,
+	"steps": {
+		"intro": 27,
+		"drill": 294,
+		"keyhunt": 60,
+		"echo": 74,
+		"falling": 102,
+		"race": 58,
+		"listen": 20,
+		"checkpoint": 12
+	},
+	"parts": [
+		{
+			"id": "letters",
+			"title": "Letters",
+			"summary": "Every letter, row by row, by touch.",
+			"chapters": [
+				1,
+				2,
+				3
+			]
+		},
+		{
+			"id": "marks",
+			"title": "Capitals, marks and numbers",
+			"summary": "Shift, punctuation and the number row.",
+			"chapters": [
+				4,
+				5,
+				6
+			]
+		},
+		{
+			"id": "words",
+			"title": "Words and flow",
+			"summary": "Frequent words and whole sentences.",
+			"chapters": [
+				7,
+				8,
+				9
+			]
+		},
+		{
+			"id": "mastery",
+			"title": "Speed and mastery",
+			"summary": "Speed, endurance and symbols.",
+			"chapters": [
+				10,
+				11,
+				12
+			]
+		}
+	],
+	"chapters": [
+		{
+			"number": 1,
+			"title": "The home row",
+			"summary": "Where your fingers rest, and the eight keys under them.",
+			"newKeys": [
+				"f",
+				"j",
+				"d",
+				"k",
+				"s",
+				"l",
+				"a",
+				";",
+				"g",
+				"h"
+			],
+			"words": [],
+			"lessons": [
+				"F and J",
+				"F and J in use",
+				"D and K",
+				"D and K in use",
+				"S and L",
+				"S and L in use",
+				"A and semicolon",
+				"A and semicolon in use",
+				"G and H",
+				"G and H in use",
+				"Home row words",
+				"Home row in flow",
+				"Weak fingers",
+				"Home row check"
+			]
+		},
+		{
+			"number": 2,
+			"title": "Reaching up",
+			"summary": "The top row, reached from home and back again.",
+			"newKeys": [
+				"e",
+				"i",
+				"r",
+				"u",
+				"t",
+				"y",
+				"w",
+				"o",
+				"q",
+				"p"
+			],
+			"words": [],
+			"lessons": [
+				"E and I",
+				"E and I in use",
+				"R and U",
+				"R and U in use",
+				"T and Y",
+				"T and Y in use",
+				"W and O",
+				"W and O in use",
+				"Q and P",
+				"Q and P in use",
+				"Top row words",
+				"Top row in flow",
+				"Weak fingers",
+				"Top row check"
+			]
+		},
+		{
+			"number": 3,
+			"title": "Reaching down",
+			"summary": "The bottom row, which completes the alphabet.",
+			"newKeys": [
+				"v",
+				"m",
+				"c",
+				",",
+				"x",
+				".",
+				"z",
+				"/",
+				"b",
+				"n"
+			],
+			"words": [],
+			"lessons": [
+				"V and M",
+				"V and M in use",
+				"C and comma",
+				"C and comma in use",
+				"X and full stop",
+				"X and full stop in use",
+				"Z and slash",
+				"Z and slash in use",
+				"B and N",
+				"B and N in use",
+				"Bottom row words",
+				"Bottom row in flow",
+				"Weak fingers",
+				"Bottom row check"
+			]
+		},
+		{
+			"number": 4,
+			"title": "Capital letters",
+			"summary": "Shift, held by the hand that is not typing the letter.",
+			"newKeys": [
+				"ShiftRight",
+				"ShiftLeft"
+			],
+			"words": [
+				"Add",
+				"Ads",
+				"Aha",
+				"All"
+			],
+			"lessons": [
+				"Right Shift",
+				"Left Shift",
+				"Mixed capitals",
+				"Capital sentences",
+				"More capital sentences",
+				"Capitals in flow",
+				"Weak fingers",
+				"Capitals check"
+			]
+		},
+		{
+			"number": 5,
+			"title": "Punctuation",
+			"summary": "Full stops, commas, apostrophes, question marks and more.",
+			"newKeys": [
+				"'",
+				"?",
+				"!",
+				"\"",
+				"-"
+			],
+			"words": [
+				"Yes,",
+				"it",
+				"is",
+				"ready."
+			],
+			"lessons": [
+				"Full stops and commas",
+				"Apostrophe",
+				"Apostrophe in use",
+				"Question and exclamation marks",
+				"Question and exclamation marks in use",
+				"Quotation marks and hyphens",
+				"Quotation marks and hyphens in use",
+				"Punctuated sentences",
+				"Weak fingers",
+				"Punctuation check"
+			]
+		},
+		{
+			"number": 6,
+			"title": "Numbers",
+			"summary": "The number row, one finger for each pair of digits.",
+			"newKeys": [
+				"4",
+				"5",
+				"6",
+				"7",
+				"3",
+				"8",
+				"2",
+				"9",
+				"1",
+				"0"
+			],
+			"words": [
+				"Meet",
+				"me",
+				"at",
+				"7"
+			],
+			"lessons": [
+				"4, 5, 6 and 7",
+				"4, 5, 6 and 7 in use",
+				"3 and 8",
+				"3 and 8 in use",
+				"2 and 9",
+				"2 and 9 in use",
+				"1 and 0",
+				"1 and 0 in use",
+				"The whole number row",
+				"Numbers in text",
+				"More numbers in text",
+				"Weak fingers",
+				"Numbers check"
+			]
+		},
+		{
+			"number": 7,
+			"title": "Common words, part one",
+			"summary": "The hundred most frequent words, until they are automatic.",
+			"newKeys": [],
+			"words": [
+				"the",
+				"be",
+				"to",
+				"of"
+			],
+			"lessons": [
+				"Common words, set 1",
+				"Common words, set 2",
+				"Common words, set 3",
+				"Common words, set 4",
+				"Common words, set 5",
+				"Common words, set 6",
+				"Common words, set 7",
+				"Common words, set 8",
+				"Weak fingers",
+				"Common words check"
+			]
+		},
+		{
+			"number": 8,
+			"title": "Common words, part two",
+			"summary": "The next hundred words, for everyday writing.",
+			"newKeys": [],
+			"words": [
+				"was",
+				"are",
+				"been",
+				"has"
+			],
+			"lessons": [
+				"Everyday words, set 1",
+				"Everyday words, set 2",
+				"Everyday words, set 3",
+				"Everyday words, set 4",
+				"Everyday words, set 5",
+				"Everyday words, set 6",
+				"Everyday words, set 7",
+				"Everyday words, set 8",
+				"Weak fingers",
+				"Everyday words check"
+			]
+		},
+		{
+			"number": 9,
+			"title": "Sentences and flow",
+			"summary": "Reading ahead and typing whole sentences at a steady pace.",
+			"newKeys": [],
+			"words": [
+				"the",
+				"be",
+				"to",
+				"of"
+			],
+			"lessons": [
+				"Reading ahead",
+				"Even pace",
+				"Light hands",
+				"Phrases, not letters",
+				"Longer sentences",
+				"Flow practice",
+				"Weak fingers",
+				"Flow check"
+			]
+		},
+		{
+			"number": 10,
+			"title": "Building speed",
+			"summary": "Letter pairs, word endings, sprints and a quicker pace.",
+			"newKeys": [],
+			"words": [
+				"th",
+				"he",
+				"in",
+				"er"
+			],
+			"lessons": [
+				"Common letter pairs",
+				"Word endings",
+				"Sprint races",
+				"Quick reactions",
+				"Word bursts",
+				"Less common words",
+				"Speed practice",
+				"Weak fingers",
+				"Speed check"
+			]
+		},
+		{
+			"number": 11,
+			"title": "Accuracy and endurance",
+			"summary": "Longer passages with near-perfect accuracy.",
+			"newKeys": [],
+			"words": [
+				"Snow",
+				"covered",
+				"the",
+				"quiet"
+			],
+			"lessons": [
+				"Accuracy first",
+				"Mixed text",
+				"Careful words",
+				"Precision practice",
+				"Weak fingers",
+				"Endurance check"
+			]
+		},
+		{
+			"number": 12,
+			"title": "Symbols",
+			"summary": "The symbols used in email, prices and code.",
+			"newKeys": [
+				"@",
+				"#",
+				"$",
+				"%",
+				"&",
+				"*",
+				"(",
+				")",
+				"[",
+				"]"
+			],
+			"words": [],
+			"lessons": [
+				"@, # and $",
+				"@, # and $ in use",
+				"%, & and *",
+				"%, & and * in use",
+				"Brackets",
+				"Brackets in use",
+				"Every symbol",
+				"Weak fingers",
+				"Final check"
+			]
+		}
+	],
+	"ranks": [
+		{
+			"level": 1,
+			"name": "Novice",
+			"note": "Every typist starts here.",
+			"tier": "bronze"
+		},
+		{
+			"level": 2,
+			"name": "Learner",
+			"note": "Your first keys are found.",
+			"tier": "bronze"
+		},
+		{
+			"level": 3,
+			"name": "Apprentice",
+			"note": "All eight fingers know their home.",
+			"tier": "silver"
+		},
+		{
+			"level": 4,
+			"name": "Typist",
+			"note": "The whole alphabet, without looking.",
+			"tier": "silver"
+		},
+		{
+			"level": 5,
+			"name": "Adept",
+			"note": "Letters have become words.",
+			"tier": "gold"
+		},
+		{
+			"level": 6,
+			"name": "Skilled",
+			"note": "An even, steady pace.",
+			"tier": "gold"
+		},
+		{
+			"level": 7,
+			"name": "Expert",
+			"note": "Speed that keeps its accuracy.",
+			"tier": "emerald"
+		},
+		{
+			"level": 8,
+			"name": "Master",
+			"note": "Whole sentences without a pause.",
+			"tier": "emerald"
+		},
+		{
+			"level": 9,
+			"name": "Virtuoso",
+			"note": "The whole course, completed with at least 75% of its stars.",
+			"tier": "diamond"
+		},
+		{
+			"level": 10,
+			"name": "Legend",
+			"note": "A perfect score in at least 95% of the lessons.",
+			"tier": "diamond"
+		}
+	],
+	"leagues": [
+		{
+			"id": "silver",
+			"name": "Silver",
+			"from": 50,
+			"divisions": 3
+		},
+		{
+			"id": "gold",
+			"name": "Gold",
+			"from": 60,
+			"divisions": 3
+		},
+		{
+			"id": "diamond",
+			"name": "Diamond",
+			"from": 70,
+			"divisions": 3
+		},
+		{
+			"id": "master",
+			"name": "Master",
+			"from": 85,
+			"divisions": 3
+		},
+		{
+			"id": "elite",
+			"name": "Elite",
+			"from": 100,
+			"divisions": 3
+		},
+		{
+			"id": "champion",
+			"name": "Champion",
+			"from": 120,
+			"divisions": 3
+		},
+		{
+			"id": "grandmaster",
+			"name": "Grandmaster",
+			"from": 140,
+			"divisions": 3
+		},
+		{
+			"id": "prodigy",
+			"name": "Prodigy",
+			"from": 165,
+			"divisions": 3
+		},
+		{
+			"id": "overlord",
+			"name": "Overlord",
+			"from": 195,
+			"divisions": 3
+		},
+		{
+			"id": "transcendent",
+			"name": "Transcendent",
+			"from": 240,
+			"divisions": 3
+		},
+		{
+			"id": "zenith",
+			"name": "Zenith",
+			"from": 300,
+			"divisions": 1
+		}
+	],
+	"examCategories": [
+		{
+			"name": "Assessment",
+			"description": "A reference point for measuring your progress."
+		},
+		{
+			"name": "Speed and accuracy",
+			"description": "Tests of overall typing performance under different conditions."
+		},
+		{
+			"name": "Technique",
+			"description": "Analysis of how each finger is used."
+		}
+	],
+	"exams": [
+		{
+			"id": "placement",
+			"title": "Placement test",
+			"category": "Assessment",
+			"purpose": "Establishes your starting speed and accuracy so that later progress can be measured against it.",
+			"measures": [
+				"Speed",
+				"Accuracy",
+				"Consistency"
+			],
+			"duration": "60 seconds"
+		},
+		{
+			"id": "timed",
+			"title": "Timed test",
+			"category": "Speed and accuracy",
+			"purpose": "Measures speed and accuracy over a period you choose, from 15 seconds to two minutes.",
+			"measures": [
+				"Speed",
+				"Accuracy",
+				"Consistency"
+			],
+			"duration": "15 seconds to 2 minutes"
+		},
+		{
+			"id": "words",
+			"title": "Word-count test",
+			"category": "Speed and accuracy",
+			"purpose": "Measures how quickly and accurately you complete a fixed passage of 25 words.",
+			"measures": [
+				"Speed",
+				"Accuracy",
+				"Completion time"
+			],
+			"duration": "About 30 seconds"
+		},
+		{
+			"id": "symbols",
+			"title": "Punctuation and numbers",
+			"category": "Speed and accuracy",
+			"purpose": "Tests capital letters, punctuation and the number row, which rely on Shift and longer reaches.",
+			"measures": [
+				"Speed",
+				"Accuracy"
+			],
+			"duration": "60 seconds"
+		},
+		{
+			"id": "endurance",
+			"title": "Endurance test",
+			"category": "Speed and accuracy",
+			"purpose": "Measures whether your speed and accuracy hold steady over a longer passage.",
+			"measures": [
+				"Speed",
+				"Accuracy",
+				"Consistency"
+			],
+			"duration": "2 minutes"
+		},
+		{
+			"id": "competitive",
+			"title": "Competitive test",
+			"category": "Competitive",
+			"purpose": "Sixty seconds of common words. Your best result with at least 92% accuracy sets your speed tier and your place on the leaderboard.",
+			"measures": [
+				"Speed",
+				"Accuracy"
+			],
+			"duration": "60 seconds"
+		},
+		{
+			"id": "finger-map",
+			"title": "Finger mapping",
+			"category": "Technique",
+			"purpose": "Records which finger you use for each key, including habits that depend on the neighbouring keys.",
+			"measures": [
+				"Key coverage",
+				"Non-standard fingering",
+				"Context habits"
+			],
+			"duration": "Approximately 10 minutes in total; can be split into sessions"
+		},
+		{
+			"id": "finger-speed",
+			"title": "Finger speed assessment",
+			"category": "Technique",
+			"purpose": "Measures the speed and accuracy of each finger, using your own finger map, to identify the weakest fingers.",
+			"measures": [
+				"Speed per finger",
+				"Accuracy per finger"
+			],
+			"duration": "Four stages of 20 seconds"
+		}
+	]
+}
