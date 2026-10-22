@@ -2,8 +2,8 @@
 
 ## Design (`design/`)
 
-The current interface of `apps/web`, written so it can be rebuilt with other libraries. The new design in `apps/site`
-starts from these documents.
+The current interface of `apps/web`, written so it can be rebuilt with other libraries. The React rewrite starts from these documents
+and from the archived design work in `archive/site-lab` (DESIGN.md, PRODUCT.md).
 
 | Document | Covers |
 | --- | --- |
