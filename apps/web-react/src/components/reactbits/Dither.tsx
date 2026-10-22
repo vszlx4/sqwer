@@ -720,7 +720,11 @@ const Dither = ({
       gl.deleteVertexArray(vao);
       gl.deleteTexture(field);
       gl.deleteFramebuffer(framebuffer);
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      // sqwer: React's dev-mode remount reuses this canvas and getContext() would return the context we just lost,
+      // leaving the field blank. Only release the context when the canvas has really left the page.
+      setTimeout(() => {
+        if (!canvas?.isConnected) gl.getExtension('WEBGL_lose_context')?.loseContext();
+      }, 0);
     };
   }, []);
 
