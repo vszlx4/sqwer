@@ -8,12 +8,9 @@
 	],
 	"scripts": {
 		"dev": "npm run dev -w web",
-		"dev:site": "npm run dev -w site",
 		"build": "npm run build -w web",
-		"build:site": "npm run build -w site",
 		"preview": "npm run preview -w web",
 		"start": "node apps/web/scripts/start.js",
-		"start:site": "npm run start -w site",
 		"test": "vitest run",
 		"test:e2e": "npm run test:e2e -w web",
 		"check": "npm run check -w web"
