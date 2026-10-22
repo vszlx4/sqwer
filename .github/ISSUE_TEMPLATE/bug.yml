@@ -1,0 +1,17 @@
+name: Bug
+description: Something does not work as it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes: { label: What happened, description: What you did, what you expected, what you saw }
+    validations: { required: true }
+  - type: textarea
+    id: steps
+    attributes: { label: Steps to reproduce, placeholder: "1. Open …\n2. Press …" }
+  - type: input
+    id: env
+    attributes: { label: Browser and keyboard layout, placeholder: "Firefox 150, macOS, ANSI Mac" }
+  - type: dropdown
+    id: area
+    attributes: { label: Area, options: [Typing session, Course and lessons, Accounts, Results and ranking, Finger map, Admin, Design / layout, Other] }

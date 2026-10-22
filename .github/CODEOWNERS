@@ -1,0 +1,5 @@
+# Every change is reviewed by the owner. Paths that carry more risk are listed so they stay visible in reviews.
+*                      @vszlx4
+/.github/              @vszlx4
+/docs/security/        @vszlx4
+/apps/web/src/lib/server/  @vszlx4

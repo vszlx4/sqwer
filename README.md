@@ -11,9 +11,6 @@ npm start              # serves on http://localhost:3000
 npm run dev            # dev server with hot reload
 ```
 
-The new design is a separate app, `apps/site`, run with `npm run dev:site` (http://localhost:3100). See
-[apps/site/README.md](apps/site/README.md).
-
 Settings are read from `apps/web/.env` (never committed). With `DATABASE_URL` set, accounts are stored in
 PostgreSQL (the project uses Supabase in the EU); without it, an embedded PostgreSQL is created in `.data/`, so no
 database installation is needed to try the site. See [DEPLOYMENT.md](docs/operations/DEPLOYMENT.md) for configuration and security,
@@ -26,16 +23,18 @@ and the administrator dashboard.
 npm test               # unit tests (engine, layouts, content)
 npm run test:e2e       # Playwright end-to-end tests against the production build
 npm run check          # type check
-npm run check -w site  # type check the new site
-npm run lint -w site   # lint the new site
 ```
+
+## Branches and contributing
+
+`main` is the stable site and only changes through pull requests. The React rewrite develops on `v2/react-rewrite`.
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/operations/BRANCHING.md](docs/operations/BRANCHING.md).
 
 ## Layout
 
 | Path | What it is |
 | --- | --- |
-| `apps/web` | SvelteKit site (current) |
-| `apps/site` | Next.js site for the new design, starting with the landing page |
+| `apps/web` | SvelteKit site (stable, this branch) |
 | `packages/engine` | Typing session, error model and metrics (framework-free) |
 | `packages/layouts` | Keyboard geometry, finger assignments and key guidance |
 | `packages/content` | Original word lists and the word generator |

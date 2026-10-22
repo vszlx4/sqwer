@@ -1,0 +1,35 @@
+# Creates or updates the repository's labels from .github/labels.json, so labels are reviewed like code.
+name: Sync labels
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/labels.json']
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const labels = JSON.parse(require('fs').readFileSync('.github/labels.json', 'utf8'));
+            const { owner, repo } = context.repo;
+            for (const l of labels) {
+              try {
+                await github.rest.issues.updateLabel({ owner, repo, name: l.name, color: l.color, description: l.description });
+              } catch (e) {
+                if (e.status !== 404) throw e;
+                await github.rest.issues.createLabel({ owner, repo, ...l });
+              }
+            }
+            core.info(`Synced ${labels.length} labels`);
