@@ -1,25 +1,27 @@
-import { Score } from '@/components/landing/Score';
 import { LitProvider } from '@/components/landing/lit';
-import { Begin, Grow, HandsPanel, Header, Opening, Practise, ScorePanels, Tempo, Technique } from '@/components/landing/panels';
+import { Reading } from '@/components/landing/Reading';
+import { Rise } from '@/components/landing/Rise';
+import { Begin, Chapters, Grow, HandsPanel, Header, Opening, Practise, Technique, Tempo } from '@/components/landing/panels';
+import '@/components/landing/landing.css';
 
-// The landing page: one score. See .impeccable/surfaces/src-app-page-tsx.md for the direction contract.
+// The landing page. See .impeccable/surfaces/src-app-page-tsx.md for the direction contract.
 
 export default function Home() {
 	return (
 		<LitProvider>
 			<Header />
 			<main id="content">
-				<Score>
-					<Opening />
-					<HandsPanel />
-					<ScorePanels />
-					<Practise />
-					<Grow />
-					<Technique />
-					<Tempo />
-					<Begin />
-				</Score>
+				<Opening />
+				<HandsPanel />
+				<Chapters />
+				<Reading />
+				<Practise />
+				<Grow />
+				<Technique />
+				<Tempo />
+				<Begin />
 			</main>
+			<Rise />
 		</LitProvider>
 	);
 }

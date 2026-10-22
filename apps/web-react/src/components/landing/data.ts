@@ -47,16 +47,8 @@ export const TEMPO = [
 	{ wpm: 100, term: 'Presto' }
 ];
 
-/** The movements of the score, in order. The label names each in the playhead and the timeline. */
-export const MOVEMENTS = [
-	{ id: 'rest', label: 'Rest your fingers', short: 'Rest' },
-	{ id: 'hands', label: 'Your hands', short: 'Hands' },
-	{ id: 'score', label: 'Follow the score', short: 'Score' },
-	{ id: 'practise', label: 'Practise', short: 'Practise' },
-	{ id: 'grow', label: 'Grow', short: 'Grow' },
-	{ id: 'technique', label: 'Your technique', short: 'Technique' },
-	{ id: 'tempo', label: 'Your tempo', short: 'Tempo' },
-	{ id: 'begin', label: 'Begin', short: 'Begin' }
-] as const;
+/** The reading section: one long sentence, typed out by scrolling. */
+export const READING =
+	'Typing well is not a matter of speed. It is knowing, without looking, which finger belongs to every key, so that your hands keep pace with your thoughts and each word arrives on the page exactly as you meant it.';
 
 export { course };

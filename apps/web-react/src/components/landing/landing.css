@@ -1,0 +1,50 @@
+/* The landing page: an ordinary vertical page. Sections are bands separated by hairlines; the two dark bands
+   (the hero and the close) carry the dither. The only scroll-driven moment is the reading section. */
+
+.land { position: relative; isolation: isolate; padding: clamp(72px, 10vw, 136px) 0; scroll-margin-top: 72px; border-top: 1px solid var(--line); }
+.land-in { position: relative; max-width: 1180px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); }
+.land-band { background: var(--surface); }
+#rest { border-top: 0; padding-top: clamp(56px, 9vh, 112px); padding-bottom: clamp(56px, 9vh, 104px); min-height: calc(100dvh - 64px); display: flex; flex-direction: column; justify-content: center; }
+#rest .land-in { width: 100%; display: flex; flex-direction: column; }
+@media (max-width: 767px) { #rest ul { margin-bottom: 1.5rem; } }
+#begin { padding-bottom: clamp(40px, 6vw, 72px); }
+
+/* Dark bands: the night tokens, applied to a section or the header (same values as the dark theme). */
+.night {
+	color-scheme: dark;
+	--accent: #7088ff;
+	--on-accent: #050714;
+	--bg: #05060d;
+	--surface: #0d1020;
+	--surface-2: #151a30;
+	--line: #1f2540;
+	--line-strong: #2c3354;
+	--ink: #eef0fa;
+	--ink-2: #a3a9c4;
+	--ink-3: #9298b6;
+	--untyped: #5f6584;
+	background: var(--bg);
+	color: var(--ink);
+}
+.night-dither { position: absolute; inset: 0; z-index: -1; opacity: 0.55; mask-image: linear-gradient(180deg, transparent 0%, black 22%, black 78%, transparent 100%); }
+.night-dither > * { width: 100%; height: 100%; }
+
+.measure { display: flex; flex-direction: column; border-left: 1px solid var(--line-strong); padding: 28px 24px 8px; min-height: 340px; }
+.measure:first-child { border-left: 0; padding-left: 0; }
+@media (max-width: 639px) { .measure { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); } .measure:first-child { border-top: 0; } }
+
+/* Reading: the pinned typewriter. */
+.reading { position: relative; border-top: 1px solid var(--line); padding: clamp(56px, 8vw, 104px) clamp(16px, 4vw, 40px); }
+.reading-stage { position: relative; max-width: 1180px; margin-inline: auto; }
+.reading-line { font-family: var(--font-altera-serif), Georgia, serif; font-size: clamp(30px, 4vw, 52px); line-height: 1.18; letter-spacing: -0.02em; max-width: 24ch; text-wrap: balance; }
+.reading-c { white-space: pre-wrap; }
+.reading[data-typing] { min-height: calc(100dvh - 64px); display: flex; align-items: center; padding: 0; overflow: hidden; background: var(--surface); }
+.reading[data-typing] .reading-stage { max-width: none; width: 100%; margin: 0; }
+.reading[data-typing] .reading-line { font-size: clamp(56px, 8vw, 112px); max-width: none; white-space: nowrap; will-change: transform; text-wrap: nowrap; }
+.reading[data-typing] .reading-c { opacity: 0.1; white-space: pre; }
+.reading-caret { display: none; }
+.reading[data-typing] .reading-caret { display: block; position: absolute; left: 0; top: 50%; width: 4px; height: 1.05em; font-size: clamp(56px, 8vw, 112px); margin-top: -0.55em; background: var(--accent); }
+.reading[data-typing]::before, .reading[data-typing]::after { content: ''; position: absolute; top: 0; bottom: 0; width: clamp(40px, 8vw, 120px); z-index: 2; pointer-events: none; }
+.reading[data-typing]::before { left: 0; background: linear-gradient(90deg, var(--surface), transparent); }
+.reading[data-typing]::after { right: 0; background: linear-gradient(270deg, var(--surface), transparent); }
+@media (prefers-reduced-motion: reduce) { .reading { background: var(--surface); } }
