@@ -1,0 +1,21 @@
+web:
+  - changed-files:
+      - any-glob-to-any-file: ['apps/web/**']
+packages:
+  - changed-files:
+      - any-glob-to-any-file: ['packages/**']
+docs:
+  - changed-files:
+      - any-glob-to-any-file: ['docs/**', '*.md']
+ci:
+  - changed-files:
+      - any-glob-to-any-file: ['.github/**']
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file: ['package-lock.json']
+tests:
+  - changed-files:
+      - any-glob-to-any-file: ['**/*.test.ts', '**/*.spec.ts', 'apps/web/e2e/**', 'vitest.*.ts']
+security:
+  - changed-files:
+      - any-glob-to-any-file: ['docs/security/**', 'apps/web/src/hooks.server.ts']

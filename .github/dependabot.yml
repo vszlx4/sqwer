@@ -1,11 +1,15 @@
-# Weekly pull requests for outdated or vulnerable dependencies, reviewed and tested before merging.
+# Weekly pull requests for outdated or vulnerable dependencies, reviewed and tested by CI before merging.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+      day: monday
     open-pull-requests-limit: 5
+    labels: [dependencies]
+    commit-message:
+      prefix: 'Dependencies:'
     groups:
       minor-and-patch:
         update-types: [minor, patch]
@@ -13,3 +17,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
+      day: monday
+    labels: [dependencies, ci]
+    commit-message:
+      prefix: 'CI:'
