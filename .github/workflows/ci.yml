@@ -35,9 +35,20 @@ jobs:
         run: npm audit --omit=dev --audit-level=moderate
       - name: Type check
         run: npm run check -w web
+      - name: Type check (React rewrite)
+        if: hashFiles('apps/web-react/package.json') != ''
+        run: npm run check -w web-react
+      - name: Lint (React rewrite)
+        if: hashFiles('apps/web-react/package.json') != ''
+        run: npm run lint -w web-react
       - name: Unit tests
         run: npx vitest run
       - name: Production build
         run: npm run build -w web
+        env:
+          PUBLIC_SITE_URL: https://sqwer.invalid
+      - name: Production build (React rewrite)
+        if: hashFiles('apps/web-react/package.json') != ''
+        run: npm run build -w web-react
         env:
           PUBLIC_SITE_URL: https://sqwer.invalid
