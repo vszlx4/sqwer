@@ -1,12 +1,12 @@
-# Checks every push and pull request to main: dependency audit, type check, unit tests and a
+# Checks every push to the two long-lived branches (main, v2/react-rewrite) and every pull request into them: dependency audit, type check, unit tests and a
 # production build. The end-to-end suite needs a browser and runs locally (npm run test:e2e).
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, v2/react-rewrite]
   pull_request:
-    branches: [main]
+    branches: [main, v2/react-rewrite]
 
 # Read-only: this workflow never needs to write to the repository or use any secret.
 permissions:
@@ -17,6 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The job name "verify" is the required status check in the branch rulesets; do not rename it casually.
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
