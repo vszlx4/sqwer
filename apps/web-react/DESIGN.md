@@ -135,6 +135,12 @@ components:
   step-bar:
     backgroundColor: "{colors.porcelain-well}"
     height: "6px"
+  score-timeline:
+    textColor: "{colors.ink-quiet}"
+    typography: "{typography.label}"
+    height: "40px"
+  score-timeline-current:
+    textColor: "{colors.engraving-ink}"
 ---
 
 # Design System: sqwer
@@ -147,7 +153,7 @@ sqwer is set like a printed piano method. Typing is taught as notation: every ty
 
 The paper is cool porcelain, the ink is near-black navy, and one ultramarine does exactly two jobs: the action and the playhead. Five finger colours are the only other chromatic voice, and they always travel with a numeral. PP Altera Serif sets titles like engraved score headings; PP Neue Montreal carries prose; Geist Mono carries anything typed or measured. Density is generous and calm: wide sections, long measures, hairlines instead of boxes, so that the typing surface is the loudest thing on any screen. Night mode is deep navy, not grey, and keeps the same grammar.
 
-Motion is a playhead. Things sweep left to right, ease out from visible defaults, and stop. Around a typing surface everything else recedes; under reduced motion every loop, scrub and entrance is removed and the content stands complete.
+Motion is a playhead. Things sweep left to right, ease out from visible defaults, and stop. On the landing page the whole page is that score: scrolling down slides the panels sideways under a fixed playhead. Around a typing surface everything else recedes; under reduced motion every loop, scrub and entrance is removed and the content stands complete.
 
 **Key Characteristics:**
 - Every typed glyph is set on a staff with its finger numeral above it, in its finger colour.
@@ -190,7 +196,7 @@ Porcelain and navy ink with a single ultramarine, plus five finger colours that 
 
 **The Numeral Escort Rule.** A finger colour never appears without its numeral or a label beside it. Colour is not the only signal.
 
-**The Chord Rule.** The only background gradient is the chord: a faint (16% opacity) horizontal wash of the five finger colours, mirrored about the thumbs (little, ring, middle, index, thumb, index, middle, ring, little), masked to fade at top and bottom. It sits behind a staff, nowhere else. A single finger's wash fading from fingertip to palm inside the hands engraving is colouring, not a second gradient.
+**The Chord Rule.** The only background gradient is the chord: a faint (16% opacity) horizontal wash of the five finger colours, mirrored about the thumbs (little, ring, middle, index, thumb, index, middle, ring, little), masked to fade at top and bottom. It sits behind a staff, nowhere else (not behind the closing panel, which stands on the plain page). The 56px fade at the right edge of the pinned score is a veil of the page colour that makes the next measure arrive rather than be cut; it carries no hue and is not a second gradient. A single finger's wash fading from fingertip to palm inside the hands engraving is colouring, not a second gradient.
 
 ## Typography
 
@@ -220,7 +226,9 @@ Porcelain and navy ink with a single ultramarine, plus five finger colours that 
 
 A centred 1180px column with fluid gutters (clamp(16px, 4vw, 40px)) and very generous section rhythm (clamp(72px, 10vw, 136px) top and bottom; the closing section clamp(88px, 12vw, 168px)). Staves break the column: the hero staff and the score run full-bleed, while their letters and measures stay aligned to the column's left edge. Sections alternate between Porcelain and full-bleed Porcelain Band, bounded by hairlines. Two-column figures pair an illustration with its caption at roughly 1.2fr to 0.8fr from 1024px.
 
-The first viewport fills the screen less the chrome: headline top left, the full-width staff at mid-height, the action at the lower left. On narrow screens the action moves above the staff. The score is a horizontal track of measures (clamp(280px, 27vw, 350px) wide): from 900px with motion allowed it pins and scrolls sideways under a fixed playhead; below 900px it becomes a native snap-scrolling row. The guidance rail appears only from 1536px. The ranks scale and tempo scale keep a 900px minimum and scroll inside their own frame on small screens, where the tempo scale is replaced by a two-column league list.
+The first viewport fills the screen less the chrome: headline top left, the full-width staff at mid-height, the action at the lower left. On narrow screens the action moves above the staff. The score is a horizontal track of measures (clamp(280px, 27vw, 350px) wide): from 900px wide and 560px tall with motion allowed it pins and scrolls sideways under a fixed playhead; below that, or under reduced motion, the page is an ordinary vertical page and the measures a native snap-scrolling row.
+
+The landing page is the whole score. Pinned, it is one row of eight panels (Rest, Hands, Score, Practise, Grow, Technique, Tempo, Begin) in a viewport 100dvh less the 64px header; each panel is vertically centred, drops its band and borders, and takes its width from its content. The playhead stands at the left edge of the 1180px column plus its gutter (max(gutter, (100vw - 1180px) / 2 + 40px)), so content aligns to it at every width. The first panel (Rest) is deliberately narrower than the viewport (100vw less 340px) so the next measure is already entering from the right, and the last (Begin) is a full viewport wide. The right 56px of the pinned viewport fades to the page colour. A bottom timeline, 40px tall, sits 12px above the viewport floor between the playhead's left and right alignment lines. The guidance rail appears only from 1536px. The ranks scale and tempo scale keep a 900px minimum and scroll inside their own frame on small screens, where the tempo scale is replaced by a two-column league list.
 
 ## Elevation & Depth
 
@@ -239,11 +247,13 @@ Every rectangle that holds content or acts (buttons, étude tiles, keys, illustr
 Decisive and singular: one filled ultramarine action, repeated, never a choice of two.
 - **Shape:** softened corner (3px).
 - **Primary:** Ultramarine with white Neue Montreal 600, 44px tall with 20px sides at 15px in the header; 56px tall with 28px sides at 17px in the hero and close. A 18px stroked arrow follows the label.
-- **Hover / Focus:** brightness lifts 10% and the arrow slides 3px right; pressing nudges it down 1px. Focus is the global ring: 2px ink outline, 2px offset, with a 5px ultramarine halo.
+- **Hover / Focus:** the large hero action is drawn magnetically (React Bits Magnet, strength 4, at most 6px of travel within 36px padding); brightness lifts 10% and the arrow slides 3px right; pressing nudges it down 1px. Focus is the global ring: 2px ink outline, 2px offset, with a 5px ultramarine halo.
 - **Secondary:** there is no secondary button. Secondary actions are plain semibold ink text links ("See the whole course", "Map your fingers").
 
 ### Navigation
 - **Header:** sticky, 64px, 90% Porcelain with blur and a hairline bottom edge. Wordmark, then Learn, Practice, Ranked at 15px Neue Montreal 500 in Ink Prose turning to Ink on hover; Sign in and Get started at the right. Links hide below 768px; Sign in hides below 640px.
+- **Score timeline:** pinned only. Eight short movement labels (Rest, Hands, Score, Practise, Grow, Technique, Tempo, Begin) in Neue Montreal 500 at 12.5px, Ink Quiet, each under a 1px by 8px tick at the point of the scroll where its panel meets the playhead; the last label hangs left of its tick. A 2px Hairline rule runs above them and fills Ultramarine (scaleX from the left) with progress. The current label turns Ink at weight 600 (aria-current step). Labels are in-page links that slide the score to that panel; they are the table of contents, not decoration. Hover is Ink; focus is the global ring.
+- **Playhead label:** the 2px Ultramarine playhead carries a 12.5px semibold Ultramarine label on a page-colour backing, naming where you are: "You start here" at the start, "Chapter n" while inside the score's chapters, otherwise the movement name. The playhead sits behind the track (z-index 1 against the track's 2), so content passes over it.
 - **Guidance rail:** from 1536px, five numbered circles (28px, Altera 800 numerals) at the left edge. The current step fills ultramarine and shows its label in semibold ink; other labels appear on hover.
 
 ### The Staff (signature)
@@ -253,10 +263,13 @@ The typeable first viewport. Five staff lines over the chord, the home row a s d
 The staff's grammar at smaller sizes: a five-line staff with mono glyphs (26px or 64px) and their numerals (12px or 26px). It shows each chapter's new keys and the closing "f j".
 
 ### Measure
-One chapter in the score: a staff-line left border, a 2px bracket in its movement colour along the top (the movement name sits on the bracket where it begins), a large serif numeral that turns from Ink Quiet to Ink when the playhead reaches it, the serif title, a summary, a Phrase, a mono lesson count and the rank reached around there.
+One chapter in the score: a staff-line left border, a 2px bracket in its movement colour along the top (the movement name sits on the bracket where it begins), a large serif numeral that turns from Ink Quiet to Ink (300ms) when the playhead reaches it (the measure carries data-here while pinned; in the vertical page the same attribute is absent and the numeral stays quiet), the serif title, a summary, a Phrase, a mono lesson count and the rank reached around there.
 
 ### Hands and Keyboard
 Illustrations in the same notation. The hands are a hairline engraving with a legend of numerals and home keys joined to the fingertips by leader lines; the finger just typed on the staff stays at full strength while others fade to 35%. The keyboard tints each key with its finger colour at 16% (90% when highlighted), outlines it in that colour, and engraves the finger number in the corner.
+
+### Scroll motion
+On the pinned score the track slides with a GSAP ScrollTrigger scrub (0.6s lag, linear ease) under Lenis smoothing; clicking a timeline label scrolls there over 1.6s, instantly under reduced motion. Entrance is a single device, the rise (opacity 0 to 1, 28px up, 0.8s out-expo, begins when the element's left edge reaches 92% of the viewport), and it is given only to section headings and the hands figure of panels that arrive from the right. Anything on screen at load does not animate, except the hero headline, which rises word by word on load (React Bits SplitText). Headline numbers are set plainly and do not count up. Keyboard focus into an off-screen measure brings it to the playhead.
 
 ### Étude miniatures
 Each game is told on a 112px Porcelain tile ruled with staff lines, animated in CSS: falling notes, a sound wave and caret, a key hunt fuse, a race lane, an echo. Each loop plays three times then rests, and replays on hover or focus. Nothing animates under reduced motion.
@@ -273,6 +286,8 @@ Quantities are drawn on one honest axis: step-kind bars (6px Ultramarine on a Po
 - **Do** separate sections with hairlines and full-bleed Porcelain Band, not shadows or boxed cards.
 - **Do** move things as a playhead moves: left to right, ease out (out-expo), from visible defaults, then rest; loops play three times and stop.
 - **Do** put every animation under the reduced-motion media condition so it disappears in one place.
+- **Do** give a pinned score a way to know where you are (a playhead label and a timeline) and a way to jump (the timeline links), and keep the next measure partly visible at the right edge.
+- **Do** limit entrance to the rise, and only for what arrives from the right; leave what is on screen at load still.
 - **Do** give every figure a unit and a definition in a caption beneath its scale.
 - **Do** write copy in formal British English, sentence case, with no contractions, exclamation marks or em dashes.
 
@@ -284,3 +299,5 @@ Quantities are drawn on one honest axis: step-kind bars (6px Ultramarine on a Po
 - **Don't** dress the page as a concert hall: no instruments or sheet-music textures.
 - **Don't** add a second filled button beside Get started.
 - **Don't** use drop shadows to lift surfaces.
+- **Don't** rely on the horizontal score below 900px, under reduced motion or in short windows; the vertical page must carry the same content in the same order.
+- **Don't** animate numbers up to their value in headlines.
