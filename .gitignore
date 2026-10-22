@@ -17,3 +17,7 @@ playwright-report
 **/.impeccable/hook.cache.json
 **/.impeccable/config.local.json
 **/.impeccable/questions/
+
+# iCloud sync conflict copies ("file 2.ext")
+* [2-9]
+* [2-9].*
