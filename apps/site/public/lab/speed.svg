@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800"><rect width="600" height="800" fill="#0E1120"/><g stroke="#1F2540" stroke-width="2">
+<line x1="60" y1="200" x2="540" y2="200"/><line x1="60" y1="320" x2="540" y2="320"/><line x1="60" y1="440" x2="540" y2="440"/><line x1="60" y1="560" x2="540" y2="560"/></g>
+<path d="M60 540 C120 520 150 470 200 480 S280 400 330 390 S410 300 450 290 S520 230 540 210" fill="none" stroke="#7088FF" stroke-width="10" stroke-linecap="round"/>
+<path d="M60 560 C140 540 170 520 230 500 S330 470 380 440 S470 420 540 380" fill="none" stroke="#5F6584" stroke-width="5" stroke-dasharray="4 14" stroke-linecap="round"/>
+<circle cx="540" cy="210" r="16" fill="#7088FF"/><circle cx="540" cy="210" r="30" fill="#7088FF" opacity=".25"/>
+<text x="60" y="140" font-family="Helvetica, Arial, sans-serif" font-size="80" font-weight="700" fill="#EEF0FA">87 <tspan font-size="34" fill="#A3A9C4">WPM</tspan></text>
+<text x="60" y="680" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#A3A9C4" letter-spacing="4">SPEED OVER TIME</text></svg>

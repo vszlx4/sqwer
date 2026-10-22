@@ -1,0 +1,854 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-21T00:00:00Z",
+  "title": "Design System: sqwer",
+  "extensions": {
+    "colorMeta": {
+      "ultramarine": {
+        "role": "primary",
+        "displayName": "Ultramarine",
+        "purpose": "The action and the playhead; selection and focus halo.",
+        "tonalRamp": [
+          "#020038",
+          "#090672",
+          "#1614B7",
+          "#263DE8",
+          "#466EFA",
+          "#7599FD",
+          "#ACC3FC",
+          "#E8EEFE"
+        ]
+      },
+      "on-ultramarine": {
+        "role": "primary",
+        "displayName": "On Ultramarine",
+        "purpose": "Text on the action.",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#7D7D7D",
+          "#9E9E9E",
+          "#C4C4C4",
+          "#EEEEEE"
+        ]
+      },
+      "ultramarine-night": {
+        "role": "primary",
+        "displayName": "Ultramarine Night",
+        "purpose": "Declared night accent (palettes.ts); not yet applied by globals.css.",
+        "tonalRamp": [
+          "#050037",
+          "#140370",
+          "#262A9B",
+          "#3F4EBF",
+          "#5B70E5",
+          "#7F96FB",
+          "#B1C1FB",
+          "#E9EEFE"
+        ]
+      },
+      "on-ultramarine-night": {
+        "role": "primary",
+        "displayName": "On Ultramarine Night",
+        "purpose": "Text on the night accent.",
+        "tonalRamp": [
+          "#070A18",
+          "#1F2333",
+          "#3A3F50",
+          "#585D6F",
+          "#777C90",
+          "#989EB2",
+          "#BDC3D8",
+          "#E9EEFF"
+        ]
+      },
+      "porcelain": {
+        "role": "neutral",
+        "displayName": "Porcelain",
+        "purpose": "Page, header, étude tiles.",
+        "tonalRamp": [
+          "#0A0B0D",
+          "#232427",
+          "#3F4043",
+          "#5D5D61",
+          "#7C7D80",
+          "#9D9EA2",
+          "#C3C4C8",
+          "#EDEEF2"
+        ]
+      },
+      "porcelain-band": {
+        "role": "neutral",
+        "displayName": "Porcelain Band",
+        "purpose": "Full-bleed tonal bands (score, ranks).",
+        "tonalRamp": [
+          "#0A0B10",
+          "#222429",
+          "#3E3F46",
+          "#5C5D64",
+          "#7B7D84",
+          "#9C9EA5",
+          "#C2C4CB",
+          "#ECEEF6"
+        ]
+      },
+      "porcelain-well": {
+        "role": "neutral",
+        "displayName": "Porcelain Well",
+        "purpose": "Bar tracks, idle miniature keys.",
+        "tonalRamp": [
+          "#090B12",
+          "#21242C",
+          "#3D3F49",
+          "#5B5D67",
+          "#7A7D87",
+          "#9B9EA9",
+          "#C1C3CF",
+          "#EBEEFA"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "purpose": "Section borders and list rules.",
+        "tonalRamp": [
+          "#080B13",
+          "#21232E",
+          "#3C3F4A",
+          "#5A5D69",
+          "#797D89",
+          "#9A9EAB",
+          "#C0C4D1",
+          "#EAEEFC"
+        ]
+      },
+      "staff-line": {
+        "role": "neutral",
+        "displayName": "Staff Line",
+        "purpose": "Staff lines, measure bar lines, leader lines.",
+        "tonalRamp": [
+          "#070A17",
+          "#1F2332",
+          "#3A3F4F",
+          "#585D6E",
+          "#777D8F",
+          "#989EB1",
+          "#BDC3D7",
+          "#E9EEFE"
+        ]
+      },
+      "engraving-ink": {
+        "role": "neutral",
+        "displayName": "Engraving Ink",
+        "purpose": "Headings, typed letters, engraved outlines.",
+        "tonalRamp": [
+          "#070A18",
+          "#1F2333",
+          "#3A3F51",
+          "#585D70",
+          "#777C90",
+          "#989DB2",
+          "#BEC3D9",
+          "#EAEEFE"
+        ]
+      },
+      "ink-prose": {
+        "role": "neutral",
+        "displayName": "Ink Prose",
+        "purpose": "Body copy and ledes.",
+        "tonalRamp": [
+          "#06091C",
+          "#1E2238",
+          "#393E55",
+          "#565C75",
+          "#757C96",
+          "#969DB8",
+          "#BBC3DF",
+          "#E9EEFE"
+        ]
+      },
+      "ink-quiet": {
+        "role": "neutral",
+        "displayName": "Ink Quiet",
+        "purpose": "Footnotes, idle chapter numerals, axis values.",
+        "tonalRamp": [
+          "#07081E",
+          "#1E223A",
+          "#393E58",
+          "#565C77",
+          "#757C99",
+          "#969DBB",
+          "#BBC2E2",
+          "#EAEEFF"
+        ]
+      },
+      "untyped": {
+        "role": "neutral",
+        "displayName": "Untyped",
+        "purpose": "Staff letters not yet typed (2.8:1; state only, never reading text).",
+        "tonalRamp": [
+          "#07091A",
+          "#1F2336",
+          "#3A3E53",
+          "#575C72",
+          "#767C93",
+          "#979DB6",
+          "#BDC3DC",
+          "#E9EEFF"
+        ]
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "purpose": "Night-mode counterpart of the matching porcelain or ink role.",
+        "tonalRamp": [
+          "#090B13",
+          "#21232D",
+          "#3D3F49",
+          "#5B5D68",
+          "#7A7D88",
+          "#9B9EAA",
+          "#C1C3D0",
+          "#EBEEFB"
+        ]
+      },
+      "night-band": {
+        "role": "neutral",
+        "displayName": "Night Band",
+        "purpose": "Night-mode counterpart of the matching porcelain or ink role.",
+        "tonalRamp": [
+          "#070A19",
+          "#1F2334",
+          "#3A3F52",
+          "#585D71",
+          "#777C92",
+          "#989DB4",
+          "#BDC3DA",
+          "#E9EEFF"
+        ]
+      },
+      "night-well": {
+        "role": "neutral",
+        "displayName": "Night Well",
+        "purpose": "Night-mode counterpart of the matching porcelain or ink role.",
+        "tonalRamp": [
+          "#06091D",
+          "#1D2239",
+          "#383E57",
+          "#555C77",
+          "#747C98",
+          "#959DBA",
+          "#BAC3E1",
+          "#E9EEFE"
+        ]
+      },
+      "night-hairline": {
+        "role": "neutral",
+        "displayName": "Night Hairline",
+        "purpose": "Night-mode counterpart of the matching porcelain or ink role.",
+        "tonalRamp": [
+          "#060820",
+          "#1C223D",
+          "#373E5B",
+          "#545C7B",
+          "#737C9C",
+          "#949DBF",
+          "#B9C3E6",
+          "#E9EEFE"
+        ]
+      },
+      "night-staff-line": {
+        "role": "neutral",
+        "displayName": "Night Staff Line",
+        "purpose": "Night-mode counterpart of the matching porcelain or ink role.",
+        "tonalRamp": [
+          "#050723",
+          "#1B2140",
+          "#363D5F",
+          "#535B7F",
+          "#727BA1",
+          "#929CC4",
+          "#B7C2EB",
+          "#E9EEFF"
+        ]
+      },
+      "night-ink": {
+        "role": "neutral",
+        "displayName": "Night Ink",
+        "purpose": "Night-mode counterpart of the matching porcelain or ink role.",
+        "tonalRamp": [
+          "#0A0B11",
+          "#22242B",
+          "#3E3F47",
+          "#5B5D65",
+          "#7B7D86",
+          "#9C9EA7",
+          "#C2C3CD",
+          "#ECEEF8"
+        ]
+      },
+      "night-ink-prose": {
+        "role": "neutral",
+        "displayName": "Night Ink Prose",
+        "purpose": "Night-mode counterpart of the matching porcelain or ink role.",
+        "tonalRamp": [
+          "#07091B",
+          "#1F2237",
+          "#3A3E55",
+          "#575C74",
+          "#767C95",
+          "#979DB8",
+          "#BCC3DE",
+          "#EAEEFF"
+        ]
+      },
+      "night-ink-quiet": {
+        "role": "neutral",
+        "displayName": "Night Ink Quiet",
+        "purpose": "Night-mode counterpart of the matching porcelain or ink role.",
+        "tonalRamp": [
+          "#07081D",
+          "#1E2239",
+          "#393E57",
+          "#575C77",
+          "#767B98",
+          "#979DBB",
+          "#BCC2E2",
+          "#EAEEFE"
+        ]
+      },
+      "night-untyped": {
+        "role": "neutral",
+        "displayName": "Night Untyped",
+        "purpose": "Night-mode counterpart of the matching porcelain or ink role.",
+        "tonalRamp": [
+          "#070820",
+          "#1E213C",
+          "#383D5A",
+          "#565B7A",
+          "#757B9B",
+          "#969CBE",
+          "#BBC2E5",
+          "#EAEEFF"
+        ]
+      },
+      "sky": {
+        "role": "secondary",
+        "displayName": "Sky",
+        "purpose": "Information and speed; movement bracket 2.",
+        "tonalRamp": [
+          "#000C1F",
+          "#002642",
+          "#01436E",
+          "#06629C",
+          "#2A83C5",
+          "#50A5EA",
+          "#91CBFD",
+          "#E2F1FE"
+        ],
+        "night": "#5BBAF5"
+      },
+      "teal": {
+        "role": "secondary",
+        "displayName": "Teal",
+        "purpose": "Success and accuracy; tick marks; movement bracket 1.",
+        "tonalRamp": [
+          "#00100B",
+          "#002C23",
+          "#084B3F",
+          "#136D5C",
+          "#338F7C",
+          "#59B19D",
+          "#80D8C3",
+          "#BCFFED"
+        ],
+        "night": "#41CFAE"
+      },
+      "iris": {
+        "role": "secondary",
+        "displayName": "Iris",
+        "purpose": "Ranks and progress; movement bracket 3.",
+        "tonalRamp": [
+          "#0A0031",
+          "#21006D",
+          "#3915A6",
+          "#5240CB",
+          "#6E64F1",
+          "#8F90FE",
+          "#BABEFD",
+          "#EBEDFE"
+        ],
+        "night": "#A399FF"
+      },
+      "coral": {
+        "role": "secondary",
+        "displayName": "Coral",
+        "purpose": "Streaks and energy; movement bracket 4.",
+        "tonalRamp": [
+          "#220000",
+          "#470900",
+          "#721E04",
+          "#A3300B",
+          "#C85433",
+          "#EF7655",
+          "#FFAC95",
+          "#FFE9E3"
+        ],
+        "night": "#F5866A"
+      },
+      "error": {
+        "role": "secondary",
+        "displayName": "Error",
+        "purpose": "Wrong keys, struck through beside the playhead.",
+        "tonalRamp": [
+          "#210001",
+          "#4B000A",
+          "#7C0118",
+          "#B00727",
+          "#D73D47",
+          "#FF6367",
+          "#FDABA8",
+          "#FEE9E7"
+        ],
+        "night": "#FF6E7A"
+      },
+      "finger-little": {
+        "role": "secondary",
+        "displayName": "Little Finger",
+        "purpose": "Finger 5 identity.",
+        "tonalRamp": [
+          "#0C0033",
+          "#23006A",
+          "#3C16A1",
+          "#5640C6",
+          "#7364EC",
+          "#938FFA",
+          "#BCBDFB",
+          "#ECEDFF"
+        ],
+        "night": "#9C90FF"
+      },
+      "finger-ring": {
+        "role": "secondary",
+        "displayName": "Ring Finger",
+        "purpose": "Finger 4 identity.",
+        "tonalRamp": [
+          "#00100B",
+          "#002C23",
+          "#004B3F",
+          "#006E5C",
+          "#15917C",
+          "#38B59D",
+          "#65DCC2",
+          "#BDFFED"
+        ],
+        "night": "#36C7A8"
+      },
+      "finger-middle": {
+        "role": "secondary",
+        "displayName": "Middle Finger",
+        "purpose": "Finger 3 identity.",
+        "tonalRamp": [
+          "#220000",
+          "#460C00",
+          "#731D00",
+          "#A42E01",
+          "#CA522F",
+          "#F17551",
+          "#FCAE97",
+          "#FFE9E3"
+        ],
+        "night": "#F38C66"
+      },
+      "finger-index": {
+        "role": "secondary",
+        "displayName": "Index Finger",
+        "purpose": "Finger 2 identity.",
+        "tonalRamp": [
+          "#000C1E",
+          "#002642",
+          "#00436E",
+          "#00629D",
+          "#1483CC",
+          "#43A6F1",
+          "#90CBFE",
+          "#E1F1FF"
+        ],
+        "night": "#5CB3F3"
+      },
+      "finger-thumb": {
+        "role": "secondary",
+        "displayName": "Thumb",
+        "purpose": "Finger 1 identity.",
+        "tonalRamp": [
+          "#1F000F",
+          "#46022A",
+          "#730849",
+          "#9B2A69",
+          "#C04E89",
+          "#E670AB",
+          "#FDA5CD",
+          "#FEE7F1"
+        ],
+        "night": "#EE8DC0"
+      },
+      "metal-bronze": {
+        "role": "tertiary",
+        "displayName": "Bronze",
+        "purpose": "Rank tier notehead.",
+        "tonalRamp": [
+          "#1C0300",
+          "#3C1900",
+          "#642F00",
+          "#894C1D",
+          "#AC6C3F",
+          "#D08D60",
+          "#F8B284",
+          "#FFEADD"
+        ]
+      },
+      "metal-silver": {
+        "role": "tertiary",
+        "displayName": "Silver",
+        "purpose": "Rank tier notehead.",
+        "tonalRamp": [
+          "#040B17",
+          "#1B2432",
+          "#364050",
+          "#545E6F",
+          "#737E8F",
+          "#939FB1",
+          "#B9C5D8",
+          "#E5EFFE"
+        ]
+      },
+      "metal-gold": {
+        "role": "tertiary",
+        "displayName": "Gold",
+        "purpose": "Rank tier notehead.",
+        "tonalRamp": [
+          "#140900",
+          "#302100",
+          "#523C00",
+          "#775804",
+          "#9C7715",
+          "#BF9841",
+          "#E6BE68",
+          "#FEEDC9"
+        ]
+      },
+      "metal-teal": {
+        "role": "tertiary",
+        "displayName": "Teal Metal",
+        "purpose": "Rank tier notehead.",
+        "tonalRamp": [
+          "#00100B",
+          "#012B24",
+          "#064B3F",
+          "#0F6D5D",
+          "#03927C",
+          "#41B49D",
+          "#6CDBC3",
+          "#BBFFEE"
+        ]
+      },
+      "metal-sapphire": {
+        "role": "tertiary",
+        "displayName": "Sapphire",
+        "purpose": "Rank tier notehead.",
+        "tonalRamp": [
+          "#050034",
+          "#140172",
+          "#26299C",
+          "#3E4DC1",
+          "#5B70E6",
+          "#7E96FC",
+          "#B1C1FC",
+          "#E9EEFE"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero and closing headlines; two lines."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles, 20 to 22ch."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Chapter titles; game, rank, test and principle names at 18 to 26px."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "Chapter numbers; finger numerals at 12 to 34px; rail numbers."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "Paragraph under each section title, max 62ch."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Captions, summaries, descriptions (15 to 15.5px)."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Playhead, bracket and league labels; sentence case."
+      },
+      "staff": {
+        "displayName": "Staff",
+        "purpose": "Typed letters on the hero staff; 64px and 26px on phrases."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Counts, axis values, thresholds; tabular."
+      }
+    },
+    "gradients": [
+      {
+        "name": "chord",
+        "value": "linear-gradient(90deg, var(--f-pinky), var(--f-ring) 18%, var(--f-middle) 32%, var(--f-index) 46%, var(--f-thumb) 50%, var(--f-index) 54%, var(--f-middle) 68%, var(--f-ring) 82%, var(--f-pinky))",
+        "opacity": 0.16,
+        "mask": "linear-gradient(transparent, #000 30%, #000 70%, transparent)",
+        "purpose": "The only background gradient; behind a staff (hero, close)."
+      }
+    ],
+    "shadows": [],
+    "focus": {
+      "value": "outline: 2px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 5px var(--accent); border-radius: 3px",
+      "purpose": "Global focus ring on every interactive element."
+    },
+    "motion": [
+      {
+        "name": "out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Default ease: playhead moves, numeral lift, rank entrances."
+      },
+      {
+        "name": "out-soft",
+        "value": "cubic-bezier(0.2, 0.7, 0.2, 1)",
+        "purpose": "Registered system ease."
+      },
+      {
+        "name": "out-pop",
+        "value": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "Registered system ease."
+      },
+      {
+        "name": "spring",
+        "value": "cubic-bezier(0.3, 1.6, 0.5, 1)",
+        "purpose": "Registered system ease."
+      },
+      {
+        "name": "spring-soft",
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "purpose": "Registered system ease."
+      },
+      {
+        "name": "in-quick",
+        "value": "cubic-bezier(0.4, 0, 1, 1)",
+        "purpose": "Registered system ease for exits."
+      },
+      {
+        "name": "duration-instant",
+        "value": "70ms",
+        "purpose": "System duration."
+      },
+      {
+        "name": "duration-fast",
+        "value": "130ms",
+        "purpose": "System duration; hover colour shifts run 150ms in the build."
+      },
+      {
+        "name": "duration-base",
+        "value": "220ms",
+        "purpose": "System duration."
+      },
+      {
+        "name": "duration-slow",
+        "value": "400ms",
+        "purpose": "System duration."
+      },
+      {
+        "name": "duration-reveal",
+        "value": "700ms",
+        "purpose": "System duration; rank entrances run 600ms with 60ms stagger."
+      },
+      {
+        "name": "playhead",
+        "value": "transform 300ms out-expo",
+        "purpose": "Staff playhead and numeral lift (translateY -6px, scale 1.18)."
+      },
+      {
+        "name": "score-pin",
+        "value": "GSAP ScrollTrigger pin, scrub 0.6, ease none, from 900px with motion allowed",
+        "purpose": "The score slides sideways under a fixed playhead."
+      },
+      {
+        "name": "etude-loop",
+        "value": "3 iterations, then rest; infinite on hover or focus-within",
+        "purpose": "Game miniatures."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "(prefers-reduced-motion: reduce)",
+        "purpose": "Every animation sits under gsap.matchMedia no-preference; CSS loops and the staff demo are removed."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "score-pin",
+        "value": "900px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "rail",
+        "value": "1536px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Get started",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action, in the header (44px) and repeated large (56px) in the hero and close.",
+      "html": "<a href=\"#\" class=\"ds-btn-primary\">Get started <svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></a>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 20px; border-radius: 3px; background: var(--accent); color: var(--on-accent); font-family: var(--font-sans); font-weight: 600; font-size: 15px; text-decoration: none; transition: filter 150ms, transform 150ms; } .ds-btn-primary svg { transition: transform 180ms; } .ds-btn-primary:hover { filter: brightness(1.1); } .ds-btn-primary:hover svg { transform: translateX(3px); } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 5px var(--accent); }"
+    },
+    {
+      "name": "Get started, large",
+      "kind": "button",
+      "refersTo": "button-primary-large",
+      "description": "The hero and closing action.",
+      "html": "<a href=\"#\" class=\"ds-btn-primary-lg\">Get started <svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></a>",
+      "css": ".ds-btn-primary-lg { display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 28px; border-radius: 3px; background: var(--accent); color: var(--on-accent); font-family: var(--font-sans); font-weight: 600; font-size: 17px; text-decoration: none; transition: filter 150ms, transform 150ms; } .ds-btn-primary-lg svg { transition: transform 180ms; } .ds-btn-primary-lg:hover { filter: brightness(1.1); } .ds-btn-primary-lg:hover svg { transform: translateX(3px); } .ds-btn-primary-lg:active { transform: translateY(1px); } .ds-btn-primary-lg:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 5px var(--accent); }"
+    },
+    {
+      "name": "Header",
+      "kind": "nav",
+      "refersTo": "header-bar",
+      "description": "Sticky 64px bar, 90% porcelain with blur and a hairline edge; one filled action.",
+      "html": "<header class=\"ds-header\"><strong class=\"ds-word\">sqwer</strong><nav><a href=\"#\">Learn</a><a href=\"#\">Practice</a><a href=\"#\">Ranked</a></nav><span class=\"ds-right\"><a href=\"#\" class=\"ds-signin\">Sign in</a><a href=\"#\" class=\"ds-cta\">Get started <svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></a></span></header>",
+      "css": ".ds-header { display: flex; align-items: center; gap: 32px; height: 64px; padding: 0 24px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(12px); font-family: var(--font-sans); } .ds-word { font-size: 20px; color: var(--ink); } .ds-header nav { display: flex; gap: 28px; } .ds-header nav a { font-size: 15px; font-weight: 500; color: var(--ink-2); text-decoration: none; transition: color 150ms; } .ds-header nav a:hover { color: var(--ink); } .ds-right { margin-left: auto; display: flex; align-items: center; gap: 16px; } .ds-signin { font-size: 15px; font-weight: 500; color: var(--ink); text-decoration: none; } .ds-cta { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 20px; border-radius: 3px; background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 15px; text-decoration: none; } .ds-cta:hover { filter: brightness(1.1); } .ds-header a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 5px var(--accent); }"
+    },
+    {
+      "name": "The Staff",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Signature: home row on five lines over the chord, finger numerals above, bar line between hands, ultramarine playhead.",
+      "html": "<div class=\"ds-staff\"><div class=\"ds-staff-chord\"></div><div class=\"ds-staff-lines\"><i></i><i></i><i></i><i></i><i></i></div><span class=\"ds-staff-bar\"></span><span class=\"ds-staff-playhead\"></span><ol><li class=\"ds-lit\"><b style=\"color:var(--f-pinky)\">5</b><span>a</span><em style=\"background:var(--f-pinky);opacity:0\"></em></li><li class=\"ds-lit\"><b style=\"color:var(--f-ring)\">4</b><span>s</span><em style=\"background:var(--f-ring);opacity:0\"></em></li><li class=\"ds-lit\"><b style=\"color:var(--f-middle)\">3</b><span>d</span><em style=\"background:var(--f-middle);opacity:0\"></em></li><li class=\"ds-lit\"><b style=\"color:var(--f-index)\">2</b><span>f</span><em style=\"background:var(--f-index);opacity:1\"></em></li><li class=\"\"><b style=\"color:var(--f-index)\">2</b><span>j</span><em style=\"background:var(--f-index);opacity:1\"></em></li><li class=\"\"><b style=\"color:var(--f-middle)\">3</b><span>k</span><em style=\"background:var(--f-middle);opacity:0\"></em></li><li class=\"\"><b style=\"color:var(--f-ring)\">4</b><span>l</span><em style=\"background:var(--f-ring);opacity:0\"></em></li><li class=\"\"><b style=\"color:var(--f-pinky)\">5</b><span>;</span><em style=\"background:var(--f-pinky);opacity:0\"></em></li></ol></div>",
+      "css": ".ds-staff { position: relative; isolation: isolate; overflow: hidden; padding: 36px 24px; background: var(--bg); } .ds-staff-chord { position: absolute; inset: 0; z-index: -1; opacity: 0.16; background: linear-gradient(90deg, var(--f-pinky), var(--f-ring) 18%, var(--f-middle) 32%, var(--f-index) 46%, var(--f-thumb) 50%, var(--f-index) 54%, var(--f-middle) 68%, var(--f-ring) 82%, var(--f-pinky)); -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); } .ds-staff-lines { position: absolute; left: 0; right: 0; top: 50%; height: 120px; transform: translateY(-50%); display: flex; flex-direction: column; justify-content: space-between; } .ds-staff-lines i { height: 1px; background: var(--line-strong); } .ds-staff-bar { position: absolute; top: 16%; bottom: 16%; left: 50%; width: 1px; background: var(--ink-3); } .ds-staff-playhead { position: absolute; top: 14%; bottom: 14%; left: 47%; width: 2px; background: var(--accent); transition: transform 300ms cubic-bezier(0.16,1,0.3,1); } .ds-staff ol { position: relative; display: flex; justify-content: space-between; align-items: flex-end; list-style: none; margin: 0; padding: 0; } .ds-staff li { display: flex; flex-direction: column; align-items: center; } .ds-staff li b { font-family: var(--font-serif); font-weight: 800; font-size: 24px; line-height: 1; opacity: 0.35; } .ds-staff li.ds-lit b { opacity: 1; } .ds-staff li span { margin-top: 12px; font-family: var(--font-mono); font-size: 52px; line-height: 1; color: var(--untyped); transition: color 200ms; } .ds-staff li.ds-lit span { color: var(--ink); } .ds-staff li em { margin-top: 8px; width: 24px; height: 3px; border-radius: 2px; }"
+    },
+    {
+      "name": "Measure",
+      "kind": "card",
+      "refersTo": "measure",
+      "description": "One chapter of the score: movement bracket, serif numeral, title, summary, phrase, mono count.",
+      "html": "<div class=\"ds-measure\"><span class=\"ds-bracket\"></span><span class=\"ds-movement\">Letters</span><p class=\"ds-num\">1</p><h3>The home row</h3><p class=\"ds-sum\">Where your fingers rest, and the eight keys under them.</p><p class=\"ds-count\">10 lessons</p></div>",
+      "css": ".ds-measure { position: relative; width: 300px; padding: 40px 24px 8px; border-left: 1px solid var(--line-strong); background: var(--surface); font-family: var(--font-sans); } .ds-bracket { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--teal); } .ds-movement { position: absolute; top: 0; left: 16px; transform: translateY(-50%); padding: 0 8px; background: var(--surface); color: var(--teal); font-size: 12.5px; font-weight: 600; } .ds-num { margin: 0; font-family: var(--font-serif); font-weight: 800; font-size: 56px; line-height: 1; color: var(--ink-3); transition: color 300ms; } .ds-measure:hover .ds-num { color: var(--ink); } .ds-measure h3 { margin: 12px 0 0; font-family: var(--font-serif); font-weight: 400; font-size: 28px; line-height: 1.1; color: var(--ink); } .ds-sum { margin: 8px 0 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); } .ds-count { margin: 20px 0 0; font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); }"
+    },
+    {
+      "name": "Step bar",
+      "kind": "custom",
+      "refersTo": "step-bar",
+      "description": "A count drawn on a stated common scale: label, mono figure, 6px ultramarine bar, one-line definition.",
+      "html": "<div class=\"ds-stepbar\"><dt>Drills</dt><dd class=\"ds-n\">254</dd><dd class=\"ds-track\"><span style=\"width:100%\"></span></dd><dd class=\"ds-line\">Short timed passages over the keys you know.</dd></div>",
+      "css": ".ds-stepbar { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 16px; max-width: 480px; font-family: var(--font-sans); } .ds-stepbar dt { font-size: 16px; font-weight: 600; color: var(--ink); } .ds-n { margin: 0; font-family: var(--font-mono); font-size: 14px; color: var(--ink-2); } .ds-track { grid-column: span 2; margin: 8px 0 0; height: 6px; border-radius: 2px; background: var(--surface-2); } .ds-track span { display: block; height: 100%; border-radius: 2px; background: var(--accent); } .ds-line { grid-column: span 2; margin: 8px 0 0; font-size: 14px; color: var(--ink-2); }"
+    },
+    {
+      "name": "Phrase",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Small staff with mono glyphs and finger numerals, for new keys and short words.",
+      "html": "<div class=\"ds-phrase\"><div class=\"ds-pl\"><i></i><i></i><i></i><i></i><i></i></div><span class=\"ds-g\"><span><b style=\"color:var(--f-index)\">2</b>f</span><span><b style=\"color:var(--f-index)\">2</b>j</span></span></div>",
+      "css": ".ds-phrase { position: relative; display: inline-block; padding-right: 8px; } .ds-pl { position: absolute; left: 0; right: 0; top: 22px; height: 46px; display: flex; flex-direction: column; justify-content: space-between; } .ds-pl i { height: 1px; background: var(--line-strong); } .ds-g { position: relative; display: flex; gap: 7px; } .ds-g > span { display: flex; flex-direction: column; align-items: center; font-family: var(--font-mono); font-size: 26px; line-height: 1; color: var(--ink); } .ds-g b { margin-bottom: 7px; font-family: var(--font-serif); font-weight: 800; font-size: 12px; line-height: 1; }"
+    },
+    {
+      "name": "Text link",
+      "kind": "button",
+      "refersTo": "link-text",
+      "description": "Every secondary action: semibold ink text, no fill.",
+      "html": "<a href=\"#\" class=\"ds-link\">See the whole course</a>",
+      "css": ".ds-link { font-family: var(--font-sans); font-size: 15px; font-weight: 600; color: var(--ink); text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color 150ms; } .ds-link:hover { text-decoration-color: currentColor; } .ds-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 5px var(--accent); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Fingering Edition",
+    "overview": "sqwer is set like a printed piano method. Typing is taught as notation: every typed letter sits on a five-line staff in Geist Mono, its finger number (1 thumb to 5 little finger, counted per hand) engraved above it in that finger's colour, and the course is one score of twelve measures read left to right under an ultramarine playhead. Staves, numerals, bar lines and tempo terms are working grammar that carries real information (which finger, which chapter, what speed); they are never ornament, and the page does not dress as a concert hall.\n\nThe paper is cool porcelain, the ink is near-black navy, and one ultramarine does exactly two jobs: the action and the playhead. Five finger colours are the only other chromatic voice, and they always travel with a numeral. PP Altera Serif sets titles like engraved score headings; PP Neue Montreal carries prose; Geist Mono carries anything typed or measured. Density is generous and calm: wide sections, long measures, hairlines instead of boxes, so that the typing surface is the loudest thing on any screen. Night mode is deep navy, not grey, and keeps the same grammar.\n\nMotion is a playhead. Things sweep left to right, ease out from visible defaults, and stop. Around a typing surface everything else recedes; under reduced motion every loop, scrub and entrance is removed and the content stands complete.",
+    "keyCharacteristics": [
+      "Every typed glyph is set on a staff with its finger numeral above it, in its finger colour.",
+      "One ultramarine for the action and the playhead; nothing else is ultramarine-filled.",
+      "Serif titles at weight 400, serif numerals at 800, mono for typed text and figures, sans for prose.",
+      "Hairlines and tonal bands, never cards or shadows, structure the page.",
+      "Every corner is 3px; noteheads and numeral discs are the only true curves.",
+      "A playhead sweeps left to right; nothing else moves for long."
+    ],
+    "rules": [
+      {
+        "name": "The Two Jobs Rule",
+        "body": "Ultramarine fills the action and draws the playhead. It never fills a decorative surface, a heading or a second competing button.",
+        "section": "colors"
+      },
+      {
+        "name": "The Numeral Escort Rule",
+        "body": "A finger colour never appears without its numeral or a label beside it. Colour is not the only signal.",
+        "section": "colors"
+      },
+      {
+        "name": "The Chord Rule",
+        "body": "The only background gradient is the chord: a faint (16% opacity) horizontal wash of the five finger colours, mirrored about the thumbs (little, ring, middle, index, thumb, index, middle, ring, little), masked to fade at top and bottom. It sits behind a staff, nowhere else. A single finger's wash fading from fingertip to palm inside the hands engraving is colouring, not a second gradient.",
+        "section": "colors"
+      },
+      {
+        "name": "The Typewriter Rule",
+        "body": "Anything the learner types, and any number that is counted, is set in Geist Mono. Prose is never mono.",
+        "section": "typography"
+      },
+      {
+        "name": "The Engraved Numeral Rule",
+        "body": "Finger numbers and chapter numbers are Altera Serif at weight 800; headings stay at 400. Weight belongs to numerals, not titles.",
+        "section": "typography"
+      },
+      {
+        "name": "The Engraved Page Rule",
+        "body": "Structure is drawn with lines, not lifted with shadows. If a surface needs separation, give it a tonal band or a hairline.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do set every typed glyph in Geist Mono on a five-line staff, with its finger numeral (piano convention per hand, thumb 1 to little finger 5) above it in that finger's colour.",
+      "Do keep Ultramarine (#3355FF) to the action, the playhead and the next-key cue; render every other emphasis in Engraving Ink weight.",
+      "Do use 3px for every rectangular corner, and reserve curves for noteheads and numeral discs.",
+      "Do separate sections with hairlines and full-bleed Porcelain Band, not shadows or boxed cards.",
+      "Do move things as a playhead moves: left to right, ease out (out-expo), from visible defaults, then rest; loops play three times and stop.",
+      "Do put every animation under the reduced-motion media condition so it disappears in one place.",
+      "Do give every figure a unit and a definition in a caption beneath its scale.",
+      "Do write copy in formal British English, sentence case, with no contractions, exclamation marks or em dashes."
+    ],
+    "donts": [
+      "Don't place small labels above headings. In this world labels belong to a mark: a bracket, the playhead, a scale tick.",
+      "Don't use a finger colour without its numeral or a text label.",
+      "Don't add a second background gradient; the chord behind a staff is the only one.",
+      "Don't use staves, numerals or tempo terms as ornament: each must carry a real finger, chapter or speed.",
+      "Don't dress the page as a concert hall: no instruments or sheet-music textures.",
+      "Don't add a second filled button beside Get started.",
+      "Don't use drop shadows to lift surfaces."
+    ]
+  }
+}

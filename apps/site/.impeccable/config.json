@@ -1,0 +1,15 @@
+{
+  "buildPath": "comp",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "roboto",
+        "createdAt": "2026-10-21T18:43:46.148Z",
+        "reason": "Claude: Roboto Flex is self-hosted only for the React Bits VariableProximity and TextPressure lab demos, which need its opsz/wdth/wght axes; the brand faces stay PP Altera Serif, PP Neue Montreal and Geist Mono"
+      }
+    ]
+  }
+}

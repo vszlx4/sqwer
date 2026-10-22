@@ -1,0 +1,29 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "roboto",
+        "createdAt": "2026-10-21T19:34:42.225Z",
+        "reason": "Claude: Roboto Flex is self-hosted only for the React Bits VariableProximity and TextPressure lab demos, which need its opsz/wdth/wght axes; the brand faces stay PP Altera Serif, PP Neue Montreal and Geist Mono"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "roboto flex",
+        "createdAt": "2026-10-21T20:11:05.381Z",
+        "reason": "Claude: Roboto Flex is self-hosted only for the React Bits VariableProximity and TextPressure lab demos (variable axes); it is deliberately outside the brand type system recorded in DESIGN.md"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "apps/site/src/app/lab/_ui/dp/extra.css"
+        ],
+        "createdAt": "2026-10-22T15:20:18.149Z",
+        "reason": "Text-effect specimens in the typography lab; the brief asks for expressive text effects. Agent decision, not user confirmed."
+      }
+    ]
+  }
+}

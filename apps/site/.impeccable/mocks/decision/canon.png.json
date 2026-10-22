@@ -1,0 +1,7 @@
+{
+  "prompt": "A desktop landing page for sqwer, a free touch-typing course for beginners and schools, rendered edge to edge as a finished website screen with crisp readable text, no browser window, no device, no desk.\n\nThe category standard for a typing tutor, executed impeccably: a clean white page, deep navy text, one ultramarine accent. What leads: a headline \"Learn to type properly, one key at a time.\" with a short line \"Short lessons, games and a clear road from your first two keys to fluent typing.\" and an ultramarine \"Get started\" button with a secondary \"Take a typing test\". Beside it, a large on-screen keyboard illustration with the home row keys softly highlighted and F and J marked. Below, three feature blocks: \"12 chapters, 125 lessons\", \"Six games\", \"Learns your fingers\".\n\nFrame: the sqwer wordmark top left, navigation \"Learn  Practice  Ranked\", \"Sign in\" at the far right. Clean modern sans-serif throughout, generous spacing, slightly softened corners.",
+  "model": "wan2-7-image (OpenArt, standard, 2K, 16:9)",
+  "historyId": "iRRgG8Li9Zlq5VHIdU7Y",
+  "slot": "canon",
+  "note": "Free-plan output carries an OpenArt watermark; small text is garbled by the model."
+}

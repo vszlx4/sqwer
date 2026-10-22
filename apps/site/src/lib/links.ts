@@ -9,6 +9,7 @@ const todo = (href: string, label: string): Destination => ({ href, label, wired
 export const LINKS = {
 	home: { href: '/', label: 'Home', wired: true },
 	foundations: { href: '/foundations', label: 'Foundations', wired: true },
+	lab: { href: '/lab', label: 'Lab', wired: true },
 	getStarted: todo('/start', 'Get started'),
 	typingTest: todo('/test', 'Take a typing test'),
 	learn: todo('/learn', 'Learning path'),

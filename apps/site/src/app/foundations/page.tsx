@@ -24,15 +24,15 @@ const CORE = [
 	['ink-2', 'Secondary text'],
 	['ink-3', 'Tertiary text, on bg only'],
 	['untyped', 'Text not yet typed'],
-	['error', 'Errors, wrong keys']
 ];
 
 const SUPPORT = [
-	['blue', 'Information, speed'],
-	['green', 'Success, accuracy'],
-	['amber', 'Stars, rewards'],
-	['orange', 'Streaks, energy'],
-	['violet', 'Ranks, levels'],
+	['error', 'Errors, wrong keys'],
+	['sky', 'Information, speed'],
+	['teal', 'Success, accuracy'],
+	['brass', 'Stars, rewards'],
+	['coral', 'Streaks, energy'],
+	['iris', 'Ranks, levels'],
 	['rose', 'Highlights']
 ];
 

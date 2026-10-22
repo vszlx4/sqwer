@@ -12,3 +12,8 @@ playwright-report
 .data
 .data-e2e
 .data-ux
+
+# Impeccable runtime caches (the decision comps and config are kept)
+**/.impeccable/hook.cache.json
+**/.impeccable/config.local.json
+**/.impeccable/questions/
