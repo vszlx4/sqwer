@@ -21,7 +21,11 @@ Proof and content: the real course (src/content/course.json): 4 parts, 12 chapte
 Constraints: PRODUCT.md and DESIGN.md (the user approved stretching its no-cards rule for this page); formal British copy, no eyebrows above headings; reduced motion respected; works without a pointer; phones get a normal vertical page; GSAP for motion, Lenis for smoothing, React Bits where a pick earns its place.
 Chosen sketch: .impeccable/mocks/decision/one-long-score.html (user pick, round b768f6dc). Build path: code-led.
 
-## Direction contract
+## Revision 2 (owner feedback, supersedes the horizontal-score contract below)
+
+The owner did not want a horizontal score. The page is an ordinary vertical page. The only scroll-driven moment is the reading section in the middle: it pins and a long sentence types out as you scroll, sliding left under a caret. The hero and the close are dark bands (night tokens) with the dither wave field behind them; the rest is porcelain. Course levels are the ten original ranks from the Svelte site (keycap emblems in tier metals, stars), with no crown on level 10. React Bits starter components (contact sheet, orbital type, rising ink) are to be added once the license key is available.
+
+## Direction contract (original, kept for history)
 
 THESIS: The whole landing page is one horizontal score, read left to right under a fixed ultramarine playhead; it refuses the vertical stack of sections and the row of equal feature cards.
 OWN-WORLD: Porcelain paper, Engraving Ink, one ultramarine for the action and the playhead; five-line hairline staves, serif numerals at 800, Geist Mono for everything typed or counted, PP Altera Serif titles, Neue Montreal prose. Finger colours always with numerals. Chord wash behind the staff only.

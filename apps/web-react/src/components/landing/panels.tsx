@@ -4,28 +4,28 @@ import { ArrowIcon, ButtonLink } from '@/components/ui/Button';
 import Magnet from '@/components/reactbits/Magnet';
 import SplitText from '@/components/reactbits/SplitText';
 import { LINKS } from '@/lib/links';
-import { TIERS, TIER_OF } from '@/lib/system';
 import { course, GAMES, LIVE, PART_COLOUR, PRINCIPLES, RANK_AT, STEP_KINDS, TEMPO } from './data';
 import { HandsFigure } from './HandsFigure';
 import { HeroStaff } from './HeroStaff';
+import { NightDither } from './NightDither';
+import { RankBadge } from './RankBadge';
 import { Keyboard } from './Keyboard';
 import { Phrase } from './Phrase';
 import './etude.css';
 
 // The panels of the score, left to right. Each is a measure group; widths apply only while the page is pinned.
 
-const w = (px: number): CSSProperties => ({ ['--pw' as string]: `${px}px` });
-
-function Panel({ id, labelled, width, children, label }: { id: string; labelled?: boolean; width: number; children: ReactNode; label?: string }) {
+function Panel({ id, labelled, children, label, night = false, band = false }: { id: string; labelled?: boolean; children: ReactNode; label?: string; night?: boolean; band?: boolean; width?: number }) {
 	return (
-		<section data-panel={id} id={id} aria-label={label} aria-labelledby={labelled ? `${id}-title` : undefined} className="panel" style={w(width)}>
-			<div className="panel-in">{children}</div>
+		<section id={id} aria-label={label} aria-labelledby={labelled ? `${id}-title` : undefined} className={`land ${night ? 'night' : ''} ${band ? 'land-band' : ''}`}>
+			{night && <NightDither />}
+			<div className="land-in">{children}</div>
 		</section>
 	);
 }
 
-const H2 = 'font-serif text-[clamp(32px,min(4.4vw,6.4vh),56px)] leading-[1.04] tracking-[-0.02em] max-w-[20ch]';
-const LEDE = 'text-[clamp(16px,min(1.4vw,2.2vh),18.5px)] leading-[1.6] text-ink-2 max-w-[56ch]';
+const H2 = 'font-serif text-[clamp(32px,4.4vw,56px)] leading-[1.04] tracking-[-0.02em] max-w-[20ch]';
+const LEDE = 'text-[clamp(16.5px,1.4vw,18.5px)] leading-[1.6] text-ink-2 max-w-[56ch]';
 
 export function GetStarted({ large = false }: { large?: boolean }) {
 	return (
@@ -39,7 +39,7 @@ export function GetStarted({ large = false }: { large?: boolean }) {
 
 export function Header() {
 	return (
-		<header className="sticky top-0 z-40 h-16 border-b border-line bg-bg/90 backdrop-blur-md">
+		<header className="night sticky top-0 z-40 h-16 border-b border-line bg-bg/85 backdrop-blur-md">
 			<div className="mx-auto flex h-full max-w-[1180px] items-center gap-8 px-[clamp(16px,4vw,40px)]">
 				<LogoWordmark className="h-6 w-auto" />
 				<nav aria-label="Main" className="flex gap-7 text-[15px] font-medium text-ink-2 max-md:hidden">
@@ -64,8 +64,8 @@ export function Header() {
 
 export function Opening() {
 	return (
-		<Panel id="rest" width={0} label="Rest your fingers">
-			<h1 id="hero-title" className="font-serif text-[clamp(40px,min(5.6vw,9vh),84px)] leading-[0.98] tracking-[-0.03em]">
+		<Panel id="rest" label="Rest your fingers" night>
+			<h1 id="hero-title" className="font-serif text-[clamp(44px,6.1vw,88px)] leading-[0.98] tracking-[-0.03em]">
 				<span className="block">
 					<SplitText tag="span" text="Learn to type properly," splitType="words" effect="rise" trigger="load" delay={70} duration={0.9} textAlign="left" />
 				</span>
@@ -73,7 +73,7 @@ export function Opening() {
 					<SplitText tag="span" text="one key at a time." splitType="words" effect="rise" trigger="load" delay={400} duration={0.9} textAlign="left" />
 				</span>
 			</h1>
-			<p className={`${LEDE} mt-[clamp(10px,2.2vh,22px)]`}>
+			<p className={`${LEDE} mt-[clamp(14px,3vh,28px)]`}>
 				Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and for self-taught typists who want to do it right.
 			</p>
 			<ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[14px] font-semibold">
@@ -84,7 +84,7 @@ export function Opening() {
 					</li>
 				))}
 			</ul>
-			<HeroStaff className="staff-wide my-[clamp(8px,2.4vh,28px)] max-md:order-2" />
+			<HeroStaff className="staff-wide my-[clamp(20px,4vh,44px)] max-md:order-2" />
 			<div className="flex flex-wrap items-center gap-x-6 gap-y-3 max-md:order-1 max-md:mb-6">
 				<GetStarted large />
 				<p className="text-[15px] text-ink-2">
@@ -97,7 +97,7 @@ export function Opening() {
 
 export function HandsPanel() {
 	return (
-		<Panel id="hands" labelled width={1180}>
+		<Panel id="hands" labelled>
 			<div className="grid items-center gap-[clamp(24px,4vw,64px)] lg:grid-cols-[0.8fr_1.2fr]">
 				<div>
 					<h2 id="hands-title" className={H2} data-rise>
@@ -118,66 +118,60 @@ export function HandsPanel() {
 	);
 }
 
-export function ScorePanels() {
+export function Chapters() {
 	return (
-		<>
-			<Panel id="score" labelled width={560}>
-				<h2 id="score-title" className={H2} data-rise>
-					One score, {course.chapters.length} measures, {course.lessons} lessons.
-				</h2>
-				<p className={`${LEDE} mt-5`}>
-					Each chapter adds a few keys or one skill, and gives you everything the next chapter needs. Start at the beginning, or let a one-minute placement test find your chapter.
-				</p>
-				<p className="mt-6 text-[15px]">
-					<a href="#" data-unwired={LINKS.typingTest.href} className="font-semibold underline decoration-line-strong underline-offset-4 hover:decoration-ink">
-						Take the placement test
-					</a>
-				</p>
-			</Panel>
-			<div className="measures" data-lenis-prevent>
-				<ol className="measures-in">
-					{course.chapters.map((c, i) => {
-						const part = course.parts.findIndex((p) => p.chapters.includes(c.number));
-						const startsPart = course.parts[part]?.chapters[0] === c.number;
-						const rank = RANK_AT[c.number] ? course.ranks[RANK_AT[c.number] - 1] : null;
-						const keys = c.newKeys.filter((k) => k.length === 1);
-						const groups = keys.length ? [keys.slice(0, 5).join(''), keys.slice(5, 10).join('')].filter(Boolean) : c.words.slice(0, 3);
-						return (
-							<li key={c.number} data-chapter={c.number} data-index={i} className="measure">
-								<span aria-hidden="true" className="absolute top-0 right-0 left-0 h-[2px]" style={{ background: PART_COLOUR[part] }} />
-								{startsPart && (
-									<span className="absolute top-0 left-4 -translate-y-1/2 bg-bg px-2 text-[12.5px] font-semibold whitespace-nowrap" style={{ color: PART_COLOUR[part] }}>
-										{course.parts[part].title}
-									</span>
-								)}
-								<span aria-hidden="true" className="block h-10" />
-								<p className="measure-n font-serif text-[clamp(44px,min(4.6vw,8vh),64px)] leading-none font-extrabold text-ink-3">{c.number}</p>
-								<h3 className="mt-3 font-serif text-[clamp(22px,min(2.2vw,3.6vh),30px)] leading-[1.1]">{c.title}</h3>
-								<p className="mt-2 text-[15px] leading-[1.55] text-ink-2">{c.summary}</p>
-								<Phrase groups={groups} label={keys.length ? `New keys: ${keys.join(' ')}` : `Practised words: ${groups.join(', ')}`} className="mt-6" />
-								<p className="mt-5 font-mono text-[13px] text-ink-2">
-									{c.lessons.length} lessons{keys.length ? '' : c.newKeys.length ? ' · both Shift keys' : ''}
-								</p>
-								{rank && (
-									<p className="mt-auto pt-6 text-[13.5px]">
-										Around here: <b className="font-semibold">{rank.name}</b>
-									</p>
-								)}
-							</li>
-						);
-					})}
-					<li className="measure measure-end">
-						<span aria-hidden="true" className="absolute inset-y-0 left-0 w-px bg-ink" />
-						<span aria-hidden="true" className="absolute inset-y-0 left-[5px] w-[4px] bg-ink" />
-						<p className="font-serif text-[26px] leading-tight">The end of the score.</p>
-						<p className="mt-2 text-[15px] text-ink-2">The whole course, and the rank of Virtuoso or Legend for those who earn it.</p>
-						<a href="#" data-unwired={LINKS.learn.href} className="mt-5 text-[15px] font-semibold underline decoration-line-strong underline-offset-4 hover:decoration-ink">
-							Open the full roadmap
-						</a>
-					</li>
-				</ol>
+		<Panel id="score" labelled band>
+			<h2 id="score-title" className={H2} data-rise>
+				One score, {course.chapters.length} measures, {course.lessons} lessons.
+			</h2>
+			<p className={`${LEDE} mt-5`}>
+				Each chapter adds a few keys or one skill, and gives you everything the next chapter needs. Start at the beginning, or let a one-minute placement test find your chapter.
+			</p>
+			<p className="mt-5 text-[15px]">
+				<a href="#" data-unwired={LINKS.typingTest.href} className="font-semibold underline decoration-line-strong underline-offset-4 hover:decoration-ink">
+					Take the placement test
+				</a>
+			</p>
+			<div className="mt-[clamp(40px,6vw,72px)] grid gap-[clamp(36px,5vw,56px)]">
+				{course.parts.map((part, pi) => (
+					<div key={part.id} data-rise>
+						<h3 className="relative border-t-2 pt-3 text-[13.5px] font-semibold" style={{ borderColor: PART_COLOUR[pi], color: PART_COLOUR[pi] }}>
+							{part.title}
+						</h3>
+						<ol className="mt-1 grid sm:grid-cols-2 lg:grid-cols-3">
+							{part.chapters.map((n) => {
+								const c = course.chapters.find((x) => x.number === n)!;
+								const rank = RANK_AT[c.number] ? course.ranks[RANK_AT[c.number] - 1] : null;
+								const keys = c.newKeys.filter((k) => k.length === 1);
+								const groups = keys.length ? [keys.slice(0, 5).join(''), keys.slice(5, 10).join('')].filter(Boolean) : c.words.slice(0, 3);
+								return (
+									<li key={c.number} className="measure">
+										<p className="font-serif text-[clamp(44px,4.6vw,64px)] leading-none font-extrabold text-ink-3">{c.number}</p>
+										<h4 className="mt-3 font-serif text-[clamp(22px,2.2vw,30px)] leading-[1.1]">{c.title}</h4>
+										<p className="mt-2 text-[15px] leading-[1.55] text-ink-2">{c.summary}</p>
+										<Phrase groups={groups} label={keys.length ? `New keys: ${keys.join(' ')}` : `Practised words: ${groups.join(', ')}`} className="mt-6" />
+										<p className="mt-5 font-mono text-[13px] text-ink-2">
+											{c.lessons.length} lessons{keys.length ? '' : c.newKeys.length ? ' · both Shift keys' : ''}
+										</p>
+										{rank && (
+											<p className="mt-auto pt-5 text-[13.5px]">
+												Around here: <b className="font-semibold">{rank.name}</b>
+											</p>
+										)}
+									</li>
+								);
+							})}
+						</ol>
+					</div>
+				))}
 			</div>
-		</>
+			<p className="mt-[clamp(32px,5vw,56px)] border-t border-line pt-5 text-[15px]">
+				<b className="font-serif text-[20px] font-normal">The end of the score.</b> <span className="text-ink-2">The whole course, and the rank of Virtuoso or Legend for those who earn it.</span>{' '}
+				<a href="#" data-unwired={LINKS.learn.href} className="font-semibold underline decoration-line-strong underline-offset-4 hover:decoration-ink">
+					Open the full roadmap
+				</a>
+			</p>
+		</Panel>
 	);
 }
 
@@ -214,7 +208,7 @@ export function Practise() {
 	const maxSteps = Math.max(...STEP_KINDS.map((k) => course.steps[k.id]));
 	const totalSteps = Object.values(course.steps).reduce((a, b) => a + b, 0);
 	return (
-		<Panel id="practise" labelled width={1480}>
+		<Panel id="practise" labelled>
 			<div className="grid gap-[clamp(28px,4vw,64px)] xl:grid-cols-[0.82fr_1.18fr]">
 				<div>
 					<h2 id="practise-title" className={H2} data-rise>
@@ -257,42 +251,29 @@ export function Practise() {
 
 export function Grow() {
 	return (
-		<Panel id="grow" labelled width={1280}>
+		<Panel id="grow" labelled band>
 			<h2 id="grow-title" className={H2} data-rise>
 				Watch yourself grow.
 			</h2>
 			<p className={`${LEDE} mt-5`}>
 				Earn up to three stars in every lesson and climb ten ranks, from Novice to Legend. Your progress is measured against yourself, never against others.
 			</p>
-			<div className="ranks" data-lenis-prevent>
-				<div aria-hidden="true" className="ranks-staff">
-					{[0, 1, 2, 3, 4].map((i) => (
-						<span key={i} className="h-px bg-line-strong" />
-					))}
-				</div>
-				<ol className="ranks-in">
-					{course.ranks.map((r, i) => {
-						const tier = TIERS[TIER_OF[r.tier] ?? 'bronze'];
-						return (
-							<li key={r.level} className="flex flex-col items-center text-center">
-								<span aria-hidden="true" className="relative block h-[180px] w-full">
-									<span className="absolute left-1/2 w-px bg-ink" style={{ top: `${118 - i * 15}px`, height: '48px', marginLeft: '9px' }} />
-									<span className="absolute left-1/2 h-[16px] w-[22px] -translate-x-1/2 rotate-[-20deg] rounded-[50%] border border-ink" style={{ top: `${158 - i * 15}px`, background: tier.face[1] }} />
-								</span>
-								<span className="mt-4 font-serif text-[18px] leading-tight">{r.name}</span>
-								<span className="mt-1 text-[12.5px] leading-snug text-ink-2">{r.note}</span>
-							</li>
-						);
-					})}
-				</ol>
-			</div>
+			<ol className="mt-[clamp(32px,5vw,56px)] grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
+				{course.ranks.map((r) => (
+					<li key={r.level} data-rise className="flex flex-col items-start gap-3">
+						<RankBadge level={r.level} tier={r.tier} size={80} />
+						<span className="font-serif text-[22px] leading-tight">{r.name}</span>
+						<span className="text-[13.5px] leading-[1.5] text-ink-2">{r.note}</span>
+					</li>
+				))}
+			</ol>
 		</Panel>
 	);
 }
 
 export function Technique() {
 	return (
-		<Panel id="technique" labelled width={1400}>
+		<Panel id="technique" labelled>
 			<div className="grid gap-[clamp(24px,4vw,56px)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
 				<div>
 					<h2 id="technique-title" className={H2} data-rise>
@@ -304,7 +285,7 @@ export function Technique() {
 					<ul className="mt-6 flex flex-col gap-3 text-[15.5px]">
 						{['Keys you type with a non-standard finger', 'Habits that depend on the neighbouring key', 'The speed and accuracy of each finger'].map((c) => (
 							<li key={c} className="flex gap-3 border-t border-line pt-3">
-								<svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke="var(--teal)" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="mt-0.5 shrink-0">
+								<svg viewBox="0 0 24 24" height={20} fill="none" stroke="var(--teal)" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="mt-0.5 shrink-0">
 									<path d="M5 12.5l4.5 4.5L19 7.5" />
 								</svg>
 								{c}
@@ -327,7 +308,7 @@ export function Technique() {
 
 export function Tempo() {
 	return (
-		<Panel id="tempo" labelled width={1380}>
+		<Panel id="tempo" labelled>
 			<h2 id="tempo-title" className={H2} data-rise>
 				Measure your tempo.
 			</h2>
@@ -380,7 +361,7 @@ export function Tempo() {
 
 export function Begin() {
 	return (
-		<Panel id="begin" labelled width={0}>
+		<Panel id="begin" labelled night>
 			<ul className="grid gap-[clamp(20px,3vw,40px)] md:grid-cols-3">
 				{PRINCIPLES.map((p) => (
 					<li key={p.title}>
