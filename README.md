@@ -69,7 +69,7 @@ different from the live version.
 
 ## Contributing
 
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the
+Contributions are by invitation. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the
 [branching guide](docs/operations/BRANCHING.md) first. In short: open or pick an issue, branch from `main`, and open a
 pull request once `npm run check`, `npm test` and `npm run build` pass.
 

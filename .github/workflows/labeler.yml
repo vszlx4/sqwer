@@ -4,7 +4,7 @@ on:
   pull_request_target:
     types: [opened, synchronize, reopened]
 
-# pull_request_target runs the workflow from the base branch and never checks out the pull request's code.
+# Runs from the base branch; never checks out pull request code.
 permissions:
   contents: read
   pull-requests: write
@@ -17,9 +17,3 @@ jobs:
       - uses: actions/labeler@v7
         with:
           sync-labels: true
-      - name: Mark rewrite pull requests
-        if: startsWith(github.head_ref, 'v2/') || github.base_ref == 'v2/react-rewrite'
-        uses: actions/github-script@v9
-        with:
-          script: |
-            await github.rest.issues.addLabels({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, labels: ['v2'] });

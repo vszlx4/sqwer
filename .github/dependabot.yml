@@ -1,4 +1,3 @@
-# Weekly pull requests for outdated or vulnerable dependencies, reviewed and tested by CI before merging.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -6,18 +5,39 @@ updates:
     schedule:
       interval: weekly
       day: monday
+      time: '06:00'
+      timezone: Asia/Riyadh
+    # Skip releases younger than this; security updates are not delayed.
+    cooldown:
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
     open-pull-requests-limit: 5
     labels: [dependencies]
     commit-message:
       prefix: 'Dependencies:'
     groups:
-      minor-and-patch:
+      security:
+        applies-to: security-updates
+        patterns: ['*']
+      production:
+        dependency-type: production
+        update-types: [minor, patch]
+      development:
+        dependency-type: development
         update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
       day: monday
+      time: '06:00'
+      timezone: Asia/Riyadh
+    cooldown:
+      default-days: 7
     labels: [dependencies, ci]
     commit-message:
       prefix: 'CI:'
+    groups:
+      actions:
+        patterns: ['*']
