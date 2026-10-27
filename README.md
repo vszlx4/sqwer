@@ -2,57 +2,87 @@
 
 A typing tutor and speed test that learns **which finger you actually use for each key**.
 
-## Run it
+Most typing sites only count your speed and mistakes. sqwer also watches how you type, builds a map of the finger you
+use for every key, and points you to the habits worth fixing. The course, the practice tests and the competitive
+tiers all use that map.
+
+## Features
+
+- **Learning path:** lessons, games and course ranks, starting from the home row.
+- **Practice:** timed and word-count tests, your finger map and your history, with XP.
+- **Competitive:** speed tiers and leaderboards.
+- **Finger map:** a profile of the finger you use for each key and in which contexts, with key-by-key guidance.
+- **Works without an account:** without signing in, settings and practice data stay in your browser. An account
+  syncs them and enters you on the leaderboards.
+- **Privacy first:** one strictly necessary cookie, no third-party resources, and first-party analytics that only
+  run after the visitor allows them.
+
+## Tech stack
+
+| Part | Built with |
+| --- | --- |
+| Site (`apps/web`) | SvelteKit, TypeScript, Node.js 24 |
+| Database | PostgreSQL 15+ with Drizzle ORM; an embedded PostgreSQL (PGlite) when none is configured |
+| Bot protection | sqwer's own proof-of-work check, with optional Cloudflare Turnstile |
+| Version 2 (`apps/web-react`) | Next.js 16, React 19, Tailwind CSS 4, GSAP and Lenis (in progress) |
+| Shared logic (`packages/*`) | Framework-free TypeScript, tested with Vitest |
+
+## Getting started
+
+You need [Node.js](https://nodejs.org) 24 or later. No database is needed to try it.
 
 ```sh
+git clone https://github.com/vszlx4/sqwer.git
+cd sqwer
 npm install
-npm run build          # production build (apps/web/build)
-npm start              # serves on http://localhost:3000
-npm run dev            # dev server with hot reload
+npm run dev            # http://localhost:5173
 ```
 
-Settings are read from `apps/web/.env` (never committed). With `DATABASE_URL` set, accounts are stored in
-PostgreSQL (the project uses Supabase in the EU); without it, an embedded PostgreSQL is created in `.data/`, so no
-database installation is needed to try the site. See [DEPLOYMENT.md](docs/operations/DEPLOYMENT.md) for configuration and security,
-[BOT_PROTECTION.md](docs/operations/BOT_PROTECTION.md) for the account form protections and [ANALYTICS.md](docs/operations/ANALYTICS.md) for analytics
-and the administrator dashboard.
+To configure a database or the optional services, copy `apps/web/.env.example` to `apps/web/.env` and fill it in.
+Without `DATABASE_URL`, an embedded PostgreSQL is created in `apps/web/.data/`.
 
-## Test
+### Fonts
 
-```sh
-npm test               # unit tests (engine, layouts, content)
-npm run test:e2e       # Playwright end-to-end tests against the production build
-npm run check          # type check
-```
+The production fonts are not included in this repository. `npm install` puts the open-source
+[Roboto Flex](https://github.com/googlefonts/roboto-flex) in their place, so the site builds and runs but looks slightly
+different from the live version.
 
-## Branches and contributing
+## Scripts
 
-`main` is the stable site and only changes through pull requests. The React rewrite develops on `v2/react-rewrite`.
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/operations/BRANCHING.md](docs/operations/BRANCHING.md).
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Development server with hot reload |
+| `npm run build` | Production build (`apps/web/build`) |
+| `npm start` | Serves the production build on http://localhost:3000 |
+| `npm test` | Unit tests (engine, layouts, content, finger map) |
+| `npm run test:e2e` | Playwright end-to-end tests against the production build |
+| `npm run check` | Type check |
+| `npm run dev:react` | Version 2 development server, on `v2/react-rewrite` (http://localhost:3100) |
 
-## Layout
+## Project structure
 
 | Path | What it is |
 | --- | --- |
-| `apps/web` | SvelteKit site (stable, this branch) |
-| `packages/engine` | Typing session, error model and metrics (framework-free) |
+| `apps/web` | The SvelteKit site (the stable version, on `main`) |
+| `apps/web-react` | Version 2, the React rewrite (on `v2/react-rewrite`) |
+| `packages/engine` | Typing session, error model and metrics |
 | `packages/layouts` | Keyboard geometry, finger assignments and key guidance |
-| `packages/content` | Original word lists and the word generator |
-| `packages/fingermap` | Finger profile: observations, context habits, coverage, prompt picker, file format |
-| `docs` | Design, operations, and security and privacy documents ([index](docs/README.md)) |
+| `packages/content` | Original word lists, lessons and the word generator |
+| `packages/fingermap` | Finger profile: observations, context habits, coverage, prompt picker and file format |
+| `archive/` | Earlier design explorations, kept for reference; not installed or built |
 
-## Legal and privacy
+## Contributing
 
-The legal documents live in `apps/web/src/routes` (`/legal`, `/terms`, `/privacy`, `/cookies`, `/copyright`,
-`/accessibility`, `/security`). Their references, versions and effective dates are kept in one register,
-`apps/web/src/lib/site/legal.ts`; change the version there whenever a document changes in substance. The operator's
-details are in `apps/web/src/lib/site/links.ts`.
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[branching guide](docs/operations/BRANCHING.md) first. In short: open or pick an issue, branch from `main`, and open a
+pull request once `npm run check`, `npm test` and `npm run build` pass.
 
-Without an account, settings and practice data are stored only in the visitor's browser. There is one strictly
-necessary cookie (the session) and no third-party resources. Visit statistics are collected by sqwer's own
-first-party analytics, only after the visitor allows it; see [ANALYTICS.md](docs/operations/ANALYTICS.md).
+Found a security problem? Please report it privately, as described in [SECURITY.md](.github/SECURITY.md), and not in a
+public issue.
 
-## Third-party assets
+## Licence
 
-- Fonts: the production fonts are licensed and not included in this repository.
-- All illustrations, icons, word lists and copy are original to this project. The MIT licence in `LICENSE` covers the source code only, not the sqwer name and logo, the typefaces, the illustrations or the course materials.
+The source code is released under the [MIT Licence](LICENSE).
+
+The licence covers the code only. The **sqwer name and logo**, the production fonts, the illustrations, and the course
+and word-list content are not covered by it, and you may not use them to present another site as sqwer.

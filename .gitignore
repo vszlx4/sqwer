@@ -1,14 +1,66 @@
 node_modules
 .DS_Store
+Thumbs.db
 build
 .svelte-kit
+.next
+out
 dist
+coverage
 test-results
 playwright-report
+*.tsbuildinfo
+*.log
+
+# Credentials and keys
 .env
 .env.*
 !.env.example
-*.tsbuildinfo
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Databases
 .data
 .data-e2e
 .data-ux
+backups
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+
+# Hosting
+.vercel
+.netlify
+.wrangler
+
+# Licensed fonts
+PP*.woff2
+PP*.otf
+PP*.ttf
+**/fonts/otf/
+
+# Local docs
+*.md
+!README.md
+!CONTRIBUTING.md
+!CODE_OF_CONDUCT.md
+!CHANGELOG.md
+!.github/SECURITY.md
+!.github/PULL_REQUEST_TEMPLATE.md
+!docs/operations/BRANCHING.md
+docs/README.md
+
+.claude/settings.local.json
+
+# Impeccable caches
+**/.impeccable/hook.cache.json
+**/.impeccable/config.local.json
+**/.impeccable/questions/
+
+# iCloud copies
+* [2-9]
+* [2-9].*
