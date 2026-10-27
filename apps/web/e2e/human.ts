@@ -3,11 +3,7 @@ import { expect, type Page } from '@playwright/test';
 const NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth'];
 
-/**
- * Answers a verification text question in any of its phrasings, as a person using a screen reader
- * would. (A determined script can do the same, which is why the other protections do not depend on
- * this question alone.)
- */
+/** Answers any phrasing of the text verification question. */
 export function answerQuestion(q: string): string {
 	let m = q.match(/the (\w+) letter of the word “(\w+)”|Which letter comes (\w+) in “(\w+)”|In the word “(\w+)”, type the letter in position (\w+)/);
 	if (m) {
@@ -34,10 +30,7 @@ export async function solveCaptcha(page: Page, answer?: string) {
 	await expect.poll(async () => page.locator('input[name="altcha"]').inputValue(), { timeout: 30_000 }).not.toBe('');
 }
 
-/**
- * Types text with uneven gaps between keys, as a person does (a fixed delay looks generated, and
- * the server does not rate results typed like that). `mean` is the average gap in milliseconds.
- */
+/** Types with uneven key gaps; fixed delays are flagged by the server. `mean`: average gap in ms. */
 export async function typeLikeAPerson(page: Page, text: string, mean = 60) {
 	let i = 0;
 	for (const ch of text) {

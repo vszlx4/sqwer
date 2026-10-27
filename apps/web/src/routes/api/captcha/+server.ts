@@ -7,10 +7,7 @@ import type { RequestHandler } from './$types';
 
 const ACTIONS: ProtectedAction[] = ['signin', 'signup', 'reset'];
 
-/**
- * A fresh verification for one form: a proof-of-work challenge and a challenge for the person to
- * answer, bound to that form's action and to the requesting browser.
- */
+/** Fresh verification for one form: PoW plus a challenge, bound to the action and browser. */
 export const GET: RequestHandler = async ({ getClientAddress, url, setHeaders, request }) => {
 	const ip = getClientAddress();
 	if (!rateLimit(`captcha:${ip}`, 60, 10 * 60 * 1000).ok || !rateLimit(`captcha:${networkOf(ip)}`, 300, 10 * 60 * 1000).ok) {

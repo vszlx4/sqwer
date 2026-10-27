@@ -24,10 +24,7 @@ function deviceId(): string {
 	}
 }
 
-/**
- * Usage statistics, recorded only while signed in: they are part of the account's Statistics page,
- * so nothing is stored for visitors without an account. Synced per device to the account.
- */
+/** Usage stats, signed-in only (Statistics page). Synced per device. */
 class UsageStore {
 	data = $state.raw<Usage>(emptyUsage());
 	loaded = $state(false);

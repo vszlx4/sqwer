@@ -7,18 +7,13 @@ import { rateLimit } from '#lib/server/rate-limit.ts';
 import type { RequestHandler } from './$types';
 
 /**
- * Receives page views and engagement from the browser, sent only after the visitor agreed to
- * analytics. Same-origin JSON and a 32 KB body are enforced in hooks.server.ts. In order:
- *
- * 1. a limit per address; 2. the batch must be valid (zod); 3. it must carry a genuine analytics
- * token issued with a page load to this browser (lib/server/analytics/token.ts); 4. limits per token
- * and per visit; 5. limits per network and for the whole site, counted only for batches that passed
- * everything else, so forged requests cannot use them up.
+ * Browser analytics intake (after consent). Same-origin JSON and 32 KB enforced in hooks.server.ts. Order:
+ * 1. per-address limit; 2. zod validation; 3. valid page-load token (lib/server/analytics/token.ts);
+ * 4. per-token and per-visit limits; 5. network and site-wide limits, counted only for batches that passed.
  */
 export const POST: RequestHandler = async ({ request, locals, getClientAddress }) => {
 	if (!analyticsEnabled()) return new Response(null, { status: 204 });
-	// Per address, per network, and for the whole site: events are stored for anyone who allowed
-	// analytics, so the total written per period is bounded however many addresses send them.
+	// Per address, network and site: bounds total writes regardless of address count.
 	const ip = getClientAddress();
 	const window = 10 * 60 * 1000;
 	if (!rateLimit(`analytics:${ip}`, 240, window).ok) error(429, 'Too many requests.');
@@ -35,8 +30,7 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 	for (const session of new Set(parsed.data.events.map((e) => e.session))) {
 		if (!rateLimit(`analytics:visit:${session}`, 150, hour).ok) error(429, 'Too many requests.');
 	}
-	// Only batches that would be stored count towards the network and site-wide limits. Under a
-	// flood that reaches the site-wide limit, analytics is what gives way, never the site itself.
+	// Only storable batches count toward network and site limits. At the site cap, analytics is dropped first.
 	if (!rateLimit(`analytics:net:${networkOf(ip)}`, 1_200, window).ok || !rateLimit('analytics:all', 20_000, window).ok) {
 		error(429, 'Too many requests.');
 	}

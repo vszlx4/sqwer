@@ -2,11 +2,7 @@ import { expect, test, type APIRequestContext, type Browser, type Page } from '@
 import { DECLINED } from './consent.ts';
 import { answerQuestion } from './human.ts';
 
-/*
- * Abuse scenarios against the bot protection, each from its own client address so that the limits
- * it triggers do not affect other tests. Everything here is sent to the real server; nothing is
- * mocked.
- */
+/* Bot protection abuse cases against the real server. One client address per test. */
 
 const ORIGIN = 'http://localhost:4321';
 
@@ -163,7 +159,7 @@ test('the sign-in lock gives the same answer whether or not an account exists', 
 		await context.close();
 		return text;
 	}
-	// Ten failures from two addresses (each in its own network), for a real account and for an address nobody uses.
+	// Ten failures from two networks, for a real account and an unused address.
 	await failFrom('198.51.110.1', 'lockout@e2e.test');
 	await failFrom('198.51.111.1', 'lockout@e2e.test');
 	await failFrom('198.51.112.1', 'nobody-here@example.com');
@@ -182,7 +178,7 @@ test('a sign-in redirect never leaves the site', async ({ browser }) => {
 	if (await page.locator('.captcha').isVisible()) await solve(page);
 	await page.getByRole('button', { name: 'Sign in' }).click();
 	await expect(page).toHaveURL(/\/account\/setup$/);
-	// Signed in, /signin forwards to redirectTo. A tab inside it once turned "/\t/evil.example" into "//evil.example".
+	// Signed in, /signin forwards to redirectTo. Regression: "/\t/evil.example" became "//evil.example".
 	for (const target of ['%2F%09%2Fevil.example', '%2F%0A%2Fevil.example', '%2F%5C%2Fevil.example', '%2F%2Fevil.example', 'https%3A%2F%2Fevil.example']) {
 		const res = await page.request.get(`/signin?redirectTo=${target}`, { maxRedirects: 0 });
 		expect(res.status()).toBe(303);

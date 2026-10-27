@@ -1,5 +1,4 @@
-// Creates the accounts the end-to-end tests sign in with: an administrator, an ordinary member
-// and an account the lockout test locks. Runs before the test server starts, against the test database only.
+// Seeds e2e accounts: admin, member, lockout target. Test database only.
 import { randomBytes, randomUUID, scryptSync } from 'node:crypto';
 import { open } from './lib/db.mjs';
 

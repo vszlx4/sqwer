@@ -1,10 +1,7 @@
 import { ENGLISH_WORDS } from './english.ts';
 import { MAPPING_WORDS } from './mapping.ts';
 
-/**
- * Additional short, everyday words compiled for sqwer's course. They give early lessons,
- * which only know a few keys, real words to practise as soon as possible.
- */
+/** Extra short everyday words so early lessons have real words. */
 const COURSE_EXTRA = `
 a as ad add ads all alas ask asks dad dads fad fads fall falls flask lad lads lass sad salad
 salads jak flak flask flasks skald dash gash hash lash flash glass gas gal gals gaff half hall
@@ -38,10 +35,7 @@ export const COURSE_WORDS: readonly string[] = Array.from(
 	new Set([...ENGLISH_WORDS, ...MAPPING_WORDS, ...COURSE_EXTRA.split(/\s+/)].filter((w) => /^[a-z]+$/.test(w)))
 );
 
-/**
- * Words that can be typed with only the given letters, shortest first.
- * When `focus` is given, every word contains at least one of those letters.
- */
+/** Words typeable with `letters`, shortest first; with `focus`, each contains one of those letters. */
 export function wordsUsing(letters: string, focus = ''): string[] {
 	const allowed = new Set(letters.toLowerCase());
 	const required = new Set(focus.toLowerCase());

@@ -1,9 +1,5 @@
 <script lang="ts">
-	/**
-	 * Daily values as lines on one axis, for measures of the same kind (counts). Days with no data
-	 * collected yet are gaps (null), never drawn as zero. A crosshair and tooltip follow the
-	 * pointer or the arrow keys; the same numbers are available as a table.
-	 */
+	/** Daily lines on one axis. Missing days are gaps (null). Crosshair follows pointer or arrow keys; table copy. */
 	interface Series {
 		key: string;
 		label: string;
@@ -77,7 +73,7 @@
 		{/if}
 	</figcaption>
 	<div class="plot" bind:clientWidth={measured}>
-		<!-- The chart is focusable so the arrow keys can read it day by day; the table below has the same numbers. -->
+		<!-- Focusable for arrow-key reading; the table repeats the data. -->
 		<!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
 		<svg
 			bind:this={svg}

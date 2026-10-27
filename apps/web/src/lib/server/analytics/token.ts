@@ -3,10 +3,8 @@ import { uaHash } from '../bot/ticket.ts';
 import { secret } from '../config.ts';
 
 /*
- * Analytics tokens. Each page load hands the browser a signed token (in the layout data), bound to
- * its user agent and valid for a day; events are accepted only with a valid one. A script must
- * therefore load pages, at the rate the token issuing allows, to send events at all, and every
- * token has its own small allowance (see routes/api/analytics/+server.ts).
+ * Analytics tokens: signed per page load (layout data), bound to the user agent, valid one day. Events need
+ * a valid token; each token has its own allowance (routes/api/analytics/+server.ts).
  */
 
 export const ANALYTICS_TOKEN_MS = 24 * 60 * 60 * 1000;

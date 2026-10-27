@@ -4,9 +4,8 @@ import type { Level } from './state.ts';
 import type { Lesson, LessonProgress } from './types.ts';
 
 /*
- * The learner's path through sqwer, in one place. Getting started is a short, one-time
- * step: say how you type today and, if you already type, take the placement test. After
- * that the course leads: every page that suggests a next action uses this function.
+ * Learner path. Getting started is one-time (typing level, optional placement); then the course leads.
+ * Every next-action suggestion uses this.
  */
 
 export interface PathInput {
@@ -28,10 +27,7 @@ export interface NextStep {
 	lesson: Lesson | null;
 }
 
-/**
- * Whether getting started is finished, so the course can lead: a beginner, a typist with a
- * placement result, or anyone who has already chosen a starting chapter or completed a lesson.
- */
+/** Getting started done: beginner, placement result, chosen start chapter or a completed lesson. */
 export const onboarded = (i: PathInput) =>
 	i.level === 'new' || (i.level !== null && i.placement !== null) || i.startLesson !== null || Object.keys(i.progress).length > 0;
 

@@ -1,15 +1,9 @@
 /*
- * Keyboard behaviour shared by the whole site.
- *
- * 1. Space never scrolls a page. It still presses a focused button, ticks a checkbox and types in a
- *    text field, as people expect.
- * 2. While a typing surface is running (a test, a lesson exercise, a game, the finger map), it keeps
- *    the keyboard: Space never scrolls or presses a button, keys pressed while something else has
- *    focus are sent to it, and after a click anywhere (except into a text field, a menu or a dialog)
- *    focus returns to it.
- *
- * Typing surfaces call `claimTyping` while they are active; the guards are installed once, in the
- * root layout.
+ * Site-wide keyboard rules:
+ * 1. Space never scrolls; it still activates buttons, checkboxes and types in fields.
+ * 2. A running typing surface owns the keyboard: no Space scroll or button press, stray keys forwarded, focus
+ *    returns after clicks (except fields, menus, dialogs).
+ * Surfaces call `claimTyping` while active; guards install once in the root layout.
  */
 
 export interface TypingSurface {

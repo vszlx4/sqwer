@@ -1,8 +1,4 @@
-/*
- * The visitor's choice about analytics, kept in this browser only (no cookie). Nothing is
- * collected until the visitor allows it. Global Privacy Control and Do Not Track are honoured as
- * a refusal without asking. Withdrawing consent deletes the identifiers kept for analytics.
- */
+/* Analytics consent, localStorage only. GPC/DNT count as refusal. Withdrawal deletes analytics ids. */
 
 const KEY = 'sqwer:analytics-consent';
 export const VISITOR_KEY = 'sqwer:analytics-id';

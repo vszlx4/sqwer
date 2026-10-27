@@ -1,7 +1,4 @@
-/*
- * Device, browser and operating system, read from the user agent at the moment an event arrives.
- * Only these three coarse labels are stored; the user agent string itself never is.
- */
+/* Device, browser and OS labels from the user agent. The user agent itself is never stored. */
 
 export interface Client {
 	device: 'desktop' | 'mobile' | 'tablet';

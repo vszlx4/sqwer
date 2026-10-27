@@ -284,8 +284,7 @@
 		}
 	}
 
-	// While a test is on screen (not its results) it has the keyboard: keys pressed with focus
-	// elsewhere are typed, and focus returns to it after any click.
+	// While a test is on screen it owns the keyboard: stray keys are typed, focus returns after clicks.
 	$effect(() => {
 		if (record) return;
 		return claimTyping({

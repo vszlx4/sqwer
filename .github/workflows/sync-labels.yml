@@ -1,4 +1,4 @@
-# Creates or updates the repository's labels from .github/labels.json, so labels are reviewed like code.
+# Syncs labels from .github/labels.json.
 name: Sync labels
 
 on:

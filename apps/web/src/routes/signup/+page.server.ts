@@ -35,8 +35,7 @@ export const actions: Actions = {
 		const values = { email };
 
 		const ip = getClientAddress();
-		// Accounts per address, per network and across the whole site, so that automated
-		// registration is slow even when spread over many addresses.
+		// Account creation limits per address, network and site.
 		const limits = [
 			rateLimit(`signup:${ip}`, 5, 60 * 60 * 1000),
 			rateLimit(`signup:net:${networkOf(ip)}`, 20, 60 * 60 * 1000),
@@ -66,8 +65,7 @@ export const actions: Actions = {
 		if (form.get('ageConfirm') !== 'on') errors.ageConfirm = 'You must confirm that you are at least 16 years old.';
 		if (Object.keys(errors).length || !parsedEmail.success) return again(400, { values, errors });
 
-		// The password is hashed before the address is looked up, so the response takes as long
-		// whether or not the address is registered.
+		// Hash first so timing doesn't reveal whether the address exists.
 		const passwordHash = await hashPassword(password);
 		// Deliberately general, so the form cannot be used to discover registered addresses.
 		const taken = () =>

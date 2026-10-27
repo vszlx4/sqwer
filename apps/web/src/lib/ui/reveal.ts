@@ -24,10 +24,7 @@ function shared(): IntersectionObserver {
 	return observer;
 }
 
-/**
- * Fades and lifts an element into view the first time it is scrolled into the viewport.
- * Content is never hidden without JavaScript or when the person prefers reduced motion.
- */
+/** Fades and lifts an element on first scroll into view. Never hidden without JS or with reduced motion. */
 export const reveal: Action<HTMLElement, RevealOptions | undefined> = (node, options) => {
 	if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
 	// Content already on screen when the page opens stays as rendered, so nothing flashes.

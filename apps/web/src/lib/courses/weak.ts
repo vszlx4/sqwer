@@ -13,9 +13,8 @@ export interface WeakKeys {
 }
 
 /**
- * The learner's weakest fingers, and the keys they type within a pool. Mistakes from recent
- * examinations count against each finger, and the finger speed assessment adds how slow and
- * inaccurate each finger is. Without data, the little and ring fingers are practised.
+ * Weakest fingers and their keys in a pool, from recent exam mistakes plus the finger assessment.
+ * Default: little and ring.
  */
 export function weakKeys(pool: string, results: readonly ResultRecord[], fingers = 2): WeakKeys {
 	const layout = qwertyAnsi('pc');

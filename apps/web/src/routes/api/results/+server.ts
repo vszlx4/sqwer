@@ -77,8 +77,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		.limit(1);
 	if (stored) return json({ ok: true, xp: stored.xp, verified: stored.verified });
 
-	// The keystrokes are replayed on the server; XP and ranks come from what they produce, never
-	// from the browser's own figures (lib/server/anticheat.ts).
+	// Keystrokes replayed server-side; XP and ranks use the replay (lib/server/anticheat.ts).
 	const verdict = checkResult(r);
 	if (verdict.kind === 'reject') {
 		await logSecurity('result_rejected', { userId, detail: `${r.exam}:${verdict.reason}` });

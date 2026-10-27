@@ -1,6 +1,6 @@
 import { FINGERS, handOf, type Finger, type KeyboardLayout } from '@sqwer/layouts';
 
-/** One tagged keystroke: the user told us which finger pressed `code`. */
+/** One tagged keystroke: the finger reported for `code`. */
 export interface FingerObservation {
 	/** KeyboardEvent.code of the key pressed. */
 	code: string;

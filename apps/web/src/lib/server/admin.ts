@@ -2,15 +2,9 @@ import { error, redirect } from '@sveltejs/kit';
 import { logSecurity } from './security-log.ts';
 
 /**
- * Administrators: users whose `role` is 'admin' in the database. The role is read from the
- * database with every request (it is part of the session lookup), so revoking it takes effect at
- * once. It can only be changed from the server's command line (`npm run admin -w web`).
- *
- * Administrators also need an authenticator app (TOTP, lib/server/totp.ts): it must be set up
- * before the dashboard opens, and each session must confirm a code at least every MFA_FRESH_MS.
- *
- * Pages for administrators answer 404 to everyone else, so their existence is not revealed;
- * visitors who are not signed in are sent to sign in first.
+ * Admins: `role = 'admin'`, read with each session lookup so revocation is immediate; changed only via
+ * `npm run admin -w web`. Require TOTP (lib/server/totp.ts), confirmed every MFA_FRESH_MS. Admin pages
+ * return 404 to others; signed-out visitors go to sign-in.
  */
 
 /** How long a confirmed code keeps a session's access to the dashboard. */

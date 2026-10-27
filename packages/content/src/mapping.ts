@@ -1,5 +1,4 @@
-// Extra practice words rich in less common keys (q, z, x, j, k, v, y, p),
-// used by the finger mapper to reach every key quickly. Compiled for sqwer.
+// Practice words heavy in rare keys (q, z, x, j, k, v, y, p) for the finger mapper.
 export const MAPPING_WORDS: readonly string[] = `
 quiz quick quiet quite quote equal square queen squeeze unique require question
 zone zero size lazy fuzzy dozen frozen amaze puzzle jazz zebra blaze cozy prize

@@ -53,7 +53,7 @@ export interface TestStats {
 
 const wpmOf = (chars: number, ms: number) => (ms > 0 ? (chars / 5) * (60000 / ms) : 0);
 
-/** Kogasa: maps a coefficient of variation onto 0–100 (as Monkeytype does). */
+/** Kogasa consistency: coefficient of variation mapped to 0–100. */
 export function kogasa(cov: number): number {
 	return 100 * (1 - Math.tanh(cov + cov ** 3 / 3 + cov ** 5 / 5));
 }
@@ -71,10 +71,7 @@ function lastWord(s: TypingSession) {
 	return Math.min(s.wordIndex, s.targets.length - 1);
 }
 
-/**
- * Net characters: each submitted word typed exactly right counts with its
- * space; a word in progress counts only if it is correct so far.
- */
+/** Net characters: correct submitted words plus their spaces; the current word only if correct so far. */
 export function netChars(s: TypingSession): number {
 	let n = 0;
 	for (let i = 0; i <= lastWord(s); i++) {
@@ -191,8 +188,7 @@ export function computeStats(session: TypingSession): TestStats {
 		}
 	};
 
-	// The final timeline point is computed from a replay; pin it to the session's own result
-	// so that rounding can never make the chart disagree with the headline numbers.
+	// Pin the last timeline point to the session result so rounding can't diverge from the headline.
 	const last = timeline[timeline.length - 1];
 	if (last && ms > 0) {
 		last.wpm = result.wpm;

@@ -22,9 +22,8 @@
 	const HOMOPHONES = new Set(['to', 'too', 'two', 'there', 'their', 'here', 'hear', 'know', 'no', 'new', 'knew', 'right', 'write', 'whole', 'hole', 'one', 'won', 'for', 'four', 'by', 'buy', 'see', 'sea', 'its', 'our', 'hour', 'weather', 'whether', 'week', 'weak', 'piece', 'peace', 'where', 'wear', 'which', 'witch', 'road', 'rode', 'sun', 'son', 'meet', 'meat', 'plane', 'plain', 'tail', 'tale', 'wait', 'weight', 'flower', 'flour', 'break', 'brake', 'mail', 'male', 'sail', 'sale', 'heard', 'herd', 'board', 'bored']);
 
 	/**
-	 * Longer words are easier to recognise when spoken: words of five letters or more come first,
-	 * then four-letter words, and homophones are left out. When the lesson's own list has too few
-	 * long words, more are taken from the course vocabulary, using only the keys taught so far.
+	 * Spoken words: five letters or more first, then four; no homophones. Topped up from course vocabulary
+	 * with taught keys.
 	 */
 	const list = untrack(() => {
 		const rand = seeded(Date.now() % 100000);

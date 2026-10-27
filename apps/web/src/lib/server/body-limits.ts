@@ -1,7 +1,6 @@
 /*
- * Request body limits per route. The server's own limit (BODY_SIZE_LIMIT, 6 MB in scripts/start.js)
- * is only the ceiling for the largest upload; every other route gets a far smaller one, checked
- * before the body is read.
+ * Per-route body limits. BODY_SIZE_LIMIT (6 MB, scripts/start.js) is the ceiling; other routes are checked
+ * before reading.
  */
 
 const KB = 1024;
@@ -27,10 +26,7 @@ export function bodyLimit(method: string, url: URL): number {
 	return route?.limit ?? DEFAULT_BODY_LIMIT;
 }
 
-/**
- * Whether a request's declared body fits its route: 'ok', 'too-large', or 'length-required' for a
- * body without a declared length (chunked), which could not be checked before reading.
- */
+/** Declared body vs route limit: 'ok', 'too-large', or 'length-required' (chunked). */
 export function checkBody(method: string, url: URL, headers: Headers): 'ok' | 'too-large' | 'length-required' {
 	if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return 'ok';
 	const length = headers.get('content-length');

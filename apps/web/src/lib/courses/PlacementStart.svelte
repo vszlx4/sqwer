@@ -8,9 +8,8 @@
 	import { courses } from './store.svelte.ts';
 
 	/**
-	 * Starts the course at the chapter the placement test recommends. With an account, the chapters
-	 * before it are marked complete with full stars and their points are added to the learner's XP;
-	 * the server works this out from the saved placement test.
+	 * Starts at the placement chapter. Signed in: earlier chapters complete with full stars, points added to XP
+	 * (computed on the server).
 	 */
 	interface Props {
 		chapter: number;

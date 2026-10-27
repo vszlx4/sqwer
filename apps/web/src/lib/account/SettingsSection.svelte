@@ -1,10 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	/**
-	 * One section of an account settings page: what it is and why on the left, the controls on the
-	 * right. Sections are separated by rules rather than boxed, so a page of settings reads as one list.
-	 */
+	/** Settings section: description left, controls right, separated by rules. */
 	interface Props {
 		title: string;
 		description?: string;

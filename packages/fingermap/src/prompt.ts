@@ -50,9 +50,7 @@ const SYMBOL_TOKENS: Record<string, (w: string) => string> = {
 	Backquote: (w) => `\`${w}\``
 };
 
-/**
- * Build a short prompt (a few words) that covers keys the profile still needs.
- */
+/** Short prompt covering keys the profile still needs. */
 export function pickPrompt(
 	profile: FingerProfile,
 	layout: KeyboardLayout,
@@ -96,7 +94,7 @@ export function pickPrompt(
 		}
 	}
 
-	// Capitals tell us which Shift and finger the user reaches for.
+	// Capitals show which Shift and finger are used.
 	if (profile.shift.samples < SHIFT_TARGET && rand() < 0.6) {
 		const at = Math.floor(rand() * words.length);
 		const w = words[at]!;

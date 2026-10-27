@@ -9,10 +9,7 @@
 	import type { StepResult } from '../types.ts';
 	import GameFrame from './GameFrame.svelte';
 
-	/**
-	 * Key hunt: one key lights up on the keyboard; press it before its light runs out. The window
-	 * shortens as the learner nears the target, so keys are found by touch rather than by sight.
-	 */
+	/** Key hunt: press the lit key before it times out. Window shrinks near the target. */
 	let { pool, focus, target, pace = 1, oncomplete }: { pool: string; focus: string; target: number; pace?: number; oncomplete: (r: StepResult) => void } = $props();
 
 	const LIVES = 3;

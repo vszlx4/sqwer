@@ -47,8 +47,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		await logSecurity('result_rejected', { userId, detail: `lesson:${r.lessonId}:stars` });
 		error(400, 'The lesson result is not valid.');
 	}
-	// A lesson has several steps and takes minutes: completions cannot arrive faster than a person
-	// works through them (server time, whatever the browser claims).
+	// Minimum time between lesson completions (server clock).
 	if (r.stars > 0 && (!rateLimit(`lesson-pace:${userId}`, 1, 30_000).ok || !rateLimit(`lesson-hour:${userId}`, 40, 60 * 60 * 1000).ok)) {
 		error(429, 'Lessons are being completed faster than they can be taken. Please try again in a moment.');
 	}

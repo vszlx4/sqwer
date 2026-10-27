@@ -13,11 +13,9 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 			adapter: adapter(),
-			// The public origin. It is the trusted origin for CSRF checks on form
-			// submissions, so it must match the address users visit.
+			// Public origin; trusted origin for form CSRF checks.
 			paths: { origin: (process.env.PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '') },
-			// Content Security Policy: only sqwer's own resources may load. Scripts need a per-response
-			// nonce or hash, which SvelteKit adds to its own; inline styles are used by Svelte components.
+			// CSP: own resources only. Scripts need a nonce or hash (SvelteKit adds them); inline styles for Svelte.
 			csp: {
 				mode: 'auto',
 				directives: {

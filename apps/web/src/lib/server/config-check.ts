@@ -1,10 +1,7 @@
 import { LEGAL } from '../site/links.ts';
 import { SITE_URL } from './config.ts';
 
-/*
- * Checks at start-up for settings that are fine on a development machine but unsafe on a public
- * site. Problems are written to the server log as structured warnings; values are never printed.
- */
+/* Start-up warnings for settings unsafe on a public site. Structured log, values never printed. */
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
 

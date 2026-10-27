@@ -13,7 +13,7 @@ const SIGNATURES: { mime: string; test: (b: Uint8Array) => boolean }[] = [
 	}
 ];
 
-/** Accepts only PNG, JPEG or WebP, identified by the file's actual bytes rather than its name or declared type. */
+/** PNG, JPEG or WebP only, detected from the bytes. */
 export async function validateAvatar(file: File): Promise<{ mime: string; bytes: Uint8Array } | { error: string }> {
 	if (!file.size) return { error: 'Select an image to upload.' };
 	if (file.size > MAX_AVATAR_BYTES) return { error: 'The image must be 1 MB or smaller.' };
@@ -23,7 +23,7 @@ export async function validateAvatar(file: File): Promise<{ mime: string; bytes:
 	return { mime: match.mime, bytes };
 }
 
-/** Saves a picture whose uploader has confirmed they hold the rights to it; the time of confirmation is kept. */
+/** Saves a picture with the uploader's rights confirmation time. */
 export async function saveAvatar(userId: string, mime: string, bytes: Uint8Array) {
 	const data = Buffer.from(bytes).toString('base64');
 	const now = new Date();

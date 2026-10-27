@@ -46,10 +46,7 @@
 	/** Failed attempts at the current step; after two, help and a skip are offered. */
 	let fails = $state(0);
 
-	/*
-	 * Steps marked `weak` practise the learner's weakest fingers. They are chosen once per lesson
-	 * from recent examination results, or the little and ring fingers when there are none yet.
-	 */
+	/* `weak` steps: weakest fingers from recent exams, picked once per lesson; little and ring by default. */
 	function weakPoolOf(s: StepSpec): string | null {
 		if (!('weak' in s) || !s.weak) return null;
 		if (s.kind === 'drill') return 'pool' in s.source ? s.source.pool : null;
@@ -137,9 +134,8 @@
 	}
 
 	/**
-	 * Games depend on reaction time, sight or hearing, so they can be left out after one failed
-	 * attempt. Any other step except the chapter check can be skipped after two. Skipped steps do
-	 * not count towards stars, so no learner is ever blocked.
+	 * Games can be skipped after one failure, other steps (except chapter checks) after two. Skipped steps earn
+	 * no stars.
 	 */
 	const isGame = $derived(['falling', 'keyhunt', 'race', 'echo'].includes(step.kind));
 	const canSkip = $derived(step.kind !== 'checkpoint' && (isGame ? fails >= 1 : fails >= 2));
@@ -164,7 +160,7 @@
 
 	let restarted = $state(0);
 
-	/** Starts the current exercise again: what was typed is cleared and timers restart. Earlier steps are kept. */
+	/** Restarts the current exercise; earlier steps are kept. */
 	function restartStep() {
 		attempt++;
 		restarted++;
@@ -177,8 +173,7 @@
 			void proceed();
 			return;
 		}
-		// Tab restarts the exercise in progress, as in the typing test. Elsewhere (the header,
-		// buttons, dialogs) Tab keeps moving focus, and Shift+Tab always does.
+		// Tab restarts the running exercise; elsewhere Tab and Shift+Tab move focus.
 		if (e.key === 'Tab' && !e.shiftKey && !outcome && !complete && !leaving) {
 			const inExercise = !target || target === document.body || target === document.documentElement || !!target.closest('[data-tab-restart]');
 			if (inExercise) {

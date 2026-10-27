@@ -6,10 +6,8 @@ import { logSecurity } from './security-log.ts';
 import { decryptSecret, encryptSecret, newTotpSecret, verifyCode } from './totp.ts';
 
 /*
- * Authenticator-app set-up and checks for administrators (see lib/server/admin.ts). Set-up asks for
- * the password again before a secret is shown, so a borrowed session cannot quietly add its own
- * authenticator. Codes are limited per account, and each accepted time step is recorded with a
- * conditional update, so a code is accepted once even by two simultaneous requests.
+ * Admin TOTP set-up and checks (lib/server/admin.ts). Set-up re-asks the password. Codes rate-limited per
+ * account; accepted steps recorded with a conditional update (single use under concurrency).
  */
 
 const ATTEMPTS = 5;

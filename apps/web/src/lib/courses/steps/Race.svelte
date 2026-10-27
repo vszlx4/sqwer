@@ -6,11 +6,7 @@
 	import type { StepResult } from '../types.ts';
 	import GameFrame from './GameFrame.svelte';
 
-	/**
-	 * Race: type a short passage while a pacer types it at a set speed. The finish line is the end
-	 * of the passage; reach it before the pacer. A wrong key does not move you forward, so
-	 * accuracy is part of the speed.
-	 */
+	/** Race against a pacer to the end of the passage. Wrong keys don't advance. */
 	interface Props {
 		pool: string;
 		focus: string;
