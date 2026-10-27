@@ -27,8 +27,18 @@ setting does this).
 
 ## Releases
 
-Tag `main` as `vMAJOR.MINOR.PATCH` and publish a GitHub Release; the notes are generated from pull-request labels
-(`.github/release.yml`).
+Versions follow SemVer with pre-release stages: `1.0.0-alpha.N` → `-beta.N` → `-rc.N` → `1.0.0`, then patch, minor
+and major. The version lives in the root `package.json`; builds show it with the commit in the footer
+(`v1.0.0-beta.1 · 3f78679`).
+
+```sh
+npm run release -- beta            # or alpha, rc, stable, patch, minor, major; opens a version PR
+npm run release -- beta minor      # from a stable version: next minor as beta.1
+npm run release -- publish         # after merging: tags main and creates the GitHub Release
+```
+
+Release notes are generated from pull-request labels (`.github/release.yml`); `publish --notes <file>` adds text above
+them. Pre-releases are marked as such on GitHub.
 
 ## Check where you are
 

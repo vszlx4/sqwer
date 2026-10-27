@@ -1,9 +1,26 @@
 import adapter from '@sveltejs/adapter-node';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
+import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vite';
 
+const { version } = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
+// Short commit of the build; SQWER_COMMIT when built without git.
+function commit() {
+	if (process.env.SQWER_COMMIT) return process.env.SQWER_COMMIT.slice(0, 7);
+	try {
+		return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim();
+	} catch {
+		return '';
+	}
+}
+
 export default defineConfig({
+	define: {
+		__APP_VERSION__: JSON.stringify(version),
+		__APP_COMMIT__: JSON.stringify(commit())
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit({
