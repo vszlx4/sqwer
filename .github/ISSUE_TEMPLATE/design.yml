@@ -1,6 +1,6 @@
-name: Design task (v2)
-description: A piece of the React rewrite's design or layout
-labels: [v2, design]
+name: Design task
+description: A design or layout change
+labels: [design]
 body:
   - type: input
     id: surface

@@ -6,7 +6,6 @@
   { "name": "dependencies", "color": "0366d6", "description": "Dependency updates" },
   { "name": "ci", "color": "ededed", "description": "Workflows and repository settings" },
   { "name": "security", "color": "b60205", "description": "Security-relevant change" },
-  { "name": "v2", "color": "fbca04", "description": "Belongs to the React rewrite" },
   { "name": "web", "color": "c5def5", "description": "apps/web" },
   { "name": "packages", "color": "bfd4f2", "description": "Shared packages" },
   { "name": "tests", "color": "d4c5f9", "description": "Tests only" },
