@@ -41,6 +41,7 @@ git log --oneline --graph -8       # recent history
 
 ## One-time repository setup
 
-`scripts/github-setup.sh` (needs the GitHub CLI, signed in with `gh auth login`) applies the settings that cannot be
-kept in files: squash-only merging, automatic branch deletion, and rulesets that require a pull request and a passing
-`verify` check on `main`. Branch rulesets on private repositories need a paid GitHub plan.
+`scripts/github-setup.sh` (GitHub CLI, `gh auth login`) applies the settings that cannot be kept in files: squash-only
+merging, a ruleset on `main` (pull request, code owner approval, passing `verify` and `naming`), protected release
+tags, read-only workflow tokens and Dependabot alerts. Run it again after the repository goes public for secret
+scanning, private vulnerability reporting and collaborator-only interaction limits (renew every six months).

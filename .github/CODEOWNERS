@@ -1,4 +1,5 @@
-# Every change is reviewed by the owner. Paths that carry more risk are listed so they stay visible in reviews.
-*                      @vszlx4
-/.github/              @vszlx4
+# Any listed owner can approve. Add reviewers to the first line; later lines override it.
+*                          @vszlx4
+/.github/                  @vszlx4
+/scripts/                  @vszlx4
 /apps/web/src/lib/server/  @vszlx4

@@ -20,8 +20,8 @@ jobs:
           days-before-close: 14
           stale-issue-label: stale
           stale-pr-label: stale
-          exempt-issue-labels: security,blocked,v2
-          exempt-pr-labels: security,blocked,v2
+          exempt-issue-labels: security,blocked
+          exempt-pr-labels: security,blocked
           stale-issue-message: This issue has had no activity for 45 days. It will close in 14 days unless there is an update.
           stale-pr-message: This pull request has had no activity for 45 days. It will close in 14 days unless there is an update.
           delete-branch: false
