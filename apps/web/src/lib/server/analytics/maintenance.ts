@@ -3,13 +3,8 @@ import { db } from '../db/index.ts';
 import { retentionDays } from './config.ts';
 
 /*
- * Background upkeep, run a minute after start-up and then every six hours:
- *
- * 1. Daily totals: each finished day is summarised into analytics_daily once its events can no
- *    longer arrive (events up to a day old are accepted, so a day is summarised two days later).
- *    These totals contain no personal data and are kept after the raw events expire.
- * 2. Retention: raw events older than the retention period (13 months by default) are deleted, in
- *    batches, so the table stays bounded and no single statement locks it for long.
+ * Upkeep, a minute after start then every 6 h: summarise finished days into analytics_daily (two days late,
+ * events up to a day old are accepted), then delete raw events past retention in batches.
  */
 
 const DAY = 24 * 60 * 60 * 1000;

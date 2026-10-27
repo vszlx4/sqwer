@@ -1,7 +1,4 @@
-/**
- * The words used in examinations, including the competitive test: the two hundred most common
- * English words, roughly in order of frequency. "I" keeps its capital.
- */
+/** Exam words, including competitive: the 200 most common English words by frequency. "I" keeps its capital. */
 export const EXAM_WORDS: readonly string[] = `
 the be of and a to in he have it that for they I with as not on she at by this we you do but
 from or which one would all will there say who make when can more if no man out other so what

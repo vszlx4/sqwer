@@ -5,11 +5,7 @@
 	import { bannerOf } from '#lib/profile.ts';
 	import Avatar from './Avatar.svelte';
 
-	/**
-	 * A profile as others see it: the banner, the picture overlapping it, name and handle, an
-	 * optional headline and pronouns, the rank and a few showcase figures. Used by the profile
-	 * editor's preview, the account overview and public profiles, so all three always match.
-	 */
+	/** Public profile card. Shared by the editor preview, account overview and public profile. */
 	interface Props {
 		name: string;
 		username: string;

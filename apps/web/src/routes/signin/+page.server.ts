@@ -14,13 +14,9 @@ import type { Actions, PageServerLoad } from './$types';
 
 const INVALID = 'The email address or password is incorrect.';
 /**
- * Failed attempts allowed for one email address from one client address (MAX_FAILURES), and from
- * all client addresses together (LOCK_AFTER), within LOCK_MS. The first stops guessing from one
- * place; the second stops credential stuffing spread over many addresses.
- *
- * Both are counted for every email address entered, whether or not an account uses it, and give
- * the same answer either way, so the lock cannot be used to find out which addresses are
- * registered. An existing account is also locked in the database, so the lock survives a restart.
+ * Failure limits per email: per client address (MAX_FAILURES) and across all addresses (LOCK_AFTER) within
+ * LOCK_MS. Counted for every email entered with identical responses (no enumeration). Existing accounts are
+ * also locked in the database.
  */
 const MAX_FAILURES = 5;
 const LOCK_AFTER = 10;

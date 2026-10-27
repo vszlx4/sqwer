@@ -23,11 +23,7 @@
 		return Math.min(session.targets.length, session.wordIndex + 60);
 	});
 
-	/**
-	 * untyped: not reached yet · correct · incorrect: the intended letter is shown in red
-	 * (the wrong character itself is not displayed) · extra: typed beyond the end of the word
-	 * · missed: skipped by pressing space early.
-	 */
+	/** untyped · correct · incorrect (intended letter in red) · extra (past word end) · missed (early space). */
 	type CharState = 'untyped' | 'correct' | 'incorrect' | 'extra' | 'missed';
 
 	function charsOf(i: number, _rev: number): { ch: string; state: CharState }[] {

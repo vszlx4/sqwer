@@ -12,11 +12,8 @@ import type { RequestHandler } from './$types';
 const PLACED_STARS = 3;
 
 /**
- * Applies the learner's latest placement test: every lesson in the chapters before the
- * recommended one is marked complete with full stars, which earns its points and XP, and the
- * recommended chapter becomes the starting point. The result is read from the saved placement
- * test on the server, never from the request, and only a test that passed the server's keystroke
- * check counts, so the credit cannot be claimed without the speed.
+ * Applies the latest saved placement: earlier chapters complete with full stars (points and XP), recommended
+ * chapter becomes the start. Read from the server copy only, and only if it passed the keystroke check.
  */
 export const POST: RequestHandler = async ({ locals }) => {
 	if (!locals.user) error(401, 'Sign in to save your level.');

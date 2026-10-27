@@ -1,4 +1,4 @@
-// Common everyday English words, compiled for sqwer. Lowercase, letters only.
+// Common everyday English words. Lowercase, letters only.
 export const ENGLISH_COMMON = `
 the be to of and a in that have it for not on with he as you do at this but his by from they we
 say her she or an will my one all would there their what so up out if about who get which go me

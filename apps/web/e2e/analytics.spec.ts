@@ -3,11 +3,7 @@ import { expect, test, type Page, type Request } from '@playwright/test';
 import { solveCaptcha } from './human.ts';
 import { freshCode } from './totp.ts';
 
-/*
- * Analytics end to end, against the real server: consent before any collection, server events
- * from real registrations and sign-ins, and access to the dashboard for administrators only. The
- * administrator and member accounts are created by scripts/seed-e2e.mjs before the server starts.
- */
+/* Analytics e2e: consent, server events, admin-only dashboard. Accounts seeded by scripts/seed-e2e.mjs. */
 
 const ADMIN = { email: 'admin@e2e.test', password: 'E2e-admin-pass-2026' };
 const MEMBER = { email: 'member@e2e.test', password: 'E2e-member-pass-2026' };

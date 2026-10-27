@@ -1,4 +1,4 @@
-# Any listed owner can approve. Add reviewers to the first line; later lines override it.
+# Reviewers go on the first line; later lines override it.
 *                          @vszlx4
 /.github/                  @vszlx4
 /scripts/                  @vszlx4

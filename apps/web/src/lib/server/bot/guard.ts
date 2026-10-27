@@ -7,24 +7,17 @@ import { checkTicket, issueTicket, type ProtectedAction } from './ticket.ts';
 import { turnstileConfig, turnstileRecentlyDown, verifyTurnstile } from './turnstile.ts';
 
 /*
- * Bot protection for the sign-in, sign-up and password reset forms. Layers, all on the server:
- *
- * 1. A hidden field people never fill in.
- * 2. A signed, single-use form ticket from the page that was loaded (minimum fill time for sign-up).
- * 3. Risk scoring from the request headers, how the form was filled and recent failures.
- * 4. Person verification: Cloudflare Turnstile when configured, otherwise (or while Turnstile is
- *    not reachable) sqwer's own challenge. Sign-up and password reset always verify; sign-in
- *    verifies when the risk calls for it, so most people sign in without a challenge.
- * 5. Rate limits per address, per network and per account, applied by each action.
- *
- * Nothing here relies on the browser: a request sent straight to the endpoint goes through
- * exactly the same checks, and lacks the ticket and the interaction summary a real page provides.
+ * Bot protection for sign-in, sign-up and password reset, server-side:
+ * 1. Honeypot field.
+ * 2. Signed single-use form ticket (minimum fill time on sign-up).
+ * 3. Risk score from headers, form signals and recent failures.
+ * 4. Verification: Turnstile when configured, else (or when unreachable) the built-in challenge. Always on
+ *    sign-up and reset; on sign-in by risk.
+ * 5. Rate limits per address, network and account.
+ * Direct requests get the same checks and lack the ticket and signals.
  */
 
-/**
- * Sign-up forms sent faster than this after the page was loaded are refused outright; for the
- * other forms an unusually fast submission only adds to the risk score.
- */
+/** Sign-up faster than this after page load is refused; other forms only add risk. */
 const SIGNUP_MIN_FILL_MS = 2500;
 const FAST_MS = 1500;
 
@@ -111,8 +104,8 @@ export async function guardForm(event: RequestEvent, form: FormData, action: Pro
 	}
 	if (ts && !selfHosted) return fail(400, 'captcha', GUARD_MESSAGES.required, 'no-token');
 
-	// sqwer's own challenge: the only check without Turnstile, and the fallback with it. As the
-	// weaker of the two, its use is limited per address, more tightly when Turnstile is answering.
+	// Built-in challenge: sole check without Turnstile, fallback with it. Rate-limited per address, tighter
+	// while Turnstile is up.
 	const fallbackLimit = ts && !turnstileRecentlyDown() ? 5 : 60;
 	if (!rateLimit(`challenge:${ip}`, fallbackLimit, 60 * 60 * 1000).ok) return fail(429, 'captcha', GUARD_MESSAGES.slow, 'fallback-limit', true, !!ts);
 	const outcome = await verifyCaptcha(form, action, ua);

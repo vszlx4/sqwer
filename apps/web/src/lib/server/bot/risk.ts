@@ -2,11 +2,8 @@ import type { TicketCheck } from './ticket.ts';
 import { countRecent, recordFailure } from '../rate-limit.ts';
 
 /*
- * Risk scoring for protected forms. Each signal adds to a score; at or above CHALLENGE_AT a
- * person-verification is required before the action runs. No single signal blocks anyone, because
- * every one of them can occur in a real browser, and none can identify automation with certainty:
- * a careful script or an AI browser agent can look exactly like a person. Signals only decide when
- * to ask for verification, and how strict the limits are.
+ * Risk scoring. Signals add up; at CHALLENGE_AT or above verification is required. No signal blocks on its
+ * own; scores only decide when to verify and how strict limits are.
  */
 
 export const CHALLENGE_AT = 30;
@@ -69,11 +66,7 @@ export function parseSignals(raw: unknown): Signals | null {
 	}
 }
 
-/**
- * Signals from how the form was filled. People press keys or paste (password managers paste),
- * move or press a pointer, and take more than a moment. These are weak signals on their own and
- * are scored as such.
- */
+/** Form-fill signals: key presses or pastes, pointer use, fill time. Weak, scored accordingly. */
 export function behaviourRisk(signals: Signals | null): Risk {
 	const r: Risk = { score: 0, reasons: [] };
 	const add = (n: number, why: string) => {
@@ -135,10 +128,7 @@ export function historyRisk(ip: string, action: string): Risk {
 	return r;
 }
 
-/**
- * Many failures across all addresses at once suggest a distributed attack, such as credential
- * stuffing from many addresses. While it lasts, everyone is asked to verify.
- */
+/** Site-wide failure spikes (distributed stuffing) require verification from everyone while they last. */
 export function underAttack(action: string): boolean {
 	return countRecent(`abuse:${action}:all`, TEN_MINUTES) >= 60;
 }

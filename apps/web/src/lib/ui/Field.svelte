@@ -21,10 +21,7 @@
 	let reveal = $state(false);
 	const inputType = $derived(isPassword && reveal ? 'text' : rest.type);
 
-	/**
-	 * A simple strength guide from 0 to 4: length counts most, then a mix of character kinds.
-	 * It guides; the server enforces the actual rule.
-	 */
+	/** Strength hint 0-4: length first, then character variety. The server enforces the rule. */
 	const score = $derived.by(() => {
 		const v = String(value ?? '');
 		if (!v) return 0;

@@ -33,10 +33,8 @@
 	import { onMount, untrack } from 'svelte';
 
 	/**
-	 * Cloudflare Turnstile, in managed mode: most visitors see a short automatic check, and only
-	 * some are asked to click. The token goes into the form as `cf-turnstile-response` and is
-	 * checked on the server. If the script cannot load or the check fails to run, `onfail` lets the
-	 * page offer sqwer's own verification instead.
+	 * Turnstile, managed mode. Token posts as `cf-turnstile-response`, verified server-side. `onfail` switches
+	 * to the built-in check.
 	 */
 	interface Props {
 		siteKey: string;

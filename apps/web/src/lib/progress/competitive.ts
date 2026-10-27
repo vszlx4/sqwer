@@ -1,7 +1,6 @@
 /**
- * The competitive ladder: speed tiers earned only in the 60-second competitive test, with at
- * least MIN_ACCURACY. Ten ranks have three divisions each, from III (lowest) to I, and Zenith
- * stands alone at 300 WPM and above.
+ * Competitive ladder from the 60-second test at MIN_ACCURACY or above. Ten ranks × three divisions
+ * (III → I), then Zenith at 300+ WPM.
  */
 
 export const COMPETITIVE_SECONDS = 60;
@@ -78,10 +77,7 @@ export interface ReplayCheck {
 	replay: [number, string][];
 }
 
-/**
- * Server-side plausibility check for a one-minute result: the right duration, enough accuracy,
- * a keystroke record that spans the test, and a speed that matches the characters typed.
- */
+/** Plausibility check for a one-minute result: duration, accuracy, keystroke span, speed vs characters. */
 export function verifyMinute(r: ReplayCheck, minAccuracy: number): boolean {
 	if (Math.abs(r.seconds - COMPETITIVE_SECONDS) > 1.5) return false;
 	if (r.accuracy < minAccuracy || r.wpm > MAX_WPM) return false;

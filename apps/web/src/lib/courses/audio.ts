@@ -1,15 +1,9 @@
-/*
- * Sound for the course activities: short synthesised tones for the Echo game and
- * the device's own speech synthesis for dictation. Nothing is downloaded, recorded or sent anywhere.
- */
+/* Course audio: synthesised tones (Echo) and on-device speech synthesis. No network. */
 
 let context: AudioContext | null = null;
 let output: AudioNode | null = null;
 
-/**
- * Every sound passes through a low-pass filter, which takes the edge off high notes, and a
- * compressor, which keeps several notes at once from adding up to a loud peak.
- */
+/** Master chain: low-pass filter, then a compressor against stacked peaks. */
 function audio(): { ctx: AudioContext; out: AudioNode } | null {
 	if (typeof window === 'undefined' || !('AudioContext' in window)) return null;
 	if (!context) {
@@ -68,10 +62,7 @@ function localVoices(): SpeechSynthesisVoice[] {
 	return speechSynthesis.getVoices().filter((v) => v.localService && v.lang.toLowerCase().startsWith('en'));
 }
 
-/**
- * Whether words can be spoken without sending them anywhere. Voices may load after the page;
- * call again once `voiceschanged` has fired.
- */
+/** On-device speech available. Voices can load late; recheck after `voiceschanged`. */
 export const canSpeak = () => localVoices().length > 0;
 
 /** Resolves once the browser has listed its voices, or after a short wait. */

@@ -5,10 +5,8 @@ import { db, schema } from '../db/index.ts';
 import { isBot, parseClient } from './ua.ts';
 
 /*
- * Events from the browser. The page sends them only after the visitor has agreed to analytics
- * (lib/analytics/consent.svelte.ts). Every field is validated and normalised here; anything that
- * does not fit is refused as a whole batch. Who is signed in comes from the session, never from
- * the request body, and device, browser and system are read from the user agent here.
+ * Browser events, sent after consent. Validated and normalised here; one bad event rejects the batch.
+ * User from the session only; device, browser and OS from the user agent.
  */
 
 const uuid = z.uuid();

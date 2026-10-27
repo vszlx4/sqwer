@@ -1,9 +1,5 @@
 <script lang="ts">
-	/**
-	 * Daily counts as bars, stacked when there are two series (for example successful and failed
-	 * sign-ins). Days without data collected are left empty, not drawn as zero. Hover or the arrow
-	 * keys show each day; the numbers are also available as a table.
-	 */
+	/** Daily bars, stacked for two series. Days without data stay empty, not zero. Keyboard and table access. */
 	interface Series {
 		key: string;
 		label: string;
@@ -54,7 +50,7 @@
 		{/if}
 	</figcaption>
 	<div class="plot" bind:clientWidth={measured}>
-		<!-- The chart is focusable so the arrow keys can read it day by day; the table below has the same numbers. -->
+		<!-- Focusable for arrow-key reading; the table repeats the data. -->
 		<!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
 		<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${title}. Use the left and right arrow keys to read each day.`} tabindex="0" {onkeydown} onblur={() => (active = null)} onpointerleave={() => (active = null)}>
 			{#each [0, niceMax / 2, niceMax] as t (t)}

@@ -7,10 +7,7 @@
 		children: Snippet;
 		actions: Snippet;
 		onclose: () => void;
-		/**
-		 * Confirmation of a consequential action. The dialog is announced as an alert dialog
-		 * and is not dismissed by clicking outside it, so it cannot be closed by accident.
-		 */
+		/** Alert dialog for consequential actions; outside clicks don't dismiss. */
 		alert?: boolean;
 	}
 

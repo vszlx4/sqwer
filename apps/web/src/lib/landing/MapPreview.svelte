@@ -3,8 +3,7 @@
 	import Keyboard from '#lib/keyboard/Keyboard.svelte';
 	import type { ZoneInfo } from '#lib/keyboard/types.ts';
 
-	// An illustrative finger map: mostly textbook, with a few personal habits
-	// and some keys still waiting for samples.
+	// Sample finger map: mostly standard, a few habits, some keys unmapped.
 	const layout = qwertyAnsi('mac');
 	const HABITS: Record<string, Finger> = { KeyC: 'li', KeyB: 'ri', KeyY: 'li', Comma: 'ri' };
 	const PENDING = new Set(['KeyQ', 'KeyZ', 'Quote', 'Slash', 'Backquote', 'Minus', 'Equal', 'BracketLeft', 'BracketRight', 'Backslash', 'Digit0', 'Digit9']);

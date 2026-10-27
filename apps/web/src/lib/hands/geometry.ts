@@ -1,5 +1,4 @@
-// Hand outlines and finger shapes, from the hand illustration in ./assets/in-rgb.svg (viewBox 0 0 300 197).
-// Both hands are seen from above, as they rest on a keyboard.
+// Hand and finger shapes from ./assets/in-rgb.svg (viewBox 0 0 300 197), seen from above.
 import type { Finger, FingerKind } from '@sqwer/layouts';
 
 export const VIEW = { width: 300, height: 197 };
@@ -37,7 +36,7 @@ export const TIPS: Record<Finger, { x: number; y: number }> = {
 	rp: { x: 258.5, y: 42.1 }
 };
 
-/** Direction of each hand's shading, as in the illustration: diagonal from the fingertips towards the wrist. */
+/** Shading direction per hand: fingertips to wrist. */
 export const SHADING = {
 	left: { x1: 96.5076, y1: 13.7487, x2: 51.3109, y2: 182.425 },
 	right: { x1: 203.492, y1: 13.7487, x2: 248.689, y2: 182.425 }
@@ -52,10 +51,7 @@ export const SHADING_STOPS: Record<FingerKind, { start: number; end: number }> =
 	pinky: { start: 0.269231, end: 0.509615 }
 };
 
-/**
- * Finger colours: the site's finger palette, so the hands pair with the finger map's keys
- * and adapt to the light and dark themes.
- */
+/** Finger colours from the site palette; theme-aware. */
 export const SHADING_COLOURS: Record<FingerKind, string> = {
 	thumb: 'var(--f-thumb)',
 	index: 'var(--f-index)',

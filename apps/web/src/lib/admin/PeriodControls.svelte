@@ -2,11 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { CHANNEL_LABELS, CHANNELS } from '#lib/analytics/shared.ts';
 
-	/**
-	 * The date range and filters of an analytics view, as one GET form so every view has its own
-	 * address and works without JavaScript. With JavaScript, choosing a preset or a filter applies
-	 * it at once; custom dates apply with the button.
-	 */
+	/** Range and filters as one GET form: addressable views, works without JS. Presets apply on change. */
 	interface Props {
 		period: { preset: string; fromDay: string; toDay: string };
 		filters: { route?: string | null; channel?: string | null; device?: string | null; auth?: string | null };

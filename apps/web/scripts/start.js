@@ -1,4 +1,3 @@
-// Starts the production server on any operating system (environment variables set inline,
-// as in `BODY_SIZE_LIMIT=6M node build`, do not work in the Windows command line).
+// Cross-platform production start (inline env vars don't work on Windows).
 process.env.BODY_SIZE_LIMIT ??= '6M';
 await import('../build/index.js');

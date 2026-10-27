@@ -5,16 +5,11 @@
 	import { formSignals } from './formSignals.ts';
 
 	/**
-	 * The bot protection of a form, as the page sees it: the signed ticket, a field people never
-	 * fill in, a summary of how the form was filled and, when needed, a verification. Every check is
-	 * repeated on the server; nothing here can let a request through on its own.
-	 *
-	 * - With Turnstile configured, its check is shown; if it cannot load or the server reports it
-	 *   unreachable, sqwer's own challenge takes its place.
-	 * - Without Turnstile, sqwer's own challenge is shown when the server asks for one: always for
-	 *   sign-up and password reset, and for sign-in after a failure or when the risk is higher.
-	 *   Browsers under automation (navigator.webdriver) are shown it straight away, because the
-	 *   server will ask for it anyway.
+	 * Client side of form bot protection: ticket, honeypot, fill signals and verification when needed. All
+	 * re-checked on the server.
+	 * - Turnstile configured: shown; built-in challenge if it fails to load or the server reports it down.
+	 * - Otherwise: built-in challenge when the server asks (always on sign-up and reset, on sign-in after a
+	 *   failure or higher risk); shown immediately under navigator.webdriver.
 	 */
 	interface Props {
 		check: {

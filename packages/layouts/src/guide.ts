@@ -6,11 +6,7 @@ export interface Press {
 	finger: Finger;
 }
 
-/**
- * The keys and fingers a touch typist uses to produce `char`.
- * Shift goes on the hand opposite the character; space uses the thumb
- * opposite the previous character so hands alternate.
- */
+/** Keys and fingers for `char`. Shift on the opposite hand; space thumb opposite the previous character. */
 export function pressesFor(layout: KeyboardLayout, char: string, prevChar?: string): Press[] {
 	const entry = layout.chars.get(char);
 	if (!entry) return [];

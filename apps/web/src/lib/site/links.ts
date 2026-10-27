@@ -1,9 +1,6 @@
 export const CONTACT_EMAIL = 'info@mughram.com';
 
-/**
- * The operator's legal details, shown on the legal pages. Empty values are left out of the
- * pages rather than shown as placeholders.
- */
+/** Operator legal details for the legal pages. Empty values are omitted. */
 export const LEGAL = {
 	/** The individual who runs sqwer as a free, non-commercial project. */
 	operatorName: 'Ahmed Mughram',
@@ -17,10 +14,7 @@ export const LEGAL = {
 	webHostLocation: 'Europe'
 } as const;
 
-/**
- * The three areas of the product: learning, practice and competition. The finger map and history
- * belong to practice and are reached from its page; Getting started from the home page and course.
- */
+/** Product areas: learning, practice, competition. Finger map and history sit under practice. */
 export const NAV_LINKS = [
 	{ href: '/learn', label: 'Learning path', icon: 'route', description: 'Lessons, games and course ranks' },
 	{ href: '/exams', label: 'Practice', icon: 'gauge', description: 'Tests, finger map and history, with XP' },

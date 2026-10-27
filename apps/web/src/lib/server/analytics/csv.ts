@@ -1,7 +1,4 @@
-/**
- * One CSV cell (RFC 4180). Values a spreadsheet could read as a formula are prefixed with an
- * apostrophe, so an exported page path or referrer can never run as one.
- */
+/** RFC 4180 CSV cell. Formula-like values get a leading apostrophe. */
 export function csvCell(value: unknown): string {
 	if (value === null || value === undefined) return '';
 	let s = String(value);

@@ -11,7 +11,7 @@ import { rateLimit } from '#lib/server/rate-limit.ts';
 import { addressOf } from '#lib/server/security-log.ts';
 import type { LayoutServerLoad } from './$types';
 
-/** A token for sending analytics (lib/server/analytics/token.ts), issued at a limited rate per address and network. */
+/** Analytics token (lib/server/analytics/token.ts), rate-limited per address and network. */
 function analyticsToken(event: Parameters<LayoutServerLoad>[0]): string | null {
 	const ip = addressOf(event);
 	if (!ip || !rateLimit(`analytics-token:${ip}`, 300, 10 * 60 * 1000).ok || !rateLimit(`analytics-token:net:${networkOf(ip)}`, 1_500, 10 * 60 * 1000).ok) return null;

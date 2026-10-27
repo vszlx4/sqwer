@@ -1,8 +1,4 @@
-/**
- * Register of sqwer's legal and policy documents. Each document has a permanent reference, a
- * version and an effective date, so that what a person accepted can always be identified.
- * Change the version and date of a document whenever its substance changes.
- */
+/** Legal document register: reference, version, effective date. Bump version and date on substantive changes. */
 export interface LegalDocument {
 	ref: string;
 	title: string;
@@ -73,10 +69,7 @@ export const LEGAL_DOCUMENTS = {
 
 export type LegalKey = keyof typeof LEGAL_DOCUMENTS;
 
-/**
- * Recorded with each new account as evidence of what was accepted: the Terms and Conditions
- * and Privacy Policy versions in force at registration.
- */
+/** Terms and Privacy versions recorded with each new account. */
 export const ACCEPTANCE_VERSION = `terms-${LEGAL_DOCUMENTS.terms.version}+privacy-${LEGAL_DOCUMENTS.privacy.version}`;
 
 /** Most recent effective date across all documents, shown in the legal centre. */

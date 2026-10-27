@@ -4,14 +4,10 @@ import { decodeKeystrokes } from '#lib/results/detail.ts';
 import type { ResultDetail } from '#lib/results/types.ts';
 
 /*
- * Server-side checks of a typing result before it earns XP or a rank. The browser sends its
- * keystroke record; the server replays it with the same engine (packages/engine) and decides:
- *
- * - reject: impossible or forged (keystrokes out of order or after the end, counts or headline
- *   numbers that the keystrokes do not produce, faster than any person). Not stored at all.
- * - untrusted: stored in the history, but earns no XP and is never ranked (no keystroke record, or
- *   timing as regular as a machine's).
- * - trusted: the recomputed numbers, never the browser's, are used for XP and ranks.
+ * Server check of a typing result before XP or rank, replaying keystrokes with packages/engine:
+ * - reject: impossible or forged; not stored.
+ * - untrusted: stored, no XP, never ranked (no keystrokes, or machine-regular timing).
+ * - trusted: recomputed numbers are used for XP and ranks.
  */
 
 export interface ResultClaim {
@@ -101,9 +97,8 @@ export function checkResult(r: ResultClaim, now = Date.now()): Verdict {
 }
 
 /**
- * Stars a lesson attempt may claim for its average accuracy, by the course's own rule
- * (lib/courses/progression.ts): 3 from 98 %, 2 from 94 %, otherwise 1. An attempt whose graded
- * steps were all skipped reports 100 % and may claim 3.
+ * Stars claimable for a lesson's average accuracy (lib/courses/progression.ts): 3 from 98%, 2 from 94%,
+ * else 1. All graded steps skipped reports 100% and may claim 3.
  */
 export function maxStarsFor(accuracy: number): number {
 	return accuracy >= 98 ? 3 : accuracy >= 94 ? 2 : 1;

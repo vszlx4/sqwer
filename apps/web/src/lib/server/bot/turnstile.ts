@@ -5,10 +5,8 @@ import { consumeOnce } from './replay.ts';
 import type { ProtectedAction } from './ticket.ts';
 
 /*
- * Cloudflare Turnstile, used when TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY are set.
- * Every token is checked with Cloudflare's Siteverify API on the server before the protected
- * action runs: it must be valid, issued for this site and this action, recent, and not used
- * before. A token is never trusted because the browser says it passed.
+ * Turnstile, when TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY are set. Every token verified with
+ * Siteverify: valid, this site and action, recent, unused.
  */
 
 const SITEVERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
@@ -20,8 +18,7 @@ export function turnstileConfig() {
 	const siteKey = process.env.TURNSTILE_SITE_KEY?.trim() || null;
 	const secretKey = process.env.TURNSTILE_SECRET_KEY?.trim() || null;
 	if (!siteKey || !secretKey) return null;
-	// A test secret passes every token, so on a public site it would switch verification off; sqwer's
-	// own check is used instead (and the start-up check logs the problem).
+	// Test secrets pass every token; on a public site use the built-in check instead (start-up check logs it).
 	if (isTurnstileTestSecret(secretKey) && isPublicSite()) return null;
 	return { siteKey, secretKey };
 }
@@ -47,13 +44,11 @@ export async function verifyTurnstile(
 ): Promise<TurnstileOutcome> {
 	const now = opts.now ?? Date.now();
 	if (typeof token !== 'string' || !token || token.length > 2048) return 'invalid';
-	// Our own record of used tokens, in addition to Cloudflare's, so a token is accepted once here
-	// even if a check is retried.
+	// Local used-token record on top of Cloudflare's, for retries.
 	if (!(await consumeOnce('turnstile', createHash('sha256').update(token).digest('base64url'), now + TURNSTILE_TOKEN_MS))) return 'replayed';
 
 	const doFetch = opts.fetch ?? fetch;
-	// The same idempotency key lets a retry after a network failure be answered without the token
-	// counting as spent.
+	// Same idempotency key so a retried network failure doesn't spend the token.
 	const idempotencyKey = randomUUID();
 	let data: SiteverifyResponse | null = null;
 	for (let attempt = 0; attempt < 2 && !data; attempt++) {
@@ -81,8 +76,7 @@ export async function verifyTurnstile(
 		}
 		return codes.includes('timeout-or-duplicate') ? 'replayed' : 'invalid';
 	}
-	// Cloudflare's test secrets answer for any hostname and action, so those two checks are skipped
-	// for them; turnstileConfig() never returns one on a public site.
+	// Test secrets match any hostname and action; skip those checks for them. Never returned on a public site.
 	if (!isTurnstileTestSecret(opts.secretKey)) {
 		const expectedHost = new URL(SITE_URL).hostname;
 		if (data.hostname !== expectedHost) return 'invalid';

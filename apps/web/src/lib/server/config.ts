@@ -2,11 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-/*
- * Settings such as DATABASE_URL can be kept in a `.env` file next to the app (never committed).
- * Values already set in the environment take precedence. SQWER_ENV_FILE=none skips the file,
- * which the automated tests use so they always run against their own local database.
- */
+/* Settings from `.env` next to the app; environment wins. SQWER_ENV_FILE=none skips it (tests). */
 if (process.env.SQWER_ENV_FILE !== 'none') {
 	for (const file of [path.resolve('.env'), path.resolve('apps/web/.env')]) {
 		if (!existsSync(file)) continue;
@@ -28,10 +24,7 @@ export const SITE_URL = (process.env.PUBLIC_SITE_URL ?? 'http://localhost:3000')
 
 let cached: Record<string, string> | null = null;
 
-/**
- * Reads a secret from the environment. When it is not set, a random value is
- * generated once and stored in DATA_DIR so it survives restarts.
- */
+/** Secret from the environment, else generated once and stored in DATA_DIR. */
 export function secret(name: string): string {
 	const fromEnv = process.env[name];
 	if (fromEnv) return fromEnv;

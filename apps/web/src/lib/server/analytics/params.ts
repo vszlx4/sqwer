@@ -1,10 +1,7 @@
 import { CHANNELS } from '#lib/analytics/shared.ts';
 import type { EventFilters, Filters, Range } from './query.ts';
 
-/*
- * The dashboard's date range and filters, read from the address so every view can be bookmarked
- * and shared between administrators. Anything unexpected falls back to a safe default.
- */
+/* Dashboard range and filters from the URL. Invalid values fall back to defaults. */
 
 const DAY = 24 * 60 * 60 * 1000;
 export const PRESETS = { '7d': 7, '30d': 30, '90d': 90, '12m': 365 } as const;

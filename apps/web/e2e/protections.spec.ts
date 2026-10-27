@@ -2,10 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { expect, test, type Page } from '@playwright/test';
 import { solveCaptcha } from './human.ts';
 
-/*
- * Request limits, analytics tokens, the session cookie and the result checks, against the real
- * server. Each test uses its own client address, so the limits it reaches stay its own.
- */
+/* Request limits, analytics tokens, session cookie and result checks. One client address per test. */
 
 const ORIGIN = 'http://localhost:4321';
 const PLAYER = { email: 'player@e2e.test', password: 'E2e-player-pass-2026' };

@@ -106,11 +106,7 @@ export interface WordHighlights {
 	leastAccurate: { word: string; accuracy: number; n: number } | null;
 }
 
-/**
- * Notable words. Speeds use words of three or more letters; the slowest and
- * least accurate require at least three attempts so a single hesitation does
- * not decide the result.
- */
+/** Notable words: speeds from 3+ letter words; slowest and least accurate need 3+ attempts. */
 export function wordHighlights(words: Record<string, WordUsage>): WordHighlights {
 	const entries = Object.entries(words);
 	const long = entries.filter(([w]) => w.length >= 3);

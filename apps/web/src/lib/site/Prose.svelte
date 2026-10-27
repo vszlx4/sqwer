@@ -26,8 +26,7 @@
 
 	let body: HTMLDivElement | undefined = $state();
 
-	// Wide tables scroll sideways on small screens; each becomes a labelled, focusable region so
-	// that keyboard users can scroll it too (WCAG 2.1.1).
+	// Wide tables scroll horizontally as labelled, focusable regions (WCAG 2.1.1).
 	onMount(() => {
 		for (const wrap of body?.querySelectorAll<HTMLElement>('.table-wrap') ?? []) {
 			let heading: Element | null = wrap.previousElementSibling;

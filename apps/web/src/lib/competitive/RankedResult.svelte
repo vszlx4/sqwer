@@ -11,10 +11,7 @@
 	import Icon from '#lib/ui/Icon.svelte';
 	import RankEmblem from './RankEmblem.svelte';
 
-	/**
-	 * The result of a ranked test: the rank this result earns, how it compares with the player's
-	 * best, the server's check and the new place on the leaderboard. The full report is one click away.
-	 */
+	/** Ranked result: earned rank, comparison with best, server check, leaderboard place. */
 	interface Props {
 		record: ResultRecord;
 		/** Best verified speed before this result. */

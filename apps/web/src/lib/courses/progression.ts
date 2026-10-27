@@ -1,10 +1,7 @@
 import { CHAPTERS, LESSONS } from './catalog.ts';
 import type { LessonProgress, StepResult } from './types.ts';
 
-/*
- * Stars, points and ranks. Points come only from completed lessons and their best
- * stars, so they reflect what has been learned and cannot be inflated by repetition.
- */
+/* Stars, points, ranks. Points come only from completed lessons' best stars; repeats add nothing. */
 
 /** Stars for a lesson: none unless every step passed, then by the average accuracy of graded steps. */
 export function lessonStars(results: StepResult[]): number {
@@ -41,7 +38,7 @@ export interface Rank {
 /** The highest number of points the course can award. */
 export const MAX_POINTS = LESSONS.length * lessonPoints(3);
 
-/** Share of all points needed for each rank. Rank 9 is also given for finishing the course well; rank 10 only for near-perfect work. */
+/** Share of total points per rank. Rank 9 also for finishing well; rank 10 only near-perfect. */
 const RANK_SHARE = [0, 0.012, 0.04, 0.09, 0.16, 0.25, 0.36, 0.5, 0.75, 0.95];
 const at = (share: number) => Math.round((share * MAX_POINTS) / 50) * 50;
 
@@ -74,9 +71,8 @@ export interface RankStatus {
 }
 
 /**
- * The course rank. Points set the rank up to Virtuoso (9). Completing every lesson with at least
- * 75% of all stars guarantees Virtuoso; Legend (10) is given only for three stars in at least 95%
- * of the lessons. `stars` lists the stars of each lesson the learner has taken.
+ * Course rank. Points up to Virtuoso (9); all lessons with ≥75% of stars guarantees 9. Legend (10): three
+ * stars in ≥95% of lessons. `stars`: per taken lesson.
  */
 export function rankFor(points: number, stars: readonly number[] = []): RankStatus {
 	const total = LESSONS.length;
@@ -120,10 +116,7 @@ export function localDay(t = Date.now()): string {
 	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-/**
- * The chapter to start in, from a placement test. Speed shows how far a typist has come;
- * accuracy below 90% suggests weak foundations, so the recommendation moves back one chapter.
- */
+/** Placement chapter from speed; accuracy under 90% moves it back one. */
 export function recommendedChapter(wpm: number, accuracy: number): number {
 	const ladder: [number, number][] = [
 		[12, 1],
@@ -139,10 +132,7 @@ export function recommendedChapter(wpm: number, accuracy: number): number {
 	return ladder[adjusted]![1];
 }
 
-/**
- * What applying a placement result gives: the lessons before the recommended chapter that are not
- * yet at full stars, and the points (and so XP) that marking them complete adds.
- */
+/** Placement credit: earlier lessons below full stars, and the points (XP) gained. */
 export function placementCredit(chapter: number, progress: Record<string, LessonProgress>) {
 	const lessons = CHAPTERS.filter((c) => c.number < chapter)
 		.flatMap((c) => c.lessons)
@@ -158,10 +148,7 @@ export function chapterProgress(chapter: number, progress: Record<string, Lesson
 	return { done, total: lessons.length, stars, maxStars: lessons.length * 3 };
 }
 
-/**
- * The lesson to take next: the first unfinished lesson from the chosen starting point,
- * then any earlier unfinished lesson. Null once the whole course is complete.
- */
+/** Next lesson: first unfinished from the start point, then earlier unfinished ones. Null when done. */
 export function nextLessonId(progress: Record<string, LessonProgress>, startId: string | null): string | null {
 	const start = Math.max(0, startId ? LESSONS.findIndex((l) => l.id === startId) : 0);
 	const ordered = [...LESSONS.slice(start), ...LESSONS.slice(0, start)];

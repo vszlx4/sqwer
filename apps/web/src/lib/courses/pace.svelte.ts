@@ -1,10 +1,8 @@
 import type { StepResult } from './types.ts';
 
 /*
- * Adaptive pace. Every game and drill is scaled by one number: 1 is the standard pace, lower is
- * gentler (slower falling letters, longer key windows, slower pacers, lower accuracy goals) and
- * higher is brisker. It rises after confident steps and falls after failed ones, so the course
- * follows the learner rather than a fixed goal. It is kept only in this browser.
+ * Adaptive pace multiplier for games and drills (1 = standard). Rises after confident steps, falls after
+ * failures. Browser only.
  */
 
 const KEY = 'sqwer:pace';

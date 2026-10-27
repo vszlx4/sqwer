@@ -1,6 +1,4 @@
-/*
- * Definitions shared by the browser tracker, the server and the dashboard.
- */
+/* Shared by tracker, server and dashboard. */
 
 /** Events the browser may send, and only after the visitor has agreed to analytics. */
 export const CLIENT_EVENTS = ['pageview', 'engagement'] as const;
@@ -38,10 +36,7 @@ const SEARCH = /(^|\.)(google|bing|duckduckgo|yahoo|yandex|baidu|ecosia|qwant|st
 const SOCIAL =
 	/(^|\.)(facebook|fb|instagram|twitter|x|t|linkedin|lnkd|reddit|youtube|youtu|tiktok|pinterest|whatsapp|telegram|discord|threads|mastodon|bsky|snapchat|quora|news\.ycombinator)\.[a-z.]+$|^t\.co$|^lnkd\.in$|^youtu\.be$/;
 
-/**
- * The traffic channel of a visit: a campaign when it carries UTM parameters, otherwise search or
- * social by the referring site, another referring site, or direct when there is no referrer.
- */
+/** Visit channel: campaign (UTM), search, social, referral or direct. */
 export function channelOf(referrerHost: string | null, utm: { source?: string | null; medium?: string | null }): Channel {
 	if (utm.source || utm.medium) return 'campaign';
 	if (!referrerHost) return 'direct';

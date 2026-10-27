@@ -1,10 +1,6 @@
 /*
- * The restricted database role the application serves requests with (DATABASE_APP_ROLE, default
- * `sqwer_app`): it may read and write rows, and nothing else. It cannot create, alter or drop
- * tables, bypass row-level security, create roles or change the record of applied migrations.
- *
- * Shared by the app (src/lib/server/db/index.ts) and the command-line scripts (scripts/lib/db.mjs),
- * so it uses plain TypeScript without path aliases.
+ * Restricted app role (DATABASE_APP_ROLE, default `sqwer_app`): row read/write only. No DDL, no RLS bypass,
+ * no roles, no migration record writes. Shared with scripts/lib/db.mjs, so no path aliases.
  */
 
 export type Query = (text: string, params?: unknown[]) => Promise<Record<string, unknown>[]>;
@@ -28,10 +24,8 @@ export async function canManageSchema(query: Query): Promise<boolean> {
 }
 
 /**
- * Lets the role read and write rows, and nothing else. Every table has row-level security enabled
- * without general policies (so Supabase's public API roles see nothing); this adds one policy per
- * table for this role only, read-only on the migration record. Safe to run repeatedly; it runs after
- * every migration so that new tables are covered.
+ * Row access for the role only. RLS is on for every table without general policies (Supabase API roles see
+ * nothing); one policy per table for this role, read-only on migrations. Idempotent; runs after every migration.
  */
 export async function grantAppRole(query: Query, role: string): Promise<string[]> {
 	if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error('DATABASE_APP_ROLE must be a plain lower-case role name.');
@@ -61,8 +55,7 @@ export async function grantAppRole(query: Query, role: string): Promise<string[]
 }
 
 /**
- * Creates the role when it does not exist (without login, so it can only be reached by SET ROLE
- * from the connecting user), lets the connecting user switch to it, and grants it row access.
+ * Creates the role (NOLOGIN, reached via SET ROLE), allows the connecting user to switch to it, grants row access.
  */
 export async function ensureAppRole(query: Query, role: string): Promise<void> {
 	if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error('DATABASE_APP_ROLE must be a plain lower-case role name.');

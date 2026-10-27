@@ -1,16 +1,15 @@
-// Manages administrators (users who can open the analytics dashboard).
+// Admin CLI (analytics dashboard access).
 //
 //   npm run admin -w web -- list
 //   npm run admin -w web -- grant person@example.com
 //   npm run admin -w web -- revoke person@example.com
-//   npm run admin -w web -- signout person@example.com   (ends every session of one account)
-//   npm run admin -w web -- signout-everyone             (ends every session, for example after a breach)
-//   npm run admin -w web -- suspend person@example.com "reason"   (blocks sign-in, ends every session)
+//   npm run admin -w web -- signout person@example.com   (one account)
+//   npm run admin -w web -- signout-everyone
+//   npm run admin -w web -- suspend person@example.com "reason"
 //   npm run admin -w web -- unsuspend person@example.com
-//   npm run admin -w web -- reset-2fa person@example.com          (removes a lost authenticator app)
+//   npm run admin -w web -- reset-2fa person@example.com
 //
-// Uses the same database as the app (see scripts/lib/db.mjs). With the embedded database, stop
-// the app first: it can be opened by one process at a time.
+// Same database as the app (scripts/lib/db.mjs). Stop the app first with the embedded database.
 import { open } from './lib/db.mjs';
 
 const [command, rawEmail, ...rest] = process.argv.slice(2);

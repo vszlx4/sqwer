@@ -24,10 +24,7 @@ export function shuffle<T>(list: readonly T[], rand: () => number): T[] {
 
 const pick = <T>(list: readonly T[], rand: () => number) => list[Math.floor(rand() * list.length)]!;
 
-/**
- * Letter groups for learning new keys. The first groups repeat a single new key ("fff"),
- * so the finger learns its position; later groups mix new and known keys, two thirds new.
- */
+/** Groups for new keys: single-key repeats first ("fff"), then mixed, two thirds new. */
 export function patternGroups(pool: string, focus: string, groups: number, rand: () => number): string[] {
 	const focusKeys = [...focus];
 	const poolKeys = [...new Set(pool)];
@@ -63,8 +60,7 @@ export function drillTokens(source: DrillSource, rand: () => number): string[] {
 			return repeated(shuffle(shortlist, rand).slice(0, source.count), source.repeat);
 		}
 		case 'list':
-			// An item can be a short phrase ("you & me"): its words are typed in order, each followed
-			// by a space like any other word, so the space inside a phrase never skips the rest of it.
+			// Phrases ("you & me") are typed word by word with spaces, so an inner space doesn't skip the rest.
 			return repeated(shuffle(source.words, rand), source.repeat).flatMap((item) => item.split(/\s+/).filter(Boolean));
 		case 'sentences':
 			return shuffle(source.sentences, rand)

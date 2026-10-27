@@ -5,10 +5,7 @@ export interface ResultSummary {
 	consistency: number;
 }
 
-/**
- * Factual observations about a result. Statements describe the numbers; they do not
- * praise or encourage. The next step comes from the learner's path through the course.
- */
+/** Factual notes on a result; no praise. Next step comes from the learner path. */
 export function guidance(r: ResultSummary, ctx: { previousBest: number | null }): string[] {
 	const insights: string[] = [];
 	const errorCost = r.raw - r.wpm;

@@ -18,10 +18,7 @@ export const init: ServerInit = () => {
 	startAnalyticsMaintenance();
 };
 
-/**
- * Unexpected errors: the details go to the server log under a short reference, and the visitor sees
- * only a general message with that reference, never a stack trace or internal message.
- */
+/** Unexpected errors: details logged under a reference; the response shows only the reference. */
 export const handleError: HandleServerError = (input) => {
 	// Errors raised on purpose (error(404, …)) and SvelteKit's own keep their status and message.
 	if (input.kind !== 'unknown') return;
@@ -60,7 +57,7 @@ const proxyCheck: Handle = ({ event, resolve }) => {
 			JSON.stringify({
 				kind: 'config',
 				warning:
-					'Requests arrive through a proxy (X-Forwarded-For) but ADDRESS_HEADER is not set, so every visitor appears to come from the proxy and shares its rate limits. Set ADDRESS_HEADER and XFF_DEPTH (docs/operations/DEPLOYMENT.md).'
+					'Requests arrive through a proxy (X-Forwarded-For) but ADDRESS_HEADER is not set, so every visitor appears to come from the proxy and shares its rate limits. Set ADDRESS_HEADER and XFF_DEPTH.'
 			})
 		);
 	}
@@ -95,11 +92,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-/**
- * API requests that change data must come from this site (no cross-origin use,
- * no CORS headers are ever sent) and must be JSON. Form posts are covered by
- * SvelteKit's built-in origin check.
- */
+/** Mutating API requests: same-origin JSON only, no CORS. Forms use SvelteKit's origin check. */
 const apiGuard: Handle = async ({ event, resolve }) => {
 	if (!event.url.pathname.startsWith('/api/')) return resolve(event);
 	const method = event.request.method;
@@ -121,9 +114,7 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	response.headers.set('X-Frame-Options', 'DENY');
 	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
-	// Isolation from other sites: no shared browsing context with pages sqwer opens or is opened by,
-	// and its responses cannot be embedded by other origins (Cloudflare Turnstile uses a frame from its
-	// own origin, which these do not affect).
+	// COOP/CORP isolation. Turnstile's frame is unaffected.
 	response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
 	response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
 	response.headers.set('X-Permitted-Cross-Domain-Policies', 'none');

@@ -36,11 +36,7 @@ export function fingerForChar(
 	return presses[presses.length - 1]?.finger;
 }
 
-/**
- * Picks words in which most letters are typed by the given finger kind,
- * according to the typist's own map. Returns no words when the typist
- * does not use that kind of finger for any letter in the vocabulary.
- */
+/** Words mostly typed by the given finger kind, per the typist's map. Empty when that finger is unused. */
 export function stageWords(
 	kind: Stage['kind'],
 	layout: KeyboardLayout,
@@ -91,11 +87,7 @@ function trimmedMean(values: number[]): number {
 	return kept.reduce((a, b) => a + b, 0) / kept.length;
 }
 
-/**
- * Per-finger speed and accuracy from completed stage sessions.
- * Speed is derived from the time between a keystroke and the previous one:
- * 60 000 ms ÷ interval ÷ 5 characters per word.
- */
+/** Per-finger speed and accuracy from stage sessions. Speed: 60000 / interval / 5. */
 export function fingerScores(
 	sessions: TypingSession[],
 	layout: KeyboardLayout,

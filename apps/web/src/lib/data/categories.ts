@@ -1,7 +1,4 @@
-/**
- * The categories of account data that can be cleared one at a time, without touching the others.
- * Shared by the server, which deletes the rows, and the browser, which discards its own copies.
- */
+/** Account data categories, cleared independently. Server deletes rows; browser drops local copies. */
 export const DATA_CATEGORIES = [
 	{
 		id: 'learning',

@@ -3,10 +3,7 @@ import { idbDelete, idbGet, idbSet } from '#lib/storage/idb.ts';
 
 const KEY = 'finger-observations';
 
-/**
- * The user's tagged keystrokes. Always kept in this browser (IndexedDB); when
- * signed in, also synced to the account.
- */
+/** Tagged keystrokes. IndexedDB; synced to the account when signed in. */
 class FingerMapStore {
 	observations = $state.raw<FingerObservation[]>([]);
 	loaded = $state(false);

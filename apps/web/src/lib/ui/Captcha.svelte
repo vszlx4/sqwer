@@ -3,9 +3,8 @@
 	import Icon from './Icon.svelte';
 
 	/**
-	 * sqwer's verification. A proof-of-work check runs in the background while the person types the
-	 * characters shown, or answers a text question instead. `resetKey` changes after each submission,
-	 * because every challenge can be used only once.
+	 * Built-in verification: background PoW plus typed characters or a text question. `resetKey` changes after
+	 * each submit (single-use challenges).
 	 */
 	interface Props {
 		error?: string | null;

@@ -10,11 +10,8 @@ import { handOf, kindOf, type Finger } from '@sqwer/layouts';
 import type { Chapter, DrillSource, Lesson, StepSpec } from './types.ts';
 
 /*
- * The sqwer course: one long road from the first two keys to fluent typing, about one lesson a
- * day. Each lesson takes five to eight minutes and mixes drills with several games; every step has
- * a goal rather than a time limit. Timed endurance checks appear only at the end of a chapter, to
- * confirm the learner is ready for the next one, and every chapter ends with a lesson on the
- * learner's weakest fingers. All chapters are open: the roadmap recommends, it does not lock.
+ * Course: first two keys to fluency, about a lesson a day, 5-8 minutes each. Steps have goals, not time
+ * limits; timed checks only end chapters, and each chapter ends on weak fingers. No locked chapters.
  */
 
 const HOME = 'fjdksla;gh';
@@ -52,10 +49,7 @@ interface KeyPlan {
 	tip: string;
 }
 
-/**
- * Two lessons for each pair of new keys: one that introduces them, and one that puts them to use.
- * The games change from pair to pair, so neighbouring lessons never feel the same.
- */
+/** Two lessons per key pair: introduce, then apply. Games rotate between pairs. */
 function keyLessons(plan: KeyPlan, known: string, chapter: number, n: number, pacer: number): Draft[] {
 	const pool = known + plan.keys;
 	const L = lettersOf(pool);
@@ -261,7 +255,7 @@ function sentenceLesson(title: string, summary: string, chapter: number, set: re
 		]
 	};
 }
-/** A finger named the way a teacher would say it: "left index finger", "right little finger", "left thumb". */
+/** Finger label: "left index finger", "right little finger", "left thumb". */
 export function fingerName(f: Finger): string {
 	const KIND = { pinky: 'little finger', ring: 'ring finger', middle: 'middle finger', index: 'index finger', thumb: 'thumb' } as const;
 	return `${handOf(f)} ${KIND[kindOf(f)]}`;

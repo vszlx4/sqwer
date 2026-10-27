@@ -13,10 +13,8 @@
 	import GameFrame from './GameFrame.svelte';
 
 	/**
-	 * Echo: keys light up one after another; type the sequence back from memory. Each correct
-	 * round adds one key. The sequences are real, everyday words made only of the keys taught so
-	 * far (two short words when no single word is long enough), so they can be remembered as words
-	 * and their finger movements; only pools without letters, such as digits, use random keys.
+	 * Echo: keys light in sequence, type it back; one key more per round. Sequences are real words from taught
+	 * keys (two short words if needed); letterless pools use random keys.
 	 */
 	interface Props {
 		pool: string;
@@ -114,11 +112,7 @@
 		return out;
 	}
 
-	/**
-	 * Shows the sequence one key at a time. Each letter stays lit long enough to be read, then
-	 * fades away before the next one appears; nothing stays on screen, so the word is typed from
-	 * memory.
-	 */
+	/** Shows the sequence one key at a time, each fading before the next. */
 	function play(fresh: boolean) {
 		if (fresh) sequence = compose(length);
 		mode = 'showing';

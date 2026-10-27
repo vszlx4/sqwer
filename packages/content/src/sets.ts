@@ -1,11 +1,7 @@
 /*
- * Word tiers for adaptive difficulty, from the most frequent everyday words to less frequent,
- * longer ones. Built from English word-frequency lists: lowercase words only, in order of
- * frequency. Left out: abbreviations, names and brands, contractions written without their
- * apostrophe, and words unsuited to a typing game for all ages (explicit, violent, gambling,
- * alcohol and drug terms, and religious or identity terms, to keep the games neutral). Each tier
- * holds only words that are not in an easier tier. Rarer lists (25k and above), specialist
- * vocabularies and archaic English are deliberately not used.
+ * Difficulty tiers from English frequency lists, lowercase, by frequency, each excluding easier tiers.
+ * Excluded: abbreviations, names, brands, apostrophe-less contractions, and explicit, violent, gambling,
+ * alcohol, drug, religious and identity terms. No lists of 25k and above.
  */
 
 const list = (text: string): readonly string[] => text.split(/\s+/).filter(Boolean);

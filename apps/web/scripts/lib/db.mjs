@@ -1,6 +1,5 @@
-// Database access for command-line scripts, connected the same way as the app (src/lib/server/db):
-// DATABASE_URL (with DATABASE_CA_FILE) when set, otherwise the embedded database in SQWER_DATA_DIR.
-// Settings are read from the .env file like the app, unless SQWER_ENV_FILE=none.
+// CLI database access, same rules as src/lib/server/db: DATABASE_URL (+ DATABASE_CA_FILE) or embedded
+// database in SQWER_DATA_DIR. Reads .env unless SQWER_ENV_FILE=none.
 import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,9 +18,8 @@ function loadEnv() {
 }
 
 /**
- * Opens the database. Returns `query(text, params)` and `close()`. With `migrate: true`, pending
- * migrations are applied (this needs the owner role); otherwise the schema must already be up to date.
- * With `owner: true`, MIGRATION_DATABASE_URL is used when set (after the .env file is read).
+ * Opens the database: `{ query, close }`. `migrate`: apply pending migrations (owner role).
+ * `owner`: use MIGRATION_DATABASE_URL when set.
  */
 export async function open({ migrate: apply = false, owner = false } = {}) {
 	loadEnv();
