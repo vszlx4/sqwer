@@ -52,7 +52,11 @@
 
 	// Editable copy of the initial values; reset when the server sends new ones.
 	let v = $state<ProfileValues>(untrack(() => ({ ...initial })));
+	let lastInitial = untrack(() => JSON.stringify(initial));
 	$effect(() => {
+		const next = JSON.stringify(initial);
+		if (next === lastInitial) return;
+		lastInitial = next;
 		v = { ...initial };
 	});
 
