@@ -199,7 +199,7 @@ test('a completed course lesson is saved and earns points towards the next rank'
 	await expect(page).toHaveURL(/\/account$/);
 
 	await page.goto('/learn/start');
-	await page.getByRole('button', { name: 'Start chapter 4: Capital letters' }).click();
+	await page.getByRole('button', { name: 'Start here: chapter 4, Capital letters' }).click();
 	await expect(page.getByRole('heading', { level: 1, name: 'Right Shift' })).toBeVisible();
 	for (let i = 0; i < 3; i++) await page.keyboard.press('ShiftRight');
 	await proceed(page);

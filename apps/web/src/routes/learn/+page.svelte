@@ -209,15 +209,15 @@
 								class:next={lesson.id === nextId}
 								class:locked
 								href={`/learn/${lesson.id}`}
-								aria-label={`Lesson ${lesson.order}: ${lesson.title}${stars > 0 ? `, ${stars} of 3 stars` : ''}${lesson.id === nextId ? ', recommended next' : ''}${locked ? ', requires an account' : ''}`}
 							>
-								<span class="tile">
+								<span class="tile" aria-hidden="true">
 								{#if locked}<Icon name="lock" size={14} />{:else if stars > 0}<Icon name="check" size={16} />{:else}{lesson.order}{/if}
 								</span>
 								<span class="l-text">
 								<span class="l-title">
-									{lesson.title}
-									{#if lesson.id === nextId}<span class="next-tag">Next</span>{/if}
+									<span class="sr-only">{`Lesson ${lesson.order}: ${lesson.title}${stars > 0 ? `, ${stars} of 3 stars` : ''}${lesson.id === nextId ? ', recommended next' : ''}${locked ? ', requires an account' : ''}`}</span>
+									<span aria-hidden="true">{lesson.title}</span>
+									{#if lesson.id === nextId}<span class="next-tag" aria-hidden="true">Next</span>{/if}
 								</span>
 								<span class="l-summary">{lesson.summary}</span>
 								<span class="l-meta">
@@ -232,7 +232,7 @@
 									<span class="sr-only">Games: {games.join(', ')}</span>
 								{/if}
 								</span>
-								<span class="l-end">
+								<span class="l-end" aria-hidden="true">
 								{#if stars > 0}<Stars {stars} size={14} />{:else}<Icon name="arrow" size={16} />{/if}
 								</span>
 							</a>
