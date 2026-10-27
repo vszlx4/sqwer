@@ -34,6 +34,7 @@
 
 		<div class="bottom">
 			<span>© {year} <span translate="no">sqwer</span>. A free, non-commercial project by {LEGAL.operatorName}.</span>
+			<span class="build" translate="no">v{__APP_VERSION__}{__APP_COMMIT__ ? ` · ${__APP_COMMIT__}` : ''}</span>
 			<span class="links">
 				<a href="/terms">Terms</a>
 				<a href="/privacy">Privacy</a>
@@ -137,6 +138,11 @@
 	}
 	ul a:hover {
 		color: var(--accent);
+	}
+	.build {
+		font-family: var(--font-mono);
+		font-size: 12px;
+		color: #7d7d77;
 	}
 	.bottom {
 		display: flex;

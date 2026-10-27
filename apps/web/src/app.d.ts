@@ -1,5 +1,8 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 declare global {
+	const __APP_VERSION__: string;
+	const __APP_COMMIT__: string;
+
 	namespace App {
 		interface Locals {
 			user: { id: string; email: string; createdAt: Date; role: string; totpEnabledAt: Date | null } | null;
