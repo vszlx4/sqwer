@@ -1,0 +1,17 @@
+sqwer
+Copyright (C) 2026 Ahmed Mughram
+
+The source code is licensed under the GNU General Public License, version 3 only (GPL-3.0-only). See LICENSE.
+
+The following are not covered by that licence. All rights reserved:
+
+- The sqwer name, logo and brand marks, including apps/web/src/lib/brand/ and apps/web/static/favicon.svg.
+- Illustrations and images: apps/web/src/lib/hands/assets/ and apps/web/static/og.png.
+- Course and word content: the lessons, word lists, exam sets and practice sets in packages/content/src/.
+- The written text of the website, including the legal pages.
+- The production fonts, which are not included in this repository.
+
+Third-party material:
+
+- Roboto Flex (scripts/fonts/), licensed under the SIL Open Font License 1.1. See scripts/fonts/RobotoFlex-LICENSE.txt.
+- Dependencies installed by npm are covered by their own licences.

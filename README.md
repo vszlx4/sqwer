@@ -78,7 +78,8 @@ public issue.
 
 ## Licence
 
-The source code is released under the [MIT Licence](LICENSE).
+The source code is released under the [GNU General Public License v3.0](LICENSE) (GPL-3.0-only).
 
 The licence covers the code only. The **sqwer name and logo**, the production fonts, the illustrations, and the course
-and word-list content are not covered by it, and you may not use them to present another site as sqwer.
+and word-list content are not covered by it; see [NOTICE](NOTICE). You may not use them to present another site as
+sqwer.
