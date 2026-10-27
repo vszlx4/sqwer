@@ -50,10 +50,10 @@ test('the course offers three ways to start, and chapters say who they suit', as
 		await expect(page.getByRole('link', { name: new RegExp(name) })).toBeVisible();
 	}
 	await page.getByRole('link', { name: /Choose a chapter/ }).click();
-	await expect(page.getByRole('button', { name: /^Start chapter \d+:/ })).toHaveCount(12);
+	await expect(page.getByRole('button', { name: /^Start here: chapter \d+,/ })).toHaveCount(12);
 	await expect(page.getByText('Suits you if: You can type the home row without looking at the keyboard.')).toBeVisible();
 
-	await page.getByRole('button', { name: 'Start chapter 2: Reaching up' }).click();
+	await page.getByRole('button', { name: 'Start here: chapter 2, Reaching up' }).click();
 	await expect(page).toHaveURL(/\/learn\/l\d+$/);
 	await expect(page.getByRole('heading', { level: 1, name: 'E and I' })).toBeVisible();
 });

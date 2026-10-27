@@ -71,7 +71,7 @@
 					</div>
 					<div class="side">
 						{#if cp.done}<span class="count">{cp.done}/{cp.total} done</span>{/if}
-						<button type="button" class="btn" onclick={() => startAt(c.lessons[0]!.id)} aria-label={`Start chapter ${c.number}: ${c.title}`}>
+						<button type="button" class="btn" onclick={() => startAt(c.lessons[0]!.id)} aria-label={`Start here: chapter ${c.number}, ${c.title}`}>
 							Start here
 						</button>
 					</div>
