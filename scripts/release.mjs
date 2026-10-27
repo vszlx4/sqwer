@@ -88,14 +88,38 @@ function bump(step, part) {
 	console.log('After merging: git switch main && git pull --ff-only && npm run release -- publish');
 }
 
+function releaseExists(tag) {
+	try {
+		run('gh', ['release', 'view', tag, '--json', 'tagName'], { stdio: 'pipe' });
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+// GitHub can take a moment to see a pushed tag.
+function waitForRemoteTag(tag) {
+	for (let i = 0; i < 20; i++) {
+		if (run('git', ['ls-remote', '--tags', 'origin', `refs/tags/${tag}`])) return;
+		execFileSync('sleep', ['1']);
+	}
+	fail(`${tag} not visible on origin`);
+}
+
 function publish(notesFile) {
 	requireCleanMain();
 	const version = readVersion();
 	const tag = `v${version}`;
-	if (run('git', ['tag', '--list', tag])) fail(`${tag} already exists`);
-	const sha = run('git', ['rev-parse', '--short', 'HEAD']);
-	run('git', ['tag', '-a', tag, '-m', tag]);
-	run('git', ['push', '-q', 'origin', tag], { stdio: 'inherit' });
+	if (releaseExists(tag)) fail(`release ${tag} already exists`);
+	const head = run('git', ['rev-parse', 'HEAD']);
+	if (run('git', ['tag', '--list', tag])) {
+		if (run('git', ['rev-parse', `${tag}^{commit}`]) !== head) fail(`${tag} exists on another commit`);
+	} else {
+		run('git', ['tag', '-a', tag, '-m', tag]);
+	}
+	if (!run('git', ['ls-remote', '--tags', 'origin', `refs/tags/${tag}`])) run('git', ['push', '-q', 'origin', tag], { stdio: 'inherit' });
+	waitForRemoteTag(tag);
+	const sha = head.slice(0, 7);
 	const args = ['release', 'create', tag, '--title', tag, '--generate-notes', '--verify-tag'];
 	if (parse(version).stage) args.push('--prerelease');
 	if (notesFile) args.push('--notes-file', notesFile);
