@@ -5,10 +5,7 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import type { PageProps } from './$types';
 
-	/**
-	 * Individual analytics events for administrators: filter, page through, follow one visit, and
-	 * export what is shown as CSV. Personal identifiers (account and visitor ids) are never shown.
-	 */
+	/** Admin event browser: filter, paginate, follow a visit, CSV export. No account or visitor ids. */
 	let { data }: PageProps = $props();
 
 	const fmtTime = (iso: string) =>

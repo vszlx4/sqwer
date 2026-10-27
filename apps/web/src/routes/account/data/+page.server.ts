@@ -17,10 +17,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	return { fingerMap: { count: fm.count, updatedAt: fm.updatedAt?.toISOString() ?? null }, counts };
 };
 
-/**
- * Checks the account password before a destructive action. Attempts are limited per account, so a
- * borrowed or stolen session cannot be used to guess the password here.
- */
+/** Password check before destructive actions, rate-limited per account. */
 async function passwordMatches(userId: string, password: string): Promise<boolean | 'limited'> {
 	if (!rateLimit(`password-check:${userId}`, 10, 60 * 60 * 1000).ok) return 'limited';
 	const rows = await (await db()).select({ hash: schema.users.passwordHash }).from(schema.users).where(eq(schema.users.id, userId)).limit(1);

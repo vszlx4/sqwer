@@ -15,14 +15,10 @@ const MIGRATIONS = import.meta.glob('../../../../drizzle/*.sql', { query: '?raw'
 >;
 
 /**
- * Connections to a database on another machine are always encrypted, and the server's certificate
- * is verified. Hosted providers such as Supabase sign with their own certificate authority, which
- * is given as a file in DATABASE_CA_FILE. Only a database on this machine may skip encryption.
+ * Remote connections always use verified TLS (CA from DATABASE_CA_FILE for hosted providers). Only a
+ * local database may skip it.
  */
-/**
- * Reads DATABASE_URL, explaining the usual mistakes instead of a bare "Invalid URL". The address
- * itself is never printed, because it contains the database password.
- */
+/** Parses DATABASE_URL with readable errors. Never prints the URL (contains the password). */
 function databaseHost(url: string): string {
 	let parsed: URL;
 	try {
@@ -55,17 +51,11 @@ function tls(url: string): false | { ca?: string; rejectUnauthorized: true } {
 type Rows = { rows: Record<string, unknown>[] };
 
 /**
- * Connects and prepares the database, then serves every request as the restricted application role
- * (DATABASE_APP_ROLE, default `sqwer_app`; see roles.ts):
- *
- * 1. Pending migrations are applied over a separate, short-lived connection with the owner
- *    credentials (MIGRATION_DATABASE_URL, or DATABASE_URL when that is the owner), and the role is
- *    created and granted row access.
- * 2. Requests use DATABASE_URL. When it already is the restricted role, it is used as it is;
- *    when it is the owner, every connection switches to the restricted role before its first query.
- *
- * The switch is checked before the first request: if requests would not run as the role, the
- * database is not used at all.
+ * Connects and serves every request as the restricted role (DATABASE_APP_ROLE, default `sqwer_app`, roles.ts):
+ * 1. Migrations run on a short-lived owner connection (MIGRATION_DATABASE_URL, or DATABASE_URL when it is
+ *    the owner); the role is created and granted row access.
+ * 2. Requests use DATABASE_URL, switching to the role per connection when it is the owner.
+ * The switch is verified before the first request; on failure the database isn't used.
  */
 async function connect(): Promise<Database> {
 	const url = process.env.DATABASE_URL?.trim();
@@ -130,13 +120,11 @@ async function connectPool(
 		max: Number(process.env.DATABASE_POOL_SIZE ?? 5),
 		ssl: tls(url),
 		application_name: 'sqwer',
-		// A slow or stuck query, connection or transaction is ended instead of holding a connection
-		// from the small pool, so one expensive request cannot starve every other.
+		// Ends slow queries, connects and idle transactions so the small pool can't be starved.
 		connectionTimeoutMillis: 10_000,
 		statement_timeout: Number(process.env.DATABASE_STATEMENT_TIMEOUT_MS ?? 15_000),
 		idle_in_transaction_session_timeout: 30_000,
-		// Every new connection switches to the restricted role before it is handed out; if the switch
-		// fails, the connection is closed and the request fails, never runs with the owner's rights.
+		// Each new connection switches to the restricted role first; on failure it is closed.
 		...(switchTo ? { onConnect: async (client: import('pg').ClientBase) => void (await client.query(`SET ROLE "${switchTo}"`)) } : {})
 	});
 	// An idle connection that the server drops must not crash the process.
@@ -151,15 +139,14 @@ async function assertRole(query: (text: string) => Promise<Record<string, unknow
 	if (me?.name !== role) {
 		throw new Error(
 			`Requests would not run as the restricted database role "${role}" (they run as "${String(me?.name)}"). ` +
-				'Check that the role exists and that the DATABASE_URL user may switch to it (see docs/operations/DEPLOYMENT.md), or set DATABASE_APP_ROLE=none.'
+				'Check that the role exists and that the DATABASE_URL user may switch to it, or set DATABASE_APP_ROLE=none.'
 		);
 	}
 }
 
 /**
- * Applies pending migrations. The check is read-only, so an application role that may only read
- * and write rows (see docs/operations/DEPLOYMENT.md) starts normally when the schema is up to date; schema changes
- * are made only when a migration is pending, which needs the owner role (`npm run db:migrate`).
+ * Applies pending migrations. The check is read-only, so a row-only role starts fine when up to date;
+ * changes need the owner role (`npm run db:migrate`).
  */
 export async function migrate(db: Database) {
 	const rows = (r: unknown) => (r as { rows: Record<string, unknown>[] }).rows;

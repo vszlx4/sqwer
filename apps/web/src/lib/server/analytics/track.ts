@@ -3,12 +3,9 @@ import type { ServerEventName } from '#lib/analytics/shared.ts';
 import { db, schema } from '../db/index.ts';
 
 /*
- * Account and product events recorded by the server, where the browser could not be trusted to
- * report them: registrations, sign-ins (successful and failed), completed tests and lessons.
- * They carry no visitor identifier, address or browser details, so they do not depend on the
- * analytics consent; successful ones are linked to the account, which is cleared if the account is
- * deleted. Recording never delays or breaks the action itself: it runs in the background, and a
- * failure is only written to the server log.
+ * Server-recorded events: registrations, sign-ins (success and failure), completed tests and lessons. No
+ * visitor id, address or browser data, so consent-independent; successes link to the account (cleared on
+ * deletion). Fire-and-forget; failures are only logged.
  */
 
 type Props = Record<string, string | number | boolean | null>;

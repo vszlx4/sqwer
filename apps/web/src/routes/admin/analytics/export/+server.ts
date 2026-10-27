@@ -7,10 +7,7 @@ import { rateLimit } from '#lib/server/rate-limit.ts';
 import { addressOf, logSecurity } from '#lib/server/security-log.ts';
 import type { RequestHandler } from './$types';
 
-/*
- * The events of the chosen period and filters as CSV, at most 10,000 rows, for administrators.
- * Account and visitor identifiers are never exported.
- */
+/* CSV export of the filtered period, max 10,000 rows. No account or visitor ids. */
 
 const COLUMNS = ['time_utc', 'source', 'event', 'page', 'route', 'channel', 'referrer', 'device', 'browser', 'os', 'signed_in', 'visit', 'visible_ms', 'details'] as const;
 

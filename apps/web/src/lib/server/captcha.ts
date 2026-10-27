@@ -7,23 +7,11 @@ import { uaHash, type ProtectedAction } from './bot/ticket.ts';
 import { secret } from './config.ts';
 
 /*
- * sqwer's own verification, in two layers, run entirely on sqwer's server and the visitor's browser.
- * No third party is contacted and no cookie is set.
- *
- * 1. A proof-of-work check (ALTCHA library). The browser spends a moment of computation in the
- *    background, which makes automated submissions in bulk expensive.
- * 2. A challenge a person answers: characters drawn as distorted lines that must be typed, or,
- *    for anyone who cannot see the image, a short text question (WCAG 2.2 success criterion 1.1.1).
- *
- * Both are signed with server secrets, expire after ten minutes and can be used only once; their
- * use is recorded in the database, so a restart does not make them reusable. A challenge is bound
- * to the action it was requested for and to the browser that requested it, so it cannot be solved
- * for one form and spent on another, or solved in one browser and spent from another.
- *
- * This is the fallback when Cloudflare Turnstile is not configured or not reachable. It slows bulk
- * automation and stops simple scripts, but a determined attacker with an image-reading model or a
- * paid solving service can pass it; the other layers (tickets, risk scoring, rate limits) do not
- * depend on it.
+ * Built-in verification, no third parties, no cookies:
+ * 1. Proof of work (ALTCHA).
+ * 2. Distorted characters to type, or a text question (WCAG 1.1.1).
+ * Signed, 10-minute expiry, single use (recorded in the database), bound to action and browser. Fallback
+ * for Turnstile; other layers don't depend on it.
  */
 
 const hmacSignatureSecret = secret('CAPTCHA_HMAC_SECRET');
@@ -59,10 +47,7 @@ export interface PublicChallenge {
 
 /* ---------------------------------------------------------------- characters */
 
-/**
- * Characters drawn as single-stroke paths in a 10 × 14 box. Shapes that are easily confused
- * (0/O, 1/I/L, 2/Z, 5/S, 6/G, 8/B, Q) are left out.
- */
+/** Single-stroke glyphs in a 10 × 14 box. Confusable shapes (0/O, 1/I/L, 2/Z, 5/S, 6/G, 8/B, Q) excluded. */
 const GLYPHS: Record<string, string> = {
 	A: 'M0 14 L5 0 L10 14 M2.2 8.6 H7.8',
 	C: 'M10 2.4 C8.6 0.6 6.8 0 5.2 0 C2 0 0 3 0 7 C0 11 2 14 5.2 14 C6.8 14 8.6 13.4 10 11.6',
@@ -95,10 +80,8 @@ const pick = <T>(list: readonly T[]): T => list[cryptoRandomInt(0, list.length)]
 const r1 = (n: number) => Math.round(n * 10) / 10;
 
 /**
- * Rewrites a glyph's path with every point moved by the given transform and a little random
- * jitter, in absolute coordinates. The markup therefore never contains a glyph's own path data
- * (which a script could look up in a table) and no two drawings of a character are alike: reading
- * the challenge takes recognising the shapes, not the source.
+ * Redraws a glyph with the transform and random jitter in absolute coordinates, so markup never contains
+ * lookup-able glyph paths and no two renders match.
  */
 function distort(glyph: string, map: (x: number, y: number) => [number, number]): string {
 	const tokens = glyph.match(/[MLHVCZ]|-?\d*\.?\d+/g) ?? [];
@@ -189,11 +172,7 @@ const WORDS = ['keyboard', 'letter', 'finger', 'practice', 'lesson', 'meadow', '
 const NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth'];
 
-/**
- * Short questions that can be answered with a screen reader or without sight. Each kind is asked
- * in several phrasings, so a script cannot recognise it from fixed wording. No text question stops
- * a determined program, which is why the other layers do not depend on this one.
- */
+/** Screen-reader friendly questions, several phrasings per kind. */
 function textQuestion(): { question: string; answers: string[] } {
 	switch (cryptoRandomInt(0, 3)) {
 		case 0: {
@@ -264,10 +243,7 @@ export async function createProofOfWork(): Promise<unknown> {
 	return (await pow.challengeHandler()).json();
 }
 
-/**
- * Checks a person's answer. Each token is accepted once, whether the answer is right or wrong, and
- * only for the action and the browser it was issued to.
- */
+/** Checks an answer. Each token is single use, right or wrong, and bound to its action and browser. */
 export async function checkAnswer(token: unknown, answer: unknown, action: ProtectedAction, ua: string | null, now = Date.now()): Promise<boolean> {
 	if (typeof token !== 'string' || typeof answer !== 'string' || !answer.trim() || token.length > 2_000) return false;
 	const [body, signature] = token.split('.');

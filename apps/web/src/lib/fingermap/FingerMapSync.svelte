@@ -7,8 +7,7 @@
 	import { usage } from '#lib/usage/store.svelte.ts';
 	import { fingerMap } from './store.svelte.ts';
 
-	// Link stored data (finger map, results, usage, courses) to the account whenever the signed-in state changes.
-	// Data cleared from the account on another device is first discarded here, so it is not uploaded again.
+	// Link local data to the account on sign-in changes; drop categories cleared on another device first.
 	const signedIn = $derived(!!page.data.user);
 	$effect(() => {
 		const account = signedIn;

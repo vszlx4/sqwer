@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from '#lib/server/db/index.ts';
 import type { RequestHandler } from './$types';
 
-/** Serves a profile picture to its owner, or to anyone when the profile is public or shown on the leaderboards. */
+/** Avatar for its owner, or anyone when the profile is public or on leaderboards. */
 export const GET: RequestHandler = async ({ params, locals }) => {
 	const d = await db();
 	const [row] = await d

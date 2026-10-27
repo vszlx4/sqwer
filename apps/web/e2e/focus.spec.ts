@@ -1,10 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { proceed } from './play.ts';
 
-/*
- * Space never scrolls a page, and a running exercise keeps the keyboard wherever the person clicks
- * (lib/ui/typing-focus.ts).
- */
+/* Space never scrolls; a running exercise keeps the keyboard after clicks (lib/ui/typing-focus.ts). */
 
 // A short window, so every page here could scroll.
 test.use({ viewport: { width: 1100, height: 520 } });

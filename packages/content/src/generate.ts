@@ -25,10 +25,7 @@ const pick = <T>(list: readonly T[], rand: Random): T => list[Math.floor(rand() 
 
 const capitalize = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
 
-/**
- * A stream of practice words. Keeps state between calls so punctuated text
- * reads as continuous sentences when more words are appended.
- */
+/** Practice word stream; stateful so punctuated text continues across appends. */
 export class WordGenerator {
 	private rand: Random;
 	private opts: WordOptions;

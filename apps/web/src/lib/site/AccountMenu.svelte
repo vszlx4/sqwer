@@ -10,9 +10,8 @@
 	import { ACCOUNT_LINKS } from './links.ts';
 
 	/**
-	 * The account control in the header: the profile picture and level as one element. Clicking it
-	 * opens the account menu; resting the pointer on the level shows a small card with the XP still
-	 * needed for the next level, a few figures and an estimate of the typing time it will take.
+	 * Header account control: avatar and level. Click opens the menu; hovering the level shows XP to the next
+	 * level and an estimate.
 	 */
 	interface Props {
 		user: {

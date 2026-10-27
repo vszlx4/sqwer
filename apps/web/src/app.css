@@ -145,9 +145,8 @@
 	--f-thumb: #e87ba4;
 
 	/*
-	 * Supporting colours, each with one job, used sparingly beside the lime accent:
-	 * blue for information and speed, green for success and accuracy, amber for stars and
-	 * rewards, orange for streaks and energy, violet for ranks and progress, rose for highlights.
+	 * Supporting colours: blue info/speed, green success/accuracy, amber stars/rewards, orange streaks,
+	 * violet ranks/progress, rose highlights.
 	 */
 	--blue: #2160bd;
 	--green: #0d7550;
@@ -354,10 +353,7 @@ body {
 	overflow-x: clip;
 }
 
-/*
- * A section whose background runs the full width of the window while its content
- * stays in the column. Set --band to a background (colour, gradient or pattern).
- */
+/* Full-width background, content stays in the column. Set --band. */
 .band {
 	position: relative;
 	isolation: isolate;
@@ -393,11 +389,8 @@ body {
 
 /* ---------- Shared form and button styles ---------- */
 /*
- * Action hierarchy, used the same way on every page:
- * - .btn-primary: the single most important action in a view (at most one per screen region);
- * - .btn: a secondary alternative;
- * - .link-arrow: navigation to related content, at most one per section;
- * - .btn-danger: an irreversible action, always behind a confirmation.
+ * Actions: .btn-primary one per region, .btn secondary, .link-arrow one per section, .btn-danger behind
+ * a confirmation.
  */
 .btn {
 	display: inline-flex;
@@ -520,10 +513,7 @@ body {
 	font-weight: 600;
 	text-decoration: none;
 }
-/*
- * Required fields carry an asterisk. It is drawn by CSS and hidden from assistive technology, which
- * learns that a field is required from its `required` attribute; label text stays clean.
- */
+/* Required-field asterisk, CSS only and hidden from assistive tech (`required` carries the meaning). */
 .req::before {
 	content: '*';
 	margin-left: 3px;
@@ -565,11 +555,7 @@ body {
 		transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms);
 }
 
-/*
- * Page changes: the old page dissolves quickly into a soft blur and the new one sharpens into
- * place, rising slightly. The same transition is used when a view swaps in place, such as an
- * examination turning into its results (see lib/ui/transition.ts).
- */
+/* Page transition: blur out, sharpen in with a slight rise. Also used for in-place swaps (lib/ui/transition.ts). */
 ::view-transition-old(root) {
 	animation: 150ms cubic-bezier(0.4, 0, 1, 1) both page-out;
 }

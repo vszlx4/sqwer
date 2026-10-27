@@ -37,10 +37,7 @@ function write(key: string, value: string | null) {
 	}
 }
 
-/**
- * Course progress. Progress is saved to the account; without one, only the first lesson
- * can be taken, and its result is kept until an account is created.
- */
+/** Course progress, saved to the account. Guests get the first lesson only, kept until sign-up. */
 class CourseStore {
 	progress = $state.raw<Record<string, LessonProgress>>({});
 	days = $state.raw<string[]>([]);
@@ -150,9 +147,8 @@ class CourseStore {
 	}
 
 	/**
-	 * Applies the latest placement test saved to the account: the chapters before the recommended
-	 * one are marked complete with full stars and it becomes the starting point. Returns the
-	 * recommended chapter, or null when it could not be applied.
+	 * Applies the account's latest placement: earlier chapters complete with full stars, recommended chapter
+	 * becomes the start. Returns it, or null.
 	 */
 	async place(): Promise<{ chapter: number; credited: number } | null> {
 		if (!this.signedIn) return null;
@@ -167,10 +163,7 @@ class CourseStore {
 		}
 	}
 
-	/**
-	 * Discards the learning path held in this browser after it was cleared from the account, then
-	 * loads the (now empty) account copy again.
-	 */
+	/** Drops the local path after an account clear and reloads the account copy. */
 	async forget() {
 		for (const key of [LEVEL_KEY, START_KEY, PENDING_KEY]) write(key, null);
 		this.progress = {};

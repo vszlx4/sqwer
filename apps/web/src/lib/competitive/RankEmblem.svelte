@@ -2,11 +2,8 @@
 	import type { League } from '#lib/progress/competitive.ts';
 
 	/**
-	 * A competitive rank emblem: one geometric shape per rank, cut like a glass gem, with the
-	 * shapes growing in complexity up the ladder (triangle, shield, rhombus, hexagon, octagon, then
-	 * stars of four to eight points). Every division of a rank shares its emblem; the division
-	 * is written in the rank name beside it. Zenith is a brilliant-cut white diamond.
-	 * Decorative: the rank name is always written beside it.
+	 * Rank emblem: one cut-glass shape per rank (triangle → octagon, then 4- to 8-point stars), shared by
+	 * all divisions. Zenith: white diamond. Decorative.
 	 */
 	interface Props {
 		/** The rank, or null for unranked. */

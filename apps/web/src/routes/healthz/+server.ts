@@ -2,10 +2,7 @@ import { sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.ts';
 import type { RequestHandler } from './$types';
 
-/**
- * Health check for the host or load balancer: 200 when the server can reach its database, 503
- * otherwise. It reveals nothing else (no versions, timings or error details).
- */
+/** Health check: 200 with database reachable, else 503. No other details. */
 export const GET: RequestHandler = async () => {
 	const headers = { 'content-type': 'application/json', 'cache-control': 'no-store' };
 	try {

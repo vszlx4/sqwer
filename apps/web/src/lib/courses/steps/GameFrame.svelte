@@ -3,11 +3,7 @@
 	import { onDestroy } from 'svelte';
 	import Icon, { type IconName } from '#lib/ui/Icon.svelte';
 
-	/**
-	 * The shared frame of the course games: a ready screen that explains the goal, a short
-	 * count-in, a progress bar towards the target, pausing when the tab is hidden, and an end
-	 * screen. Games have targets, not time limits: they end as soon as the target is reached.
-	 */
+	/** Game frame: ready screen, count-in, progress to target, pause on hidden tab, end screen. Ends at target. */
 	interface Props {
 		title: string;
 		icon: IconName;

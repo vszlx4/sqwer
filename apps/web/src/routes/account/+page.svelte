@@ -7,10 +7,7 @@
 	import Icon, { type IconName } from '#lib/ui/Icon.svelte';
 	import type { PageProps } from './$types';
 
-	/**
-	 * The account overview: what to do next, how the account is set up, and whether anything needs
-	 * attention. Who is signed in and their standing are shown above, in the account header.
-	 */
+	/** Account overview: next steps, setup status, items needing attention. */
 	let { data }: PageProps = $props();
 	const p = $derived(data.profile!);
 	const pace = $derived(page.data.user?.pace ?? null);

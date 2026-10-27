@@ -3,11 +3,9 @@ import { db } from '../db/index.ts';
 import { retentionDays } from './config.ts';
 
 /*
- * Aggregations for the analytics dashboard. Every query is bounded by a date range and served by
- * the indexes on analytics_events; results are cached briefly, so opening the dashboard repeatedly
- * does not repeat the work. Days whose raw events have expired are read from the daily totals
- * (analytics_daily); measures that cannot be derived from those totals (unique visitors across
- * days, bounce rate, breakdowns) are reported as unavailable, never as zero.
+ * Dashboard aggregations. Range-bounded, index-backed, briefly cached. Expired days come from
+ * analytics_daily; measures it can't give (unique visitors across days, bounce, breakdowns) are unavailable,
+ * not zero.
  */
 
 export interface Range {
@@ -305,10 +303,7 @@ export function knownRoutes(range: Range): Promise<string[]> {
 
 /* ------------------------------------------------------------ comparisons */
 
-/**
- * Percentage change from the previous period to this one, or null when there is nothing to
- * compare with: no data was being collected for the whole previous period, or it was zero.
- */
+/** Percentage change vs the previous period. Null when that period wasn't fully collected or was zero. */
 export function change(current: number | null, previous: number | null, comparable: boolean): number | null {
 	if (!comparable || current == null || previous == null || previous === 0) return null;
 	return ((current - previous) / previous) * 100;
@@ -382,10 +377,7 @@ const toEvent = (r: Row): EventRow => ({
 
 const COLUMNS = sql`id, occurred_at, source, name, path, route, channel, referrer_host, device, browser, os, authenticated, session_id, duration_ms, props`;
 
-/**
- * One page of events, newest first, with keyset pagination: `cursor` is the last row of the
- * previous page, so deep pages cost the same as the first. The total is counted up to 10,000.
- */
+/** Events page, newest first, keyset pagination (`cursor` = last row). Total counted up to 10,000. */
 export async function listEvents(range: Range, f: EventFilters, cursor: { at: string; id: string } | null, pageSize = 50) {
 	const where = eventWhere(range, f);
 	const after = cursor ? sql` and (occurred_at, id) < (${new Date(cursor.at)}, ${cursor.id})` : sql``;

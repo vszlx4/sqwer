@@ -6,10 +6,8 @@ import { usage } from '#lib/usage/store.svelte.ts';
 import { categoryOfExam, type DataCategory, type DataResets } from './categories.ts';
 
 /*
- * The browser's side of clearing data. Results, the finger map, usage statistics and some course
- * choices are also kept in this browser; when a category is cleared from the account, this copy is
- * discarded so that it is not uploaded again. Other devices do the same on their next visit, by
- * comparing the account's clearing times with the ones this browser has already applied.
+ * Local side of clearing data: drop browser copies of a cleared category so they aren't re-uploaded.
+ * Other devices compare clear times on their next visit.
  */
 
 const SEEN_KEY = 'sqwer:resets';

@@ -23,11 +23,8 @@ export type TypeResult = 'ignored' | 'correct' | 'incorrect';
 export const MAX_EXTRA = 10;
 
 /**
- * One typing test. Words are typed one at a time; space submits the current
- * word. Backspace can return to a previous word only if it contains a mistake.
- *
- * Words tests end as soon as the last word reaches its full length; time tests
- * end at the time limit, and keystrokes after the limit are not counted.
+ * One test. Space submits a word; Backspace returns to a previous word only if it has a mistake. Words tests
+ * end at the last word's full length; time tests at the limit, ignoring later keystrokes.
  */
 export class TypingSession {
 	readonly mode: TestMode;
@@ -166,10 +163,7 @@ export class TypingSession {
 	}
 }
 
-/**
- * Re-creates a session from its recorded keystrokes. Used for replays and to
- * compute statistics at any point in time with exactly the same rules.
- */
+/** Rebuilds a session from its keystrokes, for replays and point-in-time stats. */
 export function replaySession(targets: string[], keystrokes: Keystroke[], untilMs = Infinity): TypingSession {
 	const s = new TypingSession(targets, { kind: 'time', seconds: 1e9 });
 	for (const k of keystrokes) {

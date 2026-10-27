@@ -3,11 +3,7 @@ import type { DataCategory, DataResets } from '#lib/data/categories.ts';
 import { db, schema } from './db/index.ts';
 import { invalidateLeaderboards } from './progress.ts';
 
-/*
- * Clearing one category of account data. The rows are deleted and the time is recorded, so that
- * copies still held by a browser (results, the finger map and usage statistics are kept in the
- * browser as well) are discarded there instead of being uploaded again.
- */
+/* Clears one data category: deletes rows and records the time so browser copies are dropped, not re-uploaded. */
 
 /** Deletes one category of the user's data and records when it was cleared. */
 export async function clearCategory(userId: string, category: DataCategory): Promise<Date> {

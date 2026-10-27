@@ -10,8 +10,7 @@ export default defineConfig({
 		reuseExistingServer: false,
 		timeout: 120_000
 	},
-	// As behind a reverse proxy in production, the client address comes from X-Forwarded-For. Tests
-	// use 127.0.0.1 unless they set another address, so abuse tests do not exhaust shared limits.
+	// Client address from X-Forwarded-For, as behind a proxy. Default 127.0.0.1; abuse tests set their own.
 	use: { baseURL: 'http://localhost:4321', extraHTTPHeaders: { 'x-forwarded-for': '127.0.0.1' }, storageState: DECLINED },
 	projects: [
 		{

@@ -8,9 +8,8 @@ import { logSecurity } from '#lib/server/security-log.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 /*
- * Moderation for administrators: find one account by its exact email address or username (no list of
- * everyone is offered), and suspend it or lift a suspension. Administrators are suspended only from
- * the server's command line, so the dashboard can never lock out the people who run it.
+ * Admin moderation: exact email or username lookup (no listing), suspend or lift. Admins are suspended
+ * only via the CLI.
  */
 
 async function find(query: string) {

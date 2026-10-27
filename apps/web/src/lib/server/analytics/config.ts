@@ -1,10 +1,6 @@
 /*
- * Analytics settings, all optional:
- *
- * - ANALYTICS_DISABLED=1 stops collecting browser events (the endpoint answers 204) and hides the
- *   consent banner. Server events keep being recorded.
- * - ANALYTICS_RETENTION_DAYS sets how long raw events are kept (default 395, about 13 months).
- *   Daily totals are kept after that.
+ * ANALYTICS_DISABLED=1: no browser events (endpoint 204), no banner; server events continue.
+ * ANALYTICS_RETENTION_DAYS: raw event retention (default 395). Daily totals are kept.
  */
 export const analyticsEnabled = () => !['1', 'true', 'yes'].includes((process.env.ANALYTICS_DISABLED ?? '').toLowerCase());
 

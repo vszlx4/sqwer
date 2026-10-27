@@ -2,11 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import Icon, { type IconName } from '#lib/ui/Icon.svelte';
 
-	/**
-	 * The frame of the sign-in, sign-up and password reset pages: the form on one side and, on wide
-	 * screens, a short account of what an account gives on the other. On narrow screens the form
-	 * comes first and the panel is left out, so nothing stands between the visitor and the form.
-	 */
+	/** Auth page frame: form plus a benefits panel on wide screens; form only on narrow screens. */
 	interface Props {
 		title: string;
 		lede?: string;

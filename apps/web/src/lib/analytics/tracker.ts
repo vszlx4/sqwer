@@ -1,12 +1,8 @@
 import { consent, SESSION_KEY, VISITOR_KEY } from './consent.svelte.ts';
 
 /*
- * The browser side of analytics. Used only after the visitor has allowed analytics. It records
- * page views (with the referring site and campaign tags of the first page of a visit) and how long
- * each page was visible. Events are sent in small batches, with `keepalive` or `sendBeacon`, so
- * they never hold up the page; a failed send is simply dropped.
- *
- * Query strings and fragments are never sent, except the utm_* campaign tags.
+ * Browser tracker, after consent only. Page views (referrer and UTM on landing) and visible time, batched
+ * via keepalive/sendBeacon; failed sends are dropped. Only utm_* query params are sent.
  */
 
 const SESSION_IDLE_MS = 30 * 60 * 1000;

@@ -21,11 +21,7 @@ export const emailSchema = z
 	.max(254, 'Enter an email address of 254 characters or fewer.')
 	.pipe(z.email('Enter a valid email address.'));
 
-/**
- * Passwords that meet the length rule but are among the first an attacker tries (NIST SP 800-63B,
- * section 5.1.1.2: compare new passwords against commonly used ones). Compared case-insensitively
- * after removing spaces.
- */
+/** Common passwords that pass the length rule (NIST SP 800-63B 5.1.1.2). Case-insensitive, spaces removed. */
 const COMMON_PASSWORDS = new Set([
 	'1234567890', '12345678910', '123456789a', '1234567890a', '0987654321', '1111111111', '1q2w3e4r5t', '1qaz2wsx3edc',
 	'qwertyuiop', 'qwertyuiop1', 'qwerty1234', 'qwerty12345', 'asdfghjkl1', 'asdfghjkl;', 'zxcvbnm123', 'qazwsxedcrfv',
@@ -131,10 +127,8 @@ export function readProfileForm(form: FormData) {
 }
 
 /**
- * Only allow same-site relative redirects. The target is resolved the way a browser would resolve
- * it, which ignores tab and newline characters and treats `\` like `/`, so that `/\t/evil.example`
- * cannot pass as a path and lead to another site; anything that does not stay on this site, or
- * contains control characters, falls back.
+ * Same-site relative redirects only, resolved like a browser (tab/newline ignored, `\` as `/`), so
+ * `/\t/evil.example` fails. Off-site or control characters fall back.
  */
 export function safeRedirect(target: string | null, fallback: string): string {
 	if (!target || target.length > 2000 || !target.startsWith('/')) return fallback;

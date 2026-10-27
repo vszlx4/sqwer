@@ -1,8 +1,5 @@
 <script lang="ts">
-	/**
-	 * A ranked list of values with proportional bars, for breakdowns such as pages, sources or
-	 * browsers. One series, one colour. Each row can link to the matching events for detail.
-	 */
+	/** Ranked bars for breakdowns (pages, sources, browsers). Rows can link to their events. */
 	interface Item {
 		key: string;
 		value: number;

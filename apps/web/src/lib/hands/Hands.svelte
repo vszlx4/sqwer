@@ -11,9 +11,9 @@
 	}
 
 	interface Props {
-		/** Accessible description of the figure. Leave empty for a decorative figure, which is hidden from assistive technology. */
+		/** Figure description. Empty = decorative (hidden from assistive tech). */
 		label: string;
-		/** Strength of each finger's colour, from 0 (no colour) to 1. Fingers left out are not coloured. Defaults to all fingers at full strength. */
+		/** Per-finger colour strength 0-1. Omitted fingers uncoloured. Default: all at 1. */
 		tone?: Partial<Record<Finger, number>>;
 		/** A finger to emphasise: it is shown at full colour strength. */
 		active?: Finger | null;
@@ -80,7 +80,7 @@
 		{@const s = strength(f)}
 		{@const emphasis = active === f || hovered === f}
 		{#if onselect && pointerOnly}
-			<!-- Equivalent keyboard controls are shown next to the figure. -->
+			<!-- Keyboard equivalents are next to the figure. -->
 			<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 			<path
 				d={FINGER_SHAPES[f]}

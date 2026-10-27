@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	/**
-	 * A short burst of confetti from the top of the screen, drawn on a canvas that ignores the
-	 * pointer and removes itself. Nothing is shown when the person prefers reduced motion.
-	 */
+	/** Confetti burst on a pointer-transparent, self-removing canvas. Skipped with reduced motion. */
 	let { pieces = 140, duration = 2600 }: { pieces?: number; duration?: number } = $props();
 
 	let canvas: HTMLCanvasElement | undefined = $state();

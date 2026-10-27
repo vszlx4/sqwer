@@ -41,20 +41,13 @@ export function dummyPasswordHash() {
 
 // ---------------------------------------------------------------- sessions
 
-/**
- * On an HTTPS site the session cookie carries the `__Host-` prefix: browsers then accept it only
- * with Secure, Path=/ and no Domain, so no subdomain or insecure page can set or replace it. Plain
- * HTTP (local development) cannot use the prefix, so the cookie keeps its plain name there.
- */
+/** `__Host-` session cookie on HTTPS (Secure, Path=/, no Domain). Plain name on HTTP for local dev. */
 const HTTPS = SITE_URL.startsWith('https:');
 const LEGACY_COOKIE = 'sqwer_session';
 export const SESSION_COOKIE = HTTPS ? '__Host-sqwer_session' : LEGACY_COOKIE;
 const SESSION_DAYS = 30;
 const RENEW_WHEN_DAYS_LEFT = 15;
-/**
- * However active it is, a session ends this long after sign-in, so a copied session cookie stops
- * working on its own even if it keeps being used.
- */
+/** Absolute session lifetime from sign-in, regardless of activity. */
 const MAX_SESSION_DAYS = 90;
 const DAY = 24 * 60 * 60 * 1000;
 

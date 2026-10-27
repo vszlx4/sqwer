@@ -1,5 +1,4 @@
-# Checks every push to main and every pull request into it: dependency audit, type check, unit tests and a
-# production build. The end-to-end suite needs a browser and runs locally (npm run test:e2e).
+# Audit, type check, unit tests and build on main and its pull requests. E2E runs locally.
 name: CI
 
 on:
@@ -8,7 +7,6 @@ on:
   pull_request:
     branches: [main]
 
-# Read-only: this workflow never needs to write to the repository or use any secret.
 permissions:
   contents: read
 
@@ -17,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # The job name "verify" is the required status check in the branch rulesets; do not rename it casually.
+  # Required status check in the ruleset.
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -29,7 +27,6 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      # Installs exactly what package-lock.json records, verifying each package's integrity hash.
       - run: npm ci
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=moderate

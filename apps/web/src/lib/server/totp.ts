@@ -3,10 +3,8 @@ import qrcode from 'qrcode-generator';
 import { secret } from './config.ts';
 
 /*
- * Authenticator-app codes (TOTP, RFC 6238 with RFC 4226 truncation): six digits, 30-second steps,
- * HMAC-SHA-1, which every common authenticator app supports. Secrets are 160 random bits, stored
- * encrypted with AES-256-GCM under TOTP_ENCRYPTION_SECRET, and each accepted time step is recorded
- * so that a code can never be used twice.
+ * TOTP (RFC 6238, RFC 4226 truncation): 6 digits, 30 s, HMAC-SHA-1. 160-bit secrets, AES-256-GCM under
+ * TOTP_ENCRYPTION_SECRET. Accepted steps are recorded; no code works twice.
  */
 
 export const STEP_SECONDS = 30;
@@ -71,10 +69,7 @@ export function codeAt(secretBase32: string, step: number, digits = DIGITS): str
 	return String(binary % 10 ** digits).padStart(digits, '0');
 }
 
-/**
- * The time step a code belongs to, if it is valid now (within one step of drift) and newer than
- * the last step accepted for this account; otherwise null.
- */
+/** Time step of a valid code (±1 step) newer than the last accepted one; else null. */
 export function verifyCode(secretBase32: string, code: string, lastStep: number | null, now = Date.now()): number | null {
 	const given = code.replace(/\s/g, '');
 	if (!/^\d{6}$/.test(given)) return null;

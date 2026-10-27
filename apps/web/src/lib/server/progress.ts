@@ -3,19 +3,14 @@ import { POINTS_PER_LESSON, POINTS_PER_STAR } from '#lib/courses/progression.ts'
 import { levelFor, type LevelStatus } from '#lib/progress/xp.ts';
 import { db } from './db/index.ts';
 
-/*
- * Account level, competitive bests and leaderboards. XP is the sum of course points and the XP of
- * examinations; both are stored on the server, so the figures cannot be edited in the browser.
- */
+/* Account level, competitive bests, leaderboards. XP = course points + exam XP, both server-side. */
 
 type Row = Record<string, unknown>;
 const rowsOf = (r: unknown) => (r as { rows: Row[] }).rows;
 
 /**
- * The leaderboards are the same for every visitor and need a pass over all listed players, so they
- * are computed at most once per PUBLIC_TTL_MS. Anything that changes who is listed or a listed
- * speed (a verified competitive result, a profile change, cleared ranked results, a deleted account)
- * calls invalidateLeaderboards(), so changes, and above all withdrawals, show at once.
+ * Leaderboards are global, cached for PUBLIC_TTL_MS. Changes to listed players or speeds call
+ * invalidateLeaderboards() so withdrawals show at once.
  */
 const PUBLIC_TTL_MS = 30_000;
 const publicCache = new Map<string, { at: number; value: Promise<unknown> }>();
@@ -97,10 +92,7 @@ export interface LeaderboardEntry {
 	wpm: number | null;
 }
 
-/**
- * The top typists, by best verified competitive speed or by XP. Only people with a profile who
- * have not switched off "Appear on leaderboards" are listed; profiles link only when public.
- */
+/** Top typists by best verified speed or XP. Profiles with leaderboards enabled only; links when public. */
 export function leaderboard(by: 'speed' | 'xp', limit = 100): Promise<LeaderboardEntry[]> {
 	return cachedPublic(`leaderboard:${by}:${limit}`, () => computeLeaderboard(by, limit));
 }
@@ -157,10 +149,7 @@ async function computeListedBests(): Promise<{ userId: string; best: number }[]>
 	return rowsOf(res).map((r) => ({ userId: String(r.user_id), best: Number(r.best) }));
 }
 
-/**
- * A player's place on the speed leaderboard: one more than the number of faster players. Null
- * when the player has no verified result or does not appear on the leaderboards.
- */
+/** Speed leaderboard place: faster players + 1. Null without a verified result or when hidden. */
 export async function competitiveStanding(userId: string): Promise<{ position: number; players: number } | null> {
 	const all = await listedBests();
 	const mine = all.find((r) => r.userId === userId);

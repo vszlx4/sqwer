@@ -71,10 +71,7 @@ export const EVENT_LABELS: Partial<Record<SecurityEvent, string>> = {
 	mfa_reset: 'Authenticator app removed'
 };
 
-/**
- * The client address for a log entry, or undefined when it cannot be read (for example when the
- * proxy header is missing). Logging must never make the request itself fail.
- */
+/** Client address for logs, or undefined when unreadable. Never throws. */
 export function addressOf(event: { getClientAddress: () => string }): string | undefined {
 	try {
 		return event.getClientAddress();

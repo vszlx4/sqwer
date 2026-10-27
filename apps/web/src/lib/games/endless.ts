@@ -1,10 +1,8 @@
 import type { IconName } from '#lib/ui/Icon.svelte';
 
 /*
- * Endless mode: the course games played in rounds without end. Each round is one game at a
- * difficulty level from 1 to 10; with adaptive difficulty the level rises after a cleared round
- * and falls after a failed one, so the game settles where the player is challenged. A run ends
- * after three failed rounds.
+ * Endless mode: course games in rounds, levels 1-10. Adaptive difficulty moves the level up on clears and
+ * down on failures. Three failures end the run.
  */
 
 export const GAME_IDS = ['race', 'falling-words', 'falling-letters', 'echo', 'listen', 'keyhunt'] as const;
@@ -52,10 +50,7 @@ export function levelName(level: number): string {
 	return level <= 2 ? 'Gentle' : level <= 4 ? 'Steady' : level <= 6 ? 'Brisk' : level <= 8 ? 'Fast' : 'Expert';
 }
 
-/**
- * Words for a level, drawn from the frequency tiers: the most common words at the lowest levels,
- * less frequent and longer words only at the top. The tiers are loaded when a run starts.
- */
+/** Words per level from the frequency tiers, rarer and longer at higher levels. Tiers load at run start. */
 export async function wordsForLevel(level: number): Promise<string[]> {
 	const { STARTER_WORDS, EVERYDAY_WORDS, FLUENT_WORDS, ADVANCED_WORDS } = await import('@sqwer/content/sets');
 	if (level <= 2) return [...STARTER_WORDS];

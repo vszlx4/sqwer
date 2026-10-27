@@ -22,10 +22,7 @@
 		type GameInfo
 	} from './endless.ts';
 
-	/**
-	 * One game in endless mode: choose the difficulty, then play round after round. The score of a
-	 * round is its level, so harder rounds count for more; the run ends after three failed rounds.
-	 */
+	/** Endless mode: pick difficulty, play rounds. Round score = level; three failures end the run. */
 	let { game }: { game: GameInfo } = $props();
 
 	let phase = $state<'setup' | 'loading' | 'playing' | 'between' | 'over'>('setup');

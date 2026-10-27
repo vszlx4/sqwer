@@ -5,9 +5,8 @@ import { invalidateLeaderboards } from './progress.ts';
 import { logSecurity } from './security-log.ts';
 
 /*
- * Suspending an account: it cannot sign in, every session ends at once, password reset is refused,
- * and it disappears from leaderboards, public profiles and profile pictures. Nothing is deleted, so
- * lifting the suspension restores the account as it was.
+ * Suspension: no sign-in, sessions ended, reset refused, hidden from leaderboards, profiles and avatars.
+ * Nothing deleted; lifting it restores the account.
  */
 
 export const SUSPENDED_MESSAGE = 'This account has been suspended. If you believe this is a mistake, contact us.';

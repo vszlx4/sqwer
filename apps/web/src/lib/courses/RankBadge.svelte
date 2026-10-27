@@ -1,10 +1,7 @@
 <script lang="ts">
 	import type { Rank, Tier } from './progression.ts';
 
-	/**
-	 * A rank emblem shaped like a keycap, in the material of the rank's tier, with the level on its
-	 * face and up to five stars, one for each tier reached. Decorative: the rank name is shown beside it.
-	 */
+	/** Keycap rank badge in the tier's material, level on the face, up to five stars. Decorative. */
 	let { rank, size = 56, locked = false }: { rank: Rank; size?: number; locked?: boolean } = $props();
 	const id = $props.id();
 

@@ -2,9 +2,8 @@ import { boolean, date, index, integer, jsonb, pgTable, primaryKey, real, serial
 import type { FingerObservation } from '@sqwer/fingermap';
 
 /*
- * Row-level security is enabled on every table with no policies, so nothing can be read or
- * written through a hosted provider's automatic data API. sqwer connects as the table owner,
- * which row-level security does not restrict.
+ * RLS on every table with no policies: nothing reachable through a provider's data API. The owner
+ * connection isn't restricted by it.
  */
 
 const created = () => timestamp('created_at', { withTimezone: true }).notNull().defaultNow();
@@ -24,17 +23,14 @@ export const users = pgTable('users', {
 	termsAcceptedAt: timestamp('terms_accepted_at', { withTimezone: true }),
 	/** When the person confirmed they are at least 16 years old. */
 	ageConfirmedAt: timestamp('age_confirmed_at', { withTimezone: true }),
-	/**
-	 * 'user' or 'admin'. Administrators can open the analytics dashboard. The role can only be
-	 * changed from the server's command line (`npm run admin -w web`), never through the website.
-	 */
+	/** 'user' | 'admin'. Changed only via `npm run admin -w web`. */
 	role: text('role').notNull().default('user'),
 	/** When the account was suspended; a suspended account cannot sign in and all its sessions end. */
 	suspendedAt: timestamp('suspended_at', { withTimezone: true }),
 	suspendedReason: text('suspended_reason'),
 	/**
-	 * Authenticator-app (TOTP, RFC 6238) secret, encrypted with AES-256-GCM (lib/server/totp.ts).
-	 * Required for administrators. `totpPending` holds a secret during set-up, until it is confirmed.
+	 * TOTP secret (RFC 6238), AES-256-GCM (lib/server/totp.ts). Required for admins. `totpPending` holds an
+	 * unconfirmed secret.
 	 */
 	totpSecret: text('totp_secret'),
 	totpPending: text('totp_pending'),
@@ -174,10 +170,8 @@ export const courseState = pgTable('course_state', {
 }).enableRLS();
 
 /**
- * Analytics events, kept for 13 months (see lib/server/analytics). Page views and engagement come
- * from the browser, and only after the visitor has agreed to analytics; account events such as
- * registrations and sign-ins are recorded by the server, without visitor identifiers. No IP
- * address, user agent string, email address or secret is stored.
+ * Analytics events, 13-month retention. Browser events after consent; account events server-side without
+ * visitor ids. No IP, user agent, email or secrets.
  */
 export const analyticsEvents = pgTable(
 	'analytics_events',
@@ -233,11 +227,7 @@ export const analyticsDaily = pgTable(
 	(t) => [primaryKey({ columns: [t.day, t.metric] })]
 ).enableRLS();
 
-/**
- * One-time tokens that have been used: verification challenges, proof-of-work solutions, form
- * tickets and Turnstile tokens. Only a hash is kept, until the token would have expired anyway, so
- * a token cannot be replayed, even after a restart or on another server process.
- */
+/** Used one-time tokens (challenges, PoW solutions, tickets, Turnstile). Hash only, kept until expiry. */
 export const usedTokens = pgTable(
 	'used_tokens',
 	{
@@ -247,10 +237,7 @@ export const usedTokens = pgTable(
 	(t) => [index('used_tokens_expiry_idx').on(t.expiresAt)]
 ).enableRLS();
 
-/**
- * Experience granted by the operator rather than earned from a result or lesson, for example XP
- * carried over from another typing service. Counted in the account level like any other XP.
- */
+/** Operator-granted XP (e.g. carried over from another service). Counts toward level. */
 export const xpGrants = pgTable('xp_grants', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
@@ -261,10 +248,7 @@ export const xpGrants = pgTable('xp_grants', {
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 }, (t) => [index('xp_grants_user_idx').on(t.userId)]).enableRLS();
 
-/**
- * When the user last cleared a category of their data (see lib/data/categories.ts). Copies older
- * than this, still held by a browser, are discarded rather than uploaded again.
- */
+/** Last clear per data category (lib/data/categories.ts). Older browser copies are dropped. */
 export const dataResets = pgTable(
 	'data_resets',
 	{

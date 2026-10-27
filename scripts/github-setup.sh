@@ -18,6 +18,11 @@ gh api -X PUT "repos/$REPO/actions/permissions/workflow" \
   -f default_workflow_permissions=read -F can_approve_pull_request_reviews=false
 echo "Workflow permissions applied"
 
+# GitHub-owned actions only.
+gh api -X PUT "repos/$REPO/actions/permissions" -F enabled=true -f allowed_actions=selected
+gh api -X PUT "repos/$REPO/actions/permissions/selected-actions" -F github_owned_allowed=true -F verified_allowed=false
+echo "Actions restricted to GitHub-owned"
+
 ruleset() { # name, json body
   local name="$1" body="$2" existing
   existing=$(gh api "repos/$REPO/rulesets" -q ".[] | select(.name==\"$name\") | .id")
@@ -29,7 +34,7 @@ ruleset() { # name, json body
   echo "Ruleset '$name' applied"
 }
 
-# main: pull requests only, one approval from a code owner, squash only. Admins may merge their own pull requests.
+# main: PR, one code owner approval, squash only. Admin bypass via PR.
 ruleset "Protect main" '{
   "name": "Protect main",
   "target": "branch",
@@ -78,11 +83,14 @@ echo '{ "security_and_analysis": {
 gh api -X PUT "repos/$REPO/private-vulnerability-reporting"
 echo "Secret scanning, push protection and private vulnerability reporting enabled"
 
+gh api -X PATCH "repos/$REPO/code-scanning/default-setup" -f state=configured -f query_suite=default >/dev/null
+echo "CodeQL default setup enabled"
+
 # Fork pull requests run no workflows until approved.
 gh api -X PUT "repos/$REPO/actions/permissions/fork-pr-contributor-approval" -f approval_policy=all_external_contributors
 echo "Fork workflow approval applied"
 
-# Issues, comments and pull requests from collaborators only. Expires after six months; re-run to renew.
+# Collaborators only for issues, comments and PRs. Six months; re-run to renew.
 gh api -X PUT "repos/$REPO/interaction-limits" -f limit=collaborators_only -f expiry=six_months >/dev/null
 echo "Interaction limited to collaborators"
 

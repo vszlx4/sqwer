@@ -1,9 +1,6 @@
 /**
- * A summary of how a form was filled, sent with it in a hidden `signals` field for the server's
- * risk scoring: how many keys were pressed (not which), whether a pointer was used, how many
- * fields were focused, how many pastes, how long the form was open, and whether the browser is
- * under automation (navigator.webdriver). Nothing typed is recorded, and nothing is stored after
- * the request is checked.
+ * Form-fill summary for risk scoring, posted as `signals`: key and paste counts, pointer use, focused fields,
+ * open time, navigator.webdriver. No typed content; not stored.
  */
 export function formSignals(form: HTMLFormElement) {
 	const opened = performance.now();

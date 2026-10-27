@@ -3,11 +3,8 @@ import { secret } from '../config.ts';
 import { consumeOnce } from './replay.ts';
 
 /*
- * Form tickets. Each protected form carries a ticket issued by the server when the page is
- * rendered. It is signed, names the action it was issued for and a hash of the browser's user
- * agent, expires, and can be used once. It shows that the page was actually loaded and when,
- * which a script posting straight to the endpoint cannot show, and replaces any timing value the
- * browser could set itself.
+ * Form tickets: signed at render, bound to action and user-agent hash, expiring, single use. Proves the page
+ * was loaded and when; replaces client-set timing.
  */
 
 export type ProtectedAction = 'signin' | 'signup' | 'reset';

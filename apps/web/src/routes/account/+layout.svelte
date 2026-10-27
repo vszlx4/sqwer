@@ -9,11 +9,7 @@
 	import Icon, { type IconName } from '#lib/ui/Icon.svelte';
 	import type { LayoutProps } from './$types';
 
-	/**
-	 * The account area: who is signed in and how far they have come, with the account sections in
-	 * a side navigation beside the page. The overview uses the name as its main heading; every
-	 * other section has its own.
-	 */
+	/** Account area: header with standing, side navigation. Overview uses the name as its heading. */
 	let { data, children }: LayoutProps = $props();
 
 	const ICONS: Record<string, IconName> = {

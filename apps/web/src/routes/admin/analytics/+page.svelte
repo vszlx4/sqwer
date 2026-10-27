@@ -8,11 +8,7 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import type { PageProps } from './$types';
 
-	/**
-	 * The analytics overview for administrators. Every number comes from recorded events; where a
-	 * measure was not being collected, or cannot be derived for older days, the page says so
-	 * instead of showing zero.
-	 */
+	/** Admin analytics overview. Uncollected or underivable measures are labelled, not shown as zero. */
 	let { data }: PageProps = $props();
 
 	const fmt = (n: number) => Math.round(n).toLocaleString('en-GB');

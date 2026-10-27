@@ -1,11 +1,7 @@
 /**
- * In-memory sliding-window rate limiter for a single server process; use a shared store, such as
- * Redis, if the app is scaled out to several processes.
- *
- * The number of keys is bounded. When the bound is reached, keys with no recent activity are
- * dropped first, then keys with a single attempt (what a flood of new keys consists of), and only
- * then the least recently used; the table is never cleared wholesale. Flooding it with new keys
- * therefore cannot wipe the record of an address or account that has been building up attempts.
+ * In-memory sliding-window limiter, single process (use a shared store like Redis to scale out). Bounded
+ * keys; eviction order: idle, single-attempt, then LRU. Never cleared wholesale, so a key flood can't reset
+ * an active key.
  */
 const hits = new Map<string, number[]>();
 const MAX_KEYS = 100_000;
@@ -53,10 +49,7 @@ export function countRecent(key: string, windowMs: number): number {
 	return recentOf(key, windowMs, Date.now()).length;
 }
 
-/**
- * A weighted allowance: `amount` is taken from `max` per window if it fits. Used where requests
- * differ in size, such as typing time that earns XP.
- */
+/** Weighted allowance: takes `amount` from `max` per window if it fits. */
 const budgets = new Map<string, { at: number; amount: number }[]>();
 export function spendBudget(key: string, amount: number, max: number, windowMs: number): boolean {
 	const now = Date.now();
