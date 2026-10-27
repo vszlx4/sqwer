@@ -1,12 +1,12 @@
-# Checks every push to the two long-lived branches (main, v2/react-rewrite) and every pull request into them: dependency audit, type check, unit tests and a
+# Checks every push to main and every pull request into it: dependency audit, type check, unit tests and a
 # production build. The end-to-end suite needs a browser and runs locally (npm run test:e2e).
 name: CI
 
 on:
   push:
-    branches: [main, v2/react-rewrite]
+    branches: [main]
   pull_request:
-    branches: [main, v2/react-rewrite]
+    branches: [main]
 
 # Read-only: this workflow never needs to write to the repository or use any secret.
 permissions:

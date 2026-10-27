@@ -24,7 +24,6 @@ tiers all use that map.
 | Site (`apps/web`) | SvelteKit, TypeScript, Node.js 24 |
 | Database | PostgreSQL 15+ with Drizzle ORM; an embedded PostgreSQL (PGlite) when none is configured |
 | Bot protection | sqwer's own proof-of-work check, with optional Cloudflare Turnstile |
-| Version 2 (`apps/web-react`) | Next.js 16, React 19, Tailwind CSS 4, GSAP and Lenis (in progress) |
 | Shared logic (`packages/*`) | Framework-free TypeScript, tested with Vitest |
 
 ## Getting started
@@ -57,19 +56,16 @@ different from the live version.
 | `npm test` | Unit tests (engine, layouts, content, finger map) |
 | `npm run test:e2e` | Playwright end-to-end tests against the production build |
 | `npm run check` | Type check |
-| `npm run dev:react` | Version 2 development server, on `v2/react-rewrite` (http://localhost:3100) |
 
 ## Project structure
 
 | Path | What it is |
 | --- | --- |
-| `apps/web` | The SvelteKit site (the stable version, on `main`) |
-| `apps/web-react` | Version 2, the React rewrite (on `v2/react-rewrite`) |
+| `apps/web` | The SvelteKit site |
 | `packages/engine` | Typing session, error model and metrics |
 | `packages/layouts` | Keyboard geometry, finger assignments and key guidance |
 | `packages/content` | Original word lists, lessons and the word generator |
 | `packages/fingermap` | Finger profile: observations, context habits, coverage, prompt picker and file format |
-| `archive/` | Earlier design explorations, kept for reference; not installed or built |
 
 ## Contributing
 
