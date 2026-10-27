@@ -28,7 +28,10 @@ tiers all use that map.
 
 ## Getting started
 
-You need [Node.js](https://nodejs.org) 24 or later. No database is needed to try it.
+You need [Node.js](https://nodejs.org) 24.22.1 or later, which includes the
+[October 2026 security fixes](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases). `npm install`
+stops on older versions; check with `node -v` and update from [nodejs.org](https://nodejs.org/en/download) or with
+`nvm install`. No database is needed to try it.
 
 ```sh
 git clone https://github.com/vszlx4/sqwer.git

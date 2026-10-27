@@ -54,8 +54,6 @@ PP*.ttf
 !docs/operations/BRANCHING.md
 docs/README.md
 
-.claude/settings.local.json
-
 # Impeccable caches
 **/.impeccable/hook.cache.json
 **/.impeccable/config.local.json
