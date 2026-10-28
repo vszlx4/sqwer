@@ -1,4 +1,4 @@
-import { createHash, randomBytes, randomUUID, scrypt as scryptCb, timingSafeEqual, type ScryptOptions } from 'node:crypto';
+import { createHash, randomBytes, randomInt, randomUUID, scrypt as scryptCb, timingSafeEqual, type ScryptOptions } from 'node:crypto';
 import type { Cookies } from '@sveltejs/kit';
 import { and, eq, gt, isNull, lt, ne, or } from 'drizzle-orm';
 import { SITE_URL } from './config.ts';
@@ -162,10 +162,10 @@ export async function findUserByEmail(email: string) {
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 export const RECOVERY_CODE_COUNT = 8;
 
-function newCode() {
-	const bytes = randomBytes(12);
+// randomInt rejection-samples, so every character is uniform. A byte modulo 31 favoured A-H.
+export function newCode() {
 	let out = '';
-	for (let i = 0; i < 12; i++) out += ALPHABET[bytes[i]! % ALPHABET.length];
+	for (let i = 0; i < 12; i++) out += ALPHABET[randomInt(ALPHABET.length)];
 	return `${out.slice(0, 4)}-${out.slice(4, 8)}-${out.slice(8)}`;
 }
 
