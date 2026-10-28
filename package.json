@@ -1,6 +1,6 @@
 {
 	"name": "sqwer",
-	"version": "1.0.0-beta.1",
+	"version": "1.0.0-beta.2",
 	"private": true,
 	"license": "GPL-3.0-only",
 	"type": "module",
@@ -21,7 +21,8 @@
 		"test": "vitest run",
 		"test:e2e": "npm run test:e2e -w web",
 		"check": "npm run check -w web",
-		"release": "node scripts/release.mjs"
+		"release": "node scripts/release.mjs",
+		"bits": "node scripts/bits.mjs"
 	},
 	"devDependencies": {
 		"@sveltejs/kit": "^3.1.0",

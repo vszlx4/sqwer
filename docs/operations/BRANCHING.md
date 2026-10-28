@@ -40,6 +40,21 @@ npm run release -- publish         # after merging: tags main and creates the Gi
 Release notes are generated from pull-request labels (`.github/release.yml`); `publish --notes <file>` adds text above
 them. Pre-releases are marked as such on GitHub.
 
+## Third-party components
+
+Svelte Bits components are copied, not installed, into `apps/web/src/lib/bits/` (MIT + Commons Clause, outside the GPL;
+see `NOTICE`). Copy them with the script, never by hand:
+
+```sh
+npm run bits -- list --gsap        # upstream components that need nothing beyond GSAP
+npm run bits -- add split-text     # copy at upstream main; --ref <sha> pins a commit
+```
+
+`add` refuses if the upstream licence changed, writes the source and commit header, and lists the file in
+`THIRD_PARTY_NOTICES`. Components that need another package (`motion`, `three`, `ogl`) are refused unless allowed with
+`--allow`; port `motion` animations to GSAP instead. A unit test fails if a file and its notice entry drift apart.
+Restyle copied components to the site tokens and note each edit under `Changes` in the header.
+
 ## Check where you are
 
 ```sh
