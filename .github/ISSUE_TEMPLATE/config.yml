@@ -3,3 +3,6 @@ contact_links:
   - name: Security problem
     url: https://github.com/vszlx4/sqwer/security/advisories/new
     about: Report vulnerabilities privately, never in a public issue.
+  - name: Security problem by email
+    url: mailto:info@mughram.com?subject=Security%20vulnerability%20report
+    about: No GitHub account, or the form above is unavailable.
