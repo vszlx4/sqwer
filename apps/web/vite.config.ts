@@ -21,6 +21,8 @@ export default defineConfig({
 		__APP_VERSION__: JSON.stringify(version),
 		__APP_COMMIT__: JSON.stringify(commit())
 	},
+	// Word lists are fetched, and connect-src 'self' blocks data: URLs.
+	build: { assetsInlineLimit: (file) => (file.endsWith('.txt') ? false : undefined) },
 	plugins: [
 		tailwindcss(),
 		sveltekit({

@@ -65,3 +65,49 @@ describe('word tiers', async () => {
 		for (const w of ['kill', 'casino', 'erotic', 'drugs', 'gambling', 'asp', 'cant']) expect(all.has(w)).toBe(false);
 	});
 });
+
+describe('plain test casing', () => {
+	it('lowercases words without punctuation and keeps their casing with it', () => {
+		const words = ['Texas', 'NASA', 'I'];
+		for (const w of new WordGenerator({ words }, seededRandom(2)).next(60)) expect(w).toBe(w.toLowerCase());
+		const punctuated = new WordGenerator({ words, punctuation: true }, seededRandom(2)).next(60);
+		expect(punctuated.some((w) => /NASA/.test(w))).toBe(true);
+	});
+});
+
+describe('word lists', async () => {
+	const { readFileSync } = await import('node:fs');
+	const { DEFAULT_WORD_LIST, EXAM_WORDS, parseWordList, WORD_LIST_IDS, WORD_LISTS } = await import('./index.ts');
+	const read = (id: string) => parseWordList(readFileSync(new URL(`../lists/${id}.txt`, import.meta.url), 'utf8'));
+
+	it('describe every list once, with the exam list as the default', () => {
+		expect(WORD_LISTS.map((l) => l.id)).toEqual([...WORD_LIST_IDS]);
+		expect(DEFAULT_WORD_LIST).toBe('english-200');
+		expect(WORD_LISTS[0]!.size).toBe(EXAM_WORDS.length);
+	});
+
+	it('match their files: declared size, unique, typeable on a standard keyboard', () => {
+		for (const l of WORD_LISTS.filter((l) => l.id !== 'english-200')) {
+			const words = read(l.id);
+			expect(words, l.id).toHaveLength(l.size);
+			expect(new Set(words).size, l.id).toBe(words.length);
+			for (const w of words) expect(w, l.id).toMatch(/^[A-Za-z'-]+$/);
+		}
+	});
+
+	it('grow from the 200 to the 450k list', () => {
+		const english = WORD_LISTS.filter((l) => l.group === 'English');
+		for (let i = 1; i < english.length; i++) expect(english[i]!.size).toBeGreaterThan(english[i - 1]!.size);
+	});
+});
+
+describe('word list credits', async () => {
+	const { WORD_LISTS } = await import('./index.ts');
+
+	it('name the source file and author of every list', () => {
+		for (const l of WORD_LISTS) {
+			expect(l.credit.file, l.id).toMatch(/^english(_[a-z0-9]+)*\.json$/);
+			expect(l.credit.author, l.id).not.toBe('');
+		}
+	});
+});

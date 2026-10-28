@@ -3,6 +3,7 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import { LEGAL_DOCUMENTS } from '#lib/site/legal.ts';
 	import { CONTACT_EMAIL, LEGAL } from '#lib/site/links.ts';
+	import { LIST_LEVELS, MONKEYTYPE, WORD_LISTS } from '@sqwer/content';
 
 	const doc = LEGAL_DOCUMENTS.copyright;
 	const notice = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Copyright notice')}`;
@@ -21,7 +22,8 @@
 		{ id: 'repeat', label: 'Repeat infringement and misuse' },
 		{ id: 'other', label: 'Other unlawful content' },
 		{ id: 'sqwer', label: 'sqwer’s own materials' },
-		{ id: 'third', label: 'Third-party materials in sqwer' }
+		{ id: 'third', label: 'Third-party materials in sqwer' },
+		{ id: 'word-lists', label: 'Word lists and mature words' }
 	];
 </script>
 
@@ -42,6 +44,7 @@
 			<li>Do not upload photographs of other people without their consent, or logos, artwork, film stills or images found online.</li>
 			<li>Rights holders can report infringing content to <a href={notice}>{CONTACT_EMAIL}</a>; we act promptly and tell the uploader.</li>
 			<li>Uploaders can respond with a counter-notice. Accounts that infringe repeatedly are closed.</li>
+			<li>The larger word lists are full dictionaries and include profanity and other mature words. They are kept as vocabulary, not to offend, and are used only when you choose them.</li>
 		</ul>
 	</section>
 
@@ -206,7 +209,59 @@
 	<ul>
 		<li><strong>Typefaces:</strong> PP Neue Montreal and PP Altera are typefaces by Pangram Pangram Foundry, used under licence. Geist Mono, by Vercel, is used under the SIL Open Font License 1.1.</li>
 		<li><strong>Software:</strong> sqwer is built with open-source software, including Svelte and SvelteKit (MIT), Tailwind CSS (MIT), Drizzle ORM (Apache 2.0), node-postgres (MIT) and the ALTCHA library (MIT), each used under its licence.</li>
-		<li><strong>Word lists and course texts:</strong> written or compiled for sqwer from common vocabulary and English word-frequency data; individual words are not protected works.</li>
+		<li><strong>Word lists and course texts:</strong> the lessons and levelled practice words are written or compiled for sqwer from common vocabulary and English word-frequency data. The exam list and the selectable word lists come from <a href={MONKEYTYPE.url} rel="noopener">Monkeytype</a>, used under the GNU General Public License version 3; each list and its author are credited in section 13.6. Individual words are not protected works.</li>
 		<li><strong>Illustrations:</strong> the hand and keyboard illustrations were created for sqwer.</li>
 	</ul>
+
+	<h2 id="word-lists">13. Word lists and mature words</h2>
+	<p>
+		13.1. Tests and endless games can use selectable word lists, from the 200 most common English words up to a full
+		dictionary of about 450,000 words, and themed lists of medical, legal, Shakespearean, Old English and commonly
+		misspelled words, contractions and words with double letters.
+	</p>
+	<p>
+		13.2. The English 25k and English 450k lists are drawn from general dictionaries. Like any dictionary, they include
+		profanity, slurs, sexual and other age-restricted words. These lists are marked “mature” where you choose them. Endless
+		mode draws from the 25k list at level 11 and from the 450k list at level 12 (Master).
+	</p>
+	<p>
+		13.3. Words in the lists are shown at random, only as typing practice. Their presence is not a statement, an
+		endorsement or an intention to offend or harass anyone; a word is included because it is part of the English
+		language.
+	</p>
+	<p>
+		13.4. The lists are kept complete and are not filtered for offensive words. Requests to remove a word only because it
+		is offensive are not accepted. Reports of errors, such as misspellings or entries that are not words, are welcome
+		at <a href={report}>{CONTACT_EMAIL}</a>.
+	</p>
+	<p>
+		13.5. The default list, the fixed examinations, the ranked test, the course and endless levels 1 to 10 use only
+		curated lists that leave such words out. If you supervise a younger learner, keep to the default list, to lists not
+		marked mature and to endless levels up to Expert.
+	</p>
+	<p>
+		13.6. Every list comes from the <a href={MONKEYTYPE.url} rel="noopener">Monkeytype</a> project and is used under the
+		GNU General Public License version 3. We thank the people who compiled them, named below by the Monkeytype file
+		they first added, and the Monkeytype contributors who improved them since. For sqwer, each list is written one
+		word per line, entries joined by commas or spaces are split, duplicates are removed, and the Old English letters
+		æ, þ and ð are written ae, th and th.
+	</p>
+	<div class="table-wrap">
+		<table>
+			<thead>
+				<tr><th scope="col">List</th><th scope="col">Words</th><th scope="col">Level</th><th scope="col">Compiled by</th><th scope="col">Based on</th></tr>
+			</thead>
+			<tbody>
+				{#each WORD_LISTS as l (l.id)}
+					<tr>
+						<th scope="row">{l.name}{l.mature ? ' (mature)' : ''}</th>
+						<td>{l.size.toLocaleString('en-GB')}</td>
+						<td>{LIST_LEVELS[l.level - 1]}</td>
+						<td><a href={`https://github.com/${l.credit.author}`} rel="noopener">{l.credit.author}</a>, <code>{l.credit.file}</code></td>
+						<td>{l.credit.basis ?? '—'}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
 </Prose>
