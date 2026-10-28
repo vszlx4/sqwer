@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { describeDevice, hashPassword, verifyPassword } from './auth.ts';
+import { describeDevice, hashPassword, newCode, verifyPassword } from './auth.ts';
 import { failureLimit, rateLimit, recordFailure } from './rate-limit.ts';
 import { cleanText, emailSchema, profileSchema, safeRedirect, usernameSchema } from './validation.ts';
 
@@ -98,6 +98,22 @@ describe('rate limiting', () => {
 		recordFailure(key);
 		recordFailure(key);
 		expect(failureLimit(key, 2, 60_000).ok).toBe(false);
+	});
+});
+
+describe('recovery codes', () => {
+	it('are three groups of four from the unambiguous alphabet', () => {
+		for (let i = 0; i < 50; i++) expect(newCode()).toMatch(/^[A-HJKMNP-Z2-9]{4}-[A-HJKMNP-Z2-9]{4}-[A-HJKMNP-Z2-9]{4}$/);
+	});
+
+	it('draw every character evenly', () => {
+		const counts = new Map<string, number>();
+		const n = 30_000;
+		for (let i = 0; i < n; i++) for (const c of newCode().replaceAll('-', '')) counts.set(c, (counts.get(c) ?? 0) + 1);
+		expect(counts.size).toBe(31);
+		// 360k draws: ~11613 per character, sd ~106. The old byte modulo gave A-H ~12656.
+		const expected = (n * 12) / 31;
+		for (const count of counts.values()) expect(Math.abs(count - expected)).toBeLessThan(expected * 0.05);
 	});
 });
 
