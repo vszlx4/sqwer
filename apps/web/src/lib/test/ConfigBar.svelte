@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Icon, { type IconName } from '#lib/ui/Icon.svelte';
+	import { isWordListId, LIST_LEVELS, WORD_LISTS } from '@sqwer/content';
 	import { settings, saveSettings, TIME_OPTIONS, WORD_OPTIONS } from '#lib/settings.svelte.ts';
 
 	let { onchange }: { onchange: () => void } = $props();
@@ -14,6 +15,8 @@
 		{ key: 'punctuation', label: 'Punctuation', icon: 'at' },
 		{ key: 'numbers', label: 'Numbers', icon: 'hash' }
 	];
+
+	const groups = (['English', 'Themed'] as const).map((name) => ({ name, lists: WORD_LISTS.filter((l) => l.group === name) }));
 </script>
 
 <div class="bar" role="toolbar" aria-label="Test settings">
@@ -75,6 +78,28 @@
 			{/each}
 		{/if}
 	</div>
+
+	<span class="sep" aria-hidden="true"></span>
+
+	<label class="list">
+		<Icon name="layers" size={15} />
+		<span class="sr-only">Word list</span>
+		<select
+			value={settings.wordList}
+			onchange={(e) => {
+				const id = e.currentTarget.value;
+				if (isWordListId(id)) update(() => (settings.wordList = id));
+			}}
+		>
+			{#each groups as g (g.name)}
+				<optgroup label={g.name}>
+					{#each g.lists as l (l.id)}
+						<option value={l.id}>{l.name} · {LIST_LEVELS[l.level - 1]}{l.mature ? ' · mature' : ''}</option>
+					{/each}
+				</optgroup>
+			{/each}
+		</select>
+	</label>
 </div>
 
 <style>
@@ -121,6 +146,26 @@
 	.opt[aria-checked='true'] {
 		color: var(--on-accent);
 		background: var(--accent);
+	}
+	.list {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 0 4px 0 11px;
+		color: var(--ink-3);
+	}
+	.list:hover,
+	.list:focus-within {
+		color: var(--ink);
+	}
+	.list select {
+		padding: 6px 4px;
+		border-radius: 3px;
+		background: transparent;
+		color: inherit;
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
 	}
 	.num {
 		font-family: var(--font-mono);

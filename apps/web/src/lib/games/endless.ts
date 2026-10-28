@@ -1,7 +1,9 @@
+import type { WordListId } from '@sqwer/content';
 import type { IconName } from '#lib/ui/Icon.svelte';
+import { letterWords } from '#lib/wordlists.ts';
 
 /*
- * Endless mode: course games in rounds, levels 1-10. Adaptive difficulty moves the level up on clears and
+ * Endless mode: course games in rounds, levels 1-12. Adaptive difficulty moves the level up on clears and
  * down on failures. Three failures end the run.
  */
 
@@ -33,12 +35,13 @@ export const DIFFICULTIES = [
 	{ id: 'steady', label: 'Steady', level: 4, note: 'Everyday words at a comfortable speed.' },
 	{ id: 'brisk', label: 'Brisk', level: 6, note: 'Longer everyday words and a quicker pace.' },
 	{ id: 'fast', label: 'Fast', level: 8, note: 'Less common words and a fast pace.' },
-	{ id: 'expert', label: 'Expert', level: 10, note: 'Long, less frequent words at full speed.' }
+	{ id: 'expert', label: 'Expert', level: 10, note: 'Long, less frequent words at full speed.' },
+	{ id: 'master', label: 'Master', level: 12, note: 'Rare and technical words from the full dictionary, which includes mature words, at top speed.' }
 ] as const;
 export type DifficultyId = (typeof DIFFICULTIES)[number]['id'];
 
 export const MIN_LEVEL = 1;
-export const MAX_LEVEL = 10;
+export const MAX_LEVEL = 12;
 /** Failed rounds that end a run. */
 export const STRIKES = 3;
 
@@ -47,11 +50,22 @@ export const nextLevel = (level: number, passed: boolean) => Math.min(MAX_LEVEL,
 
 /** A short name for a level, for the round summary. */
 export function levelName(level: number): string {
-	return level <= 2 ? 'Gentle' : level <= 4 ? 'Steady' : level <= 6 ? 'Brisk' : level <= 8 ? 'Fast' : 'Expert';
+	return level <= 2 ? 'Gentle' : level <= 4 ? 'Steady' : level <= 6 ? 'Brisk' : level <= 8 ? 'Fast' : level <= 10 ? 'Expert' : 'Master';
 }
 
+/** Where a run's words come from: the levelled tiers, or one word list throughout. */
+export type WordSource = 'levels' | WordListId;
+
 /** Words per level from the frequency tiers, rarer and longer at higher levels. Tiers load at run start. */
-export async function wordsForLevel(level: number): Promise<string[]> {
+export async function wordsForLevel(level: number, source: WordSource = 'levels'): Promise<string[]> {
+	if (source !== 'levels') {
+		// Shorter words first; the whole list once the level allows it or the short ones run thin.
+		const all = await letterWords(source);
+		const short = all.filter((w) => w.length <= 3 + level);
+		return short.length >= 30 ? short : all;
+	}
+	if (level >= 12) return letterWords('english-450k', (w) => w.length >= 8 && w.length <= 14);
+	if (level >= 11) return letterWords('english-25k', (w) => w.length >= 6 && w.length <= 12);
 	const { STARTER_WORDS, EVERYDAY_WORDS, FLUENT_WORDS, ADVANCED_WORDS } = await import('@sqwer/content/sets');
 	if (level <= 2) return [...STARTER_WORDS];
 	if (level <= 4) return [...STARTER_WORDS.filter((w) => w.length >= 3), ...EVERYDAY_WORDS];
@@ -106,6 +120,8 @@ export interface EndlessRecord {
 	/** The level adaptive difficulty reached last time. */
 	level: number;
 	difficulty: DifficultyId;
+	/** Word source of the last run; levelled when missing. */
+	source?: WordSource;
 }
 
 export function loadRecords(): Partial<Record<GameId, EndlessRecord>> {

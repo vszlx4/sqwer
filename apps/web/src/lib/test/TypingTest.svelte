@@ -2,7 +2,7 @@
 	import { claimTyping } from '#lib/ui/typing-focus.ts';
 	import { onDestroy, onMount, untrack } from 'svelte';
 	import { computeStats, liveWpm, TypingSession, type TestMode } from '@sqwer/engine';
-	import { EXAM_WORDS, WordGenerator } from '@sqwer/content';
+	import { EXAM_WORDS, WordGenerator, wordListById, type WordListId } from '@sqwer/content';
 	import { qwertyAnsi } from '@sqwer/layouts';
 	import { fingerMap } from '#lib/fingermap/store.svelte.ts';
 	import type { Exam } from '#lib/exams.ts';
@@ -20,6 +20,7 @@
 	import { resolvedPlatform, saveSettings, settings } from '#lib/settings.svelte.ts';
 	import ConfigBar from './ConfigBar.svelte';
 	import Words from './Words.svelte';
+	import { loadWordList } from '#lib/wordlists.ts';
 
 	const LOOKAHEAD = 40;
 	/** Attempts with fewer keystrokes are not kept in the history. */
@@ -56,6 +57,31 @@
 	let rankedUpload = $state.raw<Promise<UploadOutcome | null> | null>(null);
 	let previousBest = $state<number | null>(null);
 
+	/** Fixed examinations, ranked included, always use the exam list. */
+	const listId = (): WordListId => (fixed ? 'english-200' : settings.wordList);
+	let pool: readonly string[] = EXAM_WORDS;
+	let poolId = $state<WordListId>('english-200');
+	let listError = $state<string | null>(null);
+	const poolInfo = $derived(wordListById(poolId)!);
+
+	/** Loads the chosen list when it differs from the one in use, then starts a fresh test with it. */
+	function syncList() {
+		const id = listId();
+		if (id === poolId) return;
+		listError = null;
+		loadWordList(id).then(
+			(words) => {
+				if (listId() !== id) return;
+				pool = words;
+				poolId = id;
+				restart();
+			},
+			() => {
+				if (listId() === id) listError = `${wordListById(id)?.name ?? 'The list'} could not be loaded. Check your connection and choose it again.`;
+			}
+		);
+	}
+
 	let generator: WordGenerator;
 	let session = $state.raw<TypingSession>(newSession());
 	let rev = $state(0);
@@ -83,7 +109,7 @@
 
 	function newSession(words?: string[]): TypingSession {
 		const mode = currentMode();
-		generator = new WordGenerator({ punctuation: config().punctuation, numbers: config().numbers, words: EXAM_WORDS });
+		generator = new WordGenerator({ punctuation: config().punctuation, numbers: config().numbers, words: pool });
 		const list = words ?? generator.next(mode.kind === 'words' ? mode.count : LOOKAHEAD * 2);
 		return new TypingSession(list, mode);
 	}
@@ -92,7 +118,7 @@
 		const m = s.mode;
 		const base = m.kind === 'time' ? `time ${m.seconds}s` : `words ${m.count}`;
 		const extras = [config().punctuation && 'punctuation', config().numbers && 'numbers'].filter(Boolean);
-		return [base, 'English', ...extras].join(' · ');
+		return [base, poolInfo.name, ...extras].join(' · ');
 	}
 
 	/** Builds the result record, saves it to the history and counts it in the usage statistics. */
@@ -299,6 +325,7 @@
 	function onSettingsChange() {
 		platform = resolvedPlatform();
 		restart();
+		syncList();
 	}
 
 	function setPlatform(p: 'mac' | 'pc') {
@@ -315,6 +342,7 @@
 
 	onMount(() => {
 		input?.focus({ preventScroll: true });
+		syncList();
 		fingerMap.load();
 		results.load();
 		const onHide = () => abandon();
@@ -404,6 +432,11 @@
 				<p class="exam-banner"><b>{exam.title}</b> · {exam.duration} · {exam.purpose}</p>
 			{:else}
 				<ConfigBar onchange={onSettingsChange} />
+			{/if}
+			{#if listError}
+				<p class="list-note" role="alert">{listError}</p>
+			{:else if !fixed && poolInfo.mature}
+				<p class="list-note">{poolInfo.name} is a full dictionary list and includes profanity and other mature words. <a href="/copyright#word-lists">About the word lists</a></p>
 			{/if}
 			<a class="ranked-link" href="/test?exam=competitive" data-sveltekit-reload><Icon name="trophy" size={15} /> Play ranked</a>
 		</div>
@@ -528,6 +561,17 @@
 	.readouts {
 		display: flex;
 		gap: 6px;
+	}
+	.list-note {
+		flex-basis: 100%;
+		text-align: center;
+		font-size: 13.5px;
+		color: var(--ink-3);
+	}
+	.list-note a {
+		color: var(--ink-2);
+		text-decoration: underline;
+		text-underline-offset: 2px;
 	}
 	.exam-banner {
 		max-width: 760px;

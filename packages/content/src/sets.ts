@@ -1,7 +1,8 @@
 /*
  * Difficulty tiers from English frequency lists, lowercase, by frequency, each excluding easier tiers.
  * Excluded: abbreviations, names, brands, apostrophe-less contractions, and explicit, violent, gambling,
- * alcohol, drug, religious and identity terms. No lists of 25k and above.
+ * alcohol, drug, religious and identity terms. Curated for the course and endless levels 1-10; the full,
+ * unfiltered lists are in lists.ts.
  */
 
 const list = (text: string): readonly string[] => text.split(/\s+/).filter(Boolean);

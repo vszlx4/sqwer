@@ -1,4 +1,5 @@
 import { browser } from '$app/env';
+import { DEFAULT_WORD_LIST, isWordListId, type WordListId } from '@sqwer/content';
 import type { Platform } from '@sqwer/layouts';
 
 export type ThemePref = 'system' | 'light' | 'dark';
@@ -13,6 +14,8 @@ export interface Settings {
 	words: (typeof WORD_OPTIONS)[number];
 	punctuation: boolean;
 	numbers: boolean;
+	/** Word list for adjustable tests. */
+	wordList: WordListId;
 	showKeyboard: boolean;
 	showZones: boolean;
 	liveWpm: boolean;
@@ -30,6 +33,7 @@ const DEFAULTS: Settings = {
 	words: 25,
 	punctuation: false,
 	numbers: false,
+	wordList: DEFAULT_WORD_LIST,
 	showKeyboard: true,
 	showZones: false,
 	liveWpm: true,
@@ -46,7 +50,8 @@ function load(): Settings {
 		const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}');
 		const ranked = { ...DEFAULTS.ranked };
 		for (const key of Object.keys(ranked) as (keyof Settings['ranked'])[]) if (typeof saved.ranked?.[key] === 'boolean') ranked[key] = saved.ranked[key];
-		return { ...DEFAULTS, ...saved, ranked };
+		const wordList = isWordListId(saved.wordList) ? saved.wordList : DEFAULTS.wordList;
+		return { ...DEFAULTS, ...saved, ranked, wordList };
 	} catch {
 		return { ...DEFAULTS };
 	}

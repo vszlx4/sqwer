@@ -56,7 +56,8 @@ export class WordGenerator {
 		}
 		this.previous = word;
 
-		if (!this.opts.punctuation) return word;
+		// Plain tests are lowercase; source casing shows only with punctuation.
+		if (!this.opts.punctuation) return word.toLowerCase();
 
 		if (this.sentenceStart) {
 			word = capitalize(word);

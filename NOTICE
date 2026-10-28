@@ -7,7 +7,8 @@ The following are not covered by that licence. All rights reserved:
 
 - The sqwer name, logo and brand marks, including apps/web/src/lib/brand/ and apps/web/static/favicon.svg.
 - Illustrations and images: apps/web/src/lib/hands/assets/ and apps/web/static/og.png.
-- Course and word content: the lessons, word lists, exam sets and practice sets in packages/content/src/.
+- Course and word content: the lessons, word lists, exam sets and practice sets in packages/content/src/, except the
+  Monkeytype material listed below.
 - The written text of the website, including the legal pages.
 - The production fonts, which are not included in this repository.
 
@@ -25,4 +26,12 @@ Third-party material:
   See THIRD_PARTY_NOTICES.
 - GSAP is an npm dependency under the GSAP Standard "No Charge" License (https://gsap.com/standard-license). It is not
   included in this repository.
+- Word lists from Monkeytype (https://github.com/monkeytypegame/monkeytype), licensed under GPL-3.0: the files in
+  packages/content/lists/ and the exam list in packages/content/src/exam.ts. Original authors, by Monkeytype file:
+  english.json, english_1k.json, english_5k.json and english_10k.json by Miodec; english_25k.json by precompute;
+  english_450k.json by GFruit; english_doubleletter.json by QuackerDeezles; english_contractions.json by monners;
+  english_shakespearean.json by risograph; english_commonly_misspelled.json by ssantichaivekin;
+  english_legal.json by pprestwood-collab; english_medical.json by aarnav593; english_old.json by kjvlbu; with
+  later changes by other Monkeytype contributors. Changes for sqwer: one word per line, joined entries split,
+  duplicates removed, æ written ae and þ or ð written th. Per-list details are in packages/content/src/lists.ts.
 - Dependencies installed by npm are covered by their own licences.

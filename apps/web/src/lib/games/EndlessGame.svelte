@@ -7,6 +7,7 @@
 	import Race from '#lib/courses/steps/Race.svelte';
 	import type { StepResult } from '#lib/courses/types.ts';
 	import Icon from '#lib/ui/Icon.svelte';
+	import { isWordListId, WORD_LISTS } from '@sqwer/content';
 	import {
 		DIFFICULTIES,
 		LETTERS,
@@ -19,7 +20,8 @@
 		saveRecord,
 		wordsForLevel,
 		type DifficultyId,
-		type GameInfo
+		type GameInfo,
+		type WordSource
 	} from './endless.ts';
 
 	/** Endless mode: pick difficulty, play rounds. Round score = level; three failures end the run. */
@@ -27,6 +29,8 @@
 
 	let phase = $state<'setup' | 'loading' | 'playing' | 'between' | 'over'>('setup');
 	let difficulty = $state<DifficultyId>('adaptive');
+	let source = $state<WordSource>('levels');
+	let loadError = $state(false);
 	let adaptiveLevel = $state(3);
 	let best = $state(0);
 	let level = $state(3);
@@ -44,6 +48,7 @@
 		const saved = loadRecords()[game.id];
 		if (saved) {
 			difficulty = saved.difficulty;
+			if (saved.source && isWordListId(saved.source)) source = saved.source;
 			adaptiveLevel = saved.level;
 			best = saved.best;
 		}
@@ -58,7 +63,14 @@
 		level = at;
 		if (usesWords) {
 			phase = 'loading';
-			words = await wordsForLevel(at);
+			loadError = false;
+			try {
+				words = await wordsForLevel(at, source);
+			} catch {
+				loadError = true;
+				phase = 'setup';
+				return;
+			}
 		}
 		round++;
 		phase = 'playing';
@@ -89,7 +101,7 @@
 			best = score;
 			newBest = true;
 		}
-		saveRecord(game.id, { best, level: adaptiveLevel, difficulty });
+		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
 		phase = ended ? 'over' : 'between';
 		requestAnimationFrame(() => nextButton?.focus());
 	}
@@ -101,7 +113,7 @@
 			best = score;
 			newBest = true;
 		}
-		saveRecord(game.id, { best, level: adaptiveLevel, difficulty });
+		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
 		last = { passed: false, summary: `You ended the run after ${round} ${round === 1 ? 'round' : 'rounds'}.`, level, next: level };
 		phase = 'over';
 		requestAnimationFrame(() => nextButton?.focus());
@@ -156,6 +168,25 @@
 						{/each}
 					</div>
 				</fieldset>
+				{#if usesWords}
+					<label class="source">
+						<span class="source-label">Words</span>
+						<select bind:value={source}>
+							<option value="levels">By level (recommended)</option>
+							{#each ['English', 'Themed'] as group (group)}
+								<optgroup label={group}>
+									{#each WORD_LISTS.filter((l) => l.group === group) as l (l.id)}
+										<option value={l.id}>{l.name}{l.mature ? ' · mature' : ''}</option>
+									{/each}
+								</optgroup>
+							{/each}
+						</select>
+					</label>
+					{#if source !== 'levels' && WORD_LISTS.find((l) => l.id === source)?.mature}
+						<p class="source-note">This list includes profanity and other mature words. <a href="/copyright#word-lists">About the word lists</a></p>
+					{/if}
+				{/if}
+				{#if loadError}<p class="source-note" role="alert">The words could not be loaded. Check your connection and start again.</p>{/if}
 				<p class="chosen" aria-live="polite">{choice.level === null ? 'Adapts to you after every round.' : choice.note}</p>
 				<button type="button" class="btn btn-primary btn-lg start" onclick={begin}>
 					Start at level {startLevel} <Icon name="arrow" size={18} />
@@ -391,7 +422,7 @@
 	}
 	.levels {
 		display: grid;
-		grid-template-columns: repeat(5, minmax(0, 1fr));
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: 6px;
 	}
 	.level {
@@ -416,6 +447,35 @@
 		border-color: var(--ink);
 		background: var(--surface-2);
 	}
+	.source {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 10px;
+		font-size: 14px;
+	}
+	.source-label {
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--ink-3);
+	}
+	.source select {
+		padding: 7px 10px;
+		border-radius: 3px;
+		border: 1px solid var(--line-strong);
+		background: var(--surface);
+		color: var(--ink);
+		font-size: 14px;
+	}
+	.source-note {
+		font-size: 13.5px;
+		color: var(--ink-3);
+	}
+	.source-note a {
+		color: var(--ink-2);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
 	.chosen {
 		min-height: 1.5em;
 		font-size: 14px;
@@ -436,9 +496,6 @@
 	@media (max-width: 520px) {
 		.levels {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-		.levels .level:last-child {
-			grid-column: 1 / -1;
 		}
 		.start {
 			align-self: stretch;
