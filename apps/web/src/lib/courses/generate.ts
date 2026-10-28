@@ -24,13 +24,14 @@ export function shuffle<T>(list: readonly T[], rand: () => number): T[] {
 
 const pick = <T>(list: readonly T[], rand: () => number) => list[Math.floor(rand() * list.length)]!;
 
-/** Groups for new keys: single-key repeats first ("fff"), then mixed, two thirds new. */
+/** Groups for new keys: single-key repeats first ("fff"), then mixed, two thirds new. Empty focus: pool only. */
 export function patternGroups(pool: string, focus: string, groups: number, rand: () => number): string[] {
-	const focusKeys = [...focus];
-	const poolKeys = [...new Set(pool)];
+	const poolKeys = [...new Set(pool)].filter((c) => c.trim());
+	const given = [...new Set(focus)].filter((c) => c.trim());
+	const focusKeys = given.length ? given : poolKeys;
 	const out: string[] = [];
 	for (let g = 0; g < groups; g++) {
-		if (g < Math.min(4, focusKeys.length * 2)) {
+		if (g < Math.min(4, given.length * 2)) {
 			out.push(focusKeys[g % focusKeys.length]!.repeat(3));
 			continue;
 		}

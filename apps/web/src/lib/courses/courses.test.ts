@@ -73,6 +73,30 @@ describe('drill generation', () => {
 		expect(share).toBeGreaterThan(0.5);
 	});
 
+	it('gives every drill and check real tokens', () => {
+		for (const lesson of LESSONS) {
+			for (const step of lesson.steps) {
+				if (step.kind !== 'drill' && step.kind !== 'checkpoint') continue;
+				for (let seed = 0; seed < 10; seed++) {
+					const tokens = drillTokens(step.source, seeded(seed));
+					expect(tokens.length, `${lesson.id}: ${step.kind}`).toBeGreaterThan(0);
+					for (const t of tokens) expect(t, `${lesson.id}: ${t}`).toMatch(/^\S+$/);
+					expect(tokens.join(' '), lesson.id).not.toContain('undefined');
+				}
+			}
+		}
+	});
+
+	it('draws only from the pool when there is no focus', () => {
+		for (const pool of ['fjdksla', '0123456789', '!@#$%^&*()']) {
+			for (let seed = 0; seed < 50; seed++) {
+				const groups = patternGroups(pool, '', 12, seeded(seed));
+				expect(groups).toHaveLength(12);
+				for (const g of groups) expect([...g].every((c) => pool.includes(c))).toBe(true);
+			}
+		}
+	});
+
 	it('repeats each chosen word in a row so it can be memorised', () => {
 		const tokens = drillTokens({ type: 'words', pool: 'fjdksla', focus: 'a', count: 4, repeat: 3 }, seeded(2));
 		expect(tokens).toHaveLength(12);
