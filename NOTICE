@@ -11,7 +11,18 @@ The following are not covered by that licence. All rights reserved:
 - The written text of the website, including the legal pages.
 - The production fonts, which are not included in this repository.
 
+Additional permission under GNU GPL version 3 section 7:
+
+If you modify this Program, or any covered work, by linking or combining it with GSAP (https://gsap.com), or a
+modified version of that library, containing parts covered by the terms of the GSAP Standard "No Charge" License, or
+with the Svelte Bits components in apps/web/src/lib/bits/, containing parts covered by the terms of the MIT + Commons
+Clause License, the licensors of this Program grant you additional permission to convey the resulting work.
+
 Third-party material:
 
 - Roboto Flex (scripts/fonts/), licensed under the SIL Open Font License 1.1. See scripts/fonts/RobotoFlex-LICENSE.txt.
+- Svelte Bits components (apps/web/src/lib/bits/), licensed under MIT + Commons Clause and not covered by the GPL.
+  See THIRD_PARTY_NOTICES.
+- GSAP is an npm dependency under the GSAP Standard "No Charge" License (https://gsap.com/standard-license). It is not
+  included in this repository.
 - Dependencies installed by npm are covered by their own licences.

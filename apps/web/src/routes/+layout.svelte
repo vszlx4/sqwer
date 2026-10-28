@@ -1,7 +1,8 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
-	import { onNavigate } from '$app/navigation';
+	import { beforeNavigate, onNavigate } from '$app/navigation';
+	import { smoothScroll, stopSmoothScroll } from '#lib/motion/smooth-scroll.ts';
 	import { installKeyboardGuards } from '#lib/ui/typing-focus.ts';
 	import SiteFooter from '#lib/site/SiteFooter.svelte';
 	import SiteHeader from '#lib/site/SiteHeader.svelte';
@@ -25,8 +26,12 @@
 		});
 	});
 
+	// The router owns the scroll position across navigations.
+	beforeNavigate(() => stopSmoothScroll());
+
 	// Space never scrolls the page, and running exercises keep the keyboard (lib/ui/typing-focus.ts).
 	onMount(() => installKeyboardGuards());
+	onMount(() => smoothScroll());
 </script>
 
 <a class="skip" href="#content">Skip to content</a>
