@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { onMount } from 'svelte';
+	import { formatDay } from '#lib/i18n/format.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import Breadcrumbs from './Breadcrumbs.svelte';
 	import { LEGAL_DOCUMENTS, type LegalDocument } from './legal.ts';
@@ -49,7 +50,7 @@
 			<dl class="doc-meta">
 				<div><dt>Reference</dt><dd>{doc.ref}</dd></div>
 				<div><dt>Version</dt><dd>{doc.version}</dd></div>
-				<div><dt>Effective</dt><dd><time datetime={doc.effectiveIso}>{doc.effective}</time></dd></div>
+				<div><dt>Effective</dt><dd><time datetime={doc.effectiveIso}>{formatDay(doc.effectiveIso)}</time></dd></div>
 				<div><dt>Issued by</dt><dd>{LEGAL.operatorName}</dd></div>
 			</dl>
 			<div class="doc-actions">

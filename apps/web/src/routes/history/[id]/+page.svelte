@@ -7,6 +7,7 @@
 	import { results } from '#lib/results/store.svelte.ts';
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
 	import Seo from '#lib/site/Seo.svelte';
+	import { formatDateTime } from '#lib/i18n/format.ts';
 
 	onMount(() => results.load());
 
@@ -29,7 +30,7 @@
 	<section class="assessment">
 		<h1>Finger speed assessment</h1>
 		<p class="muted">
-			{new Date(record.at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })} · Average {Math.round(record.wpm)} WPM at
+			{formatDateTime(record.at, { dateStyle: 'medium', timeStyle: 'short' })} · Average {Math.round(record.wpm)} WPM at
 			{Math.round(record.accuracy)}% accuracy
 		</p>
 		<FingerScores fingers={record.fingers} />

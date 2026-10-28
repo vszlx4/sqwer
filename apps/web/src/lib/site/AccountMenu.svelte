@@ -8,6 +8,7 @@
 	import Icon from '#lib/ui/Icon.svelte';
 	import SignOutDialog from './SignOutDialog.svelte';
 	import { ACCOUNT_LINKS } from './links.ts';
+	import { formatNumber } from '#lib/i18n/format.ts';
 
 	/**
 	 * Header account control: avatar and level. Click opens the menu; hovering the level shows XP to the next
@@ -42,7 +43,7 @@
 		const perMinute = examXp({ seconds: 60, wpm, accuracy, status: 'completed' });
 		return perMinute > 0 ? Math.max(1, Math.ceil(remaining / perMinute)) : null;
 	});
-	const fmt = (n: number) => n.toLocaleString('en-GB');
+	const fmt = (n: number) => formatNumber(n);
 
 	afterNavigate(() => {
 		open = false;

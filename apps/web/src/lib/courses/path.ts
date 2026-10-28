@@ -69,7 +69,7 @@ export function nextStep(i: PathInput): NextStep {
 			title: 'You have completed the course',
 			text: 'Keep your skills sharp with the examinations, or replay any lesson for more stars.',
 			href: '/exams',
-			action: 'Practise with examinations',
+			action: 'Practice with examinations',
 			lesson: null
 		};
 	}

@@ -15,7 +15,7 @@
 		{ id: 'continuity', label: 'Backups and continuity' },
 		{ id: 'report', label: 'Reporting a vulnerability' },
 		{ id: 'rules', label: 'Rules of engagement' },
-		{ id: 'safe-harbour', label: 'Safe harbour' },
+		{ id: 'safe-harbor', label: 'Safe harbor' },
 		{ id: 'out-of-scope', label: 'Out of scope' },
 		{ id: 'handling', label: 'How reports are handled' },
 		{ id: 'recognition', label: 'Recognition' }
@@ -35,7 +35,7 @@
 	kicker="Legal"
 	title={doc.title}
 	lede="This policy describes how sqwer protects the service and the personal data it holds, how security incidents are managed, and how security researchers can report vulnerabilities in good faith."
-	crumbs={[{ href: '/legal', label: 'Legal centre' }, { href: doc.href, label: doc.title }]}
+	crumbs={[{ href: '/legal', label: 'Legal center' }, { href: doc.href, label: doc.title }]}
 	{doc}
 	{toc}
 >
@@ -57,7 +57,7 @@
 	</p>
 	<p>
 		1.2. It forms part of the <a href="/terms">Terms and Conditions</a>. Activity carried out in accordance with this
-		policy is authorised for the purposes of clause 9.1(f) of the Terms.
+		policy is authorized for the purposes of clause 9.1(f) of the Terms.
 	</p>
 
 	<h2 id="governance">2. Security governance</h2>
@@ -81,7 +81,7 @@
 				<tr><th scope="row">Authentication</th><td>Minimum password length of 10 characters; rate limits on sign-up, sign-in and password reset; a 15-minute lock after five failed sign-ins; single-use recovery codes; all sessions ended when the password changes.</td></tr>
 				<tr><th scope="row">Sessions</th><td>A random token in an <code>HttpOnly</code>, <code>Secure</code>, <code>SameSite=Lax</code> cookie, expiring after 30 days without use, revocable per device.</td></tr>
 				<tr><th scope="row">Automated abuse</th><td>sqwer’s own verification on account forms (proof of work and a human challenge), a hidden trap field and a minimum form-completion time.</td></tr>
-				<tr><th scope="row">Application</th><td>Validation and sanitisation of all input; output escaping; same-origin checks against cross-site request forgery; uploaded images verified by content; no third-party scripts.</td></tr>
+				<tr><th scope="row">Application</th><td>Validation and sanitization of all input; output escaping; same-origin checks against cross-site request forgery; uploaded images verified by content; no third-party scripts.</td></tr>
 				<tr><th scope="row">Browser protections</th><td>Content Security Policy restricting all resources to sqwer’s own origin, <code>X-Frame-Options: DENY</code>, <code>X-Content-Type-Options: nosniff</code>, a strict referrer policy and a permissions policy that disables camera, microphone and location.</td></tr>
 				<tr><th scope="row">Database</th><td>Hosted in the EU with the public data interface disabled, so it is reachable only by sqwer’s server; row-level security enabled on every table; changes to its structure applied only through versioned migrations.</td></tr>
 				<tr><th scope="row">Logging</th><td>Security events recorded as structured logs with keyed hashes of IP addresses; account activity shown to each user.</td></tr>
@@ -134,12 +134,12 @@
 		<li>keep the details confidential until the issue is resolved or 90 days have passed since your report, whichever is earlier, unless agreed otherwise.</li>
 	</ol>
 
-	<h2 id="safe-harbour">8. Safe harbour</h2>
+	<h2 id="safe-harbor">8. Safe harbor</h2>
 	<p>
-		8.1. If you act in good faith and in accordance with this policy, we will consider your research authorised, will not
+		8.1. If you act in good faith and in accordance with this policy, we will consider your research authorized, will not
 		pursue or support legal action against you for it, and will work with you to understand and resolve the issue. If a
 		third party brings action against you for activity that complied with this policy, we will make it known that your
-		actions were authorised. This does not authorise breaches of the law of your own jurisdiction.
+		actions were authorized. This does not authorize breaches of the law of your own jurisdiction.
 	</p>
 
 	<h2 id="out-of-scope">9. Out of scope</h2>

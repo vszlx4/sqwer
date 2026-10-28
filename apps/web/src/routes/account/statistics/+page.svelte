@@ -7,6 +7,7 @@
 	import { usage } from '#lib/usage/store.svelte.ts';
 	import { wordHighlights } from '#lib/usage/types.ts';
 	import type { PageProps } from './$types';
+	import { formatDate, formatNumber } from '#lib/i18n/format.ts';
 
 	let { data }: PageProps = $props();
 	let confirmDelete = $state(false);
@@ -48,8 +49,8 @@
 		const m = Math.floor((s % 3600) / 60);
 		return h ? `${h} h ${m} min` : m ? `${m} min ${s % 60} s` : `${s} s`;
 	};
-	const n = (v: number) => Math.round(v).toLocaleString('en-GB');
-	const date = (t: number) => new Date(t).toLocaleDateString('en-GB', { dateStyle: 'long' });
+	const n = (v: number) => formatNumber(Math.round(v));
+	const date = (t: number) => formatDate(t, { dateStyle: 'long' });
 
 	async function remove() {
 		await fetch('/api/usage', { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });

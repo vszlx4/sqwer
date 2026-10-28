@@ -4,6 +4,7 @@
 	import { results } from '#lib/results/store.svelte.ts';
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
 	import Seo from '#lib/site/Seo.svelte';
+	import { formatDateTime } from '#lib/i18n/format.ts';
 
 	onMount(() => results.load());
 
@@ -26,7 +27,7 @@
 		const m = Math.floor((s % 3600) / 60);
 		return h ? `${h} h ${m} min` : `${m} min ${Math.round(s % 60)} s`;
 	};
-	const when = (t: number) => new Date(t).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+	const when = (t: number) => formatDateTime(t, { dateStyle: 'medium', timeStyle: 'short' });
 </script>
 
 <Seo title="History" description="Every test you have taken, with full results." noindex />

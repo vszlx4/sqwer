@@ -6,6 +6,7 @@
 	import { CHAPTERS } from './catalog.ts';
 	import { placementCredit } from './progression.ts';
 	import { courses } from './store.svelte.ts';
+	import { formatNumber } from '#lib/i18n/format.ts';
 
 	/**
 	 * Starts at the placement chapter. Signed in: earlier chapters complete with full stars, points added to XP
@@ -58,7 +59,7 @@
 			{#if !signedIn}
 				<a href="/signin">Sign in</a> to have chapters 1 to {chapter - 1} marked complete and earn their XP.
 			{:else if credit.lessons}
-				Chapters 1 to&nbsp;{chapter - 1} will be marked complete with full stars: <b>{credit.lessons}&nbsp;lessons, +{credit.xp.toLocaleString('en-GB')}&nbsp;XP</b>.
+				Chapters 1 to&nbsp;{chapter - 1} will be marked complete with full stars: <b>{credit.lessons}&nbsp;lessons, +{formatNumber(credit.xp)}&nbsp;XP</b>.
 			{:else}
 				Chapters 1 to {chapter - 1} are already complete with full stars.
 			{/if}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { formatDay } from '#lib/i18n/format.ts';
 	import Prose from '#lib/site/Prose.svelte';
 	import Seo from '#lib/site/Seo.svelte';
 	import { LEGAL_DOCUMENTS, LEGAL_UPDATED } from '#lib/site/legal.ts';
@@ -23,7 +24,7 @@
 		{ id: 'ISO/IEC 29100', title: 'Privacy framework', use: 'The privacy principles on which processing is designed.', where: { href: '/privacy#principles', label: 'Privacy Policy, section 3' } },
 		{ id: 'ISO/IEC 29184', title: 'Online privacy notices and consent', use: 'Structure of the privacy notice, with a summary first, and recording of what was accepted, with its version and time.', where: { href: '/privacy', label: 'Privacy Policy; registration form' } },
 		{ id: 'ISO/IEC 29134', title: 'Privacy impact assessment', use: 'Assessment of privacy risks before features are released; for example, usage statistics are recorded only for signed-in users.', where: { href: '/privacy#visitors', label: 'Privacy Policy, sections 4 and 5' } },
-		{ id: 'ISO/IEC 20889', title: 'Privacy enhancing data de-identification', use: 'Pseudonymisation of IP addresses in security logs with a keyed, one-way hash.', where: { href: '/privacy#visitors', label: 'Privacy Policy, section 4' } },
+		{ id: 'ISO/IEC 20889', title: 'Privacy enhancing data de-identification', use: 'Pseudonymization of IP addresses in security logs with a keyed, one-way hash.', where: { href: '/privacy#visitors', label: 'Privacy Policy, section 4' } },
 		{ id: 'ISO/IEC 27035', title: 'Information security incident management', use: 'Process for detecting, containing, recovering from and reporting incidents and personal data breaches.', where: { href: '/security#incidents', label: 'Security policy, section 4' } },
 		{ id: 'ISO/IEC 29147', title: 'Vulnerability disclosure', use: 'How vulnerabilities are reported, acknowledged and disclosed, and the security.txt contact.', where: { href: '/security#report', label: 'Security policy, section 6' } },
 		{ id: 'ISO/IEC 30111', title: 'Vulnerability handling processes', use: 'Verification, severity rating and remediation targets for reported vulnerabilities.', where: { href: '/security#handling', label: 'Security policy, section 10' } },
@@ -67,14 +68,14 @@
 	];
 </script>
 
-<Seo title="Legal centre" description="Every legal and policy document of sqwer, with versions and effective dates, and the standards they follow." />
+<Seo title="Legal center" description="Every legal and policy document of sqwer, with versions and effective dates, and the standards they follow." />
 
 <Prose
 	kicker="Legal"
-	title="Legal centre"
+	title="Legal center"
 	lede="All of sqwer’s legal and policy documents in one place, with their reference, version and effective date, together with the international standards and laws they follow."
-	updated={LEGAL_UPDATED}
-	crumbs={[{ href: '/legal', label: 'Legal centre' }]}
+	updated={formatDay(LEGAL_UPDATED)}
+	crumbs={[{ href: '/legal', label: 'Legal center' }]}
 	{toc}
 >
 	<h2 id="operator">1. Operator</h2>

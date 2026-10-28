@@ -70,7 +70,7 @@
 		},
 		{
 			q: 'I cannot complete a game in a lesson. What can I do?',
-			a: 'Games depend on quick reactions. After an unsuccessful attempt, choose “Continue without this game” to move on; a skipped game does not count towards your stars. The Accessibility Statement describes other options.'
+			a: 'Games depend on quick reactions. After an unsuccessful attempt, choose “Continue without this game” to move on; a skipped game does not count toward your stars. The Accessibility Statement describes other options.'
 		}
 	];
 

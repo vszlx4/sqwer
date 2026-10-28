@@ -62,7 +62,7 @@ export const FOOTER_GROUPS = [
 	{
 		title: 'Legal',
 		links: [
-			{ href: '/legal', label: 'Legal centre' },
+			{ href: '/legal', label: 'Legal center' },
 			{ href: '/terms', label: 'Terms and Conditions' },
 			{ href: '/privacy', label: 'Privacy Policy' },
 			{ href: '/cookies', label: 'Cookies and storage' },

@@ -11,6 +11,7 @@ import {
 	validateSession
 } from '#lib/server/auth.ts';
 import { startAnalyticsMaintenance } from '#lib/server/analytics/maintenance.ts';
+import { DEFAULT_LOCALE, LOCALES } from '#lib/i18n/locales.ts';
 
 /** Background upkeep of analytics (daily totals and retention), once per server process. */
 export const init: ServerInit = () => {
@@ -92,6 +93,15 @@ const authenticate: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
+/** Interface language for the request; only the default until more locales ship. */
+const locale: Handle = async ({ event, resolve }) => {
+	event.locals.locale = DEFAULT_LOCALE;
+	const { dir } = LOCALES[event.locals.locale];
+	return resolve(event, {
+		transformPageChunk: ({ html }) => html.replace('%sqwer.lang%', event.locals.locale).replace('%sqwer.dir%', dir)
+	});
+};
+
 /** Mutating API requests: same-origin JSON only, no CORS. Forms use SvelteKit's origin check. */
 const apiGuard: Handle = async ({ event, resolve }) => {
 	if (!event.url.pathname.startsWith('/api/')) return resolve(event);
@@ -128,4 +138,4 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
-export const handle = sequence(securityHeaders, bodyLimits, proxyCheck, apiGuard, authenticate);
+export const handle = sequence(securityHeaders, bodyLimits, proxyCheck, apiGuard, locale, authenticate);

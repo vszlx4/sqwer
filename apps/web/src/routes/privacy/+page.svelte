@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { formatDay } from '#lib/i18n/format.ts';
 	import Prose from '#lib/site/Prose.svelte';
 	import Seo from '#lib/site/Seo.svelte';
 	import { LEGAL_DOCUMENTS } from '#lib/site/legal.ts';
@@ -38,14 +39,14 @@
 	kicker="Legal"
 	title={doc.title}
 	lede="This Privacy Policy explains how personal data is processed when you use sqwer: what is collected, why, on which legal basis, for how long, who receives it, how it is protected, and how you can exercise your rights."
-	crumbs={[{ href: '/legal', label: 'Legal centre' }, { href: doc.href, label: doc.title }]}
+	crumbs={[{ href: '/legal', label: 'Legal center' }, { href: doc.href, label: doc.title }]}
 	{doc}
 	{toc}
 >
 	<section class="summary" aria-labelledby="summary-title">
 		<h2 id="summary-title">Summary</h2>
 		<ul>
-			<li>You can practise without an account. Without one, your settings and practice data stay in your browser and are not sent to us.</li>
+			<li>You can practice without an account. Without one, your settings and practice data stay in your browser and are not sent to us.</li>
 			<li>With an account, we store only what the registration and profile forms ask for, and the results and progress your practice produces.</li>
 			<li>sqwer is free and non-commercial. We never ask for payment details, show advertising, use third-party analytics or tracking tools, sell data or share it for marketing.</li>
 			<li>We count page visits with our own first-party analytics <strong>only if you allow it</strong> in the banner shown on your first visit. You can change your choice at any time under <strong>Analytics preferences</strong> at the foot of every page.</li>
@@ -108,7 +109,7 @@
 				<tr><th scope="row">Lawfulness, fairness and transparency</th><td>Every purpose has a stated legal basis (section 7); this Policy describes all processing in plain language.</td></tr>
 				<tr><th scope="row">Purpose limitation</th><td>Data is used only for the purposes in section 7, never for advertising, profiling for marketing or sale.</td></tr>
 				<tr><th scope="row">Consent and choice</th><td>Visit statistics are collected only after you allow them, refusing is as easy as allowing, and your choice can be changed at any time (paragraph 4.4).</td></tr>
-				<tr><th scope="row">Data minimisation</th><td>Only an email address and password are required. Practice without an account keeps data in your browser. Analytics stores general device, browser and system labels instead of the user agent, and never your IP address.</td></tr>
+				<tr><th scope="row">Data minimization</th><td>Only an email address and password are required. Practice without an account keeps data in your browser. Analytics stores general device, browser and system labels instead of the user agent, and never your IP address.</td></tr>
 				<tr><th scope="row">Accuracy</th><td>You can view and correct your data at any time from your account.</td></tr>
 				<tr><th scope="row">Storage limitation</th><td>Each category has a defined retention period (section 10); deletion is immediate and self-service.</td></tr>
 				<tr><th scope="row">Integrity and confidentiality</th><td>Encryption in transit, hashing of secrets, access restriction and verified database connections (section 11).</td></tr>
@@ -207,7 +208,7 @@
 	</p>
 	<p>
 		4.4.6. <strong>Retention.</strong> Individual analytics records are deleted automatically 13 months after they were
-		made. Before deletion, each day is summarised into daily totals (such as the number of page views and registrations
+		made. Before deletion, each day is summarized into daily totals (such as the number of page views and registrations
 		that day), which contain no personal data and are kept to show long-term trends. When an account is deleted, the
 		link between its analytics records and the account is removed at once; the remaining records cannot be attributed to
 		anyone without the browser identifiers, which are kept only on the visitor’s device. Your analytics records are
@@ -224,11 +225,11 @@
 			<tbody>
 				<tr><th scope="row">Account</th><td>Your email address and a one-way hash of your password (scrypt). Your password itself is never stored.</td></tr>
 				<tr><th scope="row">Records of acceptance</th><td>The version of the Terms and Conditions and Privacy Policy you accepted at registration and the time of acceptance, and the time you confirmed that you are at least 16 years old.</td></tr>
-				<tr><th scope="row">Profile</th><td>Display name, username, and optionally a headline, pronouns and biography; typing experience, goal, target speed, keyboard type, avatar colour, banner style, which showcase items to display, and whether your profile is public. Pronouns are optional and shown only if you enter them; do not enter information you do not want others to see.</td></tr>
+				<tr><th scope="row">Profile</th><td>Display name, username, and optionally a headline, pronouns and biography; typing experience, goal, target speed, keyboard type, avatar color, banner style, which showcase items to display, and whether your profile is public. Pronouns are optional and shown only if you enter them; do not enter information you do not want others to see.</td></tr>
 				<tr><th scope="row">Profile picture</th><td>If you upload one: a 256 × 256 pixel image, cropped and re-encoded in your browser before upload, which removes embedded information such as location and camera details; and the time you confirmed that you hold the rights to it.</td></tr>
 				<tr><th scope="row">Examination results</th><td>For each test or assessment, including attempts not completed: speed, accuracy, a per-second timeline, the words shown, the time taken for each word and the sequence of keystrokes, so that the result can be replayed.</td></tr>
 				<tr><th scope="row">Course progress</th><td>For each lesson: the best stars, accuracy and speed, the number of attempts and when it was first completed; the calendar days on which you completed a lesson (for your streak); the level you described and the lesson you chose to start from. Points and ranks are calculated from these.</td></tr>
-				<tr><th scope="row">Finger map</th><td>Each entry: the key pressed, the neighbouring keys, the finger you selected and the time.</td></tr>
+				<tr><th scope="row">Finger map</th><td>Each entry: the key pressed, the neighboring keys, the finger you selected and the time.</td></tr>
 				<tr><th scope="row">Experience and competitive results</th><td>For each saved examination result, the experience points (XP) it earned, worked out from its length, speed and accuracy, and its speed; for competitive results, whether they passed the automated plausibility check. Your account level is calculated from your XP and course points.</td></tr>
 				<tr><th scope="row">Leaderboard setting</th><td>Whether you appear on the leaderboards (on unless you switch it off).</td></tr>
 				<tr><th scope="row">Usage statistics</th><td>Recorded only while you are signed in: active time per section of the site, active days and hours, tests started and completed, keystroke and word counts, and per-word counts and speeds. Kept separately for each of your devices by means of a random device identifier.</td></tr>
@@ -304,7 +305,7 @@
 					<td>Legitimate interest in improving and operating the service and detecting abuse (Art. 6(1)(f) GDPR)</td>
 				</tr>
 				<tr>
-					<td>Protecting accounts and the service against unauthorised access, automated abuse and fraud</td>
+					<td>Protecting accounts and the service against unauthorized access, automated abuse and fraud</td>
 					<td>Technical data, verification check, signed-in devices, security activity</td>
 					<td>Legitimate interest in keeping the service and your account secure (Art. 6(1)(f) GDPR; Recital 49)</td>
 				</tr>
@@ -443,7 +444,7 @@
 
 	<h2 id="security">11. Security of processing</h2>
 	<p>
-		11.1. In accordance with Article 32 GDPR, we apply technical and organisational measures appropriate to the risk,
+		11.1. In accordance with Article 32 GDPR, we apply technical and organizational measures appropriate to the risk,
 		selected with reference to the controls of ISO/IEC 27001 and ISO/IEC 27002 and the privacy controls of ISO/IEC 27701.
 		They include:
 	</p>
@@ -451,7 +452,7 @@
 		<li><strong>Cryptography:</strong> TLS on every connection to the website; TLS with certificate verification between the server and the database; encryption at rest by the database provider; passwords hashed with scrypt; recovery codes and session identifiers stored only as SHA-256 hashes.</li>
 		<li><strong>Access control:</strong> access to systems holding personal data is limited to the operator; the database is not reachable through any public data interface, and row-level security is enabled on every table.</li>
 		<li><strong>Authentication:</strong> rate limits, a temporary lock after repeated failed sign-ins, single-use recovery codes, and the ending of every session when a password is changed.</li>
-		<li><strong>Application security:</strong> validation and sanitisation of all input, protection against cross-site request forgery, strict security headers, and no third-party scripts.</li>
+		<li><strong>Application security:</strong> validation and sanitization of all input, protection against cross-site request forgery, strict security headers, and no third-party scripts.</li>
 		<li><strong>Logging and monitoring:</strong> security events are recorded with hashed IP addresses and shown to you in your account.</li>
 		<li><strong>Resilience:</strong> regular database backups with restricted access, retained for at most 14 days.</li>
 	</ul>
@@ -523,19 +524,19 @@
 	<h3>Brazil</h3>
 	<p>
 		The LGPD (Law No. 13.709/2018) applies. In addition to the rights in section 13, you may request confirmation of the
-		existence of processing, anonymisation, information about the entities with which data is shared, and review of
+		existence of processing, anonymization, information about the entities with which data is shared, and review of
 		decisions taken solely on automated processing (Art. 18 and 20 LGPD).
 	</p>
 	<h3>United States</h3>
 	<p>
 		sqwer is non-commercial and does not meet the thresholds of state consumer privacy laws such as the California
-		Consumer Privacy Act. Nevertheless: we do not sell or share personal information for cross-context behavioural
-		advertising, do not use sensitive personal information, and honour the rights in section 13 for all users. A Global
-		Privacy Control or Do Not Track signal from your browser is honoured as a refusal of analytics. sqwer is
+		Consumer Privacy Act. Nevertheless: we do not sell or share personal information for cross-context behavioral
+		advertising, do not use sensitive personal information, and honor the rights in section 13 for all users. A Global
+		Privacy Control or Do Not Track signal from your browser is honored as a refusal of analytics. sqwer is
 		not directed at children under 13 (Children’s Online Privacy Protection Act).
 	</p>
 	<h3>Other countries</h3>
-	<p>We apply this Policy to everyone. If your law gives you additional rights, contact us and we will honour them.</p>
+	<p>We apply this Policy to everyone. If your law gives you additional rights, contact us and we will honor them.</p>
 
 	<h2 id="complaints">15. Complaints and authorities</h2>
 	<p>15.1. We would appreciate the opportunity to resolve your concern first, but you may contact a supervisory authority at any time:</p>
@@ -556,7 +557,7 @@
 		purpose.
 	</p>
 	<p>
-		16.2. Competitive results are checked automatically: a result counts towards speed tiers and the leaderboards only
+		16.2. Competitive results are checked automatically: a result counts toward speed tiers and the leaderboards only
 		if its duration, accuracy and keystroke timings are consistent with a person typing. A result that does not pass is
 		kept in your history but not ranked. This affects only your place on a leaderboard; if you believe a result was
 		wrongly excluded, write to us and we will review it by hand.
@@ -615,12 +616,12 @@
 				<tr><th scope="col">Version</th><th scope="col">Effective</th><th scope="col">Changes</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>2.4</td><td>{doc.effective}</td><td>Signed-in devices end at most 90 days after signing in; downloads of your data appear in your security activity.</td></tr>
-				<tr><td>2.3</td><td>18 October 2026</td><td>First-party usage analytics: visit statistics with consent, account and product events, administrator access, 13-month retention and the consent banner.</td></tr>
-				<tr><td>2.2</td><td>16 October 2026</td><td>Experience and levels, competitive results and their checks, leaderboards, and the adaptive pace of the Courses.</td></tr>
-				<tr><td>2.1</td><td>15 October 2026</td><td>Profile headline, pronouns, banner and showcase choices, and what public profiles show.</td></tr>
-				<tr><td>2.0</td><td>15 October 2026</td><td>Controller named; records of acceptance and picture rights confirmation; new verification check; principles, security, breach and regional sections expanded.</td></tr>
-				<tr><td>1.0</td><td>14 October 2026</td><td>First published version.</td></tr>
+				<tr><td>2.4</td><td>{formatDay(doc.effectiveIso)}</td><td>Signed-in devices end at most 90 days after signing in; downloads of your data appear in your security activity.</td></tr>
+				<tr><td>2.3</td><td>{formatDay('2026-10-18')}</td><td>First-party usage analytics: visit statistics with consent, account and product events, administrator access, 13-month retention and the consent banner.</td></tr>
+				<tr><td>2.2</td><td>{formatDay('2026-10-16')}</td><td>Experience and levels, competitive results and their checks, leaderboards, and the adaptive pace of the Courses.</td></tr>
+				<tr><td>2.1</td><td>{formatDay('2026-10-15')}</td><td>Profile headline, pronouns, banner and showcase choices, and what public profiles show.</td></tr>
+				<tr><td>2.0</td><td>{formatDay('2026-10-15')}</td><td>Controller named; records of acceptance and picture rights confirmation; new verification check; principles, security, breach and regional sections expanded.</td></tr>
+				<tr><td>1.0</td><td>{formatDay('2026-10-14')}</td><td>First published version.</td></tr>
 			</tbody>
 		</table>
 	</div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { formatDate, formatNumber } from '#lib/i18n/format.ts';
 	/** Daily bars, stacked for two series. Days without data stay empty, not zero. Keyboard and table access. */
 	interface Series {
 		key: string;
@@ -30,8 +31,8 @@
 	const y = (v: number) => PAD.t + plotH - (v / niceMax) * plotH;
 	const labelEvery = $derived(Math.max(1, Math.ceil(days.length / Math.max(2, Math.floor(plotW / 64)))));
 	const labelled = (i: number) => (i === days.length - 1 ? true : i % labelEvery === 0 && days.length - 1 - i >= labelEvery);
-	const fmtDay = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-	const fmt = (v: number | null) => (v == null ? 'No data' : v.toLocaleString('en-GB'));
+	const fmtDay = (d: string) => formatDate(`${d}T00:00:00Z`, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+	const fmt = (v: number | null) => (v == null ? 'No data' : formatNumber(v));
 
 	let active = $state<number | null>(null);
 	function onkeydown(e: KeyboardEvent) {

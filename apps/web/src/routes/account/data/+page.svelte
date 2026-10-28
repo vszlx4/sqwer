@@ -9,6 +9,7 @@
 	import Field from '#lib/ui/Field.svelte';
 	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import type { PageProps } from './$types';
+	import { formatDateTime } from '#lib/i18n/format.ts';
 
 	let { data, form }: PageProps = $props();
 	const errors = $derived((form?.errors ?? {}) as Record<string, string | undefined>);
@@ -59,7 +60,7 @@
 		<p class="text">
 			{#if data.fingerMap.count}
 				Your account holds {data.fingerMap.count} tagged keystrokes, last updated
-				{new Date(data.fingerMap.updatedAt!).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}. While you
+				{formatDateTime(data.fingerMap.updatedAt!, { dateStyle: 'medium', timeStyle: 'short' })}. While you
 				are signed in, changes to your finger map are saved to your account automatically.
 			{:else}
 				Your account does not hold any finger map data yet. While you are signed in, your finger map is saved to your

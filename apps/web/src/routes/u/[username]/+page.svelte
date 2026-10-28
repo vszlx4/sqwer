@@ -3,11 +3,12 @@
 	import { EXPERIENCE, GOALS, labelOf, PLATFORMS } from '#lib/profile.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import type { PageProps } from './$types';
+	import { formatDate } from '#lib/i18n/format.ts';
 
 	let { data }: PageProps = $props();
 	const p = $derived(data.publicProfile);
 	const s = $derived(data.showcase);
-	const since = $derived(new Date(p.memberSince).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }));
+	const since = $derived(formatDate(p.memberSince, { month: 'long', year: 'numeric' }));
 
 	const stats = $derived([
 		...(s.stats

@@ -44,7 +44,7 @@ export function wordsUsing(letters: string, focus = ''): string[] {
 	).sort((a, b) => a.length - b.length || a.localeCompare(b));
 }
 
-/** Short original sentences for practising capital letters and full stops. */
+/** Short original sentences for practicing capital letters and periods. */
 export const CAPITAL_SENTENCES: readonly string[] = [
 	'The sun is up.',
 	'Sam has a red kite.',
@@ -85,7 +85,7 @@ export const CAPITAL_SENTENCES: readonly string[] = [
 	'Cairo is a very old city.',
 	'The shop sells fresh fruit.',
 	'Yusuf helped his sister cook.',
-	'The ship left the harbour early.'
+	'The ship left the harbor early.'
 ];
 
 /** Short original sentences that use common punctuation. */
@@ -157,13 +157,13 @@ export const NUMBER_SENTENCES: readonly string[] = [
 	'The race had 64 runners.',
 	'Set the alarm for 6 45.',
 	'There are 52 cards in a deck.',
-	'The bridge is 870 metres long.',
+	'The bridge is 870 meters long.',
 	'She was born in 1998.',
 	'The train has 11 carriages.',
 	'Add 9 and 13 to get 22.',
 	'The museum has 340 paintings.',
 	'We sold 75 tickets today.',
-	'The plant grew 30 centimetres.'
+	'The plant grew 30 centimeters.'
 ];
 
 /** Short original sentences for pace, accuracy and endurance practice. */
@@ -186,7 +186,7 @@ export const PRACTICE_SENTENCES: readonly string[] = [
 	'a short break helps your hands stay relaxed',
 	'the space bar belongs to the thumb of either hand',
 	'return to the home row after every reach',
-	'practise the hard keys a little every day',
+	'practice the hard keys a little every day',
 	'let your fingers learn the shape of common words',
 	'breathe slowly and keep a calm and even pace',
 	'a mistake is a lesson about where a key lives',

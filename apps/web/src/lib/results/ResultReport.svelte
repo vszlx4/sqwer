@@ -12,6 +12,7 @@
 	import { results } from './store.svelte.ts';
 	import type { ResultRecord } from './types.ts';
 	import WordHeatmap from './WordHeatmap.svelte';
+	import { formatDateTime } from '#lib/i18n/format.ts';
 
 	interface Props {
 		record: ResultRecord;
@@ -59,7 +60,7 @@
 	const tier = $derived(record.exam === 'competitive' && record.status === 'completed' && record.accuracy >= MIN_ACCURACY ? tierFor(record.wpm) : null);
 
 	const keyName = (k: string) => (k === ' ' ? 'Space' : k);
-	const when = $derived(new Date(record.at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }));
+	const when = $derived(formatDateTime(record.at, { dateStyle: 'medium', timeStyle: 'short' }));
 </script>
 
 <section class="report" aria-labelledby="report-title">

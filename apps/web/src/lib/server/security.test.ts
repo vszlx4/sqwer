@@ -63,7 +63,7 @@ describe('input sanitising and validation', () => {
 			platform: 'mac',
 			avatarColor: 'lime',
 			isPublic: false,
-			headline: ' Practising every morning ',
+			headline: ' Practicing every morning ',
 			pronouns: 'they/them',
 			banner: 'ocean',
 			showRank: true,
@@ -72,7 +72,7 @@ describe('input sanitising and validation', () => {
 			showOnLeaderboard: true
 		};
 		const ok = profileSchema.parse(base);
-		expect(ok.headline).toBe('Practising every morning');
+		expect(ok.headline).toBe('Practicing every morning');
 		expect(profileSchema.safeParse({ ...base, banner: 'neon' }).success).toBe(false);
 		expect(profileSchema.safeParse({ ...base, headline: 'x'.repeat(81) }).success).toBe(false);
 		expect(ok.displayName).toBe('Test Typist');

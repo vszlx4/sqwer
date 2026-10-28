@@ -30,7 +30,7 @@
 	}
 </script>
 
-<div class="toggle" role="radiogroup" aria-label="Colour theme">
+<div class="toggle" role="radiogroup" aria-label="Color theme">
 	{#each OPTIONS as o, i (o.value)}
 		<button
 			type="button"

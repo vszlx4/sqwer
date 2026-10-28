@@ -64,6 +64,11 @@ describe('word tiers', async () => {
 		const all = new Set(WORD_TIERS.flat());
 		for (const w of ['kill', 'casino', 'erotic', 'drugs', 'gambling', 'asp', 'cant']) expect(all.has(w)).toBe(false);
 	});
+
+	it('use American spelling', () => {
+		const all = new Set(WORD_TIERS.flat());
+		for (const w of ['catalogue', 'grey', 'whilst', 'amongst', 'judgement', 'enquiry', 'cancelled', 'colour', 'centre', 'towards']) expect(all.has(w)).toBe(false);
+	});
 });
 
 describe('plain test casing', () => {

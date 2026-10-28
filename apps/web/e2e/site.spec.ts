@@ -41,7 +41,7 @@ for (const [path, heading] of [
 	['/privacy', 'Privacy Policy'],
 	['/terms', 'Terms and Conditions'],
 	['/cookies', 'Cookie and Storage Policy'],
-	['/legal', 'Legal centre'],
+	['/legal', 'Legal center'],
 	['/copyright', 'Content and Copyright Policy'],
 	['/accessibility', 'Accessibility Statement'],
 	['/security', 'Security and Vulnerability Disclosure Policy']

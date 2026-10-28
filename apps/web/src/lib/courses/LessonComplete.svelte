@@ -88,7 +88,7 @@
 		{:else}
 			<a class="btn btn-primary btn-lg" href="/learn" use:autofocus>See the whole road <Icon name="arrow" size={18} /></a>
 		{/if}
-		<button type="button" class="btn btn-lg" onclick={onrepeat}><Icon name="restart" size={18} /> Practise again</button>
+		<button type="button" class="btn btn-lg" onclick={onrepeat}><Icon name="restart" size={18} /> Practice again</button>
 	</div>
 	<a class="link-arrow back" href="/learn">Back to the roadmap <Icon name="arrow" size={16} /></a>
 </section>

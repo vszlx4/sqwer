@@ -8,6 +8,7 @@
 	import { ACCOUNT_LINKS } from '#lib/site/links.ts';
 	import Icon, { type IconName } from '#lib/ui/Icon.svelte';
 	import type { LayoutProps } from './$types';
+	import { formatDate, formatNumber } from '#lib/i18n/format.ts';
 
 	/** Account area: header with standing, side navigation. Overview uses the name as its heading. */
 	let { data, children }: LayoutProps = $props();
@@ -26,8 +27,8 @@
 	const user = $derived(page.data.user);
 	const level = $derived(user?.level ?? null);
 	const tier = $derived(tierFor(user?.best ?? null));
-	const since = $derived(new Date(data.account.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }));
-	const fmt = (n: number) => n.toLocaleString('en-GB');
+	const since = $derived(formatDate(data.account.createdAt, { month: 'long', year: 'numeric' }));
+	const fmt = (n: number) => formatNumber(n);
 </script>
 
 {#if setup || !p}

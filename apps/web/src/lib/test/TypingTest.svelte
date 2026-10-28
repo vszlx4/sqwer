@@ -504,7 +504,7 @@
 		</div>
 
 		{#if settings.showKeyboard && settings.showZones}
-			<ul class="legend chrome" aria-label="Finger colours">
+			<ul class="legend chrome" aria-label="Finger colors">
 				{#each [['pinky', 'Little finger'], ['ring', 'Ring finger'], ['middle', 'Middle finger'], ['index', 'Index finger'], ['thumb', 'Thumb']] as [f, name] (f)}
 					<li><span class="swatch" style:background={`var(--f-${f})`}></span>{name}</li>
 				{/each}

@@ -96,7 +96,7 @@
 		<h1>Practice</h1>
 		<p class="lede">
 			Courses teach; examinations measure. Each one measures one thing and explains its result. Signed in, every
-			completed test earns XP towards your account level: longer, faster and more accurate tests earn more.
+			completed test earns XP toward your account level: longer, faster and more accurate tests earn more.
 		</p>
 		<nav class="shortcuts" aria-label="Practice tools">
 			<a href="/history"><Icon name="history" size={16} /> History and replays</a>

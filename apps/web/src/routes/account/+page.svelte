@@ -6,6 +6,7 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon, { type IconName } from '#lib/ui/Icon.svelte';
 	import type { PageProps } from './$types';
+	import { formatNumber } from '#lib/i18n/format.ts';
 
 	/** Account overview: next steps, setup status, items needing attention. */
 	let { data }: PageProps = $props();
@@ -66,7 +67,7 @@
 		<dl class="figures">
 			<div><dt>Lessons completed</dt><dd>{courses.loaded ? lessonsDone : '–'}</dd></div>
 			<div><dt>Stars</dt><dd>{courses.loaded ? stars : '–'}</dd></div>
-			<div><dt>Course points</dt><dd>{courses.loaded ? courses.rank.points.toLocaleString('en-GB') : '–'}</dd></div>
+			<div><dt>Course points</dt><dd>{courses.loaded ? formatNumber(courses.rank.points) : '–'}</dd></div>
 			<div><dt>Streak</dt><dd>{courses.loaded ? `${courses.streak} ${courses.streak === 1 ? 'day' : 'days'}` : '–'}</dd></div>
 		</dl>
 	</section>
@@ -75,7 +76,7 @@
 		<div class="section-head">
 			<h2 id="profile-title">Your profile</h2>
 			<div class="links">
-				<a class="btn" href="/account/profile">Customise profile</a>
+				<a class="btn" href="/account/profile">Customize profile</a>
 				{#if p.isPublic}<a class="btn" href={`/u/${p.username}`}>View public profile</a>{/if}
 			</div>
 		</div>

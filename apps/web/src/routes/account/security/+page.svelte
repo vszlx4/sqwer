@@ -9,6 +9,7 @@
 	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import { PASSWORD_RULE } from '#lib/profile.ts';
 	import type { PageProps } from './$types';
+	import { formatDateTime } from '#lib/i18n/format.ts';
 
 	let { data, form }: PageProps = $props();
 	let newPassword = $state('');
@@ -17,7 +18,7 @@
 		(form && form.action === action && 'errors' in form ? form.errors : {}) as Record<string, string | undefined>;
 	const successFor = (action: string) => (form && form.action === action && 'success' in form ? form.success : null);
 	const fmt = (iso: string) =>
-		new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+		formatDateTime(iso, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 </script>
 
 <Seo title="Security" description="Manage your sqwer password, recovery codes and signed-in devices." noindex />
@@ -58,7 +59,7 @@
 		{/if}
 	</SettingsSection>
 
-	<SettingsSection title="Signed-in devices" description="Every browser where your account is signed in. Sign out any you do not recognise or no longer use.">
+	<SettingsSection title="Signed-in devices" description="Every browser where your account is signed in. Sign out any you do not recognize or no longer use.">
 		{#if successFor('revoke')}<p class="form-alert success" role="status">{successFor('revoke')}</p>{/if}
 		<ul class="list">
 			{#each data.sessions as s (s.id)}
@@ -101,7 +102,7 @@
 		{/if}
 	</SettingsSection>
 
-	<SettingsSection title="Recent activity" description="Sign-ins, password changes and other events on your account. If you do not recognise one, change your password and sign out all other devices.">
+	<SettingsSection title="Recent activity" description="Sign-ins, password changes and other events on your account. If you do not recognize one, change your password and sign out all other devices.">
 		{#if data.events.length}
 			<ol class="timeline">
 				{#each data.events as e, i (i)}
