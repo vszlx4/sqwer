@@ -6,16 +6,22 @@ packages:
       - any-glob-to-any-file: ['packages/**']
 docs:
   - changed-files:
-      - any-glob-to-any-file: ['docs/**', '*.md']
+      - any-glob-to-all-files: ['docs/**', '*.md', '.github/*.md']
+  - head-branch: ['^docs/']
 ci:
   - changed-files:
       - any-glob-to-any-file: ['.github/**']
-dependencies:
-  - changed-files:
-      - any-glob-to-any-file: ['package-lock.json']
 tests:
   - changed-files:
       - any-glob-to-any-file: ['**/*.test.ts', '**/*.spec.ts', 'apps/web/e2e/**', 'vitest.*.ts']
 security:
   - changed-files:
       - any-glob-to-any-file: ['docs/security/**', 'apps/web/src/hooks.server.ts']
+  - head-branch: ['^security/']
+# Release note categories follow the branch prefix. `dependencies` comes from Dependabot only.
+enhancement:
+  - head-branch: ['^feat/']
+bug:
+  - head-branch: ['^fix/']
+design:
+  - head-branch: ['^design/']

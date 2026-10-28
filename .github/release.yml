@@ -1,15 +1,14 @@
+# Each pull request lands in the first category it matches.
 changelog:
-  exclude:
-    labels: [ci]
   categories:
     - title: Features
       labels: [enhancement]
     - title: Fixes
       labels: [bug]
-    - title: Design
-      labels: [design]
     - title: Security
       labels: [security]
+    - title: Design
+      labels: [design]
     - title: Dependencies
       labels: [dependencies]
     - title: Documentation
