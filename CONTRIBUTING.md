@@ -1,7 +1,7 @@
 # Contributing
 
-Pull requests, issues and comments are open to invited collaborators only. Changes reach `main` after a code owner
-(`.github/CODEOWNERS`) approves them.
+Code contributions are by invitation. Anyone can leave feedback on the website through the **Feedback** issue
+template. Changes reach `main` after a code owner (`.github/CODEOWNERS`) approves them.
 
 1. Open an issue from a template, or pick one.
 2. Branch from `main` as `fix/short-name` or `feat/short-name`.

@@ -1,0 +1,17 @@
+name: Feedback
+description: Thoughts on the website, from anyone
+labels: [feedback]
+body:
+  - type: textarea
+    id: feedback
+    attributes: { label: Feedback, description: What you liked, what felt off, what you would change }
+    validations: { required: true }
+  - type: dropdown
+    id: area
+    attributes: { label: Area, options: [Landing page, Speed test, Course and lessons, Games, Ranking, Finger map, Accounts, Design / layout, Other] }
+  - type: input
+    id: page
+    attributes: { label: Page or link, placeholder: "/learn, /test…" }
+  - type: input
+    id: env
+    attributes: { label: Device and browser, placeholder: "iPhone 17, Safari" }

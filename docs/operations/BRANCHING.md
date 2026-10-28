@@ -20,10 +20,13 @@ setting does this).
 
 1. **Issue.** Open one from a template (bug, feature, design task) so the reason is written down.
 2. **Branch.** From `main`, named as above: `git switch -c fix/lesson-keyboard main`.
-3. **Pull request** into `main`. The template asks what changed, how it was checked, and the risk.
-4. **Checks.** *CI* (audit, type check, unit tests, build), *Pull request hygiene* (branch name, title, target) and
+3. **Version.** `npm run release -- bump` sets the version one step past `main` (`1.0.0-beta.1` → `-beta.2`; a
+   stable version gets the next patch) and is committed with the change. Running it again does nothing. Skipped only
+   when a pull request touches nothing but docs or `.github/`.
+4. **Pull request** into `main`. The template asks what changed, how it was checked, and the risk.
+5. **Checks.** *CI* (audit, type check, unit tests, build), *Pull request hygiene* (branch name, title, target) and
    automatic labels. The code owner (`.github/CODEOWNERS`) is asked to review.
-5. **Squash merge.** One commit per pull request, titled like the pull request. Link issues with `Closes #123`.
+6. **Squash merge.** One commit per pull request, titled like the pull request. Link issues with `Closes #123`.
 
 ## Releases
 
@@ -31,10 +34,14 @@ Versions follow SemVer with pre-release stages: `1.0.0-alpha.N` → `-beta.N` �
 and major. The version lives in the root `package.json`; builds show it with the commit in the footer
 (`v1.0.0-beta.1 · 3f78679`).
 
+Every pull request bumps the number within the current stage (step 3), so publishing that stage needs no version PR.
+A version PR is only for moving to another stage or cutting a stable, patch, minor or major release.
+
 ```sh
-npm run release -- beta            # or alpha, rc, stable, patch, minor, major; opens a version PR
+npm run release -- bump            # on a feature branch: one step past main
+npm run release -- rc              # or alpha, beta, stable, patch, minor, major; opens a version PR
 npm run release -- beta minor      # from a stable version: next minor as beta.1
-npm run release -- publish         # after merging: tags main and creates the GitHub Release
+npm run release -- publish         # on main: tags it and creates the GitHub Release
 ```
 
 Release notes are generated from pull-request labels (`.github/release.yml`); `publish --notes <file>` adds text above

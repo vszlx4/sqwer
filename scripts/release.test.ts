@@ -22,6 +22,12 @@ describe('release versions', () => {
 		expect(next('1.4.2', 'rc', 'major')).toBe('2.0.0-rc.1');
 	});
 
+	it('bumps one step for a merged PR', () => {
+		expect(next('1.0.0-beta.1', 'bump')).toBe('1.0.0-beta.2');
+		expect(next('1.0.0-rc.3', 'bump')).toBe('1.0.0-rc.4');
+		expect(next('1.0.0', 'bump')).toBe('1.0.1');
+	});
+
 	it('refuses ambiguous steps', () => {
 		expect(() => next('1.0.0-rc.1', 'beta')).toThrow();
 		expect(() => next('1.0.0', 'stable')).toThrow();
