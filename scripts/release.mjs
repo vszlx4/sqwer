@@ -1,5 +1,6 @@
 // npm run release -- <alpha|beta|rc|stable|patch|minor|major> [patch|minor|major]   open a version bump PR
 // npm run release -- publish [--notes <file>]                                     tag main and create the GitHub Release
+// npm run release -- bump                                                         bump this branch one step past main
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -44,6 +45,7 @@ export function next(current, step, part = 'patch') {
 		if (!v.stage) throw new Error(`${current} is already stable`);
 		return format({ ...v, stage: null, n: 0 });
 	}
+	if (step === 'bump') return v.stage ? format({ ...v, n: v.n + 1 }) : format({ ...bumpBase(v, 'patch'), stage: null, n: 0 });
 	if (['patch', 'minor', 'major'].includes(step)) {
 		if (v.stage) throw new Error(`finish ${current} with "stable" first`);
 		return format({ ...bumpBase(v, step), stage: null, n: 0 });
@@ -62,6 +64,29 @@ function requireCleanMain() {
 	if (run('git', ['rev-parse', 'HEAD']) !== run('git', ['rev-parse', 'origin/main'])) fail('main is not in sync with origin/main');
 }
 
+function writeVersion(target) {
+	for (const file of MANIFESTS) {
+		const path = join(root, file);
+		const pkg = JSON.parse(readFileSync(path, 'utf8'));
+		pkg.version = target;
+		writeFileSync(path, JSON.stringify(pkg, null, '\t') + '\n');
+	}
+	run('npm', ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund']);
+}
+
+// One bump per PR: the target is always main's version plus one step, so reruns are no-ops.
+function bumpBranch() {
+	if (run('git', ['branch', '--show-current']) === 'main') fail('bump on a feature branch, not main');
+	run('git', ['fetch', '-q', 'origin', 'main']);
+	const base = JSON.parse(run('git', ['show', 'origin/main:package.json'])).version;
+	const target = next(base, 'bump');
+	const current = readVersion();
+	if (current === target) return console.log(`already v${target}`);
+	if (current !== base) fail(`branch is on v${current}, main is on v${base}; expected one of v${base} or v${target}`);
+	writeVersion(target);
+	console.log(`v${base} → v${target}; stage ${MANIFESTS.join(', ')} and package-lock.json`);
+}
+
 function bump(step, part) {
 	requireCleanMain();
 	const current = readVersion();
@@ -73,13 +98,7 @@ function bump(step, part) {
 	}
 	const branch = `chore/release-v${target}`;
 	run('git', ['switch', '-q', '-c', branch]);
-	for (const file of MANIFESTS) {
-		const path = join(root, file);
-		const pkg = JSON.parse(readFileSync(path, 'utf8'));
-		pkg.version = target;
-		writeFileSync(path, JSON.stringify(pkg, null, '\t') + '\n');
-	}
-	run('npm', ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund']);
+	writeVersion(target);
 	run('git', ['add', ...MANIFESTS, 'package-lock.json']);
 	run('git', ['commit', '-q', '-m', `Release v${target}`]);
 	run('git', ['push', '-q', '-u', 'origin', branch], { stdio: 'inherit' });
@@ -131,9 +150,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 	if (step === 'publish') {
 		const i = rest.indexOf('--notes');
 		publish(i >= 0 ? rest[i + 1] : undefined);
+	} else if (step === 'bump') {
+		bumpBranch();
 	} else if (step) {
 		bump(step, rest[0]);
 	} else {
-		fail('usage: npm run release -- <alpha|beta|rc|stable|patch|minor|major> [patch|minor|major] | publish [--notes <file>]');
+		fail('usage: npm run release -- <alpha|beta|rc|stable|patch|minor|major> [patch|minor|major] | bump | publish [--notes <file>]');
 	}
 }
