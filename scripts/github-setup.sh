@@ -90,8 +90,9 @@ echo "CodeQL default setup enabled"
 gh api -X PUT "repos/$REPO/actions/permissions/fork-pr-contributor-approval" -f approval_policy=all_external_contributors
 echo "Fork workflow approval applied"
 
-# Collaborators only for issues, comments and PRs. Six months; re-run to renew.
-gh api -X PUT "repos/$REPO/interaction-limits" -f limit=collaborators_only -f expiry=six_months >/dev/null
-echo "Interaction limited to collaborators"
+# Accounts under 24 hours old are blocked. collaborators_only also blocks feedback issues and vulnerability reports.
+# Six months; re-run to renew.
+gh api -X PUT "repos/$REPO/interaction-limits" -f limit=existing_users -f expiry=six_months >/dev/null
+echo "Interaction limited to existing users"
 
 echo "Done."
