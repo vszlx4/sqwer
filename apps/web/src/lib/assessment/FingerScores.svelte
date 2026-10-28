@@ -13,7 +13,7 @@
 		{ name: 'Left hand', list: FINGERS.filter((f) => handOf(f) === 'left') },
 		{ name: 'Right hand', list: FINGERS.filter((f) => handOf(f) === 'right').reverse() }
 	];
-	// Colour strength follows speed relative to the fastest finger; fingers without data stay uncoloured.
+	// Color strength follows speed relative to the fastest finger; fingers without data stay uncoloured.
 	const tone = $derived(
 		Object.fromEntries(FINGERS.map((f) => [f, fingers[f] ? 0.2 + 0.8 * (fingers[f]!.wpm / max) : 0])) as Record<Finger, number>
 	);
@@ -31,7 +31,7 @@
 <figure class="figure">
 	<Hands label={summary} {tone} {legend} />
 	<figcaption>
-		Words per minute for each finger. A stronger colour means a faster finger, and the fastest finger is shown in bold.
+		Words per minute for each finger. A stronger color means a faster finger, and the fastest finger is shown in bold.
 	</figcaption>
 </figure>
 

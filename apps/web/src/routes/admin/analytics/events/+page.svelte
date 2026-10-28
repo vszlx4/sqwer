@@ -4,13 +4,14 @@
 	import { CHANNEL_LABELS, CLIENT_EVENTS, EVENT_LABELS, SERVER_EVENTS, type Channel } from '#lib/analytics/shared.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import type { PageProps } from './$types';
+	import { formatDateTime, formatNumber } from '#lib/i18n/format.ts';
 
 	/** Admin event browser: filter, paginate, follow a visit, CSV export. No account or visitor ids. */
 	let { data }: PageProps = $props();
 
 	const fmtTime = (iso: string) =>
-		new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC' });
-	const fmt = (n: number) => n.toLocaleString('en-GB');
+		formatDateTime(iso, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC' });
+	const fmt = (n: number) => formatNumber(n);
 	const dur = (ms: number) => {
 		const s = Math.round(ms / 1000);
 		return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`;

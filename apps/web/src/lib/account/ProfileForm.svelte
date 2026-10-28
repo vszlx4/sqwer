@@ -200,7 +200,7 @@
 				{/each}
 			</div>
 			{#if errors.banner}<p class="error">{errors.banner}</p>{/if}
-			<p class="group-label" id="color-label">Avatar colour<span class="req" aria-hidden="true"></span></p>
+			<p class="group-label" id="color-label">Avatar color<span class="req" aria-hidden="true"></span></p>
 			<p class="note">Used when you do not have a profile picture.{#if mode === 'setup'}{' '}You can upload a picture later in your profile settings.{/if}</p>
 			<div class="swatches" role="radiogroup" aria-labelledby="color-label" aria-required="true">
 				{#each AVATAR_COLORS as c (c.value)}

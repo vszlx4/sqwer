@@ -4,6 +4,7 @@
 	import { LEGAL_DOCUMENTS } from '#lib/site/legal.ts';
 	import { CONTACT_EMAIL, LEGAL } from '#lib/site/links.ts';
 	import { LIST_LEVELS, MONKEYTYPE, WORD_LISTS } from '@sqwer/content';
+	import { formatNumber } from '#lib/i18n/format.ts';
 
 	const doc = LEGAL_DOCUMENTS.copyright;
 	const notice = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Copyright notice')}`;
@@ -33,7 +34,7 @@
 	kicker="Legal"
 	title={doc.title}
 	lede="This policy sets out what you may upload to sqwer, the rights you must hold in it, and the procedure for reporting content that infringes copyright or other rights, including counter-notices and the handling of repeat infringement."
-	crumbs={[{ href: '/legal', label: 'Legal centre' }, { href: doc.href, label: doc.title }]}
+	crumbs={[{ href: '/legal', label: 'Legal center' }, { href: doc.href, label: doc.title }]}
 	{doc}
 	{toc}
 >
@@ -55,7 +56,7 @@
 		they believe infringes their rights.
 	</p>
 	<p>
-		1.2. The procedure follows internationally recognised notice-and-action practice, including the requirements for
+		1.2. The procedure follows internationally recognized notice-and-action practice, including the requirements for
 		notices and statements of reasons in Articles 16 and 17 of the EU Digital Services Act (Regulation (EU) 2022/2065),
 		the elements of a notification in 17 U.S.C. § 512(c)(3), and the Copyright Law of the Kingdom of Saudi Arabia (Royal
 		Decree M/41 of 2/7/1424H) and its Implementing Regulations.
@@ -79,13 +80,13 @@
 
 	<h2 id="rights">3. Your rights and warranties</h2>
 	<p>
-		3.1. You keep ownership of Your Content. You grant sqwer only the limited licence described in clause 8.2 of the
+		3.1. You keep ownership of Your Content. You grant sqwer only the limited license described in clause 8.2 of the
 		Terms: to store and display Your Content for the purpose of providing the service to you and, if you choose, on your
 		public profile.
 	</p>
 	<p>3.2. By providing Your Content, you confirm that:</p>
 	<ol type="a">
-		<li>you created it yourself, or you hold a licence or permission that allows you to use it as a profile picture or text on a website, or it is in the public domain;</li>
+		<li>you created it yourself, or you hold a license or permission that allows you to use it as a profile picture or text on a website, or it is in the public domain;</li>
 		<li>it does not infringe any copyright, related right, trade mark, design right, database right or other intellectual property right;</li>
 		<li>if it shows an identifiable person other than you, that person (or, for a minor, their parent or guardian) has consented to its use; and</li>
 		<li>it does not breach any confidentiality obligation, privacy right or right of publicity.</li>
@@ -99,7 +100,7 @@
 			<tbody>
 				<tr><td>A photograph you took of yourself</td><td>A photograph of a celebrity or another person</td></tr>
 				<tr><td>A drawing or design you made</td><td>A character, logo or artwork owned by someone else</td></tr>
-				<tr><td>An image under a licence that permits this use, such as some Creative Commons licences, with any required attribution</td><td>An image copied from a search engine, social network or stock library</td></tr>
+				<tr><td>An image under a license that permits this use, such as some Creative Commons licenses, with any required attribution</td><td>An image copied from a search engine, social network or stock library</td></tr>
 				<tr><td>Your initials, which sqwer shows when no picture is uploaded</td><td>A still from a film, series, game or broadcast</td></tr>
 			</tbody>
 		</table>
@@ -121,10 +122,10 @@
 	<h2 id="prohibited">5. Prohibited content</h2>
 	<p>In addition to infringing material, Your Content must not include anything that:</p>
 	<ol type="a">
-		<li>is sexually explicit, pornographic or sexualises minors;</li>
+		<li>is sexually explicit, pornographic or sexualizes minors;</li>
 		<li>depicts or promotes violence, terrorism, self-harm or illegal activity;</li>
 		<li>is hateful, harassing or discriminatory on the basis of any protected characteristic;</li>
-		<li>impersonates another person or organisation, or misleads about your identity;</li>
+		<li>impersonates another person or organization, or misleads about your identity;</li>
 		<li>contains personal data of others, such as addresses, telephone numbers or documents;</li>
 		<li>contains advertising, spam, links to malicious content or hidden code; or</li>
 		<li>is otherwise unlawful in {LEGAL.operatorCountry} or in the country where it is viewed.</li>
@@ -140,8 +141,8 @@
 		<li>identification of the work or right you claim has been infringed;</li>
 		<li>the exact address (URL) of the content, for example the public profile at which it appears;</li>
 		<li>a sufficiently substantiated explanation of why you consider the content to infringe;</li>
-		<li>a statement that you believe in good faith that the use is not authorised by the rights holder, its agent or the law;</li>
-		<li>a statement that the information in the notice is accurate and that you are the rights holder or authorised to act on their behalf; and</li>
+		<li>a statement that you believe in good faith that the use is not authorized by the rights holder, its agent or the law;</li>
+		<li>a statement that the information in the notice is accurate and that you are the rights holder or authorized to act on their behalf; and</li>
 		<li>your physical or electronic signature (typing your full name is sufficient).</li>
 	</ol>
 	<p>6.2. Notices that do not contain this information may be returned with a request to complete them.</p>
@@ -165,7 +166,7 @@
 	<ol>
 		<li>your name and the email address of your account;</li>
 		<li>identification of the content removed;</li>
-		<li>a statement, in good faith, of the reasons you believe the removal was a mistake or the content is authorised; and</li>
+		<li>a statement, in good faith, of the reasons you believe the removal was a mistake or the content is authorized; and</li>
 		<li>your signature (typing your full name is sufficient).</li>
 	</ol>
 	<p>
@@ -207,9 +208,9 @@
 
 	<h2 id="third">12. Third-party materials in sqwer</h2>
 	<ul>
-		<li><strong>Typefaces:</strong> PP Neue Montreal and PP Altera are typefaces by Pangram Pangram Foundry, used under licence. Geist Mono, by Vercel, is used under the SIL Open Font License 1.1.</li>
-		<li><strong>Software:</strong> sqwer is built with open-source software, including Svelte and SvelteKit (MIT), Tailwind CSS (MIT), Drizzle ORM (Apache 2.0), node-postgres (MIT) and the ALTCHA library (MIT), each used under its licence.</li>
-		<li><strong>Word lists and course texts:</strong> the lessons and levelled practice words are written or compiled for sqwer from common vocabulary and English word-frequency data. The exam list and the selectable word lists come from <a href={MONKEYTYPE.url} rel="noopener">Monkeytype</a>, used under the GNU General Public License version 3; each list and its author are credited in section 13.6. Individual words are not protected works.</li>
+		<li><strong>Typefaces:</strong> PP Neue Montreal and PP Altera are typefaces by Pangram Pangram Foundry, used under license. Geist Mono, by Vercel, is used under the SIL Open Font License 1.1.</li>
+		<li><strong>Software:</strong> sqwer is built with open-source software, including Svelte and SvelteKit (MIT), Tailwind CSS (MIT), Drizzle ORM (Apache 2.0), node-postgres (MIT) and the ALTCHA library (MIT), each used under its license.</li>
+		<li><strong>Word lists and course texts:</strong> the lessons and leveled practice words are written or compiled for sqwer from common vocabulary and English word-frequency data. The exam list and the selectable word lists come from <a href={MONKEYTYPE.url} rel="noopener">Monkeytype</a>, used under the GNU General Public License version 3; each list and its author are credited in section 13.6. Individual words are not protected works.</li>
 		<li><strong>Illustrations:</strong> the hand and keyboard illustrations were created for sqwer.</li>
 	</ul>
 
@@ -255,7 +256,7 @@
 				{#each WORD_LISTS as l (l.id)}
 					<tr>
 						<th scope="row">{l.name}{l.mature ? ' (mature)' : ''}</th>
-						<td>{l.size.toLocaleString('en-GB')}</td>
+						<td>{formatNumber(l.size)}</td>
 						<td>{LIST_LEVELS[l.level - 1]}</td>
 						<td><a href={`https://github.com/${l.credit.author}`} rel="noopener">{l.credit.author}</a>, <code>{l.credit.file}</code></td>
 						<td>{l.credit.basis ?? '—'}</td>

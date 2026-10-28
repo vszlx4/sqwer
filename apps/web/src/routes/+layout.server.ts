@@ -23,7 +23,7 @@ export const load: LayoutServerLoad = async (event) => {
 	depends('app:user');
 	const analytics = analyticsEnabled();
 	const analyticsTokenValue = analytics ? analyticsToken(event) : null;
-	if (!locals.user) return { user: null, siteUrl: SITE_URL, analytics, analyticsToken: analyticsTokenValue };
+	if (!locals.user) return { user: null, siteUrl: SITE_URL, locale: locals.locale, analytics, analyticsToken: analyticsTokenValue };
 	const userId = locals.user.id;
 	const [rows, level, best, pace, avatar, resets] = await Promise.all([
 		(await db())
@@ -44,6 +44,7 @@ export const load: LayoutServerLoad = async (event) => {
 	return {
 		user: { email: locals.user.email, profile: rows[0] ?? null, avatar, level, best, pace, resets, isAdmin: locals.user.role === 'admin' },
 		siteUrl: SITE_URL,
+		locale: locals.locale,
 		analytics,
 		analyticsToken: analyticsTokenValue
 	};

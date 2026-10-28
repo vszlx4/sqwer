@@ -7,17 +7,18 @@
 	import { CHANNEL_LABELS, EVENT_LABELS, type Channel } from '#lib/analytics/shared.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import type { PageProps } from './$types';
+	import { formatDate, formatNumber } from '#lib/i18n/format.ts';
 
 	/** Admin analytics overview. Uncollected or underivable measures are labelled, not shown as zero. */
 	let { data }: PageProps = $props();
 
-	const fmt = (n: number) => Math.round(n).toLocaleString('en-GB');
+	const fmt = (n: number) => formatNumber(Math.round(n));
 	const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
 	const dur = (ms: number) => {
 		const s = Math.round(ms / 1000);
 		return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`;
 	};
-	const fmtDate = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+	const fmtDate = (d: string) => formatDate(`${d}T00:00:00Z`, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
 	const periodLabel = $derived(
 		{ '7d': 'the last 7 days', '30d': 'the last 30 days', '90d': 'the last 90 days', '12m': 'the last 12 months' }[data.period.preset as string] ??

@@ -223,7 +223,7 @@
 			</p>
 			<ul class="checks">
 				<li><Icon name="check" size={18} /> Keys you type with a non-standard finger</li>
-				<li><Icon name="check" size={18} /> Habits that depend on the neighbouring key</li>
+				<li><Icon name="check" size={18} /> Habits that depend on the neighboring key</li>
 				<li><Icon name="check" size={18} /> The speed and accuracy of each finger</li>
 			</ul>
 		</div>
@@ -294,7 +294,7 @@
 		min-height: min(calc(100dvh - 120px), 760px);
 		padding: clamp(24px, 6vh, 64px) 0 clamp(56px, 9vh, 96px);
 	}
-	/* The dot grid fades out towards the edges of the hero. */
+	/* The dot grid fades out toward the edges of the hero. */
 	.hero::before {
 		-webkit-mask-image: radial-gradient(ellipse 70% 75% at 60% 45%, #000 20%, transparent 75%);
 		mask-image: radial-gradient(ellipse 70% 75% at 60% 45%, #000 20%, transparent 75%);

@@ -21,7 +21,7 @@
 </script>
 
 <div class="heatmap">
-	<ul class="words" aria-label="Words in this test, coloured by speed">
+	<ul class="words" aria-label="Words in this test, colored by speed">
 		{#each words as w, i (i)}
 			{@const b = band(w.wpm)}
 			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->

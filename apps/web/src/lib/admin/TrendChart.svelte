@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { formatDate, formatNumber } from '#lib/i18n/format.ts';
 	/** Daily lines on one axis. Missing days are gaps (null). Crosshair follows pointer or arrow keys; table copy. */
 	interface Series {
 		key: string;
@@ -44,8 +45,8 @@
 	const ticks = $derived([0, niceMax / 2, niceMax]);
 	const labelEvery = $derived(Math.max(1, Math.ceil(days.length / Math.max(2, Math.floor(plotW / 64)))));
 	const labelled = (i: number) => (i === days.length - 1 ? true : i % labelEvery === 0 && days.length - 1 - i >= labelEvery);
-	const fmtDay = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-	const fmt = (v: number | null) => (v == null ? 'No data' : `${Math.round(v).toLocaleString('en-GB')}${unit}`);
+	const fmtDay = (d: string) => formatDate(`${d}T00:00:00Z`, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+	const fmt = (v: number | null) => (v == null ? 'No data' : `${formatNumber(Math.round(v))}${unit}`);
 
 	let active = $state<number | null>(null);
 	let svg: SVGSVGElement | undefined = $state();
@@ -88,7 +89,7 @@
 		>
 			{#each ticks as t (t)}
 				<line class="grid" x1={PAD.l} x2={W - PAD.r} y1={y(t)} y2={y(t)} />
-				<text class="tick" x={PAD.l - 6} y={y(t) + 4} text-anchor="end">{Math.round(t).toLocaleString('en-GB')}</text>
+				<text class="tick" x={PAD.l - 6} y={y(t) + 4} text-anchor="end">{formatNumber(Math.round(t))}</text>
 			{/each}
 			{#each days as d, i (d)}
 				{#if labelled(i)}

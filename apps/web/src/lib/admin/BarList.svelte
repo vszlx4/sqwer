@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { formatNumber } from '#lib/i18n/format.ts';
 	/** Ranked bars for breakdowns (pages, sources, browsers). Rows can link to their events. */
 	interface Item {
 		key: string;
@@ -20,7 +21,7 @@
 
 	const max = $derived(Math.max(1, ...items.map((i) => i.value)));
 	const total = $derived(items.reduce((n, i) => n + i.value, 0));
-	const fmt = (n: number) => n.toLocaleString('en-GB');
+	const fmt = (n: number) => formatNumber(n);
 </script>
 
 <section class="list" aria-label={title}>

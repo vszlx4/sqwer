@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { DEFAULT_LOCALE, LOCALES } from '#lib/i18n/locales.ts';
 
 	interface Props {
 		/** Page title; the site name is appended. Omit on the home page. */
@@ -15,6 +16,7 @@
 	const fullTitle = $derived(title ? `${title} · sqwer` : 'sqwer · Learn to type, test and map your fingers');
 	const canonical = $derived(`${site}${page.url.pathname}`);
 	const image = $derived(`${site}/og.png`);
+	const ogLocale = $derived(LOCALES[page.data.locale ?? DEFAULT_LOCALE].og);
 	// Escape "<" so structured data can never close the script element.
 	const ld = $derived(jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null);
 </script>
@@ -26,6 +28,7 @@
 	{#if noindex}<meta name="robots" content="noindex, nofollow" />{/if}
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="sqwer" />
+	<meta property="og:locale" content={ogLocale} />
 	<meta property="og:title" content={fullTitle} />
 	<meta property="og:description" content={description} />
 	<meta property="og:url" content={canonical} />

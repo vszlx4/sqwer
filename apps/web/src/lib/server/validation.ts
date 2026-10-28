@@ -74,7 +74,7 @@ export const profileSchema = z.object({
 		.min(10, 'Enter a target of at least 10 WPM.')
 		.max(250, 'Enter a target of 250 WPM or less.'),
 	platform: z.enum(values(PLATFORMS), { message: 'Select your keyboard type.' }),
-	avatarColor: z.enum(values(AVATAR_COLORS), { message: 'Select an avatar colour.' }),
+	avatarColor: z.enum(values(AVATAR_COLORS), { message: 'Select an avatar color.' }),
 	isPublic: z.boolean(),
 	headline: z
 		.string()

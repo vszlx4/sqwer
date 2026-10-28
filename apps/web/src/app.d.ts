@@ -9,6 +9,8 @@ declare global {
 			sessionId: string | null;
 			/** When this session passed the authenticator-app check (administrators). */
 			sessionMfaAt: Date | null;
+			/** Interface language (lib/i18n). */
+			locale: import('./lib/i18n/locales.ts').Locale;
 		}
 		interface PageData {
 			user?: {
@@ -22,6 +24,7 @@ declare global {
 				isAdmin: boolean;
 			} | null;
 			siteUrl?: string;
+			locale?: import('./lib/i18n/locales.ts').Locale;
 			/** Whether browser analytics is switched on for this site (ANALYTICS_DISABLED). */
 			analytics?: boolean;
 			/** Signed token for sending analytics events (lib/server/analytics/token.ts). */

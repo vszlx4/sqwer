@@ -14,7 +14,7 @@
 	}
 
 	const LOCAL: Item[] = [
-		{ name: 'sqwer:theme', purpose: 'Your colour theme, applied before the page appears so that it does not flash.', lasts: 'Until you remove it', sent: 'Never' },
+		{ name: 'sqwer:theme', purpose: 'Your color theme, applied before the page appears so that it does not flash.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:settings', purpose: 'Your typing test and keyboard preferences.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:level', purpose: 'How you described your typing in Getting started.', lasts: 'Until you remove it', sent: 'Copied to your account when you sign in' },
 		{ name: 'sqwer:start', purpose: 'The course lesson you chose to start from.', lasts: 'Until you remove it', sent: 'Copied to your account when you sign in' },
@@ -46,9 +46,9 @@
 	];
 
 	const INDEXED: Item[] = [
-		{ name: 'results', purpose: 'Your examination results, including replays.', lasts: 'Until you remove it', sent: 'Synchronised to your account while signed in' },
-		{ name: 'finger-observations', purpose: 'Your finger map entries.', lasts: 'Until you remove it', sent: 'Synchronised to your account while signed in' },
-		{ name: 'usage', purpose: 'Your usage statistics, recorded only while you are signed in.', lasts: 'Until you remove it', sent: 'Synchronised to your account while signed in' }
+		{ name: 'results', purpose: 'Your examination results, including replays.', lasts: 'Until you remove it', sent: 'Synchronized to your account while signed in' },
+		{ name: 'finger-observations', purpose: 'Your finger map entries.', lasts: 'Until you remove it', sent: 'Synchronized to your account while signed in' },
+		{ name: 'usage', purpose: 'Your usage statistics, recorded only while you are signed in.', lasts: 'Until you remove it', sent: 'Synchronized to your account while signed in' }
 	];
 
 	const toc = [
@@ -70,7 +70,7 @@
 	kicker="Legal"
 	title={doc.title}
 	lede="sqwer uses one strictly necessary cookie and browser storage for features you use. Two analytics identifiers are stored only if you allow analytics in the banner shown on your first visit. Nothing is used for advertising or cross-site tracking, and nothing is set by third parties."
-	crumbs={[{ href: '/legal', label: 'Legal centre' }, { href: doc.href, label: doc.title }]}
+	crumbs={[{ href: '/legal', label: 'Legal center' }, { href: doc.href, label: doc.title }]}
 	{doc}
 	{toc}
 >
@@ -195,7 +195,7 @@
 	<ul>
 		<li>No advertising, social media or tracking cookies, pixels or fingerprinting, and no analytics cookies of any kind.</li>
 		<li>No third-party analytics, scripts, fonts, embeds or content delivery networks: everything is served by sqwer itself, except Cloudflare’s verification frame where Turnstile is enabled (section 6).</li>
-		<li>No cross-site tracking. Global Privacy Control and Do Not Track signals are honoured as a refusal of analytics.</li>
+		<li>No cross-site tracking. Global Privacy Control and Do Not Track signals are honored as a refusal of analytics.</li>
 	</ul>
 
 	<h2 id="manage">8. Managing and removing</h2>

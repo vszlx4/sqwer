@@ -164,7 +164,7 @@ function symbolLessons(title: string, keys: string, tip: string, chapter: number
 			newKeys: [...keys],
 			steps: [
 				{ kind: 'intro', keys: [...keys], tip },
-				drill(`Practise ${keyList([...keys])}`, patterns(keys, keys, 10), 85),
+				drill(`Practice ${keyList([...keys])}`, patterns(keys, keys, 10), 85),
 				n % 2 ? fallingLetters(keys, keys, 12) : keyhunt(keys, keys, 12),
 				drill('In context', listOf(context.slice(0, half)), 88),
 				echo(keys, 3, 5)
@@ -268,7 +268,7 @@ export function keyName(k: string): string {
 	const NAMES: Record<string, string> = {
 		';': 'semicolon',
 		',': 'comma',
-		'.': 'full stop',
+		'.': 'period',
 		'/': 'slash',
 		"'": 'apostrophe',
 		'"': 'quotation mark',
@@ -291,7 +291,7 @@ function build(): Chapter[] {
 		{ number: 2, title: 'Reaching up', summary: 'The top row, reached from home and back again.', readyIf: 'You can type the home row without looking at the keyboard.' },
 		{ number: 3, title: 'Reaching down', summary: 'The bottom row, which completes the alphabet.', readyIf: 'You can type the home and top rows without looking.' },
 		{ number: 4, title: 'Capital letters', summary: 'Shift, held by the hand that is not typing the letter.', readyIf: 'You can type every letter without looking.' },
-		{ number: 5, title: 'Punctuation', summary: 'Full stops, commas, apostrophes, question marks and more.', readyIf: 'You type capital letters with the opposite Shift key.' },
+		{ number: 5, title: 'Punctuation', summary: 'Periods, commas, apostrophes, question marks and more.', readyIf: 'You type capital letters with the opposite Shift key.' },
 		{ number: 6, title: 'Numbers', summary: 'The number row, one finger for each pair of digits.', readyIf: 'You type sentences with punctuation comfortably.' },
 		{ number: 7, title: 'Common words, part one', summary: 'The hundred most frequent words, until they are automatic.', readyIf: 'You know where every key is and type at about 20 WPM.' },
 		{ number: 8, title: 'Common words, part two', summary: 'The next hundred words, for everyday writing.', readyIf: 'The most common short words feel automatic.' },
@@ -343,7 +343,7 @@ function build(): Chapter[] {
 			plans: [
 				{ title: 'V and M', keys: 'vm', tip: 'Reach down with your index fingers: V on the left, M on the right.' },
 				{ title: 'C and comma', keys: 'c,', tip: 'Reach down with your middle fingers.' },
-				{ title: 'X and full stop', keys: 'x.', tip: 'Reach down with your ring fingers.' },
+				{ title: 'X and period', keys: 'x.', tip: 'Reach down with your ring fingers.' },
 				{ title: 'Z and slash', keys: 'z/', tip: 'Reach down with your little fingers.' },
 				{ title: 'B and N', keys: 'bn', tip: 'Reach down and inwards with your index fingers. The alphabet is complete.' }
 			]
@@ -405,7 +405,7 @@ function build(): Chapter[] {
 				race(LETTERS, '', 18, 10, [...capitalWords('left', 8, 70), ...capitalWords('right', 8, 70)])
 			]
 		},
-		sentenceLesson('Capital sentences', 'Capital letters at the start of sentences, with full stops at the end.', 4, CAPS.slice(0, 10), 16),
+		sentenceLesson('Capital sentences', 'Capital letters at the start of sentences, with periods at the end.', 4, CAPS.slice(0, 10), 16),
 		sentenceLesson('More capital sentences', 'New sentences, a little longer.', 4, CAPS.slice(10, 20), 18, [echo(LETTERS, 4, 6)]),
 		sentenceLesson('Capitals in flow', 'Sentences typed without stopping at the capitals.', 4, CAPS.slice(20, 30), 20, [listen(LETTERS, COMMON_1.slice(0, 40), 8, 6)]),
 		weakLesson(4, LETTERS),
@@ -415,7 +415,7 @@ function build(): Chapter[] {
 	// Chapter 5: punctuation.
 	const PUNCT = [...PUNCTUATION_SENTENCES];
 	add(
-		sentenceLesson('Full stops and commas', 'Pauses inside sentences and at their end.', 5, PUNCT.filter((s) => !/['?!"]/.test(s)).slice(0, 10), 18),
+		sentenceLesson('Periods and commas', 'Pauses inside sentences and at their end.', 5, PUNCT.filter((s) => !/['?!"]/.test(s)).slice(0, 10), 18),
 		...symbolLessons('Apostrophe', "'", 'The apostrophe is next to the semicolon, under your right little finger.', 5, ["it's", "don't", "I'm", "we're", "they're", "can't", "won't", "let's", "she's", "you'll", "isn't", "we've"], 0),
 		...symbolLessons('Question and exclamation marks', '?!', 'Both need Shift: the question mark with the left Shift, the exclamation mark with the right.', 5, ['Why?', 'Who?', 'Stop!', 'Yes!', 'Ready?', 'Look!', 'Now?', 'Wow!', 'Where?', 'Go!'], 1),
 		...symbolLessons('Quotation marks and hyphens', '"-', 'The quotation mark is Shift with the apostrophe key; the hyphen is at the top right.', 5, ['well-known', 'up-to-date', '"yes"', '"no"', 'self-made', 'one-way', '"hello"', 'long-term', '"wait"', 'part-time'], 2),

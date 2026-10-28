@@ -1,5 +1,7 @@
 /* Course audio: synthesised tones (Echo) and on-device speech synthesis. No network. */
 
+import { DEFAULT_LOCALE } from '#lib/i18n/locales.ts';
+
 let context: AudioContext | null = null;
 let output: AudioNode | null = null;
 
@@ -83,9 +85,9 @@ export function speak(text: string, rate = 0.85): Promise<void> {
 		const u = new SpeechSynthesisUtterance(text);
 		// Only voices built into the device: online voices would send the text to the browser's vendor.
 		const voices = localVoices();
-		u.voice = voices.find((v) => v.lang === 'en-GB') ?? voices[0] ?? null;
+		u.voice = voices.find((v) => v.lang === DEFAULT_LOCALE) ?? voices[0] ?? null;
 		if (!u.voice) return resolve();
-		u.lang = u.voice?.lang ?? 'en-GB';
+		u.lang = u.voice?.lang ?? DEFAULT_LOCALE;
 		u.rate = rate;
 		u.onend = () => resolve();
 		u.onerror = () => resolve();

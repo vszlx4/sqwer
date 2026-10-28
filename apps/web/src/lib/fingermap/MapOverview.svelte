@@ -136,7 +136,7 @@
 			<h1>Your finger map</h1>
 			<p class="lede">
 				Every typist has individual habits. Indicate which finger presses each key, and sqwer will record your
-				technique, including habits that depend on the neighbouring keys.
+				technique, including habits that depend on the neighboring keys.
 			</p>
 		</div>
 		<div class="intro-actions">
@@ -242,14 +242,14 @@
 				{pendingKeys}
 				{selectedKey}
 				onkeyselect={(c) => (selectedKey = selectedKey === c ? null : c)}
-				label="Your finger map. Each key is coloured by the finger you use."
+				label="Your finger map. Each key is colored by the finger you use."
 			/>
 			<ul class="legend">
 				{#each [['pinky', 'Little finger'], ['ring', 'Ring finger'], ['middle', 'Middle finger'], ['index', 'Index finger'], ['thumb', 'Thumb']] as [f, name] (f)}
 					<li><span class="swatch" style:background={`var(--f-${f})`}></span>{name}</li>
 				{/each}
 				<li><span class="swatch striped"></span>Requires more entries</li>
-				<li><span class="muted">A stronger colour indicates more consistent entries</span></li>
+				<li><span class="muted">A stronger color indicates more consistent entries</span></li>
 			</ul>
 		</section>
 
@@ -320,7 +320,7 @@
 						{/each}
 					</ul>
 				{:else}
-					<p class="muted">Habits that depend on the neighbouring key are listed here once they have been detected.</p>
+					<p class="muted">Habits that depend on the neighboring key are listed here once they have been detected.</p>
 				{/if}
 				{#if differs.length}
 					<h4>Keys typed with a non-standard finger</h4>
@@ -340,7 +340,7 @@
 				<button type="button" class="btn danger" onclick={() => (confirmReset = true)}>Clear map</button>
 			</div>
 		</section>
-		<p class="privacy">{fingerMap.synced ? 'Your finger map is stored in this browser and synchronised to your account.' : 'Your finger map is stored only in this browser. Sign in to save it to an account, or export it to keep a copy.'}</p>
+		<p class="privacy">{fingerMap.synced ? 'Your finger map is stored in this browser and synchronized to your account.' : 'Your finger map is stored only in this browser. Sign in to save it to an account, or export it to keep a copy.'}</p>
 	{/if}
 </div>
 

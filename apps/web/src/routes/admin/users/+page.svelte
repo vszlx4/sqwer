@@ -2,12 +2,13 @@
 	import { enhance } from '$app/forms';
 	import Seo from '#lib/site/Seo.svelte';
 	import type { PageProps } from './$types';
+	import { formatDateTime } from '#lib/i18n/format.ts';
 
 	let { data, form }: PageProps = $props();
 	const a = $derived(data.account);
 	// Actions keep the search, so the page still shows the account afterwards.
 	const action = (name: string) => `?q=${encodeURIComponent(data.q)}&/${name}`;
-	const fmt = (iso: string) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+	const fmt = (iso: string) => formatDateTime(iso, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 </script>
 
 <Seo title="Users" description="Account moderation for sqwer administrators." noindex />

@@ -219,7 +219,7 @@
 			<p class="weak-note">
 				<Icon name="hand" size={16} />
 				<span>
-					Practising your {weak.fingers.map(fingerName).join(' and ')}
+					Practicing your {weak.fingers.map(fingerName).join(' and ')}
 					{weak.basis === 'data' ? ', chosen from your results.' : '. These are the weakest for most typists; take a few examinations and this lesson will choose yours.'}
 				</span>
 			</p>

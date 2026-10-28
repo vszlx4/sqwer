@@ -38,7 +38,7 @@
 	kicker="Legal"
 	title={doc.title}
 	lede="These Terms and Conditions form a binding agreement between you and the operator of sqwer. They set out your rights and obligations when you use the website, with or without an account. Please read them carefully."
-	crumbs={[{ href: '/legal', label: 'Legal centre' }, { href: doc.href, label: doc.title }]}
+	crumbs={[{ href: '/legal', label: 'Legal center' }, { href: doc.href, label: doc.title }]}
 	{doc}
 	{toc}
 >
@@ -107,7 +107,7 @@
 	<p>3.2. You may contact the operator at <a href={mail}>{CONTACT_EMAIL}</a>. Communications are handled in English or Arabic.</p>
 
 	<h2 id="service">4. The Service</h2>
-	<p>4.1. The Service is a platform for learning and practising touch typing. It currently comprises:</p>
+	<p>4.1. The Service is a platform for learning and practicing touch typing. It currently comprises:</p>
 	<ul>
 		<li><strong>Getting started:</strong> a short placement activity that suggests where to begin;</li>
 		<li><strong>Courses:</strong> structured lessons, exercises and games with stars, points and ranks;</li>
@@ -136,7 +136,7 @@
 	</p>
 	<p>
 		5.2. If the law of your country requires a higher age to consent to the processing of personal data or to enter
-		into this agreement without parental authorisation, you may create an Account only once you have reached that age.
+		into this agreement without parental authorization, you may create an Account only once you have reached that age.
 	</p>
 	<p>
 		5.3. If we learn that an Account belongs to a person who does not meet these requirements, we will delete it in
@@ -157,7 +157,7 @@
 		ask us to delete it.
 	</p>
 	<p>
-		6.5. If you suspect unauthorised access to your Account, change your password immediately (which signs out every
+		6.5. If you suspect unauthorized access to your Account, change your password immediately (which signs out every
 		other device) and inform us at <a href={mail}>{CONTACT_EMAIL}</a>.
 	</p>
 
@@ -166,7 +166,7 @@
 	<p>7.2. Results depend on your keyboard, browser, device and environment. They are provided for practice and self-assessment only.</p>
 	<p>
 		7.3. We may improve the Course Materials and the way Progress is calculated. Where a lesson changes, we will
-		endeavour to preserve your Progress, but stars, points or ranks may be recalculated so that the same rules apply to
+		endeavor to preserve your Progress, but stars, points or ranks may be recalculated so that the same rules apply to
 		all learners.
 	</p>
 	<p>7.4. You must not obtain Results or Progress by automated input, scripts or any means other than your own typing.</p>
@@ -184,14 +184,14 @@
 	<h2 id="content">8. Your Content</h2>
 	<p>8.1. You retain all ownership rights in Your Content.</p>
 	<p>
-		8.2. You grant us a worldwide, non-exclusive, royalty-free, non-transferable licence to host, store, reproduce,
+		8.2. You grant us a worldwide, non-exclusive, royalty-free, non-transferable license to host, store, reproduce,
 		resize and display Your Content, solely for the purpose of providing the Service to you and, where you choose to
-		make your profile public, displaying it on your public profile. The licence ends when you delete the relevant
+		make your profile public, displaying it on your public profile. The license ends when you delete the relevant
 		content or your Account, subject to the backup period stated in the Privacy Policy.
 	</p>
 	<p>8.3. By providing Your Content, you represent and warrant that:</p>
 	<ol type="a">
-		<li>you are its author, or you hold all rights, licences and permissions necessary to provide it and to grant the licence in clause 8.2;</li>
+		<li>you are its author, or you hold all rights, licenses and permissions necessary to provide it and to grant the license in clause 8.2;</li>
 		<li>it does not infringe any copyright, trade mark, design right, right of privacy, right of publicity or other right of any person;</li>
 		<li>where it depicts an identifiable person other than you, that person has consented to its use; and</li>
 		<li>it complies with the <a href="/copyright">Content and Copyright Policy</a> and with clause 9.</li>
@@ -212,9 +212,9 @@
 	<ol type="a">
 		<li>upload or display material that is unlawful, defamatory, obscene, sexually explicit, violent, hateful, discriminatory, harassing or threatening;</li>
 		<li>upload material that infringes the intellectual property, privacy or other rights of any person;</li>
-		<li>impersonate any person or organisation, or misrepresent your affiliation with them;</li>
+		<li>impersonate any person or organization, or misrepresent your affiliation with them;</li>
 		<li>choose a username or display name that is misleading, offensive, or that uses another person’s name or trade mark without permission;</li>
-		<li>access, or attempt to access, any Account, system or data without authorisation;</li>
+		<li>access, or attempt to access, any Account, system or data without authorization;</li>
 		<li>probe, scan or test the vulnerability of the Service, except in accordance with the <a href="/security">Security and Vulnerability Disclosure Policy</a>;</li>
 		<li>interfere with, overload or disrupt the Service or the infrastructure on which it runs, including by denial-of-service attacks;</li>
 		<li>introduce malicious code, or use the Service to distribute it;</li>
@@ -234,18 +234,18 @@
 	<h2 id="ip">11. Intellectual property</h2>
 	<p>
 		11.1. The Service, including the sqwer name and logo, the website’s design, layout, illustrations, hand and keyboard
-		artwork, software, Course Materials, word lists and text, is owned by the operator or used under licence, and is
+		artwork, software, Course Materials, word lists and text, is owned by the operator or used under license, and is
 		protected by copyright, trade mark and other intellectual property laws.
 	</p>
 	<p>
-		11.2. Subject to these Terms, we grant you a personal, revocable, non-exclusive, non-transferable licence to use the
+		11.2. Subject to these Terms, we grant you a personal, revocable, non-exclusive, non-transferable license to use the
 		Service for your own learning, and to use it to teach others, for example in a classroom. No other right is granted,
 		and nothing in these Terms transfers ownership of any part of the Service to you.
 	</p>
 	<p>
-		11.3. Typefaces are used under licence from their foundries, and open-source software is used under its respective
-		licence. Those licences take precedence over these Terms for the components they cover. Where the source code of
-		sqwer is published under an open-source licence, that licence governs the code only; it does not extend to the sqwer
+		11.3. Typefaces are used under license from their foundries, and open-source software is used under its respective
+		license. Those licenses take precedence over these Terms for the components they cover. Where the source code of
+		sqwer is published under an open-source license, that license governs the code only; it does not extend to the sqwer
 		name and logo, the typefaces, the illustrations or the Course Materials.
 	</p>
 	<p>
@@ -365,7 +365,7 @@
 		<li><strong>Entire agreement.</strong> These Terms and the Policies constitute the entire agreement between you and us concerning the Service and supersede any prior understanding.</li>
 		<li><strong>Severability.</strong> If any provision is held invalid or unenforceable, it shall be limited to the minimum extent necessary and the remaining provisions remain in full force.</li>
 		<li><strong>No waiver.</strong> A failure or delay in exercising a right does not waive it.</li>
-		<li><strong>Assignment.</strong> You may not transfer your rights under these Terms. We may transfer this agreement to a successor operator of the Service, who must honour these Terms and the Privacy Policy; we will give notice on the website in advance.</li>
+		<li><strong>Assignment.</strong> You may not transfer your rights under these Terms. We may transfer this agreement to a successor operator of the Service, who must honor these Terms and the Privacy Policy; we will give notice on the website in advance.</li>
 		<li><strong>Events beyond control.</strong> Neither party is responsible for a failure caused by events beyond its reasonable control, including failures of infrastructure providers, networks or power supplies.</li>
 		<li><strong>No third-party rights.</strong> No person other than you and us has any right to enforce these Terms.</li>
 		<li><strong>Language.</strong> These Terms are written in English. If a translation is provided, the English version prevails, except where the law of your country requires otherwise.</li>

@@ -59,7 +59,7 @@
 
 	const verdict = $derived.by(() => {
 		if (record.status !== 'completed') return 'Not completed: ranked results need the full sixty seconds.';
-		if (!counts) return `Accuracy under ${MIN_ACCURACY}%: this result does not count towards your rank.`;
+		if (!counts) return `Accuracy under ${MIN_ACCURACY}%: this result does not count toward your rank.`;
 		if (!tier) return `Under ${TIERS[0]!.from} WPM: reach ${TIERS[0]!.from} WPM to enter ${TIERS[0]!.name}.`;
 		if (rankedUp) return before ? `Rank up: ${before.name} to ${tier.name}.` : `First rank: ${tier.name}.`;
 		if (isBest) return `New personal best, still ${tier.name}.`;

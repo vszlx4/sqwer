@@ -91,7 +91,7 @@ export const EXAMS: Exam[] = [
 		id: 'finger-map',
 		title: 'Finger mapping',
 		category: 'Technique',
-		purpose: 'Records which finger you use for each key, including habits that depend on the neighbouring keys.',
+		purpose: 'Records which finger you use for each key, including habits that depend on the neighboring keys.',
 		measures: ['Key coverage', 'Non-standard fingering', 'Context habits'],
 		duration: 'Approximately 10 minutes in total; can be split into sessions',
 		href: '/map'

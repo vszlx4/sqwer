@@ -15,6 +15,7 @@
 	import Words from '#lib/test/Words.svelte';
 	import Hands from '#lib/hands/Hands.svelte';
 	import FingerScores from './FingerScores.svelte';
+	import { formatDate } from '#lib/i18n/format.ts';
 
 	const VOCAB = [...ENGLISH_WORDS, ...MAPPING_WORDS];
 	const layout = qwertyAnsi(resolvedPlatform());
@@ -215,7 +216,7 @@
 		{#if latest?.fingers}
 			<section class="previous" aria-labelledby="prev-title">
 				<h2 id="prev-title">Your most recent assessment</h2>
-				<p class="muted">{new Date(latest.at).toLocaleDateString('en-GB', { dateStyle: 'long' })}</p>
+				<p class="muted">{formatDate(latest.at, { dateStyle: 'long' })}</p>
 				<FingerScores fingers={latest.fingers} />
 			</section>
 		{/if}
@@ -266,7 +267,7 @@
 				</ul>
 				{#if practiceWords.length}
 					<p>
-						To strengthen your {lower(marks.slowest[0])}, practise words that rely on it, slowly and accurately at first:
+						To strengthen your {lower(marks.slowest[0])}, practice words that rely on it, slowly and accurately at first:
 					</p>
 					<p class="words">{practiceWords.join(' · ')}</p>
 				{/if}

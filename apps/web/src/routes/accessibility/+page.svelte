@@ -25,7 +25,7 @@
 	kicker="Legal"
 	title={doc.title}
 	lede="sqwer is meant to help everyone learn to type. This statement describes the accessibility standard we work to, the features available, the limitations we know of, and how to tell us about a barrier."
-	crumbs={[{ href: '/legal', label: 'Legal centre' }, { href: doc.href, label: doc.title }]}
+	crumbs={[{ href: '/legal', label: 'Legal center' }, { href: doc.href, label: doc.title }]}
 	{doc}
 	{toc}
 >
@@ -55,7 +55,7 @@
 	<ul>
 		<li><strong>Keyboard:</strong> every page and exercise can be used with a keyboard alone, with a visible focus indicator and a “Skip to content” link.</li>
 		<li><strong>Screen readers:</strong> pages use semantic headings, landmarks and labels; illustrations that convey information have text alternatives, and decorative ones are hidden from assistive technology.</li>
-		<li><strong>Colour and contrast:</strong> text meets the contrast ratios of Level AA in both light and dark themes; the finger colours are always accompanied by finger names or labels, so colour is never the only means of conveying information.</li>
+		<li><strong>Color and contrast:</strong> text meets the contrast ratios of Level AA in both light and dark themes; the finger colors are always accompanied by finger names or labels, so color is never the only means of conveying information.</li>
 		<li><strong>Motion:</strong> animations are reduced or removed when your device asks for reduced motion.</li>
 		<li><strong>Sound:</strong> sound effects can be switched off. Listening exercises show the word instead when no voice is available on your device.</li>
 		<li><strong>Text size:</strong> pages can be zoomed to 200% and reflow at narrow widths without loss of content.</li>

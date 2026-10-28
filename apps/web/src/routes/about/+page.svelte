@@ -12,7 +12,7 @@
 <Prose
 	kicker="How it works"
 	title="Built around your hands, not a textbook."
-	lede="sqwer is a place to learn and practise typing: a course of short lessons and games, examinations that measure your progress, and a finger map of your own technique. This page explains how each part works, how results are calculated and how your data is handled."
+	lede="sqwer is a place to learn and practice typing: a course of short lessons and games, examinations that measure your progress, and a finger map of your own technique. This page explains how each part works, how results are calculated and how your data is handled."
 	crumbs={[{ href: '/about', label: 'How it works' }]}
 >
 	<h2>The course</h2>
@@ -26,13 +26,13 @@
 
 	<h2>The keyboard</h2>
 	<p>
-		A keyboard is displayed below every test. Each key lights up as you press it: in the accent colour when the
+		A keyboard is displayed below every test. Each key lights up as you press it: in the accent color when the
 		keystroke is correct and in red when it is incorrect, so that you can see where errors occur without looking at
 		your hands.
 	</p>
 	<p>
 		Standard touch-typing technique assigns each finger a column of keys, starting from the home row (<kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>F</kbd> and <kbd>J</kbd>
-		<kbd>K</kbd> <kbd>L</kbd> <kbd>;</kbd>). Enable <strong>finger zones</strong> to display these assignments in colour:
+		<kbd>K</kbd> <kbd>L</kbd> <kbd>;</kbd>). Enable <strong>finger zones</strong> to display these assignments in color:
 	</p>
 	<figure class="zones">
 		<Keyboard {layout} showZones label="Standard finger zones" />
@@ -54,10 +54,10 @@
 			the left hand (little finger to thumb) and <kbd>6</kbd>–<kbd>0</kbd> for the right hand (thumb to little finger).
 		</li>
 		<li>For capital letters, sqwer detects which Shift key was pressed and asks which finger held it.</li>
-		<li>A key is considered mapped after three entries. The colour becomes stronger as your entries agree.</li>
+		<li>A key is considered mapped after three entries. The color becomes stronger as your entries agree.</li>
 	</ul>
 	<p>
-		Each entry records the neighbouring keys, which allows sqwer to detect <strong>context habits</strong>: for example,
+		Each entry records the neighboring keys, which allows sqwer to detect <strong>context habits</strong>: for example,
 		pressing <kbd>E</kbd> with the middle finger in most cases but with the index finger immediately after <kbd>R</kbd>.
 		Once enough keys are mapped, the <a href="/exams/finger-speed">finger speed assessment</a> uses your map to measure
 		each finger.
