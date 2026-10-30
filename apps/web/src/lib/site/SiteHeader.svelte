@@ -6,26 +6,20 @@
 	import RankBadge from '#lib/courses/RankBadge.svelte';
 	import { courses } from '#lib/courses/store.svelte.ts';
 	import LogoWordmark from '#lib/brand/LogoWordmark.svelte';
-	import Icon from '#lib/ui/Icon.svelte';
+	import GlassSurface from '#lib/bits/GlassSurface.svelte';
+	import StaggeredMenu from '#lib/bits/StaggeredMenu.svelte';
 	import ThemeToggle from '#lib/ui/ThemeToggle.svelte';
 	import AccountMenu from './AccountMenu.svelte';
 	import { NAV_LINKS } from './links.ts';
 
-	let open = $state(false);
-	let scrolled = $state(false);
-	let menuButton: HTMLButtonElement | undefined = $state();
-	let bar: HTMLElement | undefined = $state();
-	afterNavigate(() => (open = false));
+	let menu: StaggeredMenu | undefined = $state();
+	afterNavigate(() => menu?.close());
 
-	function onkeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape' && open) {
-			open = false;
-			menuButton?.focus();
-		}
-	}
-	function onclick(e: MouseEvent) {
-		if (open && bar && !bar.contains(e.target as Node)) open = false;
-	}
+	const HELP_LINKS = [
+		{ label: 'How it works', link: '/about' },
+		{ label: 'Questions', link: '/faq' },
+		{ label: 'Legal', link: '/legal' }
+	];
 
 	const user = $derived(page.data.user as App.PageData['user'] | undefined);
 	// Signed-in learners on the course see their next lesson from every page.
@@ -44,106 +38,96 @@
 		return null;
 	});
 	const isCurrent = (href: string) => area === href;
+	const menuItems = $derived(
+		NAV_LINKS.map((l) => ({ label: l.label, ariaLabel: `${l.label}: ${l.description}`, link: l.href, current: isCurrent(l.href) }))
+	);
 </script>
 
-<svelte:window {onkeydown} {onclick} onscroll={() => (scrolled = window.scrollY > 8)} />
+<header class="site-header">
+	<GlassSurface
+		class="bar-glass"
+		width="100%"
+		height={60}
+		borderRadius={3}
+		backgroundOpacity={0.72}
+		saturation={1.6}
+		style="--glass-overflow: visible;"
+	>
+		<div class="bar">
+			<a href="/" class="brand" aria-label="sqwer home">
+				<LogoWordmark class="wordmark" />
+				<LogoMark class="mark" />
+			</a>
 
-<header class="site-header" class:scrolled>
-	<div class="bar" bind:this={bar}>
-		<a href="/" class="brand" aria-label="sqwer home">
-			<LogoWordmark class="wordmark" />
-			<LogoMark class="mark" />
-		</a>
+			<nav class="desktop" aria-label="Main">
+				{#each NAV_LINKS as link (link.href)}
+					<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>
+				{/each}
+			</nav>
 
-		<nav class="desktop" aria-label="Main">
-			{#each NAV_LINKS as link (link.href)}
-				<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>
-			{/each}
-		</nav>
-
-		<div class="actions">
-			{#if resume}
-				<a class="resume" href={resume.href} title={resume.title}>
-					<RankBadge rank={courses.rank.rank} size={22} />
-					<span>Continue <b>Lesson {resume.lesson!.order}</b></span>
-				</a>
-			{/if}
-			<ThemeToggle />
-			{#if user}
-				<AccountMenu {user} />
-			{:else}
-				<a class="signin" href="/signin">Sign in</a>
-				<a class="cta" href="/signup">Create account</a>
-			{/if}
-			<button
-				bind:this={menuButton}
-				type="button"
-				class="menu-button"
-				aria-expanded={open}
-				aria-controls="mobile-menu"
-				aria-label={open ? 'Close menu' : 'Open menu'}
-				onclick={() => (open = !open)}
-			>
-				<Icon name={open ? 'close' : 'menu'} size={20} />
-			</button>
-		</div>
-
-		{#if open}
-			<div id="mobile-menu" class="mobile">
-				<nav aria-label="Main">
-					{#each NAV_LINKS as link, i (link.href)}
-						<a class="m-link" href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined} style:--i={i}>
-							<span class="m-icon"><Icon name={link.icon} size={18} /></span>
-							<span class="m-text"><span class="m-label">{link.label}</span><span class="m-desc">{link.description}</span></span>
-						</a>
-					{/each}
-				</nav>
-				<div class="m-help">
-					<a href="/about">How it works</a>
-					<a href="/faq">Questions</a>
-					<a href="/legal">Legal</a>
-				</div>
-				{#if !user}
-					<div class="mobile-account">
-						<a class="btn" href="/signin">Sign in</a>
-						<a class="btn" href="/signup">Create account</a>
-					</div>
+			<div class="actions">
+				{#if resume}
+					<a class="resume" href={resume.href} title={resume.title}>
+						<RankBadge rank={courses.rank.rank} size={22} />
+						<span>Continue <b>Lesson {resume.lesson!.order}</b></span>
+					</a>
 				{/if}
+				<ThemeToggle />
+				{#if user}
+					<AccountMenu {user} />
+				{:else}
+					<a class="signin" href="/signin">Sign in</a>
+					<a class="cta" href="/signup">Create account</a>
+				{/if}
+				<span class="menu-slot" aria-hidden="true"></span>
 			</div>
-		{/if}
-	</div>
+		</div>
+	</GlassSurface>
 </header>
 
+<!-- Outside the header: the glass backdrop-filter would trap a fixed descendant. -->
+<StaggeredMenu
+	bind:this={menu}
+	class="site-menu"
+	isFixed
+	items={menuItems}
+	socialItems={HELP_LINKS}
+	socialsTitle="Help"
+	colors={['var(--violet)', 'var(--cyan)']}
+>
+	{#snippet footer()}
+		{#if !user}
+			<div class="menu-account">
+				<a class="btn" href="/signin">Sign in</a>
+				<a class="btn btn-primary" href="/signup">Create account</a>
+			</div>
+		{/if}
+	{/snippet}
+</StaggeredMenu>
+
 <style>
-	/* Frosted glass bar that stays at the top while the page scrolls under it */
+	/* Floating glass bar; the page scrolls under it. */
 	.site-header {
+		--bar-gutter: clamp(10px, 3vw, 24px);
+		--bar-pad: clamp(10px, 2vw, 18px);
 		view-transition-name: site-header;
 		position: sticky;
 		top: 0;
 		z-index: 40;
-		background: color-mix(in srgb, var(--bg) 68%, transparent);
-		-webkit-backdrop-filter: blur(18px) saturate(170%);
-		backdrop-filter: blur(18px) saturate(170%);
-		border-bottom: 1px solid transparent;
-		transition:
-			border-color 200ms ease,
-			box-shadow 200ms ease;
+		padding: 10px var(--bar-gutter) 0;
 	}
-	/* The bar separates from the page only once content scrolls beneath it. */
-	.site-header.scrolled {
-		border-bottom-color: color-mix(in srgb, var(--line-strong) 55%, transparent);
-		box-shadow:
-			inset 0 1px 0 var(--glass-shine),
-			0 10px 30px -18px var(--glass-shadow);
+	.site-header :global(.bar-glass) {
+		max-width: 1180px;
+		margin: 0 auto;
 	}
 	.bar {
 		position: relative;
 		display: flex;
 		align-items: center;
 		gap: 16px;
-		max-width: 1180px;
-		margin: 0 auto;
-		padding: 14px clamp(16px, 4vw, 40px);
+		width: 100%;
+		height: 100%;
+		padding: 0 var(--bar-pad);
 	}
 	.brand {
 		display: inline-flex;
@@ -244,120 +228,23 @@
 		background: var(--ink);
 		color: var(--bg);
 	}
-	.menu-button {
+	/* Room in the bar for the menu toggle, which lives in the fixed menu layer. */
+	.menu-slot {
 		display: none;
-		width: 40px;
+		width: 72px;
 		height: 40px;
-		place-items: center;
-		border-radius: 3px;
-		border: 1px solid var(--line);
-		background: var(--surface);
-		color: var(--ink);
-		cursor: pointer;
 	}
-	.mobile {
-		position: absolute;
-		top: calc(100% + 6px);
-		left: clamp(16px, 4vw, 40px);
-		right: clamp(16px, 4vw, 40px);
-		z-index: 20;
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		padding: 10px;
-		border-radius: 3px;
-		border: 1px solid var(--line-strong);
-		background: var(--bg);
-		box-shadow: var(--shadow-lg);
-		transform-origin: top center;
-		animation: menu-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
-	}
-	@keyframes menu-in {
-		from {
-			opacity: 0;
-			transform: translateY(-6px);
-		}
-	}
-	.mobile nav {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-	}
-	.mobile nav a {
-		padding: 10px;
-		font-size: 16px;
-	}
-	.m-link {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		animation: m-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
-		animation-delay: calc(var(--i) * 40ms);
-	}
-	@keyframes m-in {
-		from {
-			opacity: 0;
-			transform: translateY(-4px);
-		}
-	}
-	.m-icon {
-		display: grid;
-		place-items: center;
-		width: 38px;
-		height: 38px;
-		flex-shrink: 0;
-		border-radius: 3px;
-		background: var(--surface);
-		color: var(--ink);
-	}
-	.m-link[aria-current='page'] .m-icon {
-		background: var(--accent);
-		color: var(--on-accent);
-	}
-	.m-text {
-		display: flex;
-		flex-direction: column;
-	}
-	.m-label {
-		font-weight: 600;
-		color: var(--ink);
-	}
-	.m-desc {
-		font-size: 13px;
-		color: var(--ink-2);
-	}
-	.m-help {
-		display: flex;
-		gap: 4px;
-		margin-top: 6px;
-		padding-top: 8px;
-		border-top: 1px solid var(--line);
-	}
-	.m-help a {
-		padding: 8px 10px;
-		border-radius: 3px;
-		font-size: 14px;
-		font-weight: 500;
-		color: var(--ink-2);
-		text-decoration: none;
-	}
-	.m-help a:hover {
-		color: var(--ink);
-		background: var(--surface);
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.m-link,
-		.mobile {
-			animation: none;
-		}
-	}
-	.mobile-account {
+	.menu-account {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 8px;
-		margin-top: 8px;
-		padding-top: 10px;
-		border-top: 1px solid var(--line);
+	}
+	/* Toggle lines up with .menu-slot: same top offset, bar height and inner padding. */
+	:global(.site-menu) {
+		--sm-header-top: 10px;
+		--sm-header-height: 60px;
+		--sm-header-padding: 0 calc(clamp(10px, 3vw, 24px) + clamp(10px, 2vw, 18px));
+		--sm-panel-top: 96px;
 	}
 	@media (max-width: 1080px) {
 		.resume span {
@@ -373,8 +260,13 @@
 		.actions > .cta {
 			display: none;
 		}
-		.menu-button {
-			display: grid;
+		.menu-slot {
+			display: block;
+		}
+	}
+	@media (min-width: 901px) {
+		:global(.site-menu) {
+			display: none;
 		}
 	}
 	@media (max-width: 600px) {

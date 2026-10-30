@@ -6,7 +6,13 @@ import { describe, expect, it } from 'vitest';
 // Colors live in app.css tokens. Literal colors elsewhere make recoloring miss things.
 const SRC = fileURLToPath(new URL('../apps/web/src', import.meta.url));
 // Files allowed to hold literal colors, each with its reason in the file.
-const ALLOWED = new Set(['app.css', 'lib/progress/rank-art.ts', 'lib/site/areas.ts', 'lib/site/areas.test.ts']);
+const ALLOWED = new Set([
+	'app.css',
+	'lib/bits/GlassSurface.svelte',
+	'lib/progress/rank-art.ts',
+	'lib/site/areas.ts',
+	'lib/site/areas.test.ts'
+]);
 const COLOR = /#[0-9a-fA-F]{3,8}(?![0-9a-zA-Z-])|\brgba?\(|\bhsla?\(/;
 // Lines that may carry a literal: theme-color metas (no CSS there) and masks (alpha only).
 const EXEMPT = /theme-color|meta\.content|mask-image/;

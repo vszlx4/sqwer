@@ -10,6 +10,8 @@ Location: apps/web/src/lib/bits/
 Components (source path, upstream commit):
 
 - Dither.svelte: static/r/dither.json @ c37078c5ff7a
+- GlassSurface.svelte: static/r/glass-surface.json @ c37078c5ff7a
+- StaggeredMenu.svelte: static/r/staggered-menu.json @ c37078c5ff7a
 
 MIT + Commons Clause License Condition v1.0
 
