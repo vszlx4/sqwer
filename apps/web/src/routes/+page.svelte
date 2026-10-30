@@ -261,10 +261,10 @@
 		--band: radial-gradient(ellipse 46% 52% at 50% 50%, var(--bg) 30%, color-mix(in srgb, var(--bg) 70%, transparent) 60%, transparent 100%);
 		display: grid;
 		place-items: center;
-		min-height: min(calc(100dvh - 70px), 860px);
-		/* Starts right under the header, over main's top padding. */
-		margin-top: calc(-1 * clamp(20px, 4vh, 44px));
-		padding: clamp(48px, 10vh, 112px) 0;
+		min-height: min(100dvh, calc(860px + var(--header-h)));
+		/* Starts at the page top, under the floating header and over main's top padding. */
+		margin-top: calc(-1 * (var(--header-h) + var(--main-top)));
+		padding: calc(var(--header-h) + clamp(48px, 10vh, 112px)) 0 clamp(48px, 10vh, 112px);
 	}
 	/* Full-bleed dither field, under the wash. */
 	.hero-field {
@@ -964,7 +964,7 @@
 	@media (max-width: 900px) {
 		.hero {
 			--band: radial-gradient(ellipse 95% 48% at 50% 50%, var(--bg) 40%, color-mix(in srgb, var(--bg) 70%, transparent) 70%, transparent 100%);
-			min-height: min(calc(100dvh - 70px), 680px);
+			min-height: min(100dvh, calc(680px + var(--header-h)));
 		}
 		.split {
 			grid-template-columns: 1fr;

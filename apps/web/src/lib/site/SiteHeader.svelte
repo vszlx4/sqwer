@@ -47,10 +47,11 @@
 	<GlassSurface
 		class="bar-glass"
 		width="100%"
-		height={60}
-		borderRadius={3}
-		backgroundOpacity={0.72}
+		height={56}
+		borderRadius={28}
+		backgroundOpacity={0.45}
 		saturation={1.6}
+		backdropBlur={8}
 		style="--glass-overflow: visible;"
 	>
 		<div class="bar">
@@ -106,15 +107,23 @@
 </StaggeredMenu>
 
 <style>
-	/* Floating glass bar; the page scrolls under it. */
+	/* Floating glass pill. Takes no room in the flow (negative margin), so pages start under it. */
 	.site-header {
 		--bar-gutter: clamp(10px, 3vw, 24px);
-		--bar-pad: clamp(10px, 2vw, 18px);
-		view-transition-name: site-header;
+		--bar-pad: clamp(8px, 1.5vw, 12px);
 		position: sticky;
 		top: 0;
 		z-index: 40;
-		padding: 10px var(--bar-gutter) 0;
+		height: var(--header-h);
+		margin-bottom: calc(-1 * var(--header-h));
+		padding: 12px var(--bar-gutter) 0;
+		pointer-events: none;
+	}
+	/* The transition name sits on the glass, not the header: a named element is a backdrop root, so on the
+	   header it would hide the page from the glass's backdrop-filter. */
+	.site-header :global(.bar-glass) {
+		view-transition-name: site-header;
+		pointer-events: auto;
 	}
 	.site-header :global(.bar-glass) {
 		max-width: 1180px;
@@ -132,17 +141,17 @@
 	.brand {
 		display: inline-flex;
 		color: var(--logo);
-		border-radius: 3px;
-		margin-right: 12px;
+		border-radius: 999px;
+		margin: 0 8px 0 10px;
 	}
 	.brand :global(.wordmark) {
-		height: 26px;
+		height: 28px;
 		width: auto;
 	}
 	.brand :global(.mark) {
 		display: none;
-		height: 30px;
-		width: 30px;
+		height: 24px;
+		width: 24px;
 	}
 	.desktop {
 		display: flex;
@@ -150,7 +159,7 @@
 	}
 	nav a {
 		padding: 8px 14px;
-		border-radius: 3px;
+		border-radius: 999px;
 		font-size: 14.5px;
 		font-weight: 500;
 		color: var(--ink-2);
@@ -182,7 +191,7 @@
 		gap: 8px;
 		height: 38px;
 		padding: 0 12px 0 8px;
-		border-radius: 3px;
+		border-radius: 999px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		font-size: 14px;
@@ -213,7 +222,7 @@
 		gap: 6px;
 		height: 38px;
 		padding: 0 16px;
-		border-radius: 3px;
+		border-radius: 999px;
 		border: 1px solid var(--ink);
 		color: var(--ink);
 		font-size: 14.5px;
@@ -241,9 +250,9 @@
 	}
 	/* Toggle lines up with .menu-slot: same top offset, bar height and inner padding. */
 	:global(.site-menu) {
-		--sm-header-top: 10px;
-		--sm-header-height: 60px;
-		--sm-header-padding: 0 calc(clamp(10px, 3vw, 24px) + clamp(10px, 2vw, 18px));
+		--sm-header-top: 12px;
+		--sm-header-height: 56px;
+		--sm-header-padding: 0 calc(clamp(10px, 3vw, 24px) + clamp(8px, 1.5vw, 12px) + 6px);
 		--sm-panel-top: 96px;
 	}
 	@media (max-width: 1080px) {

@@ -95,12 +95,15 @@ test('Tab on the results page starts a new test without deleting the result', as
 
 test('the light theme is the default and the theme choice persists', async ({ page }) => {
 	await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-	await page.getByRole('radio', { name: 'Dark theme' }).click();
+	// One button cycles light, dark, system.
+	await page.getByRole('button', { name: /^Theme: Light/ }).click();
 	await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 	await page.reload();
 	await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-	await page.getByRole('radio', { name: 'Use the system theme' }).click();
+	await page.getByRole('button', { name: /^Theme: Dark/ }).click();
 	await expect(page.locator('html')).not.toHaveAttribute('data-theme', /./);
+	await page.getByRole('button', { name: /^Theme: System/ }).click();
+	await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 
 test('a visitor without an account leaves no usage statistics or device identifier', async ({ page }) => {

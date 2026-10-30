@@ -5,7 +5,8 @@
 	Licence: MIT + Commons Clause, see THIRD_PARTY_NOTICES. Not covered by the GPL.
 	Changes: theme from app.css tokens instead of prefers-color-scheme (follows the theme toggle); frost, edge and
 	shadow from tokens; Tailwind and focus classes replaced by scoped CSS; overflow via --glass-overflow; no pointer
-	interaction; refraction gated by engine and version (refractionSupported) instead of browser names. The literal
+	interaction; refraction gated by engine and version (refractionSupported) instead of browser names; backdropBlur
+	prop frosts the refracted backdrop. The literal
 	colors left are the displacement map's channels (red/blue gradients, gray core), not palette colors.
 -->
 <script lang="ts">
@@ -30,6 +31,7 @@
 		displace?: number;
 		backgroundOpacity?: number;
 		saturation?: number;
+		backdropBlur?: number;
 		distortionScale?: number;
 		redOffset?: number;
 		greenOffset?: number;
@@ -53,6 +55,7 @@
 		displace = 0,
 		backgroundOpacity = 0,
 		saturation = 1,
+		backdropBlur = 0,
 		distortionScale = -180,
 		redOffset = 0,
 		greenOffset = 10,
@@ -170,7 +173,9 @@
 		const w = typeof width === 'number' ? `${width}px` : width;
 		const h = typeof height === 'number' ? `${height}px` : height;
 		const base = `width:${w};height:${h};border-radius:${borderRadius}px;--glass-frost:${backgroundOpacity * 100}%;--glass-saturation:${saturation};`;
-		const filter = svgSupported ? `--glass-filter:url(#${filterId}) saturate(${saturation});` : '';
+		// Blur after the refraction frosts what shows through without flattening the bent edges.
+		const blur = backdropBlur ? ` blur(${backdropBlur}px)` : '';
+		const filter = svgSupported ? `--glass-filter:url(#${filterId})${blur} saturate(${saturation});` : '';
 		return `${base}${filter}${extraStyle}`;
 	});
 </script>

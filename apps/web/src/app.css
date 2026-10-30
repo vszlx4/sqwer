@@ -379,9 +379,15 @@ dd {
 	text-wrap: pretty;
 }
 
+/* Layout: the header floats over the page; main starts below it. */
+:root {
+	--header-h: 70px;
+	--main-top: clamp(20px, 4vh, 44px);
+}
+
 /* Anchored sections stay clear of the sticky header. */
 [id] {
-	scroll-margin-top: 96px;
+	scroll-margin-top: calc(var(--header-h) + 26px);
 }
 
 a,

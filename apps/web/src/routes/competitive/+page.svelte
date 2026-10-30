@@ -198,12 +198,12 @@
 	.competitive {
 		display: flex;
 		flex-direction: column;
-		/* The page opens straight into the arena. */
-		margin-top: calc(clamp(20px, 4vh, 44px) * -1);
+		/* The page opens straight into the arena, under the floating header. */
+		margin-top: calc(-1 * (var(--header-h) + var(--main-top)));
 	}
 	/* Arena: the competitive area is dark in both themes. */
 	.arena {
-		padding: clamp(40px, 6vw, 72px) 0 clamp(40px, 6vw, 64px);
+		padding: calc(var(--header-h) + clamp(40px, 6vw, 72px)) 0 clamp(40px, 6vw, 64px);
 		color: var(--band-ink);
 	}
 	.arena::before {
