@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { FINGERS, type Finger } from '@sqwer/layouts';
+	import type { Component } from 'svelte';
 	import { CHAPTERS, LESSONS } from '#lib/courses/catalog.ts';
 	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
 	import { RANKS } from '#lib/courses/progression.ts';
 	import RankBadge from '#lib/courses/RankBadge.svelte';
 	import { courses } from '#lib/courses/store.svelte.ts';
-	import Hands from '#lib/hands/Hands.svelte';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
 	import { results } from '#lib/results/store.svelte.ts';
 	import Seo from '#lib/site/Seo.svelte';
@@ -19,43 +18,14 @@
 	onMount(() => {
 		results.load();
 		ready = true;
-		return startTyping();
+		// three.js loads in its own chunk after the page is up.
+		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
 	});
+	let Dither = $state<Component<{ waveColor?: [number, number, number]; colorNum?: number; pixelSize?: number; waveSpeed?: number; waveAmplitude?: number; mouseRadius?: number }>>();
 
 	// Returning learners are offered their next step instead of starting again.
 	const next = $derived(ready && courses.loaded ? learnerNextStep() : null);
 	const returning = $derived(next !== null && next.stage !== 'welcome');
-
-	// The hero hands show where each finger rests: the home row and the space bar.
-	const HOME: Record<string, string> = { lp: 'A', lr: 'S', lm: 'D', li: 'F', lt: '␣', rt: '␣', ri: 'J', rm: 'K', rr: 'L', rp: ';' };
-	// Every few seconds the hands type a short home-row word: each finger and its key label light up in turn.
-	const KEY_FINGER: Record<string, Finger> = { a: 'lp', s: 'lr', d: 'lm', f: 'li', j: 'ri', k: 'rm', l: 'rr', ';': 'rp', ' ': 'rt' };
-	// Real words made only from the labelled keys: A, S, D, F, J, K, L and the space bar.
-	const WORDS = ['flask', 'salad', 'fall', 'ask', 'lad', 'sad', 'all', 'dad'];
-	let lit = $state<Finger | null>(null);
-	const heroLegend = $derived(
-		Object.fromEntries(FINGERS.map((f) => [f, { value: HOME[f]!, strong: f === 'li' || f === 'ri', lit: lit === f }]))
-	);
-	const heroTone = $derived(Object.fromEntries(FINGERS.map((f) => [f, lit ? (f === lit ? 1 : 0.45) : f === 'li' || f === 'ri' ? 1 : 0.7])));
-
-	function startTyping() {
-		if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-		const timers: ReturnType<typeof setTimeout>[] = [];
-		let word = 0;
-		const play = () => {
-			if (document.visibilityState !== 'visible') return void timers.push(setTimeout(play, 2000));
-			const keys = [...WORDS[word % WORDS.length]!, ' '];
-			word++;
-			keys.forEach((k, i) => {
-				timers.push(setTimeout(() => (lit = KEY_FINGER[k] ?? null), i * 260));
-				timers.push(setTimeout(() => (lit = null), i * 260 + 190));
-			});
-			timers.push(setTimeout(play, keys.length * 260 + 2600));
-		};
-		// Begin once the entrance animation has finished.
-		timers.push(setTimeout(play, 2200));
-		return () => timers.forEach(clearTimeout);
-	}
 
 	// Ranks shown on the road, at the chapter where a steady learner reaches them.
 	const RANK_AT: Record<number, number> = { 1: 2, 3: 3, 4: 4, 7: 5, 9: 6, 10: 7, 12: 9 };
@@ -90,8 +60,13 @@
 />
 
 <div class="landing">
-	<!-- Hero: a dot grid that fades out behind the hands. -->
+	<!-- Hero: centered copy over the dither field. -->
 	<section class="hero band" aria-labelledby="hero-title">
+		<div class="hero-field">
+			{#if Dither}
+				<Dither waveColor={[0.8, 0.976, 0]} colorNum={4} pixelSize={2} waveSpeed={0.03} waveAmplitude={0.3} mouseRadius={0.3} />
+			{/if}
+		</div>
 		<div class="hero-copy">
 			<p class="kicker rise">A typing course for everyone</p>
 			<h1 id="hero-title" class="rise" style:--d="60ms">Learn to type <span class="mark">properly</span>, one key at a time.</h1>
@@ -114,10 +89,6 @@
 				<li><Icon name="lock" size={16} /> No ads or tracking</li>
 			</ul>
 		</div>
-		<figure class="hero-figure">
-			<Hands label="Two hands resting on the home row: A, S, D and F on the left, J, K, L and semicolon on the right, thumbs on the space bar" tone={heroTone} legend={heroLegend} legendSize={13} animate />
-			<figcaption>Where your fingers rest; ␣ is the space bar. Lesson 1 starts with F and J.</figcaption>
-		</figure>
 	</section>
 
 	<!-- The course road: a timeline of every chapter, with ranks along the way. -->
@@ -286,30 +257,50 @@
 
 	/* ---------- Hero ---------- */
 	.hero {
-		--band: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 13%, transparent) 1px, transparent 0) 0 0 / 26px 26px;
+		/* A soft wash of the page color keeps the copy readable over the field. */
+		--band: radial-gradient(ellipse 46% 52% at 50% 50%, var(--bg) 30%, color-mix(in srgb, var(--bg) 70%, transparent) 60%, transparent 100%);
 		display: grid;
-		grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-		align-items: center;
-		gap: clamp(32px, 5vw, 72px);
-		min-height: min(calc(100dvh - 120px), 760px);
-		padding: clamp(24px, 6vh, 64px) 0 clamp(56px, 9vh, 96px);
+		place-items: center;
+		min-height: min(calc(100dvh - 70px), 860px);
+		/* Starts right under the header, over main's top padding. */
+		margin-top: calc(-1 * clamp(20px, 4vh, 44px));
+		padding: clamp(48px, 10vh, 112px) 0;
 	}
-	/* The dot grid fades out toward the edges of the hero. */
-	.hero::before {
-		-webkit-mask-image: radial-gradient(ellipse 70% 75% at 60% 45%, #000 20%, transparent 75%);
-		mask-image: radial-gradient(ellipse 70% 75% at 60% 45%, #000 20%, transparent 75%);
+	/* Full-bleed dither field, under the wash. */
+	.hero-field {
+		position: absolute;
+		inset: 0 calc(50% - 50vw);
+		z-index: -2;
+		overflow: hidden;
+		animation: field-in 1200ms ease-out both;
+	}
+	@keyframes field-in {
+		from {
+			opacity: 0;
+		}
+	}
+	/* The accent reads louder on cream than on black. */
+	:global(:root:not([data-theme='dark'])) .hero-field {
+		opacity: 0.7;
+	}
+	@media (prefers-color-scheme: dark) {
+		:global(:root:not([data-theme='light'])) .hero-field {
+			opacity: 1;
+		}
 	}
 	.hero-copy {
 		display: flex;
 		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
+		text-align: center;
+		max-width: 820px;
 	}
 	h1 {
 		margin-top: 14px;
-		font-size: clamp(42px, 5.4vw, 74px);
+		font-size: clamp(42px, 6vw, 84px);
 		line-height: 1;
 		letter-spacing: -0.025em;
-		max-width: 13ch;
+		max-width: 15ch;
 	}
 	/* Emphasis is carried by weight alone. */
 	.mark {
@@ -325,7 +316,7 @@
 	.hero-action {
 		display: flex;
 		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
 		gap: 14px;
 		margin-top: 30px;
 	}
@@ -354,6 +345,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 8px 20px;
+		justify-content: center;
 		margin-top: 34px;
 		padding-top: 18px;
 		border-top: 1px solid var(--line);
@@ -364,19 +356,6 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 7px;
-	}
-	.hero-figure {
-		position: relative;
-		width: 100%;
-		max-width: 540px;
-		justify-self: center;
-		padding: 40px 34px 20px;
-	}
-	.hero-figure figcaption {
-		margin-top: 14px;
-		text-align: center;
-		font-size: 13px;
-		color: var(--ink-2);
 	}
 	.rise {
 		animation: rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -985,11 +964,8 @@
 	}
 	@media (max-width: 900px) {
 		.hero {
-			grid-template-columns: 1fr;
-			min-height: 0;
-		}
-		.hero-figure {
-			max-width: 460px;
+			--band: radial-gradient(ellipse 95% 48% at 50% 50%, var(--bg) 40%, color-mix(in srgb, var(--bg) 70%, transparent) 70%, transparent 100%);
+			min-height: min(calc(100dvh - 70px), 680px);
 		}
 		.split {
 			grid-template-columns: 1fr;

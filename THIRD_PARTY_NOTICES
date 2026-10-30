@@ -9,7 +9,7 @@ Location: apps/web/src/lib/bits/
 
 Components (source path, upstream commit):
 
-- None yet.
+- Dither.svelte: static/r/dither.json @ c37078c5ff7a
 
 MIT + Commons Clause License Condition v1.0
 
