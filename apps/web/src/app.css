@@ -216,6 +216,15 @@
 	--f-middle: var(--orange-ink);
 	--f-index: var(--lime-ink);
 	--f-thumb: var(--amber-ink);
+	/* Keyboard zone fills: the full hues, opacity from min to min + span by entry strength; dark legends on top. */
+	--zone-pinky: var(--violet);
+	--zone-ring: var(--cyan);
+	--zone-middle: var(--orange);
+	--zone-index: var(--lime);
+	--zone-thumb: var(--amber);
+	--zone-min: 0.45;
+	--zone-span: 0.5;
+	--zone-label: #0a0a0a;
 
 	/* Key caps. */
 	--key: var(--white);
@@ -290,6 +299,8 @@
 		--key-edge: #2c2c2c;
 		--key-label: #b5b5ae;
 		--key-pressed: #222222;
+		--zone-min: 0.8;
+		--zone-span: 0.2;
 		--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 		--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 		--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
@@ -323,6 +334,8 @@
 	--key-edge: #2c2c2c;
 	--key-label: #b5b5ae;
 	--key-pressed: #222222;
+	--zone-min: 0.8;
+	--zone-span: 0.2;
 	--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 	--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 	--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);

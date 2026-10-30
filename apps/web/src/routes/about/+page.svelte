@@ -37,11 +37,11 @@
 	<figure class="zones">
 		<Keyboard {layout} showZones label="Standard finger zones" />
 		<figcaption>
-			<span><i style="background: var(--f-pinky)"></i>Little finger</span>
-			<span><i style="background: var(--f-ring)"></i>Ring finger</span>
-			<span><i style="background: var(--f-middle)"></i>Middle finger</span>
-			<span><i style="background: var(--f-index)"></i>Index finger</span>
-			<span><i style="background: var(--f-thumb)"></i>Thumb</span>
+			<span><i style="background: var(--zone-pinky)"></i>Little finger</span>
+			<span><i style="background: var(--zone-ring)"></i>Ring finger</span>
+			<span><i style="background: var(--zone-middle)"></i>Middle finger</span>
+			<span><i style="background: var(--zone-index)"></i>Index finger</span>
+			<span><i style="background: var(--zone-thumb)"></i>Thumb</span>
 		</figcaption>
 	</figure>
 
