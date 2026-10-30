@@ -5,8 +5,8 @@
 	Licence: MIT + Commons Clause, see THIRD_PARTY_NOTICES. Not covered by the GPL.
 	Changes: theme from app.css tokens instead of prefers-color-scheme (follows the theme toggle); frost, edge and
 	shadow from tokens; Tailwind and focus classes replaced by scoped CSS; overflow via --glass-overflow; no pointer
-	interaction. The literal colors
-	left are the displacement map's channels (red/blue gradients, gray core), not palette colors.
+	interaction; refraction gated by engine and version (refractionSupported) instead of browser names. The literal
+	colors left are the displacement map's channels (red/blue gradients, gray core), not palette colors.
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
@@ -121,15 +121,33 @@
 		gaussianBlurRef?.setAttribute('stdDeviation', String(displace));
 	}
 
-	// SVG backdrop filters render only in Chromium; others get the blurred fallback.
-	function supportsSVGFilters() {
+	/**
+	 * First engine version that renders an SVG filter in backdrop-filter. CSS.supports() is not enough: Gecko
+	 * (Firefox 159, Zen 1.23) and WebKit accept url() and draw nothing (Mozilla bug 1961378, WebKit bug 245510).
+	 * Add an engine here once a release renders it.
+	 */
+	const REFRACTION_SINCE: Record<string, number> = { chromium: 76 };
+
+	/** Rendering engine and its major version, from client hints when present, else the user agent. */
+	function engine(): { name: string; version: number } | null {
+		const nav = navigator as Navigator & { userAgentData?: { brands: { brand: string; version: string }[] } };
+		const brand = nav.userAgentData?.brands.find((b) => b.brand === 'Chromium');
+		if (brand) return { name: 'chromium', version: Number(brand.version) };
 		const ua = navigator.userAgent;
-		const isWebkit = /Safari/.test(ua) && !/Chrome/.test(ua);
-		const isFirefox = /Firefox/.test(ua);
-		if (isWebkit || isFirefox) return false;
-		const div = document.createElement('div');
-		div.style.backdropFilter = `url(#${filterId})`;
-		return div.style.backdropFilter !== '';
+		const chrome = /\b(?:Chrome|Chromium)\/(\d+)/.exec(ua);
+		if (chrome && !/\b(?:CriOS|FxiOS|EdgiOS)\//.test(ua)) return { name: 'chromium', version: Number(chrome[1]) };
+		const gecko = /\brv:(\d+)[^)]*\) Gecko\//.exec(ua);
+		if (gecko) return { name: 'gecko', version: Number(gecko[1]) };
+		const webkit = /\bVersion\/(\d+).*Safari\//.exec(ua);
+		if (webkit) return { name: 'webkit', version: Number(webkit[1]) };
+		return null;
+	}
+
+	function refractionSupported() {
+		const e = engine();
+		const since = e && REFRACTION_SINCE[e.name];
+		if (!since || e.version < since) return false;
+		return CSS.supports('backdrop-filter', `url(#${filterId})`);
 	}
 
 	$effect(() => {
@@ -141,7 +159,7 @@
 	});
 
 	onMount(() => {
-		svgSupported = supportsSVGFilters();
+		svgSupported = refractionSupported();
 		const ro = new ResizeObserver(() => setTimeout(updateMap, 0));
 		if (containerRef) ro.observe(containerRef);
 		setTimeout(updateMap, 0);
@@ -187,14 +205,15 @@
 		justify-content: center;
 		/* Hosts with dropdowns set --glass-overflow: visible. */
 		overflow: var(--glass-overflow, hidden);
-		/* Fallback: frosted blur, opaque enough for text over the hero. */
-		background: color-mix(in srgb, var(--bg) 72%, transparent);
-		-webkit-backdrop-filter: blur(12px) saturate(1.8);
-		backdrop-filter: blur(12px) saturate(1.8);
-		border: 1px solid color-mix(in srgb, var(--line-strong) 55%, transparent);
+		/* Fallback (no refraction): upstream frosted glass; the --bg tint keeps text readable where blur is missing. */
+		background: color-mix(in srgb, var(--bg) 70%, transparent);
+		-webkit-backdrop-filter: blur(12px) saturate(1.8) brightness(1.1);
+		backdrop-filter: blur(12px) saturate(1.8) brightness(1.1);
+		border: 1px solid color-mix(in srgb, var(--white) 30%, transparent);
 		box-shadow:
-			inset 0 1px 0 var(--glass-shine),
-			0 10px 30px -18px var(--glass-shadow);
+			inset 0 1px 0 color-mix(in srgb, var(--white) 40%, transparent),
+			inset 0 -1px 0 color-mix(in srgb, var(--white) 20%, transparent),
+			0 8px 32px -12px var(--glass-shadow);
 	}
 	/* Chromium: refraction through the displacement filter. */
 	.glass.svg {
