@@ -151,6 +151,19 @@
 	--violet-soft: color-mix(in srgb, var(--violet) 20%, var(--bg));
 	--amber-soft: color-mix(in srgb, var(--amber) 22%, var(--bg));
 
+	/* Finger hues: keyboard zones, hands and finger marks, pinky to thumb. Not area colors. */
+	--finger-red: #fc3f4c;
+	--finger-yellow: #fec02d;
+	--finger-green: #7ac21e;
+	--finger-blue: #186db7;
+	--finger-purple: #563780;
+	/* Finger hues as text on light surfaces (>= 4.5:1 on --surface); dark themes lift blue and purple. */
+	--finger-red-ink: #d70312;
+	--finger-yellow-ink: #8c6301;
+	--finger-green-ink: #497512;
+	--finger-blue-ink: var(--finger-blue);
+	--finger-purple-ink: var(--finger-purple);
+
 	/* Errors stay red; not part of the hue set. */
 	--error: #d1242f;
 	--error-soft: #fbe1e2;
@@ -210,21 +223,33 @@
 	--heat-ink-light: var(--ink);
 	--heat-ink-dark: #0a0a0a;
 
-	/* Finger identity: one hue per finger, adjacent fingers never share a family. */
-	--f-pinky: var(--violet-ink);
-	--f-ring: var(--cyan-ink);
-	--f-middle: var(--orange-ink);
-	--f-index: var(--lime-ink);
-	--f-thumb: var(--amber-ink);
-	/* Keyboard zone fills: the full hues, opacity from min to min + span by entry strength; dark legends on top. */
-	--zone-pinky: var(--violet);
-	--zone-ring: var(--cyan);
-	--zone-middle: var(--orange);
-	--zone-index: var(--lime);
-	--zone-thumb: var(--amber);
+	/* Finger identity, same hues as the keyboard zones: --f-* fills (dots, hands, caps), --f-*-ink text. */
+	--f-pinky: var(--finger-red);
+	--f-ring: var(--finger-yellow);
+	--f-middle: var(--finger-green);
+	--f-index: var(--finger-blue);
+	--f-thumb: var(--finger-purple);
+	--f-pinky-ink: var(--finger-red-ink);
+	--f-ring-ink: var(--finger-yellow-ink);
+	--f-middle-ink: var(--finger-green-ink);
+	--f-index-ink: var(--finger-blue-ink);
+	--f-thumb-ink: var(--finger-purple-ink);
+	/* Keyboard zone fills, opacity from min to min + span by entry strength. Legends per finger. */
+	--zone-pinky: var(--f-pinky);
+	--zone-ring: var(--f-ring);
+	--zone-middle: var(--f-middle);
+	--zone-index: var(--f-index);
+	--zone-thumb: var(--f-thumb);
 	--zone-min: 0.45;
-	--zone-span: 0.5;
+	--zone-span: 0.4;
 	--zone-label: #0a0a0a;
+	--zone-label-pinky: var(--zone-label);
+	--zone-label-ring: var(--zone-label);
+	--zone-label-middle: var(--zone-label);
+	--zone-label-index: var(--zone-label);
+	/* Purple is too dark for dark legends: thumb keys start more opaque and take white. */
+	--zone-min-thumb: 0.75;
+	--zone-label-thumb: var(--white);
 
 	/* Key caps. */
 	--key: var(--white);
@@ -299,8 +324,15 @@
 		--key-edge: #2c2c2c;
 		--key-label: #b5b5ae;
 		--key-pressed: #222222;
-		--zone-min: 0.8;
-		--zone-span: 0.2;
+		--finger-red-ink: var(--finger-red);
+		--finger-yellow-ink: var(--finger-yellow);
+		--finger-green-ink: var(--finger-green);
+		--finger-blue-ink: #1e86e1;
+		--finger-purple-ink: #9573c3;
+		--zone-min: 0.9;
+		--zone-min-thumb: 0.9;
+		--zone-span: 0.1;
+		--zone-label-index: var(--white);
 		--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 		--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 		--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
@@ -334,8 +366,15 @@
 	--key-edge: #2c2c2c;
 	--key-label: #b5b5ae;
 	--key-pressed: #222222;
-	--zone-min: 0.8;
-	--zone-span: 0.2;
+	--finger-red-ink: var(--finger-red);
+	--finger-yellow-ink: var(--finger-yellow);
+	--finger-green-ink: var(--finger-green);
+	--finger-blue-ink: #1e86e1;
+	--finger-purple-ink: #9573c3;
+	--zone-min: 0.9;
+	--zone-min-thumb: 0.9;
+	--zone-span: 0.1;
+	--zone-label-index: var(--white);
 	--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 	--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 	--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);

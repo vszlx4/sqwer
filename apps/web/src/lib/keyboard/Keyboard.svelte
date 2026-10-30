@@ -121,11 +121,11 @@
 		{@const zone = state === 'idle' || state === 'pressed' ? zoneFor(k) : null}
 		{@const pending = pendingKeys?.has(k.code) && !zone && state === 'idle'}
 		{@const l = legend(k)}
-		{@const ink = zone ? 'var(--zone-label)' : INK[state]}
+		{@const ink = zone ? `var(--zone-label-${kindOf(zone.finger)})` : INK[state]}
 		<g class="key" style:transform={down ? 'translateY(1.5px)' : 'none'}>
 			<rect {x} {y} width={w} height={h} rx="3" fill={pending ? `url(#${uid}-pending)` : FILL[state]} stroke="var(--key-edge)" stroke-width="1.2" />
 			{#if zone}
-				<rect {x} {y} width={w} height={h} rx="3" fill={zoneColor(zone.finger)} style:opacity={`calc(var(--zone-min) + ${zone.strength} * var(--zone-span))`} />
+				<rect {x} {y} width={w} height={h} rx="3" fill={zoneColor(zone.finger)} style:opacity={`calc(var(--zone-min-${kindOf(zone.finger)}, var(--zone-min)) + ${zone.strength} * var(--zone-span))`} />
 			{/if}
 			{#if selectedKey === k.code}
 				<rect x={x - 2} y={y - 2} width={w + 4} height={h + 4} rx="3" fill="none" stroke="var(--ink)" stroke-width="2.5" />
