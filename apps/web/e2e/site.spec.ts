@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 
 test('home page: one primary action above the fold, leading to getting started', async ({ page }) => {
 	await page.goto('/');
-	await expect(page.getByRole('heading', { level: 1 })).toContainText('Learn to type');
+	await expect(page.getByRole('heading', { level: 1 })).toContainText('Stop looking down');
 	const main = page.getByRole('main');
 	// A single, specific primary action; the course is explained on the page itself.
 	await expect(main.locator('.btn-primary')).toHaveCount(1);

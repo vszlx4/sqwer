@@ -99,8 +99,18 @@
 /* ---------- Tokens ---------- */
 :root {
 	color-scheme: light;
-	--accent: #ccf900;
-	--on-accent: #111111;
+	/* Area colors (lib/site/areas.ts). --accent is the current area's; neutral pages use ink. */
+	--area-learn: #ccf900;
+	--area-practice: #3debd8;
+	--area-competitive: #ff6b1f;
+	--area-map: #a08cff;
+	--area-games: #ffc72c;
+	--on-area: #141414;
+	--accent: var(--ink);
+	--on-accent: var(--bg);
+	/* Primary actions are ink; color belongs to the area. */
+	--primary: var(--ink);
+	--on-primary: var(--bg);
 
 	--bg: #fbfaf4;
 	--surface: #f4f2e8;
@@ -108,6 +118,8 @@
 	--line: #dedac9;
 	--line-strong: #c9c4b0;
 	--ink: #141414;
+	/* Logo and favicon: warm dark gray, not black. */
+	--logo: #2b2a27;
 	--ink-2: #55534b;
 	--ink-3: #6b685e;
 	--untyped: #8f8b7e;
@@ -177,6 +189,7 @@
 		--line: #242424;
 		--line-strong: #333333;
 		--ink: #f2f2ee;
+		--logo: #f2f2ee;
 		--ink-2: #a8a8a1;
 		--ink-3: #9a9a93;
 		--untyped: #6e6e68;
@@ -231,6 +244,7 @@
 	--line: #242424;
 	--line-strong: #333333;
 	--ink: #f2f2ee;
+	--logo: #f2f2ee;
 	--ink-2: #a8a8a1;
 	--ink-3: #9a9a93;
 	--untyped: #6e6e68;
@@ -366,6 +380,32 @@ body {
 	background: var(--band, transparent);
 }
 
+[data-area='learn'] {
+	--accent: var(--area-learn);
+	--on-accent: var(--on-area);
+}
+[data-area='practice'] {
+	--accent: var(--area-practice);
+	--on-accent: var(--on-area);
+}
+[data-area='competitive'] {
+	--accent: var(--area-competitive);
+	--on-accent: var(--on-area);
+}
+[data-area='map'] {
+	--accent: var(--area-map);
+	--on-accent: var(--on-area);
+}
+[data-area='games'] {
+	--accent: var(--area-games);
+	--on-accent: var(--on-area);
+}
+/* Fixed dark bands keep a light primary in both themes. */
+.on-dark {
+	--primary: #f2f2ee;
+	--on-primary: #111111;
+}
+
 ::selection {
 	background: var(--accent);
 	color: var(--on-accent);
@@ -433,12 +473,12 @@ body {
 	transform: translateX(3px);
 }
 .btn-primary {
-	background: var(--accent);
-	color: var(--on-accent);
+	background: var(--primary);
+	color: var(--on-primary);
 	border-color: transparent;
 }
 .btn-primary:hover {
-	background: var(--accent);
+	background: var(--primary);
 	border-color: transparent;
 	filter: brightness(0.94);
 }

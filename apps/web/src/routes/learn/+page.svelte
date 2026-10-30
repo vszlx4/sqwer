@@ -98,7 +98,7 @@
 
 	{#if loaded}
 		{#if next && next.stage !== 'welcome' && (signedIn || next.stage !== 'course' || next.lesson?.id === FIRST_LESSON.id)}
-			<section class="next" aria-labelledby="next-title">
+			<section class="next on-dark" aria-labelledby="next-title">
 				<div class="next-copy">
 					<p class="label">{next.stage === 'course' ? 'Up next' : next.stage === 'complete' ? 'Complete' : 'Before the course'}</p>
 					<h2 id="next-title">{next.title}</h2>

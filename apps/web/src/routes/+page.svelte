@@ -9,6 +9,7 @@
 	import { courses } from '#lib/courses/store.svelte.ts';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
 	import { results } from '#lib/results/store.svelte.ts';
+	import { areaRgb } from '#lib/site/areas.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import { CONTACT_EMAIL } from '#lib/site/links.ts';
 	import Icon from '#lib/ui/Icon.svelte';
@@ -21,7 +22,7 @@
 		// three.js loads in its own chunk after the page is up.
 		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
 	});
-	let Dither = $state<Component<{ waveColor?: [number, number, number]; colorNum?: number; pixelSize?: number; waveSpeed?: number; waveAmplitude?: number; mouseRadius?: number }>>();
+	let Dither = $state<Component<{ waveColors?: [number, number, number][]; colorNum?: number; pixelSize?: number; waveSpeed?: number; waveAmplitude?: number; enableMouseInteraction?: boolean }>>();
 
 	// Returning learners are offered their next step instead of starting again.
 	const next = $derived(ready && courses.loaded ? learnerNextStep() : null);
@@ -64,12 +65,12 @@
 	<section class="hero band" aria-labelledby="hero-title">
 		<div class="hero-field">
 			{#if Dither}
-				<Dither waveColor={[0.8, 0.976, 0]} colorNum={4} pixelSize={2} waveSpeed={0.03} waveAmplitude={0.3} mouseRadius={0.3} />
+				<Dither waveColors={areaRgb()} colorNum={4} pixelSize={2} waveSpeed={0.03} waveAmplitude={0.3} enableMouseInteraction={false} />
 			{/if}
 		</div>
 		<div class="hero-copy">
 			<p class="kicker rise">A typing course for everyone</p>
-			<h1 id="hero-title" class="rise" style:--d="60ms">Learn to type <span class="mark">properly</span>, one key at a time.</h1>
+			<h1 id="hero-title" class="rise" style:--d="60ms">Stop looking down. Start typing <span class="mark">for real</span>.</h1>
 			<p class="lede rise" style:--d="120ms">
 				Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and
 				for self-taught typists who want to do it right.
@@ -92,7 +93,7 @@
 	</section>
 
 	<!-- The course road: a timeline of every chapter, with ranks along the way. -->
-	<section id="road" class="road band" aria-labelledby="road-title">
+	<section id="road" class="road band" data-area="learn" aria-labelledby="road-title">
 		<header class="section-head" use:reveal>
 			<p class="kicker">The course</p>
 			<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
@@ -121,7 +122,7 @@
 	</section>
 
 	<!-- Games: a dark band with live previews. -->
-	<section class="games band" aria-labelledby="games-title">
+	<section class="games band on-dark" data-area="games" aria-labelledby="games-title">
 		<header class="section-head" use:reveal>
 			<p class="kicker">Learn by playing</p>
 			<h2 id="games-title">Practice that feels like a game.</h2>
@@ -170,7 +171,7 @@
 	</section>
 
 	<!-- Ranks: motivation without competition. -->
-	<section class="ranks band" aria-labelledby="ranks-title">
+	<section class="ranks band" data-area="competitive" aria-labelledby="ranks-title">
 		<header class="section-head center" use:reveal>
 			<p class="kicker">Ranks and streaks</p>
 			<h2 id="ranks-title">Watch yourself grow.</h2>
@@ -184,7 +185,7 @@
 	</section>
 
 	<!-- For typists who already type. -->
-	<section class="split band technique" aria-labelledby="map-title">
+	<section class="split band technique" data-area="map" aria-labelledby="map-title">
 		<div class="copy" use:reveal>
 			<p class="kicker">Already type?</p>
 			<h2 id="map-title">See how your hands really type.</h2>
@@ -203,7 +204,7 @@
 		</div>
 	</section>
 
-	<section class="principles" aria-labelledby="principles-title" use:reveal>
+	<section class="principles" data-area="practice" aria-labelledby="principles-title" use:reveal>
 		<h2 id="principles-title" class="sr-only">Commitments</h2>
 		<div class="principle">
 			<Icon name="user" size={22} />
@@ -279,7 +280,7 @@
 			opacity: 0;
 		}
 	}
-	/* The accent reads louder on cream than on black. */
+	/* The field reads louder on cream than on black. */
 	:global(:root:not([data-theme='dark'])) .hero-field {
 		opacity: 0.7;
 	}
@@ -534,7 +535,7 @@
 		overflow: hidden;
 		border-radius: 3px;
 		background:
-			radial-gradient(120% 90% at 50% 120%, rgb(204 249 0 / 0.1), transparent 60%),
+			radial-gradient(120% 90% at 50% 120%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
 			radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.05) 1px, transparent 0) 0 0 / 16px 16px,
 			#0b0b0b;
 		border: 1px solid #1f1f1f;

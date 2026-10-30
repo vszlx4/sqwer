@@ -5,7 +5,8 @@
 	Licence: MIT + Commons Clause, see THIRD_PARTY_NOTICES. Not covered by the GPL.
 	Changes: renderer without antialias or preserved buffer; no WebGL leaves the container empty; pointer read on
 	window so content can sit above the canvas; still frame under reduced motion; loop stops offscreen and in hidden
-	tabs; elapsed time instead of THREE.Clock; container aria-hidden.
+	tabs; elapsed time instead of THREE.Clock; container aria-hidden; waveColors blends up to five colors across
+	the field through a slow low-frequency noise.
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
@@ -17,6 +18,7 @@
 		waveFrequency?: number;
 		waveAmplitude?: number;
 		waveColor?: [number, number, number];
+		waveColors?: [number, number, number][];
 		colorNum?: number;
 		pixelSize?: number;
 		disableAnimation?: boolean;
@@ -29,6 +31,7 @@
 		waveFrequency = 3,
 		waveAmplitude = 0.3,
 		waveColor = [0.5, 0.5, 0.5] as [number, number, number],
+		waveColors = [],
 		colorNum = 4,
 		pixelSize = 2,
 		disableAnimation = false,
@@ -38,7 +41,7 @@
 
 	let containerRef: HTMLDivElement;
 	const current = $derived({
-		waveSpeed, waveFrequency, waveAmplitude, waveColor, colorNum, pixelSize,
+		waveSpeed, waveFrequency, waveAmplitude, waveColor, waveColors, colorNum, pixelSize,
 		disableAnimation, enableMouseInteraction, mouseRadius
 	});
 
@@ -58,6 +61,8 @@ uniform float waveSpeed;
 uniform float waveFrequency;
 uniform float waveAmplitude;
 uniform vec3 waveColor;
+uniform vec3 waveColors[5];
+uniform int colorCount;
 uniform vec2 mousePos;
 uniform int enableMouseInteraction;
 uniform float mouseRadius;
@@ -120,7 +125,13 @@ void main() {
     float effect = 1.0 - smoothstep(0.0, mouseRadius, dist);
     f -= 0.5 * effect;
   }
-  vec3 col = mix(vec3(0.0), waveColor, f);
+  vec3 tint = waveColor;
+  if (colorCount > 1) {
+    float h = clamp(cnoise(uv * 0.9 + vec2(time * 0.015, -time * 0.01)) * 0.6 + 0.5, 0.0, 1.0) * float(colorCount - 1);
+    int i = int(min(floor(h), float(colorCount - 2)));
+    tint = mix(waveColors[i], waveColors[i + 1], smoothstep(0.0, 1.0, h - float(i)));
+  }
+  vec3 col = mix(vec3(0.0), tint, f);
   gl_FragColor = vec4(col, max(max(col.r, col.g), col.b));
 }`;
 
@@ -192,6 +203,8 @@ void main() { vUv = uv; gl_Position = vec4(position, 1.0); }`;
 			waveFrequency: { value: waveFrequency },
 			waveAmplitude: { value: waveAmplitude },
 			waveColor: { value: new THREE.Color(...waveColor) },
+			waveColors: { value: Array.from({ length: 5 }, () => new THREE.Vector3()) },
+			colorCount: { value: 0 },
 			mousePos: { value: new THREE.Vector2(0, 0) },
 			enableMouseInteraction: { value: enableMouseInteraction ? 1 : 0 },
 			mouseRadius: { value: mouseRadius }
@@ -263,6 +276,9 @@ void main() { vUv = uv; gl_Position = vec4(position, 1.0); }`;
 			waveUniforms.waveFrequency.value = current.waveFrequency;
 			waveUniforms.waveAmplitude.value = current.waveAmplitude;
 			waveUniforms.waveColor.value.setRGB(current.waveColor[0], current.waveColor[1], current.waveColor[2]);
+			const colors = current.waveColors.slice(0, 5);
+			colors.forEach((c, i) => waveUniforms.waveColors.value[i]!.set(c[0], c[1], c[2]));
+			waveUniforms.colorCount.value = colors.length;
 			waveUniforms.enableMouseInteraction.value = current.enableMouseInteraction ? 1 : 0;
 			waveUniforms.mouseRadius.value = current.mouseRadius;
 			if (current.enableMouseInteraction && !reduced.matches) waveUniforms.mousePos.value.copy(mouse);

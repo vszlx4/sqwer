@@ -147,7 +147,7 @@
 	}
 	.brand {
 		display: inline-flex;
-		color: var(--ink);
+		color: var(--logo);
 		border-radius: 3px;
 		margin-right: 12px;
 	}

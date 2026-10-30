@@ -107,7 +107,7 @@
 		margin-top: 4px;
 		padding: 9px 14px;
 		border-radius: 3px;
-		background: var(--accent);
+		background: #f2f2ee;
 		color: #111;
 		font-weight: 600;
 	}
@@ -137,7 +137,7 @@
 		transition: color 140ms ease;
 	}
 	ul a:hover {
-		color: var(--accent);
+		color: #ffffff;
 	}
 	.build {
 		font-family: var(--font-mono);

@@ -34,7 +34,7 @@
 <Seo title="Competitive" description="Ranked typing: a 60-second test, eleven ranks from Silver to Zenith, and leaderboards by speed and by level." />
 
 <div class="competitive">
-	<section class="arena band" aria-labelledby="arena-title">
+	<section class="arena band on-dark" aria-labelledby="arena-title">
 		<div class="arena-grid">
 			<div class="intro">
 				<p class="kicker"><span class="live-dot" aria-hidden="true"></span> Ranked</p>
