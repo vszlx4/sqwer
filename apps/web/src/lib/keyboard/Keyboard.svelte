@@ -71,7 +71,7 @@
 		idle: 'var(--key)'
 	};
 	const INK: Record<KeyState, string> = {
-		error: '#ffffff',
+		error: 'var(--white)',
 		ok: 'var(--on-accent)',
 		highlight: 'var(--on-accent)',
 		pressed: 'var(--key-label)',

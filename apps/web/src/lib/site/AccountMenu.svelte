@@ -182,7 +182,7 @@
 		height: 32px;
 		border-radius: 0 3px 3px 0;
 		background: var(--violet);
-		color: #fff;
+		color: var(--on-hue);
 		font-size: 13px;
 		font-weight: 700;
 		font-variant-numeric: tabular-nums;
@@ -226,7 +226,7 @@
 	}
 	.card-head b {
 		font-size: 14px;
-		color: var(--violet);
+		color: var(--rank);
 	}
 	.card dl {
 		display: flex;
@@ -271,7 +271,7 @@
 	.bar span {
 		display: block;
 		height: 100%;
-		background: linear-gradient(90deg, var(--violet), var(--accent));
+		background: var(--xp-bar);
 		transform-origin: left;
 	}
 	.panel {
@@ -329,7 +329,7 @@
 		gap: 8px;
 		font-size: 13px;
 		font-weight: 700;
-		color: var(--violet);
+		color: var(--rank);
 	}
 	.level .xp {
 		font-weight: 500;

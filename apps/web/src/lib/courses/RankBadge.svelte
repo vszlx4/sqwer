@@ -1,17 +1,12 @@
 <script lang="ts">
 	import type { Rank, Tier } from './progression.ts';
+	import { ART_WHITE, BADGE_CROWN, BADGE_MATERIALS, type Material } from '#lib/progress/rank-art.ts';
 
 	/** Keycap rank badge in the tier's material, level on the face, up to five stars. Decorative. */
 	let { rank, size = 56, locked = false }: { rank: Rank; size?: number; locked?: boolean } = $props();
 	const id = $props.id();
 
-	const MATERIALS: Record<Tier, { face: [string, string]; body: [string, string]; ink: string; glow: string }> = {
-		bronze: { face: ['#f6cfa8', '#cd8752'], body: ['#9a5a2c', '#6b3a19'], ink: '#4a250c', glow: '#e9a46c' },
-		silver: { face: ['#fbfcfd', '#b4bdc8'], body: ['#808b98', '#566070'], ink: '#2c333d', glow: '#d5dce4' },
-		gold: { face: ['#fff0b8', '#e5a92a'], body: ['#b07408', '#7c5104'], ink: '#4b3100', glow: '#f5cd58' },
-		emerald: { face: ['#b6f5da', '#1fae7b'], body: ['#0e7552', '#074d36'], ink: '#043222', glow: '#4fd6a2' },
-		diamond: { face: ['#f1f8ff', '#a9b9ff'], body: ['#5363b8', '#2c3574'], ink: '#1c2257', glow: '#9fe7f5' }
-	};
+	const MATERIALS: Record<Tier, Material> = BADGE_MATERIALS;
 	const m = $derived(MATERIALS[rank.tier]);
 	/** One star per tier, up to five at the highest ranks. */
 	const stars = $derived(Math.ceil(rank.level / 2));
@@ -29,8 +24,8 @@
 			<stop offset="1" stop-color={m.body[1]} />
 		</linearGradient>
 		<radialGradient id={`${id}-shine`} cx="0.3" cy="0.15" r="0.75">
-			<stop offset="0" stop-color="#fff" stop-opacity="0.75" />
-			<stop offset="0.45" stop-color="#fff" stop-opacity="0" />
+			<stop offset="0" stop-color={ART_WHITE} stop-opacity="0.75" />
+			<stop offset="0.45" stop-color={ART_WHITE} stop-opacity="0" />
 		</radialGradient>
 	</defs>
 	<!-- Soft halo in the tier colour. -->
@@ -39,19 +34,19 @@
 	<rect x="7" y="9" width="50" height="47" rx="11" fill={`url(#${id}-body)`} />
 	<rect x="11" y="10" width="42" height="37" rx="8.5" fill={`url(#${id}-face)`} />
 	<rect x="11" y="10" width="42" height="37" rx="8.5" fill={`url(#${id}-shine)`} />
-	<rect x="11.5" y="10.5" width="41" height="36" rx="8" fill="none" stroke="#fff" stroke-opacity="0.55" />
+	<rect x="11.5" y="10.5" width="41" height="36" rx="8" fill="none" stroke={ART_WHITE} stroke-opacity="0.55" />
 	<text x="32" y="36.5" text-anchor="middle" class="level" fill={m.ink}>{rank.level}</text>
 	<!-- One star for each tier reached, up to five. -->
 	{#each Array.from({ length: stars }) as _, i (i)}
 		<path
 			d="M0-3.1l.9 1.9 2.1.3-1.5 1.4.4 2.1L0 1.6l-1.9 1 .4-2.1-1.5-1.4 2.1-.3z"
 			transform={`translate(${32 + (i - (stars - 1) / 2) * 7.2} 51.6)`}
-			fill="#fff"
+			fill={ART_WHITE}
 			fill-opacity="0.95"
 		/>
 	{/each}
 	{#if crowned}
-		<path d="M22 8.5 L25.5 2.5 L29 7 L32 1.5 L35 7 L38.5 2.5 L42 8.5 Z" fill="#ccf900" stroke="#1c2257" stroke-width="1" stroke-linejoin="round" />
+		<path d="M22 8.5 L25.5 2.5 L29 7 L32 1.5 L35 7 L38.5 2.5 L42 8.5 Z" fill={BADGE_CROWN} stroke={m.ink} stroke-width="1" stroke-linejoin="round" />
 	{/if}
 </svg>
 
@@ -59,7 +54,7 @@
 	.badge {
 		flex-shrink: 0;
 		overflow: visible;
-		filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.16));
+		filter: drop-shadow(0 3px 6px var(--art-drop));
 	}
 	.badge.locked {
 		filter: grayscale(1) opacity(0.32);

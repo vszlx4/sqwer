@@ -263,8 +263,8 @@
 			size="compact"
 			level={3}
 			stats={[
-				...(v.showStats ? [{ label: 'Target', value: `${v.targetWpm || '?'} WPM`, tone: 'blue' as const }] : []),
-				...(v.showStreak ? [{ label: 'Streak', value: `${courses.streak} ${courses.streak === 1 ? 'day' : 'days'}`, tone: 'orange' as const }] : [])
+				...(v.showStats ? [{ label: 'Target', value: `${v.targetWpm || '?'} WPM`, tone: 'info' as const }] : []),
+				...(v.showStreak ? [{ label: 'Streak', value: `${courses.streak} ${courses.streak === 1 ? 'day' : 'days'}`, tone: 'streak' as const }] : [])
 			]}
 		>
 			<dl class="facts">
@@ -495,8 +495,8 @@
 		color: var(--ink-2);
 	}
 	.visibility.on {
-		background: var(--green-soft);
-		color: var(--green);
+		background: var(--success-soft);
+		color: var(--success);
 	}
 	.banners {
 		display: grid;

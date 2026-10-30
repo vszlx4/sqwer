@@ -93,7 +93,7 @@
 		display: block;
 		margin-top: 10px;
 		border-radius: 3px;
-		background: #fff;
+		background: var(--white);
 	}
 	.manual code {
 		font-family: var(--font-mono);

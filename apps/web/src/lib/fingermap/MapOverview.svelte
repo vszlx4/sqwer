@@ -428,7 +428,7 @@
 	}
 	.btn.danger.solid {
 		background: var(--error);
-		color: #fff;
+		color: var(--white);
 		border-color: transparent;
 	}
 	.check {

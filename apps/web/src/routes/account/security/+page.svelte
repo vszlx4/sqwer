@@ -161,7 +161,7 @@
 		background: var(--surface-2);
 	}
 	.meter .on {
-		background: var(--green);
+		background: var(--strength-strong);
 	}
 	.list {
 		margin: 0;

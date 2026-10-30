@@ -144,7 +144,7 @@
 	}
 	.fastest .bar span {
 		background: var(--accent);
-		box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.2);
+		box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 20%, transparent);
 	}
 	.slowest .bar span {
 		background: var(--error);

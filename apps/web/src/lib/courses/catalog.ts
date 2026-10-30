@@ -583,8 +583,8 @@ export const CHAPTERS: Chapter[] = build();
 
 /** The four parts of the course, which group its chapters. Each has its own colour on the course page. */
 export const PARTS = [
-	{ id: 'letters', title: 'Letters', summary: 'Every letter, row by row, by touch.', colour: 'green', chapters: [1, 2, 3] },
-	{ id: 'marks', title: 'Capitals, marks and numbers', summary: 'Shift, punctuation and the number row.', colour: 'blue', chapters: [4, 5, 6] },
+	{ id: 'letters', title: 'Letters', summary: 'Every letter, row by row, by touch.', colour: 'lime', chapters: [1, 2, 3] },
+	{ id: 'marks', title: 'Capitals, marks and numbers', summary: 'Shift, punctuation and the number row.', colour: 'cyan', chapters: [4, 5, 6] },
 	{ id: 'words', title: 'Words and flow', summary: 'Frequent words and whole sentences.', colour: 'violet', chapters: [7, 8, 9] },
 	{ id: 'mastery', title: 'Speed and mastery', summary: 'Speed, endurance and symbols.', colour: 'orange', chapters: [10, 11, 12] }
 ] as const;

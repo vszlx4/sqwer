@@ -22,6 +22,9 @@ describe('areas', () => {
 
 	it('keeps app.css in step with the area colors', () => {
 		const css = readFileSync(new URL('../../app.css', import.meta.url), 'utf8');
-		for (const [area, { color }] of Object.entries(AREAS)) expect(css).toContain(`--area-${area}: ${color};`);
+		for (const [area, { hue, color }] of Object.entries(AREAS)) {
+			expect(css).toContain(`--area-${area}: var(--${hue});`);
+			expect(css).toContain(`--${hue}: ${color};`);
+		}
 	});
 });

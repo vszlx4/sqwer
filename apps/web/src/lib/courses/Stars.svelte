@@ -23,8 +23,8 @@
 		stroke-width: 1;
 	}
 	.on path {
-		fill: #f5b700;
-		stroke: #c48f00;
+		fill: var(--star);
+		stroke: var(--star-edge);
 	}
 	.pop .on {
 		animation: star-pop 520ms cubic-bezier(0.3, 1.6, 0.5, 1) both;

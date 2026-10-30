@@ -98,7 +98,7 @@
 		text-wrap: pretty;
 	}
 	.credit b {
-		color: var(--violet);
+		color: var(--rank);
 		font-variant-numeric: tabular-nums;
 	}
 	@media (max-width: 480px) {

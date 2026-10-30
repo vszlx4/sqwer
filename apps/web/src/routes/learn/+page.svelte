@@ -146,7 +146,7 @@
 		<!-- Every chapter, grouped by part. -->
 		<nav class="chapters" aria-label="Chapters">
 			{#each PARTS as part, pi (part.id)}
-				<div class="part" style:--part={`var(--${part.colour})`} style:--part-soft={`var(--${part.colour}-soft)`}>
+				<div class="part" style:--part={`var(--${part.colour}-ink)`} style:--part-soft={`var(--${part.colour}-soft)`}>
 					<p class="part-name">{part.title}</p>
 					<ol>
 						{#each part.chapters as n, ci (n)}
@@ -179,7 +179,7 @@
 		</nav>
 
 		<!-- The selected chapter and its lessons. -->
-		<article class="detail" bind:this={detail} aria-labelledby="chapter-title" style:--part={`var(--${selectedPart.colour})`} style:--part-soft={`var(--${selectedPart.colour}-soft)`}>
+		<article class="detail" bind:this={detail} aria-labelledby="chapter-title" style:--part={`var(--${selectedPart.colour}-ink)`} style:--part-soft={`var(--${selectedPart.colour}-soft)`}>
 			{#key selected.number}
 				<header class="detail-head rise">
 					<div class="detail-title">
@@ -309,11 +309,11 @@
 		font-variant-numeric: tabular-nums;
 	}
 	.amber {
-		color: var(--amber);
+		color: var(--reward);
 		font-weight: 600;
 	}
 	.orange {
-		color: var(--orange);
+		color: var(--streak);
 		font-weight: 600;
 	}
 	.rank-bar {
@@ -325,7 +325,7 @@
 	.rank-bar span {
 		display: block;
 		height: 100%;
-		background: linear-gradient(90deg, var(--violet), var(--accent));
+		background: var(--xp-bar);
 		transform-origin: left;
 		transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
@@ -370,8 +370,8 @@
 		border-radius: 3px;
 		background:
 			radial-gradient(120% 160% at 100% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%),
-			#0b0b0b;
-		color: #f2f2ee;
+			var(--band-bg);
+		color: var(--band-ink);
 		box-shadow: inset 4px 0 0 var(--accent);
 	}
 	.next .label {
@@ -383,7 +383,7 @@
 	}
 	.next .meta {
 		font-size: 13px;
-		color: #9e9e98;
+		color: var(--band-ink-2);
 	}
 
 	.ways {
@@ -418,16 +418,16 @@
 		border-radius: 3px;
 	}
 	.way-icon.green {
-		background: var(--green-soft);
-		color: var(--green);
+		background: var(--success-soft);
+		color: var(--success);
 	}
 	.way-icon.blue {
-		background: var(--blue-soft);
-		color: var(--blue);
+		background: var(--info-soft);
+		color: var(--info);
 	}
 	.way-icon.violet {
-		background: var(--violet-soft);
-		color: var(--violet);
+		background: var(--rank-soft);
+		color: var(--rank);
 	}
 	.way-icon.ink {
 		background: var(--accent);
@@ -616,7 +616,7 @@
 		color: var(--ink-2);
 	}
 	.ch-stats .amber {
-		color: var(--amber);
+		color: var(--reward);
 	}
 	.ch-bar {
 		grid-column: 1 / -1;
@@ -725,7 +725,7 @@
 	}
 	.l-best {
 		font-size: 12px;
-		color: var(--green);
+		color: var(--success);
 		font-weight: 600;
 	}
 	.l-end {

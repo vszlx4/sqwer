@@ -169,7 +169,7 @@
 		padding: 0 6px;
 		border-radius: 3px;
 		background: var(--violet);
-		color: #fff;
+		color: var(--on-hue);
 		font-size: 18px;
 		font-weight: 800;
 	}
@@ -182,7 +182,7 @@
 	.bar span {
 		display: block;
 		height: 100%;
-		background: linear-gradient(90deg, var(--violet), var(--accent));
+		background: var(--xp-bar);
 		transform-origin: left;
 	}
 	.sub {

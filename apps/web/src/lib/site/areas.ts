@@ -1,10 +1,11 @@
-// Each part of the site owns one color; pages outside an area stay neutral (ink). No main color.
+// Each part of the site owns one palette hue; pages outside an area stay neutral (ink). No main color.
+// hue and color mirror app.css (--area-<area>: var(--<hue>), --<hue>: <color>); areas.test.ts checks both.
 export const AREAS = {
-	learn: { label: 'Learning path', color: '#ccf900' },
-	practice: { label: 'Practice', color: '#3debd8' },
-	competitive: { label: 'Competitive', color: '#ff6b1f' },
-	map: { label: 'Finger map', color: '#a08cff' },
-	games: { label: 'Games', color: '#ffc72c' }
+	learn: { label: 'Learning path', hue: 'lime', color: '#ccf900' },
+	practice: { label: 'Practice', hue: 'cyan', color: '#3debd8' },
+	competitive: { label: 'Competitive', hue: 'orange', color: '#ff6b1f' },
+	map: { label: 'Finger map', hue: 'violet', color: '#a08cff' },
+	games: { label: 'Games', hue: 'amber', color: '#ffc72c' }
 } as const;
 
 export type Area = keyof typeof AREAS;

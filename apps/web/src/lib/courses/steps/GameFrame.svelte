@@ -178,7 +178,7 @@
 	.life {
 		width: 16px;
 		height: 16px;
-		background: var(--rose);
+		background: var(--life);
 		clip-path: polygon(50% 100%, 0 38%, 12% 8%, 34% 4%, 50% 20%, 66% 4%, 88% 8%, 100% 38%);
 		transition:
 			opacity 200ms ease,
@@ -198,7 +198,7 @@
 	.bar span {
 		display: block;
 		height: 100%;
-		background: linear-gradient(90deg, var(--green), var(--accent));
+		background: linear-gradient(90deg, var(--success), var(--accent));
 		transform-origin: left;
 		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
@@ -276,8 +276,8 @@
 		gap: 6px;
 		padding: 6px 12px;
 		border-radius: 3px;
-		background: var(--green-soft);
-		color: var(--green);
+		background: var(--success-soft);
+		color: var(--success);
 		font-weight: 600;
 		font-size: 14px;
 	}
@@ -342,7 +342,7 @@
 		margin-left: 6px;
 		padding: 1px 6px;
 		border-radius: 3px;
-		background: rgb(0 0 0 / 0.12);
+		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: 12px;
 	}
@@ -364,7 +364,7 @@
 		margin-left: 6px;
 		padding: 1px 6px;
 		border-radius: 3px;
-		background: rgb(0 0 0 / 0.12);
+		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: 12px;
 	}

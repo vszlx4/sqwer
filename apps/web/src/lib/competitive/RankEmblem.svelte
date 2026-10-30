@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { League } from '#lib/progress/competitive.ts';
+	import { ART_WHITE, LEAGUE_GLASS, UNRANKED_GLASS, ZENITH_ART, type Glass } from '#lib/progress/rank-art.ts';
 
 	/**
 	 * Rank emblem: one cut-glass shape per rank (triangle → octagon, then 4- to 8-point stars), shared by
@@ -15,21 +16,8 @@
 	let { league, size = 96, locked = false }: Props = $props();
 	const uid = $props.id();
 
-	type Glass = { light: string; base: string; dark: string; deep: string };
-	const GLASS: Record<string, Glass> = {
-		silver: { light: '#ffffff', base: '#b8c2cd', dark: '#6c7787', deep: '#2c333d' },
-		gold: { light: '#fff3b8', base: '#f2b51c', dark: '#a86a00', deep: '#4a2c00' },
-		diamond: { light: '#e4f0ff', base: '#78a8f5', dark: '#2f5fc4', deep: '#0f2560' },
-		master: { light: '#d9fff0', base: '#34c995', dark: '#0e7a57', deep: '#033324' },
-		elite: { light: '#e6fdff', base: '#6ad6ef', dark: '#1a8eb0', deep: '#053a4c' },
-		champion: { light: '#ffe0fb', base: '#e04ae0', dark: '#8e1595', deep: '#3d0642' },
-		grandmaster: { light: '#efe6ff', base: '#9b7cf6', dark: '#5634c4', deep: '#1f0f5c' },
-		prodigy: { light: '#ffe6d2', base: '#ff7a2e', dark: '#b53d06', deep: '#4d1500' },
-		overlord: { light: '#ffdbe3', base: '#ff2f5b', dark: '#a50a2c', deep: '#45000f' },
-		transcendent: { light: '#fffbd6', base: '#ffd02a', dark: '#d98a00', deep: '#6b3500' },
-		zenith: { light: '#ffffff', base: '#eef3ff', dark: '#a9b8d6', deep: '#5d6b8a' }
-	};
-	const UNRANKED: Glass = { light: '#ececea', base: '#a3a39d', dark: '#5f5f5a', deep: '#2a2a28' };
+	const GLASS: Record<string, Glass> = LEAGUE_GLASS;
+	const UNRANKED = UNRANKED_GLASS;
 
 	type Point = [number, number];
 	/** An outline in unit coordinates; `table` is the size of the flat top face, 0 for a pyramid cut. */
@@ -118,25 +106,25 @@
 		const mids = [-0.75, -0.25, 0.25, 0.75].map((x) => Z(x * 0.5, 0.36));
 		const faces: [Point[], string][] = [
 			// Crown
-			[[G[0]!, A, G[1]!], '#f3f8ff'],
-			[[A, B, G[1]!], '#ffffff'],
-			[[B, G[1]!, G[2]!], '#e6efff'],
-			[[B, G[2]!, G[3]!], '#fbf3ff'],
-			[[B, C, G[3]!], '#f6fbff'],
-			[[C, G[3]!, G[4]!], '#d9e4f8'],
+			[[G[0]!, A, G[1]!], ZENITH_ART.crown[0]!],
+			[[A, B, G[1]!], ZENITH_ART.crown[1]!],
+			[[B, G[1]!, G[2]!], ZENITH_ART.crown[2]!],
+			[[B, G[2]!, G[3]!], ZENITH_ART.crown[3]!],
+			[[B, C, G[3]!], ZENITH_ART.crown[4]!],
+			[[C, G[3]!, G[4]!], ZENITH_ART.crown[5]!],
 			// Pavilion
-			[[G[0]!, G[1]!, mids[0]!], '#e9f2ff'],
-			[[G[0]!, mids[0]!, culet], '#c9d8f2'],
-			[[G[1]!, mids[0]!, culet], '#f4fbff'],
-			[[G[1]!, G[2]!, mids[1]!], '#fff7e8'],
-			[[G[1]!, mids[1]!, culet], '#dfe9fb'],
-			[[G[2]!, mids[1]!, culet], '#ffffff'],
-			[[G[2]!, G[3]!, mids[2]!], '#e8fbff'],
-			[[G[2]!, mids[2]!, culet], '#d4e1f6'],
-			[[G[3]!, mids[2]!, culet], '#fdf0ff'],
-			[[G[3]!, G[4]!, mids[3]!], '#dbe6f9'],
-			[[G[3]!, mids[3]!, culet], '#eef5ff'],
-			[[G[4]!, mids[3]!, culet], '#b9c9e6']
+			[[G[0]!, G[1]!, mids[0]!], ZENITH_ART.pavilion[0]!],
+			[[G[0]!, mids[0]!, culet], ZENITH_ART.pavilion[1]!],
+			[[G[1]!, mids[0]!, culet], ZENITH_ART.pavilion[2]!],
+			[[G[1]!, G[2]!, mids[1]!], ZENITH_ART.pavilion[3]!],
+			[[G[1]!, mids[1]!, culet], ZENITH_ART.pavilion[4]!],
+			[[G[2]!, mids[1]!, culet], ZENITH_ART.pavilion[5]!],
+			[[G[2]!, G[3]!, mids[2]!], ZENITH_ART.pavilion[6]!],
+			[[G[2]!, mids[2]!, culet], ZENITH_ART.pavilion[7]!],
+			[[G[3]!, mids[2]!, culet], ZENITH_ART.pavilion[8]!],
+			[[G[3]!, G[4]!, mids[3]!], ZENITH_ART.pavilion[9]!],
+			[[G[3]!, mids[3]!, culet], ZENITH_ART.pavilion[10]!],
+			[[G[4]!, mids[3]!, culet], ZENITH_ART.pavilion[11]!]
 		];
 		return { outline: poly([A, C, G[4]!, culet, G[0]!]), faces: faces.map(([pts, fill]) => ({ points: poly(pts), fill })) };
 	});
@@ -161,8 +149,8 @@
 			<stop offset="1" stop-color={g.light} stop-opacity="0" />
 		</radialGradient>
 		<linearGradient id={`${uid}-gloss`} x1="0" y1="0" x2="0.4" y2="1">
-			<stop offset="0" stop-color="#fff" stop-opacity="0.75" />
-			<stop offset="1" stop-color="#fff" stop-opacity="0" />
+			<stop offset="0" stop-color={ART_WHITE} stop-opacity="0.75" />
+			<stop offset="1" stop-color={ART_WHITE} stop-opacity="0" />
 		</linearGradient>
 		<clipPath id={`${uid}-clip`}>
 			<polygon points={zenith ? zenithCut.outline : cut.outline} />
@@ -170,19 +158,19 @@
 	</defs>
 
 	{#if zenith}
-		<polygon points={zenithCut.outline} transform="translate(0 3)" fill="#7d8fb3" />
+		<polygon points={zenithCut.outline} transform="translate(0 3)" fill={ZENITH_ART.shadow} />
 		{#each zenithCut.faces as f, i (i)}
-			<polygon points={f.points} fill={f.fill} stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round" />
+			<polygon points={f.points} fill={f.fill} stroke={ART_WHITE} stroke-width="0.9" stroke-linejoin="round" />
 		{/each}
 		<g clip-path={`url(#${uid}-clip)`}>
 			<polygon points={poly([Z(-1.1, -0.8), Z(0.25, -0.8), Z(-0.35, 0.3), Z(-1.1, 0.1)])} fill={`url(#${uid}-gloss)`} opacity="0.7" />
-			<polygon points={poly([Z(0.1, 0.1), Z(0.32, -0.1), Z(0.04, 0.8)])} fill="#c7f3ff" opacity="0.55" />
-			<polygon points={poly([Z(-0.5, -0.1), Z(-0.3, -0.05), Z(-0.12, 0.6)])} fill="#ffd9f4" opacity="0.5" />
-			<polygon points={poly([Z(0.5, -0.2), Z(0.7, -0.2), Z(0.2, 0.55)])} fill="#fff1c4" opacity="0.5" />
+			<polygon points={poly([Z(0.1, 0.1), Z(0.32, -0.1), Z(0.04, 0.8)])} fill={ZENITH_ART.flashes[0]} opacity="0.55" />
+			<polygon points={poly([Z(-0.5, -0.1), Z(-0.3, -0.05), Z(-0.12, 0.6)])} fill={ZENITH_ART.flashes[1]} opacity="0.5" />
+			<polygon points={poly([Z(0.5, -0.2), Z(0.7, -0.2), Z(0.2, 0.55)])} fill={ZENITH_ART.flashes[2]} opacity="0.5" />
 		</g>
-		<polygon points={zenithCut.outline} fill="none" stroke="#7a8bb0" stroke-width="1.3" stroke-linejoin="round" />
+		<polygon points={zenithCut.outline} fill="none" stroke={ZENITH_ART.outline} stroke-width="1.3" stroke-linejoin="round" />
 		{#each SPARKS as s (s.x)}
-			<path d={sparkPath(s.x, s.y, s.s)} fill="#ffffff" class="spark" style:animation-delay={`${s.d}s`} style:transform-origin={`${s.x}px ${s.y}px`} />
+			<path d={sparkPath(s.x, s.y, s.s)} fill={ART_WHITE} class="spark" style:animation-delay={`${s.d}s`} style:transform-origin={`${s.x}px ${s.y}px`} />
 		{/each}
 	{:else}
 		<polygon points={cut.outline} transform={`translate(0 ${frame.r * 0.07})`} fill={g.deep} stroke={g.deep} stroke-width="1.5" stroke-linejoin="round" />
@@ -221,7 +209,7 @@
 	.emblem {
 		flex-shrink: 0;
 		overflow: visible;
-		filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.28));
+		filter: drop-shadow(0 3px 4px var(--art-drop-strong));
 	}
 	.emblem.locked {
 		filter: grayscale(1) opacity(0.35);

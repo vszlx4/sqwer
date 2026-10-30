@@ -392,7 +392,7 @@
 		transition: color 140ms ease;
 	}
 	.note a:hover {
-		color: var(--violet);
+		color: var(--rank);
 	}
 	@media (max-width: 820px) {
 		.options {

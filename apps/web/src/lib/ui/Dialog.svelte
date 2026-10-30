@@ -61,7 +61,7 @@
 		animation: dialog-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
 	}
 	dialog::backdrop {
-		background: rgb(0 0 0 / 0.45);
+		background: var(--scrim);
 		-webkit-backdrop-filter: blur(2px);
 		backdrop-filter: blur(2px);
 	}

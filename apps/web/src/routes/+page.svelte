@@ -483,19 +483,19 @@
 	/* ---------- Games ---------- */
 	.games {
 		padding: clamp(64px, 9vw, 112px) 0;
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	.games::before {
 		background:
 			radial-gradient(ellipse 50% 60% at 85% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
-			radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.06) 1px, transparent 0) 0 0 / 24px 24px,
-			#0b0b0b;
+			radial-gradient(circle at 1px 1px, var(--band-dot) 1px, transparent 0) 0 0 / 24px 24px,
+			var(--band-bg);
 	}
 	.games .kicker {
 		color: var(--accent);
 	}
 	.games .section-head > p:last-child {
-		color: #b9b9b3;
+		color: var(--band-ink-2);
 	}
 	.game-grid {
 		display: grid;
@@ -509,15 +509,15 @@
 		gap: 8px;
 		padding: 14px 14px 20px;
 		border-radius: 3px;
-		border: 1px solid #262626;
-		background: #121212;
+		border: 1px solid var(--band-line);
+		background: var(--band-surface);
 		transition:
 			transform 220ms ease,
 			border-color 220ms ease;
 	}
 	.game:hover {
 		transform: translateY(-3px);
-		border-color: #3a3a3a;
+		border-color: var(--band-line-strong);
 	}
 	.game h3 {
 		margin-top: 8px;
@@ -527,7 +527,7 @@
 	.game p {
 		font-size: 14.5px;
 		line-height: 1.5;
-		color: #b9b9b3;
+		color: var(--band-ink-2);
 	}
 	.preview {
 		position: relative;
@@ -536,12 +536,12 @@
 		border-radius: 3px;
 		background:
 			radial-gradient(120% 90% at 50% 120%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
-			radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.05) 1px, transparent 0) 0 0 / 16px 16px,
-			#0b0b0b;
-		border: 1px solid #1f1f1f;
+			radial-gradient(circle at 1px 1px, var(--band-dot) 1px, transparent 0) 0 0 / 16px 16px,
+			var(--band-bg);
+		border: 1px solid var(--band-line);
 	}
 	.game:hover .preview {
-		border-color: #333;
+		border-color: var(--band-line-strong);
 	}
 	/* Falling letters: keycaps drop, and one bursts as it is typed. */
 	.fl {
@@ -552,9 +552,9 @@
 		width: 30px;
 		height: 30px;
 		border-radius: 3px;
-		border-bottom: 3px solid #9a9a93;
-		background: #f2f2ee;
-		color: #111;
+		border-bottom: 3px solid var(--band-ink-3);
+		background: var(--band-ink);
+		color: var(--band-bg);
 		font-family: var(--font-mono);
 		font-weight: 600;
 		animation: fall 3.4s linear infinite;
@@ -595,9 +595,9 @@
 		right: 0;
 		bottom: 0;
 		height: 14px;
-		background: color-mix(in srgb, var(--accent) 26%, #0b0b0b);
+		background: color-mix(in srgb, var(--accent) 26%, var(--band-bg));
 		border-top: 2px solid var(--accent);
-		box-shadow: 0 -10px 24px -8px rgb(204 249 0 / 0.5);
+		box-shadow: 0 -10px 24px -8px color-mix(in srgb, var(--accent) 50%, transparent);
 	}
 	/* Falling words: whole words drop in place of letters. */
 	.fw {
@@ -625,8 +625,8 @@
 		width: 120px;
 		height: 56px;
 		border-radius: 3px;
-		background: rgb(204 249 0 / 0.08);
-		border: 1px solid rgb(204 249 0 / 0.25);
+		background: color-mix(in srgb, var(--accent) 8%, transparent);
+		border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
 	}
 	.wave {
 		display: flex;
@@ -654,7 +654,7 @@
 	.typed {
 		font-family: var(--font-mono);
 		font-size: 20px;
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	.caret {
 		display: inline-block;
@@ -687,10 +687,10 @@
 		width: 20px;
 		height: 22px;
 		border-radius: 3px;
-		border: 1px solid #2c2c2c;
+		border: 1px solid var(--band-line);
 		border-bottom-width: 2px;
-		background: #151515;
-		color: #77776f;
+		background: var(--band-surface);
+		color: var(--band-ink-3);
 		font-family: var(--font-mono);
 		font-size: 10px;
 		font-weight: 600;
@@ -699,8 +699,8 @@
 	.mk.target {
 		border-color: var(--accent);
 		background: var(--accent);
-		color: #111;
-		box-shadow: 0 0 16px rgb(204 249 0 / 0.6);
+		color: var(--on-accent);
+		box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 60%, transparent);
 		animation: hunt 2.4s ease-in-out infinite;
 	}
 	@keyframes hunt {
@@ -719,7 +719,7 @@
 		width: 120px;
 		height: 4px;
 		border-radius: 3px;
-		background: linear-gradient(90deg, var(--accent), #9a8cf2);
+		background: linear-gradient(90deg, var(--accent), var(--violet));
 		transform-origin: left;
 		animation: fuse 2.4s linear infinite;
 	}
@@ -737,7 +737,7 @@
 		width: 100%;
 		height: 22px;
 		border-radius: 3px;
-		background: #161616;
+		background: var(--band-surface-2);
 	}
 	.trail {
 		position: absolute;
@@ -752,7 +752,7 @@
 		background: linear-gradient(90deg, transparent, var(--accent));
 	}
 	.trail.pace {
-		background: linear-gradient(90deg, transparent, #9a8cf2);
+		background: linear-gradient(90deg, transparent, var(--violet));
 		animation-duration: 4.4s;
 	}
 	@keyframes trail {
@@ -774,10 +774,10 @@
 	}
 	.runner.me {
 		background: var(--accent);
-		box-shadow: 0 0 12px rgb(204 249 0 / 0.6);
+		box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
 	}
 	.runner.pace {
-		background: #9a8cf2;
+		background: var(--violet);
 		animation-duration: 4.4s;
 	}
 	@keyframes run {
@@ -791,20 +791,20 @@
 		right: 0;
 		width: 8px;
 		height: 100%;
-		background: conic-gradient(#f2f2ee 25%, #0b0b0b 0 50%, #f2f2ee 0 75%, #0b0b0b 0) 0 0 / 4px 4px;
+		background: conic-gradient(var(--band-ink) 25%, var(--band-bg) 0 50%, var(--band-ink) 0 75%, var(--band-bg) 0) 0 0 / 4px 4px;
 		border-radius: 0 3px 3px 0;
 	}
 	.race-text {
 		align-self: flex-start;
 		font-family: var(--font-mono);
 		font-size: 16px;
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	.race-text b {
 		color: var(--accent);
 	}
 	.race-text span {
-		color: #5a5a55;
+		color: var(--band-ink-4);
 	}
 	/* Echo: keys light up in turn, then turn green as they are repeated. */
 	.echo-label {
@@ -812,7 +812,7 @@
 		font-weight: 600;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		color: #8e8e88;
+		color: var(--band-ink-3);
 	}
 	.echo-row {
 		display: flex;
@@ -824,10 +824,10 @@
 		width: 38px;
 		height: 40px;
 		border-radius: 3px;
-		border: 1px solid #333;
+		border: 1px solid var(--band-line-strong);
 		border-bottom-width: 3px;
-		background: #161616;
-		color: #8e8e88;
+		background: var(--band-surface-2);
+		color: var(--band-ink-3);
 		font-family: var(--font-mono);
 		font-size: 14px;
 		font-weight: 600;
@@ -838,19 +838,19 @@
 	@keyframes echo {
 		0%,
 		24% {
-			background: #161616;
+			background: var(--band-surface-2);
 		}
 		8% {
 			background: var(--accent);
 			border-color: var(--accent);
-			color: #111;
-			box-shadow: 0 0 14px rgb(204 249 0 / 0.5);
+			color: var(--on-accent);
+			box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 50%, transparent);
 		}
 		58%,
 		100% {
-			background: color-mix(in srgb, #2fc48a 30%, #161616);
-			border-color: #2fc48a;
-			color: #f2f2ee;
+			background: color-mix(in srgb, var(--lime) 30%, var(--band-surface-2));
+			border-color: var(--lime);
+			color: var(--band-ink);
 		}
 	}
 	/* ---------- Ranks ---------- */

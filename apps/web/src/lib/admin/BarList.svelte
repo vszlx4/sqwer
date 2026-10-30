@@ -109,7 +109,7 @@
 		text-decoration: none;
 	}
 	a.name:hover {
-		color: var(--violet);
+		color: var(--rank);
 	}
 	a.name:focus-visible {
 		outline: 2px solid var(--ink);

@@ -618,7 +618,7 @@
 		margin-left: 6px;
 		padding: 1px 6px;
 		border-radius: 3px;
-		background: rgb(0 0 0 / 0.12);
+		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: 12px;
 	}
