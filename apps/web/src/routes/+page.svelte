@@ -261,7 +261,9 @@
 		--band: radial-gradient(ellipse 46% 52% at 50% 50%, var(--bg) 30%, color-mix(in srgb, var(--bg) 70%, transparent) 60%, transparent 100%);
 		display: grid;
 		place-items: center;
-		min-height: min(100dvh, calc(860px + var(--header-h)));
+		/* Fills the first screen; svh keeps it steady while mobile toolbars move. */
+		min-height: 100vh;
+		min-height: 100svh;
 		/* Starts at the page top, under the floating header and over main's top padding. */
 		margin-top: calc(-1 * (var(--header-h) + var(--main-top)));
 		padding: calc(var(--header-h) + clamp(48px, 10vh, 112px)) 0 clamp(48px, 10vh, 112px);
@@ -371,11 +373,26 @@
 	.road {
 		padding: clamp(64px, 9vw, 112px) 0;
 	}
+	/* A survey-map ground: area-tinted light from the top over the surface. */
 	.road::before {
 		background:
-			repeating-linear-gradient(135deg, color-mix(in srgb, var(--ink) 3%, transparent) 0 1px, transparent 1px 14px),
+			radial-gradient(ellipse 70% 55% at 50% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
+			radial-gradient(ellipse 45% 35% at 100% 100%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%),
 			var(--surface);
 		border-block: 1px solid var(--line);
+	}
+	/* Map grid with key-sized cells, fading out toward the edges. */
+	.road::after {
+		content: '';
+		position: absolute;
+		inset: 0 calc(50% - 50vw);
+		z-index: -1;
+		pointer-events: none;
+		--grid: color-mix(in srgb, var(--ink) 7%, transparent);
+		background:
+			linear-gradient(var(--grid) 1px, transparent 1px) 50% 0 / 40px 40px,
+			linear-gradient(90deg, var(--grid) 1px, transparent 1px) 50% 0 / 40px 40px;
+		mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 25%, transparent 100%);
 	}
 	.timeline {
 		position: relative;
@@ -964,7 +981,6 @@
 	@media (max-width: 900px) {
 		.hero {
 			--band: radial-gradient(ellipse 95% 48% at 50% 50%, var(--bg) 40%, color-mix(in srgb, var(--bg) 70%, transparent) 70%, transparent 100%);
-			min-height: min(100dvh, calc(680px + var(--header-h)));
 		}
 		.split {
 			grid-template-columns: 1fr;
