@@ -69,13 +69,12 @@
 			{/if}
 		</div>
 		<div class="hero-copy">
-			<p class="kicker rise">A typing course for everyone</p>
-			<h1 id="hero-title" class="rise" style:--d="60ms">Stop looking down. Start typing <span class="mark">for real</span>.</h1>
-			<p class="lede rise" style:--d="120ms">
+			<h1 id="hero-title" class="rise">Stop looking down. Start typing <span class="mark">for real</span>.</h1>
+			<p class="lede rise" style:--d="60ms">
 				Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and
 				for self-taught typists who want to do it right.
 			</p>
-			<div class="hero-action rise" style:--d="180ms">
+			<div class="hero-action rise" style:--d="120ms">
 				{#if returning && next}
 					<p class="resume"><Icon name="route" size={16} /> {next.title}</p>
 					<a class="btn btn-primary btn-lg" href={next.href}>{next.action} <Icon name="arrow" size={18} /></a>
@@ -84,7 +83,7 @@
 				{/if}
 				<a class="link-arrow quiet" href="#road">See the whole course <Icon name="chevron" size={16} class="down" /></a>
 			</div>
-			<ul class="facts rise" style:--d="240ms" aria-label="Key facts">
+			<ul class="facts rise" style:--d="180ms" aria-label="Key facts">
 				<li><Icon name="check" size={16} /> Free</li>
 				<li><Icon name="flag" size={16} /> Starts from zero</li>
 				<li><Icon name="lock" size={16} /> No ads or tracking</li>
@@ -297,7 +296,6 @@
 		max-width: 820px;
 	}
 	h1 {
-		margin-top: 14px;
 		font-size: clamp(42px, 6vw, 84px);
 		line-height: 1;
 		letter-spacing: -0.025em;
