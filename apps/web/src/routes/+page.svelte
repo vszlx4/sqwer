@@ -8,6 +8,8 @@
 	import RankBadge from '#lib/courses/RankBadge.svelte';
 	import { courses } from '#lib/courses/store.svelte.ts';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
+	import { motion, whenMotion } from '#lib/motion/gsap.ts';
+	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import { areaRgb } from '#lib/site/areas.ts';
 	import Seo from '#lib/site/Seo.svelte';
@@ -16,12 +18,28 @@
 	import { reveal } from '#lib/ui/reveal.ts';
 
 	let ready = $state(false);
+	let heroCopy: HTMLElement;
 	onMount(() => {
 		results.load();
 		ready = true;
 		// three.js loads in its own chunk after the page is up.
 		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
+		const mm = whenMotion(() => enterHero(heroCopy));
+		return () => mm.revert();
 	});
+
+	// Hero copy rises in on load. CSS holds it hidden until then; skip if its fallback already showed it.
+	function enterHero(copy: HTMLElement) {
+		const parts = copy.children;
+		const shown = getComputedStyle(parts[0]).opacity === '1';
+		copy.dataset.entered = '';
+		if (shown) return;
+		motion().fromTo(
+			parts,
+			{ opacity: 0, y: 14 },
+			{ opacity: 1, y: 0, duration: DURATIONS.reveal, ease: 'out-soft', stagger: STAGGER.base, clearProps: 'transform' }
+		);
+	}
 	let Dither = $state<Component<{ waveColors?: [number, number, number][]; colorNum?: number; pixelSize?: number; waveSpeed?: number; waveAmplitude?: number; enableMouseInteraction?: boolean }>>();
 
 	// Returning learners are offered their next step instead of starting again.
@@ -68,13 +86,13 @@
 				<Dither waveColors={areaRgb()} colorNum={4} pixelSize={2} waveSpeed={0.03} waveAmplitude={0.3} enableMouseInteraction={false} />
 			{/if}
 		</div>
-		<div class="hero-copy">
-			<h1 id="hero-title" class="rise">Stop looking down. Start typing <span class="mark">for real</span>.</h1>
-			<p class="lede rise" style:--d="60ms">
+		<div class="hero-copy" bind:this={heroCopy}>
+			<h1 id="hero-title">Stop looking down. Start typing <span class="mark">for real</span>.</h1>
+			<p class="lede">
 				Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and
 				for self-taught typists who want to do it right.
 			</p>
-			<div class="hero-action rise" style:--d="120ms">
+			<div class="hero-action">
 				{#if returning && next}
 					<p class="resume"><Icon name="route" size={16} /> {next.title}</p>
 					<a class="btn btn-primary btn-lg" href={next.href}>{next.action} <Icon name="arrow" size={18} /></a>
@@ -83,7 +101,7 @@
 				{/if}
 				<a class="link-arrow quiet" href="#road">See the whole course <Icon name="chevron" size={16} class="down" /></a>
 			</div>
-			<ul class="facts rise" style:--d="180ms" aria-label="Key facts">
+			<ul class="facts" aria-label="Key facts">
 				<li><Icon name="check" size={16} /> Free</li>
 				<li><Icon name="flag" size={16} /> Starts from zero</li>
 				<li><Icon name="lock" size={16} /> No ads or tracking</li>
@@ -358,14 +376,16 @@
 		align-items: center;
 		gap: 7px;
 	}
-	.rise {
-		animation: rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-		animation-delay: var(--d, 0ms);
-	}
-	@keyframes rise {
-		from {
+	/* Held until enterHero runs; shown anyway after 2s if scripts never do. */
+	@media (prefers-reduced-motion: no-preference) {
+		.hero-copy:not([data-entered]) > * {
 			opacity: 0;
-			transform: translateY(14px);
+			animation: hero-fallback 0s 2s forwards;
+		}
+	}
+	@keyframes hero-fallback {
+		to {
+			opacity: 1;
 		}
 	}
 
