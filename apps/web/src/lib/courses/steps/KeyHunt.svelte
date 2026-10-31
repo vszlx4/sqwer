@@ -133,7 +133,7 @@
 						<span class="fuse" class:paused></span>
 					</span>
 				{/key}
-				<span class="finger" style:color={`var(--f-${kindOf(main.finger)})`}>{fingerName(main.finger)}</span>
+				<span class="finger" style:color={`var(--f-${kindOf(main.finger)}-ink)`}>{fingerName(main.finger)}</span>
 				<span class="sr-only">Press {keyName(current)}</span>
 			{/if}
 		</div>

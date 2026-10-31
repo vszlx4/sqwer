@@ -311,9 +311,9 @@
 	}
 	.slots li.filled {
 		border-style: solid;
-		border-color: var(--green);
-		background: var(--green-soft);
-		color: var(--green);
+		border-color: var(--success);
+		background: var(--success-soft);
+		color: var(--success);
 	}
 	.board {
 		width: 100%;

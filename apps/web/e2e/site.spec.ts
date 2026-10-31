@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 
 test('home page: one primary action above the fold, leading to getting started', async ({ page }) => {
 	await page.goto('/');
-	await expect(page.getByRole('heading', { level: 1 })).toContainText('Learn to type');
+	await expect(page.getByRole('heading', { level: 1 })).toContainText('Stop looking down');
 	const main = page.getByRole('main');
 	// A single, specific primary action; the course is explained on the page itself.
 	await expect(main.locator('.btn-primary')).toHaveCount(1);
@@ -97,13 +97,18 @@ test('every page has a unique title', async ({ page }) => {
 test('mobile: menu navigates and nothing fixed covers the content', async ({ page }) => {
 	await page.setViewportSize({ width: 390, height: 800 });
 	await page.goto('/');
-	// Only the header may stay on screen while scrolling.
+	// Only the header and its menu layer (click-through while closed) may stay on screen while scrolling.
 	const fixed = await page.evaluate(() =>
-		[...document.querySelectorAll('body *')].filter((el) => getComputedStyle(el).position === 'fixed' && (el as HTMLElement).offsetHeight > 0).length
+		[...document.querySelectorAll('body *')].filter(
+			(el) =>
+				getComputedStyle(el).position === 'fixed' &&
+				(el as HTMLElement).offsetHeight > 0 &&
+				!el.classList.contains('staggered-menu-wrapper')
+		).length
 	);
 	expect(fixed).toBe(0);
 	await page.getByRole('button', { name: 'Open menu' }).click();
-	await page.locator('#mobile-menu').getByRole('link', { name: /Competitive/ }).click();
+	await page.locator('#staggered-menu-panel').getByRole('link', { name: /Competitive/ }).click();
 	await expect(page).toHaveURL(/\/competitive$/);
 });
 

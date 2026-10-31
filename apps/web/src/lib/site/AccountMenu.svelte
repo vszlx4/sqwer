@@ -83,7 +83,7 @@
 		aria-label={`Account menu for ${name}, level ${user.level.level}`}
 		onclick={toggle}
 	>
-		<Avatar {name} color={user.profile?.avatarColor ?? 'ink'} size={32} src={user.avatar} />
+		<Avatar {name} color={user.profile?.avatarColor ?? 'ink'} size={30} src={user.avatar} />
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<span class="lvl" aria-hidden="true" onmouseenter={() => (peek = !open)} onmouseleave={() => (peek = false)}>{user.level.level}</span>
 	</button>
@@ -157,20 +157,28 @@
 	.account-menu {
 		position: relative;
 	}
-	/* The picture and the level read as one element: two squares of the same size, side by side. */
+	/* Picture and level in one pill chip, sized and rounded like the other header controls. */
 	.trigger {
 		display: flex;
 		align-items: center;
-		padding: 0;
-		border: 0;
-		border-radius: 3px;
-		background: none;
+		gap: 3px;
+		height: 38px;
+		padding: 3px;
+		border: 1px solid var(--line-strong);
+		border-radius: 999px;
+		background: var(--surface);
 		cursor: pointer;
 		outline-offset: 3px;
-		transition: transform 140ms ease;
+		transition:
+			border-color 140ms ease,
+			transform 140ms ease;
 	}
 	.account-menu .trigger :global(.avatar) {
-		border-radius: 3px 0 0 3px;
+		border-radius: 999px;
+	}
+	.trigger:hover,
+	.trigger[aria-expanded='true'] {
+		border-color: var(--ink);
 	}
 	.trigger:active {
 		transform: translateY(1px);
@@ -178,11 +186,12 @@
 	.lvl {
 		display: grid;
 		place-items: center;
-		width: 32px;
-		height: 32px;
-		border-radius: 0 3px 3px 0;
+		min-width: 30px;
+		height: 30px;
+		padding: 0 8px;
+		border-radius: 999px;
 		background: var(--violet);
-		color: #fff;
+		color: var(--on-hue);
 		font-size: 13px;
 		font-weight: 700;
 		font-variant-numeric: tabular-nums;
@@ -226,7 +235,7 @@
 	}
 	.card-head b {
 		font-size: 14px;
-		color: var(--violet);
+		color: var(--rank);
 	}
 	.card dl {
 		display: flex;
@@ -271,7 +280,7 @@
 	.bar span {
 		display: block;
 		height: 100%;
-		background: linear-gradient(90deg, var(--violet), var(--accent));
+		background: var(--xp-bar);
 		transform-origin: left;
 	}
 	.panel {
@@ -329,7 +338,7 @@
 		gap: 8px;
 		font-size: 13px;
 		font-weight: 700;
-		color: var(--violet);
+		color: var(--rank);
 	}
 	.level .xp {
 		font-weight: 500;

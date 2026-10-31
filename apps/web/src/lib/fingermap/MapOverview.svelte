@@ -246,7 +246,7 @@
 			/>
 			<ul class="legend">
 				{#each [['pinky', 'Little finger'], ['ring', 'Ring finger'], ['middle', 'Middle finger'], ['index', 'Index finger'], ['thumb', 'Thumb']] as [f, name] (f)}
-					<li><span class="swatch" style:background={`var(--f-${f})`}></span>{name}</li>
+					<li><span class="swatch" style:background={`var(--zone-${f})`}></span>{name}</li>
 				{/each}
 				<li><span class="swatch striped"></span>Requires more entries</li>
 				<li><span class="muted">A stronger color indicates more consistent entries</span></li>
@@ -278,7 +278,7 @@
 							{#each FINGERS.filter((f) => detail.counts[f]) as f (f)}
 								<li>
 									<span class="bar-label">{lower(f)}</span>
-									<span class="bar-track"><span style:width={`${((detail.counts[f] ?? 0) / detail.samples) * 100}%`} style:background={`var(--f-${kindOf(f)})`}></span></span>
+									<span class="bar-track"><span style:width={`${((detail.counts[f] ?? 0) / detail.samples) * 100}%`} style:background={`var(--zone-${kindOf(f)})`}></span></span>
 									<span class="bar-value">{detail.counts[f]}</span>
 								</li>
 							{/each}
@@ -428,7 +428,7 @@
 	}
 	.btn.danger.solid {
 		background: var(--error);
-		color: #fff;
+		color: var(--white);
 		border-color: transparent;
 	}
 	.check {

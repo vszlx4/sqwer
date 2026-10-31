@@ -165,11 +165,11 @@
 		pointer-events: none;
 	}
 	:global([data-theme='dark']) .caret {
-		box-shadow: 0 0 12px rgb(204 249 0 / 0.45);
+		box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 45%, transparent);
 	}
 	@media (prefers-color-scheme: dark) {
 		:global(:root:not([data-theme='light'])) .caret {
-			box-shadow: 0 0 12px rgb(204 249 0 / 0.45);
+			box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 45%, transparent);
 		}
 	}
 	.caret.blink {

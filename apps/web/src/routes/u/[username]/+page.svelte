@@ -13,12 +13,12 @@
 	const stats = $derived([
 		...(s.stats
 			? [
-					{ label: 'Best speed', value: s.stats.wpm != null ? `${Math.round(s.stats.wpm)} WPM` : 'None yet', tone: 'blue' as const },
-					{ label: 'Best accuracy', value: s.stats.accuracy != null ? `${Math.round(s.stats.accuracy)}%` : 'None yet', tone: 'green' as const },
-					{ label: 'Lessons', value: String(s.stats.lessons), tone: 'violet' as const }
+					{ label: 'Best speed', value: s.stats.wpm != null ? `${Math.round(s.stats.wpm)} WPM` : 'None yet', tone: 'info' as const },
+					{ label: 'Best accuracy', value: s.stats.accuracy != null ? `${Math.round(s.stats.accuracy)}%` : 'None yet', tone: 'success' as const },
+					{ label: 'Lessons', value: String(s.stats.lessons), tone: 'rank' as const }
 				]
 			: []),
-		...(s.streak != null ? [{ label: 'Streak', value: `${s.streak} ${s.streak === 1 ? 'day' : 'days'}`, tone: 'orange' as const }] : [])
+		...(s.streak != null ? [{ label: 'Streak', value: `${s.streak} ${s.streak === 1 ? 'day' : 'days'}`, tone: 'streak' as const }] : [])
 	]);
 </script>
 
@@ -141,7 +141,7 @@
 		font-size: 17px;
 	}
 	.rank-line b {
-		color: var(--violet);
+		color: var(--rank);
 	}
 	.note {
 		font-size: 14px;
@@ -156,7 +156,7 @@
 	.bar span {
 		display: block;
 		height: 100%;
-		background: linear-gradient(90deg, var(--violet), var(--accent));
+		background: var(--xp-bar);
 		transform-origin: left;
 	}
 	@media (max-width: 760px) {

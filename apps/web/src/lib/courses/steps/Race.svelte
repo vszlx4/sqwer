@@ -217,7 +217,7 @@
 		background: linear-gradient(90deg, transparent, var(--accent));
 	}
 	.trail.pacer {
-		background: linear-gradient(90deg, transparent, var(--violet));
+		background: linear-gradient(90deg, transparent, var(--rank));
 	}
 	.runner {
 		position: absolute;
@@ -239,7 +239,7 @@
 	}
 	.runner.pacer {
 		background: var(--violet);
-		color: #fff;
+		color: var(--on-hue);
 	}
 	.name small {
 		display: block;

@@ -34,7 +34,7 @@
 <Seo title="Competitive" description="Ranked typing: a 60-second test, eleven ranks from Silver to Zenith, and leaderboards by speed and by level." />
 
 <div class="competitive">
-	<section class="arena band" aria-labelledby="arena-title">
+	<section class="arena band on-dark" aria-labelledby="arena-title">
 		<div class="arena-grid">
 			<div class="intro">
 				<p class="kicker"><span class="live-dot" aria-hidden="true"></span> Ranked</p>
@@ -198,20 +198,20 @@
 	.competitive {
 		display: flex;
 		flex-direction: column;
-		/* The page opens straight into the arena. */
-		margin-top: calc(clamp(20px, 4vh, 44px) * -1);
+		/* The page opens straight into the arena, under the floating header. */
+		margin-top: calc(-1 * (var(--header-h) + var(--main-top)));
 	}
 	/* Arena: the competitive area is dark in both themes. */
 	.arena {
-		padding: clamp(40px, 6vw, 72px) 0 clamp(40px, 6vw, 64px);
-		color: #f2f2ee;
+		padding: calc(var(--header-h) + clamp(40px, 6vw, 72px)) 0 clamp(40px, 6vw, 64px);
+		color: var(--band-ink);
 	}
 	.arena::before {
 		background:
 			radial-gradient(60% 80% at 80% 20%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
-			radial-gradient(50% 70% at 0% 100%, rgb(122 82 224 / 0.18), transparent 60%),
-			repeating-linear-gradient(115deg, transparent 0 22px, rgb(255 255 255 / 0.018) 22px 23px),
-			#070707;
+			radial-gradient(50% 70% at 0% 100%, color-mix(in srgb, var(--violet) 18%, transparent), transparent 60%),
+			repeating-linear-gradient(115deg, transparent 0 22px, color-mix(in srgb, var(--white) 2%, transparent) 22px 23px),
+			var(--band-bg-deep);
 	}
 	.arena-grid {
 		display: grid;
@@ -238,10 +238,10 @@
 	}
 	@keyframes live {
 		from {
-			box-shadow: 0 0 0 0 rgb(204 249 0 / 0.6);
+			box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
 		}
 		to {
-			box-shadow: 0 0 0 10px rgb(204 249 0 / 0);
+			box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent);
 		}
 	}
 	h1 {
@@ -255,7 +255,7 @@
 		max-width: 520px;
 		font-size: 17px;
 		line-height: 1.6;
-		color: #b9b9b3;
+		color: var(--band-ink-2);
 	}
 	.cta {
 		display: flex;
@@ -264,15 +264,15 @@
 		margin-top: 28px;
 	}
 	.play {
-		box-shadow: 0 0 32px -6px rgb(204 249 0 / 0.6);
+		box-shadow: 0 0 32px -6px color-mix(in srgb, var(--accent) 60%, transparent);
 	}
 	.ghost {
-		border-color: #3a3a3a;
+		border-color: var(--band-line-strong);
 		background: transparent;
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	.ghost:hover {
-		border-color: #f2f2ee;
+		border-color: var(--band-ink);
 	}
 	.me {
 		display: flex;
@@ -282,8 +282,8 @@
 		gap: 4px;
 		padding: 26px 24px 22px;
 		border-radius: 3px;
-		border: 1px solid #222;
-		background: linear-gradient(to bottom, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.01));
+		border: 1px solid var(--band-line);
+		background: linear-gradient(to bottom, var(--band-sheen), color-mix(in srgb, var(--white) 1%, transparent));
 	}
 	.me-emblem {
 		margin-top: -6px;
@@ -299,7 +299,7 @@
 		font-weight: 700;
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
-		color: #8e8e88;
+		color: var(--band-ink-3);
 	}
 	.me-name {
 		font-family: var(--font-serif);
@@ -308,7 +308,7 @@
 	}
 	.me-range {
 		font-size: 14px;
-		color: #a3a39c;
+		color: var(--band-ink-2);
 	}
 	.me-stats {
 		display: grid;
@@ -320,12 +320,12 @@
 	.me-stats div {
 		padding: 10px;
 		border-radius: 3px;
-		background: #111;
-		border: 1px solid #222;
+		background: var(--band-surface);
+		border: 1px solid var(--band-line);
 	}
 	.me-stats dt {
 		font-size: 11.5px;
-		color: #8e8e88;
+		color: var(--band-ink-3);
 	}
 	.me-stats dd {
 		font-size: 18px;
@@ -335,10 +335,10 @@
 	.me-stats small {
 		font-size: 12px;
 		font-weight: 500;
-		color: #8e8e88;
+		color: var(--band-ink-3);
 	}
 	.violet {
-		color: #a99cf5;
+		color: var(--violet);
 	}
 	.next {
 		width: 100%;
@@ -347,13 +347,13 @@
 	.next-bar {
 		height: 8px;
 		border-radius: 3px;
-		background: #1c1c1c;
+		background: var(--band-surface-2);
 		overflow: hidden;
 	}
 	.next-bar span {
 		display: block;
 		height: 100%;
-		background: linear-gradient(90deg, #7a52e0, var(--accent));
+		background: linear-gradient(90deg, var(--violet), var(--accent));
 		transform-origin: left;
 		transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
@@ -364,21 +364,21 @@
 		gap: 6px;
 		margin-top: 8px;
 		font-size: 13.5px;
-		color: #b9b9b3;
+		color: var(--band-ink-2);
 	}
 	.next-text b {
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	/* Ranks: a rail of emblems and the chosen rank in detail. */
 	.ranks {
 		padding: 44px 0 52px;
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	.ranks::before {
 		background:
 			radial-gradient(60% 60% at 50% 100%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%),
-			#0b0b0b;
-		border-top: 1px solid #1a1a1a;
+			var(--band-bg);
+		border-top: 1px solid var(--band-line);
 	}
 	.ranks-head {
 		display: flex;
@@ -410,7 +410,7 @@
 		border-radius: 3px;
 		border: 1px solid transparent;
 		background: none;
-		color: #8e8e88;
+		color: var(--band-ink-3);
 		font: inherit;
 		cursor: pointer;
 		scroll-snap-align: start;
@@ -421,12 +421,12 @@
 	}
 	.rank-tab:hover {
 		transform: translateY(-3px);
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	.rank-tab.active {
 		border-color: color-mix(in srgb, var(--league) 70%, transparent);
 		background: color-mix(in srgb, var(--league) 12%, transparent);
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	.rank-tab:not(.reached) :global(.emblem) {
 		opacity: 0.6;
@@ -441,7 +441,7 @@
 	}
 	.tab-from {
 		font-size: 11px;
-		color: #8e8e88;
+		color: var(--band-ink-3);
 		font-variant-numeric: tabular-nums;
 	}
 	.detail {
@@ -452,17 +452,17 @@
 		margin-top: 18px;
 		padding: 24px 28px;
 		border-radius: 3px;
-		border: 1px solid #222;
+		border: 1px solid var(--band-line);
 		background:
 			radial-gradient(70% 120% at 0% 50%, color-mix(in srgb, var(--league) 18%, transparent), transparent 60%),
-			#0f0f0f;
+			var(--band-surface);
 	}
 	.detail-kicker {
 		font-size: 12px;
 		font-weight: 700;
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
-		color: #8e8e88;
+		color: var(--band-ink-3);
 	}
 	.detail h3 {
 		font-family: var(--font-serif);
@@ -473,7 +473,7 @@
 	.detail-range {
 		margin-top: 4px;
 		font-size: 15px;
-		color: #b9b9b3;
+		color: var(--band-ink-2);
 	}
 	.divisions {
 		display: grid;
@@ -490,8 +490,8 @@
 		align-items: center;
 		padding: 10px 12px;
 		border-radius: 3px;
-		border: 1px solid #262626;
-		background: #141414;
+		border: 1px solid var(--band-line);
+		background: var(--band-surface);
 		text-align: left;
 	}
 	.divisions li.mine {
@@ -506,7 +506,7 @@
 	}
 	.div-range {
 		font-size: 13px;
-		color: #a3a39c;
+		color: var(--band-ink-2);
 		font-variant-numeric: tabular-nums;
 	}
 	.you {
@@ -516,7 +516,7 @@
 		padding: 1px 6px;
 		border-radius: 3px;
 		background: var(--accent);
-		color: #111;
+		color: var(--on-accent);
 		font-size: 11px;
 		font-weight: 800;
 	}
@@ -579,8 +579,8 @@
 	.place.p1 {
 		order: 2;
 		padding-top: 30px;
-		border-color: color-mix(in srgb, var(--amber) 60%, var(--line));
-		background: linear-gradient(to bottom, var(--amber-soft), var(--surface) 70%);
+		border-color: color-mix(in srgb, var(--reward) 60%, var(--line));
+		background: linear-gradient(to bottom, var(--reward-soft), var(--surface) 70%);
 	}
 	.place.p2 {
 		order: 1;
@@ -602,16 +602,16 @@
 		font-size: 17px;
 	}
 	.p1 .medal {
-		background: linear-gradient(135deg, #ffe58a, #c99410);
-		color: #3a2600;
+		background: linear-gradient(135deg, var(--medal-gold-hi), var(--medal-gold-lo));
+		color: var(--medal-gold-ink);
 	}
 	.p2 .medal {
-		background: linear-gradient(135deg, #f4f6f8, #9aa4b0);
-		color: #2c333d;
+		background: linear-gradient(135deg, var(--medal-silver-hi), var(--medal-silver-lo));
+		color: var(--medal-silver-ink);
 	}
 	.p3 .medal {
-		background: linear-gradient(135deg, #f1c49b, #b06a35);
-		color: #3b1d07;
+		background: linear-gradient(135deg, var(--medal-bronze-hi), var(--medal-bronze-lo));
+		color: var(--medal-bronze-ink);
 	}
 	.pod-name {
 		font-weight: 700;
@@ -636,7 +636,7 @@
 	}
 	.pod-level {
 		font-size: 12px;
-		color: var(--violet);
+		color: var(--rank);
 		font-weight: 700;
 	}
 	.rows {
@@ -689,8 +689,8 @@
 	.lvl {
 		padding: 3px 8px;
 		border-radius: 3px;
-		background: var(--violet-soft);
-		color: var(--violet);
+		background: var(--rank-soft);
+		color: var(--rank);
 		font-size: 12.5px;
 		font-weight: 700;
 		white-space: nowrap;

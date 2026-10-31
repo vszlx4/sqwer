@@ -292,10 +292,10 @@
 		font-variant-numeric: tabular-nums;
 	}
 	.mini dd.up {
-		color: var(--green);
+		color: var(--success);
 	}
 	.mini dd.xp {
-		color: var(--violet);
+		color: var(--rank);
 	}
 	.check {
 		display: flex;
@@ -308,7 +308,7 @@
 		color: var(--ink);
 	}
 	.check.verified :global(svg) {
-		color: var(--green);
+		color: var(--success);
 	}
 	.check.rejected :global(svg) {
 		color: var(--error);
@@ -335,7 +335,7 @@
 		margin-left: 4px;
 		padding: 1px 6px;
 		border-radius: 3px;
-		background: rgb(0 0 0 / 0.12);
+		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: 11px;
 	}

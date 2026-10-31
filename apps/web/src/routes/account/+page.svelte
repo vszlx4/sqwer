@@ -283,8 +283,8 @@
 		color: var(--ink-2);
 	}
 	.state.ok {
-		background: var(--green-soft);
-		color: var(--green);
+		background: var(--success-soft);
+		color: var(--success);
 	}
 	.state.warn {
 		background: var(--error-soft);
@@ -311,7 +311,7 @@
 		text-decoration: none;
 	}
 	.row-link:hover {
-		color: var(--violet);
+		color: var(--rank);
 	}
 	@media (max-width: 760px) {
 		.figures,

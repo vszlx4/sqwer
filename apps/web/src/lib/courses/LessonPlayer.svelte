@@ -375,7 +375,7 @@
 		color: var(--on-accent);
 	}
 	.track li.done .dot {
-		background: var(--green);
+		background: var(--success);
 		color: var(--bg);
 	}
 	.lesson-progress {
@@ -394,15 +394,15 @@
 	.lesson-bar span {
 		display: block;
 		height: 100%;
-		background: linear-gradient(90deg, var(--green), var(--accent));
+		background: linear-gradient(90deg, var(--success), var(--accent));
 		transform-origin: left;
 		transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
 	.pace {
 		padding: 2px 8px;
 		border-radius: 3px;
-		background: var(--blue-soft);
-		color: var(--blue);
+		background: var(--info-soft);
+		color: var(--info);
 		font-size: 12.5px;
 		font-weight: 700;
 		white-space: nowrap;
@@ -414,13 +414,13 @@
 		gap: 8px;
 		padding: 10px 12px;
 		border-radius: 3px;
-		background: var(--orange-soft);
+		background: var(--streak-soft);
 		color: var(--ink);
 		font-size: 14px;
 	}
 	.weak-note :global(svg) {
 		flex-shrink: 0;
-		color: var(--orange);
+		color: var(--streak);
 	}
 	.help {
 		display: flex;
@@ -431,7 +431,7 @@
 		padding: 14px 16px;
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
-		background: var(--blue-soft);
+		background: var(--info-soft);
 		color: var(--ink);
 		text-align: left;
 		font-size: 14.5px;
@@ -526,7 +526,7 @@
 		margin-left: 6px;
 		padding: 1px 6px;
 		border-radius: 3px;
-		background: rgb(0 0 0 / 0.12);
+		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: 12px;
 	}

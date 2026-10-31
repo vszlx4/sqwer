@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="%sqwer.lang%" dir="%sqwer.dir%">
+<html lang="%sqwer.lang%" dir="%sqwer.dir%"%sqwer.area%>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="color-scheme" content="light dark" />
-		<meta name="theme-color" content="#FBFAF4" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#F8F8F6" media="(prefers-color-scheme: light)" />
 		<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
 		<script nonce="%sveltekit.nonce%">
@@ -15,7 +15,7 @@
 				if (t !== 'system') {
 					const theme = t === 'dark' ? 'dark' : 'light';
 					document.documentElement.dataset.theme = theme;
-					for (const m of document.querySelectorAll('meta[name="theme-color"]')) m.content = theme === 'dark' ? '#000000' : '#FBFAF4';
+					for (const m of document.querySelectorAll('meta[name="theme-color"]')) m.content = theme === 'dark' ? '#000000' : '#F8F8F6';
 				}
 			} catch {
 				document.documentElement.dataset.theme = 'light';

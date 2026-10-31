@@ -2,6 +2,8 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { beforeNavigate, onNavigate } from '$app/navigation';
+	import { page } from '$app/state';
+	import { areaFor } from '#lib/site/areas.ts';
 	import { smoothScroll, stopSmoothScroll } from '#lib/motion/smooth-scroll.ts';
 	import { installKeyboardGuards } from '#lib/ui/typing-focus.ts';
 	import SiteFooter from '#lib/site/SiteFooter.svelte';
@@ -24,6 +26,13 @@
 				await navigation.complete;
 			});
 		});
+	});
+
+	// The area color follows client-side navigation; the server sets the first one in app.html.
+	$effect(() => {
+		const area = areaFor(page.url.pathname);
+		if (area) document.documentElement.dataset.area = area;
+		else delete document.documentElement.dataset.area;
 	});
 
 	// The router owns the scroll position across navigations.
@@ -52,7 +61,7 @@
 
 <style>
 	.shell {
-		min-height: calc(100dvh - 70px);
+		min-height: 100dvh;
 		width: 100%;
 		display: flex;
 		flex-direction: column;
@@ -62,7 +71,7 @@
 	}
 	main {
 		flex: 1;
-		padding: clamp(20px, 4vh, 44px) 0 48px;
+		padding: calc(var(--header-h) + var(--main-top)) 0 48px;
 	}
 	.skip {
 		position: absolute;

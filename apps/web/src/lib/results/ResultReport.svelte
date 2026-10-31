@@ -214,8 +214,8 @@
 	.xp {
 		padding: 4px 10px;
 		border-radius: 3px;
-		background: var(--violet-soft);
-		color: var(--violet);
+		background: var(--rank-soft);
+		color: var(--rank);
 		font-weight: 700;
 		font-variant-numeric: tabular-nums;
 		animation: xp-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 400ms both;

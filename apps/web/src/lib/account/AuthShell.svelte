@@ -217,7 +217,7 @@
 		text-decoration: none;
 	}
 	.footer :global(a:hover) {
-		color: var(--violet);
+		color: var(--rank);
 	}
 	@media (max-width: 860px) {
 		.auth {

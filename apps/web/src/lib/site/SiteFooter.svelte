@@ -51,10 +51,10 @@
 	/* The footer is a dark band in both themes. */
 	.site-footer {
 		background:
-			radial-gradient(60% 120% at 0% 0%, rgb(204 249 0 / 0.06), transparent 60%),
-			#0b0b0b;
-		color: #f2f2ee;
-		border-top: 1px solid #262626;
+			radial-gradient(60% 120% at 0% 0%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 60%),
+			var(--band-bg);
+		color: var(--band-ink);
+		border-top: 1px solid var(--band-line);
 	}
 	.inner {
 		max-width: 1180px;
@@ -77,7 +77,7 @@
 	}
 	.logo {
 		display: inline-flex;
-		color: #ffffff;
+		color: var(--white);
 		border-radius: 3px;
 	}
 	.logo :global(.footer-wordmark) {
@@ -87,7 +87,7 @@
 	.tagline {
 		font-size: 15px;
 		line-height: 1.55;
-		color: #b9b9b3;
+		color: var(--band-ink-2);
 	}
 	.contact,
 	.start {
@@ -98,17 +98,17 @@
 		text-decoration: none;
 	}
 	.contact {
-		color: #e4e4de;
+		color: var(--band-ink);
 	}
 	.contact:hover {
-		color: #ffffff;
+		color: var(--white);
 	}
 	.start {
 		margin-top: 4px;
 		padding: 9px 14px;
 		border-radius: 3px;
-		background: var(--accent);
-		color: #111;
+		background: var(--band-ink);
+		color: var(--band-bg);
 		font-weight: 600;
 	}
 	.groups {
@@ -122,7 +122,7 @@
 		font-weight: 600;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		color: #a3a39c;
+		color: var(--band-ink-2);
 		margin-bottom: 14px;
 	}
 	ul {
@@ -132,17 +132,17 @@
 	}
 	ul a {
 		font-size: 14.5px;
-		color: #e4e4de;
+		color: var(--band-ink);
 		text-decoration: none;
 		transition: color 140ms ease;
 	}
 	ul a:hover {
-		color: var(--accent);
+		color: var(--white);
 	}
 	.build {
 		font-family: var(--font-mono);
 		font-size: 12px;
-		color: #7d7d77;
+		color: var(--band-ink-3);
 	}
 	.bottom {
 		display: flex;
@@ -150,9 +150,9 @@
 		flex-wrap: wrap;
 		gap: 10px 20px;
 		padding-top: 20px;
-		border-top: 1px solid #262626;
+		border-top: 1px solid var(--band-line);
 		font-size: 13px;
-		color: #a3a39c;
+		color: var(--band-ink-2);
 	}
 	.links {
 		display: flex;
@@ -161,7 +161,7 @@
 	}
 	.links a,
 	.prefs {
-		color: #a3a39c;
+		color: var(--band-ink-2);
 		text-decoration: none;
 	}
 	.prefs {
@@ -173,10 +173,10 @@
 	}
 	.links a:hover,
 	.prefs:hover {
-		color: #ffffff;
+		color: var(--white);
 	}
 	.site-footer :global(:focus-visible) {
-		outline-color: #ffffff;
+		outline-color: var(--white);
 	}
 	@media (max-width: 960px) {
 		.top {

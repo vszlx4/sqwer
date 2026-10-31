@@ -176,11 +176,11 @@
 	}
 	.strength[data-score='1'] .bars .on,
 	.strength[data-score='2'] .bars .on {
-		background: #d98a00;
+		background: var(--strength-fair);
 	}
 	.strength[data-score='3'] .bars .on,
 	.strength[data-score='4'] .bars .on {
-		background: var(--green);
+		background: var(--strength-strong);
 	}
 	.strength-text {
 		font-size: 13px;
@@ -194,7 +194,7 @@
 		color: var(--ink-2);
 	}
 	.match.ok {
-		color: var(--green);
+		color: var(--success);
 		font-weight: 600;
 	}
 	input:hover,

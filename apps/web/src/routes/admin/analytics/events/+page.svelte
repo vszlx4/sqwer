@@ -249,7 +249,7 @@
 		text-decoration: none;
 	}
 	td a:hover {
-		color: var(--violet);
+		color: var(--rank);
 	}
 	.time {
 		white-space: nowrap;

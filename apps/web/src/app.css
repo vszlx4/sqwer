@@ -96,78 +96,208 @@
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-/* ---------- Tokens ---------- */
+/* ---------- Tokens ----------
+ * Three layers. Recolor at the lowest layer that fits; components only read layers 2 and 3.
+ * 1. Palette: neutrals and five hues. Each hue has
+ *      --<hue>       bright fill, same in both themes, dark text on it (--on-hue)
+ *      --<hue>-ink   text and strokes on --bg/--surface (AA); dark themes use the bright hue
+ *      --<hue>-soft  tinted background, mixed into --bg
+ * 2. Roles: what a color means (area, success, info, reward, streak, rank, life, charts, fingers).
+ * 3. Bands (--band-*): fixed dark sections (footer, games, arena), identical in both themes.
+ * 4. Art (--medal-*, --art-*): podium medals and emblem shadows; gem ramps live in lib/progress/rank-art.ts.
+ * Outside app.css only rank-art.ts, areas.ts, theme-color metas and favicon.svg hold literal colors
+ * (scripts/colors.test.ts enforces it).
+ */
 :root {
 	color-scheme: light;
-	--accent: #ccf900;
-	--on-accent: #111111;
 
-	--bg: #fbfaf4;
-	--surface: #f4f2e8;
-	--surface-2: #ebe8db;
-	--line: #dedac9;
-	--line-strong: #c9c4b0;
+	/* ===== 1. Palette ===== */
+
+	/* Neutrals, light: off-white with no hue lean. */
+	--bg: #f8f8f6;
+	--surface: #f0f0ed;
+	--surface-2: #e7e7e3;
+	--line: #dcdcd7;
+	--line-strong: #c4c4be;
 	--ink: #141414;
-	--ink-2: #55534b;
-	--ink-3: #6b685e;
-	--untyped: #8f8b7e;
+	--ink-2: #52524d;
+	--ink-3: #67675f;
+	/* Untyped test text; deliberately low contrast. */
+	--untyped: #8c8c85;
+	/* Logo and favicon mark: warm dark gray, not black. Favicon tile is #f3ebd3 (static/favicon.svg). */
+	--logo: #2b2a27;
+	--white: #ffffff;
+
+	/* Hues, bright. Keep in step with AREAS in lib/site/areas.ts. */
+	--lime: #ccf900;
+	--cyan: #3debd8;
+	--orange: #ff6b1f;
+	--violet: #a08cff;
+	--amber: #ffc72c;
+	/* Text on any bright hue. */
+	--on-hue: #141414;
+
+	/* Hues, text-safe on light surfaces (>= 4.5:1 on --surface). */
+	--lime-ink: #4c5c00;
+	--cyan-ink: #0b6f66;
+	--orange-ink: #b33f00;
+	--violet-ink: #5a45d6;
+	--amber-ink: #8a5a00;
+
+	/* Hues, soft tints (follow --bg, so they work in both themes). */
+	--lime-soft: color-mix(in srgb, var(--lime) 20%, var(--bg));
+	--cyan-soft: color-mix(in srgb, var(--cyan) 20%, var(--bg));
+	--orange-soft: color-mix(in srgb, var(--orange) 16%, var(--bg));
+	--violet-soft: color-mix(in srgb, var(--violet) 20%, var(--bg));
+	--amber-soft: color-mix(in srgb, var(--amber) 22%, var(--bg));
+
+	/* Finger hues: keyboard zones, hands and finger marks, pinky to thumb. Not area colors. */
+	--finger-red: #fc3f4c;
+	--finger-yellow: #fec02d;
+	--finger-green: #7ac21e;
+	--finger-blue: #186db7;
+	--finger-purple: #563780;
+	/* Finger hues as text on light surfaces (>= 4.5:1 on --surface); dark themes lift blue and purple. */
+	--finger-red-ink: #d70312;
+	--finger-yellow-ink: #8c6301;
+	--finger-green-ink: #497512;
+	--finger-blue-ink: var(--finger-blue);
+	--finger-purple-ink: var(--finger-purple);
+
+	/* Errors stay red; not part of the hue set. */
 	--error: #d1242f;
 	--error-soft: #fbe1e2;
 
-	/* Key caps */
-	--key: #fffefa;
-	--key-edge: #d6d1bd;
-	--key-label: #4a4840;
-	--key-pressed: #e6e2d2;
+	/* ===== 2. Roles ===== */
 
+	/* Areas: each part of the site owns one hue (lib/site/areas.ts). */
+	--area-learn: var(--lime);
+	--area-practice: var(--cyan);
+	--area-competitive: var(--orange);
+	--area-map: var(--violet);
+	--area-games: var(--amber);
+	--on-area: var(--on-hue);
+	/* Current area's hue, set by [data-area]; neutral pages use ink. */
+	--accent: var(--ink);
+	--on-accent: var(--bg);
+	/* Primary actions are ink; color belongs to the area. */
+	--primary: var(--ink);
+	--on-primary: var(--bg);
 
+	/* Status and progress. Text-safe; pair with the -soft for chips. */
+	--success: var(--lime-ink);
+	--success-soft: var(--lime-soft);
+	--info: var(--cyan-ink);
+	--info-soft: var(--cyan-soft);
+	--reward: var(--amber-ink);
+	--reward-soft: var(--amber-soft);
+	--streak: var(--orange-ink);
+	--streak-soft: var(--orange-soft);
+	--rank: var(--violet-ink);
+	--rank-soft: var(--violet-soft);
+	/* Level and XP bars: same on every page, never the area color. */
+	--xp-bar: linear-gradient(90deg, var(--violet-ink), var(--violet));
+	/* Game lives (heart icons). */
+	--life: var(--orange);
+	/* Stars on lessons and exams. */
+	--star: var(--amber);
+	--star-edge: var(--amber-ink);
+	/* Password strength: weak, fair, strong. */
+	--strength-weak: var(--error);
+	--strength-fair: var(--amber);
+	--strength-strong: var(--success);
 
-	/* Result chart series (validated: dataviz, all pairs) */
-	--chart-wpm: #2a78d6;
-	--chart-raw: #eb6834;
-	--chart-acc: #1baf7a;
-	--chart-prev: #8f8b7e;
-	--chart-grid: #e4e0d2;
-	/* Word heatmap, slower → faster */
-	--heat-1: #e3edfb;
-	--heat-2: #b7d0f4;
-	--heat-3: #7fabe8;
-	--heat-4: #3f7fd6;
-	--heat-5: #1d4f9c;
-	--heat-ink-light: #141414;
-	--heat-ink-dark: #ffffff;
+	/* Result chart series. */
+	--chart-wpm: var(--cyan-ink);
+	--chart-raw: var(--orange-ink);
+	--chart-acc: var(--violet-ink);
+	--chart-prev: var(--untyped);
+	--chart-grid: color-mix(in srgb, var(--line) 70%, var(--bg));
+	/* Word heatmap, slower → faster: amber into orange, the first band blended into the page. */
+	--heat-1: color-mix(in srgb, var(--amber) 30%, var(--bg));
+	--heat-2: color-mix(in srgb, var(--amber) 65%, var(--bg));
+	--heat-3: var(--amber);
+	--heat-4: color-mix(in srgb, var(--orange) 50%, var(--amber));
+	--heat-5: var(--orange);
+	/* Text on heat cell 1 and cells 2-5. */
+	--heat-ink-light: var(--ink);
+	--heat-ink-dark: #0a0a0a;
 
-	/* Finger identity (validated: dataviz, adjacent pairs, light surface) */
-	--f-pinky: #6250d6;
-	--f-ring: #1baf7a;
-	--f-middle: #eb6834;
-	--f-index: #2a78d6;
-	--f-thumb: #e87ba4;
+	/* Finger identity, same hues as the keyboard zones: --f-* fills (dots, hands, caps), --f-*-ink text. */
+	--f-pinky: var(--finger-red);
+	--f-ring: var(--finger-yellow);
+	--f-middle: var(--finger-green);
+	--f-index: var(--finger-blue);
+	--f-thumb: var(--finger-purple);
+	--f-pinky-ink: var(--finger-red-ink);
+	--f-ring-ink: var(--finger-yellow-ink);
+	--f-middle-ink: var(--finger-green-ink);
+	--f-index-ink: var(--finger-blue-ink);
+	--f-thumb-ink: var(--finger-purple-ink);
+	/* Keyboard zone fills, opacity from min to min + span by entry strength. Legends per finger. */
+	--zone-pinky: var(--f-pinky);
+	--zone-ring: var(--f-ring);
+	--zone-middle: var(--f-middle);
+	--zone-index: var(--f-index);
+	--zone-thumb: var(--f-thumb);
+	--zone-min: 0.45;
+	--zone-span: 0.4;
+	--zone-label: #0a0a0a;
+	--zone-label-pinky: var(--zone-label);
+	--zone-label-ring: var(--zone-label);
+	--zone-label-middle: var(--zone-label);
+	--zone-label-index: var(--zone-label);
+	/* Purple is too dark for dark legends: thumb keys start more opaque and take white. */
+	--zone-min-thumb: 0.75;
+	--zone-label-thumb: var(--white);
 
-	/*
-	 * Supporting colours: blue info/speed, green success/accuracy, amber stars/rewards, orange streaks,
-	 * violet ranks/progress, rose highlights.
-	 */
-	--blue: #2160bd;
-	--green: #0d7550;
-	--amber: #946200;
-	--orange: #bd4211;
-	--violet: #5a46d0;
-	--rose: #b3306a;
-	--blue-soft: #e4eefb;
-	--green-soft: #dff3e9;
-	--amber-soft: #fbf0d3;
-	--orange-soft: #fde6dc;
-	--violet-soft: #ebe8fb;
-	--rose-soft: #fbe3ec;
+	/* Key caps. */
+	--key: var(--white);
+	--key-edge: #d4d4ce;
+	--key-label: #46463f;
+	--key-pressed: #e4e4df;
 
-	--shadow: 0 1px 0 rgb(20 20 20 / 0.04), 0 8px 24px -12px rgb(60 50 20 / 0.18);
-	--shadow-lg: 0 1px 0 rgb(20 20 20 / 0.04), 0 24px 60px -24px rgb(60 50 20 / 0.35);
-	--lift: 0 1px 0 rgb(20 20 20 / 0.04), 0 14px 32px -18px rgb(60 50 20 / 0.32);
+	/* Overlays: modal scrim and progress/meter tracks. */
+	--scrim: rgb(0 0 0 / 0.45);
+	--track: color-mix(in srgb, var(--ink) 12%, transparent);
+
+	/* Elevation. */
+	--shadow: 0 1px 0 rgb(20 20 20 / 0.04), 0 8px 24px -12px rgb(20 20 20 / 0.16);
+	--shadow-lg: 0 1px 0 rgb(20 20 20 / 0.04), 0 24px 60px -24px rgb(20 20 20 / 0.3);
+	--lift: 0 1px 0 rgb(20 20 20 / 0.04), 0 14px 32px -18px rgb(20 20 20 / 0.28);
 	--glass-shine: rgb(255 255 255 / 0.7);
-	--glass-shadow: rgb(60 50 20 / 0.28);
+	--glass-shadow: rgb(20 20 20 / 0.24);
+
+	/* ===== 3. Bands: fixed dark sections, same in both themes ===== */
+	--band-bg: #0b0b0b;
+	--band-bg-deep: #070707;
+	--band-surface: #121212;
+	--band-surface-2: #181818;
+	--band-line: #242424;
+	--band-line-strong: #363636;
+	--band-ink: #f2f2ee;
+	--band-ink-2: #b9b9b3;
+	--band-ink-3: #8e8e88;
+	--band-ink-4: #5a5a55;
+	/* Dot grid and faint sheen over band backgrounds. */
+	--band-dot: rgb(255 255 255 / 0.06);
+	--band-sheen: rgb(255 255 255 / 0.04);
+
+	/* ===== 4. Art: podium medals and emblem drop shadows (gem ramps: lib/progress/rank-art.ts) ===== */
+	--medal-gold-hi: #ffe58a;
+	--medal-gold-lo: #c99410;
+	--medal-gold-ink: #3a2600;
+	--medal-silver-hi: #f4f6f8;
+	--medal-silver-lo: #9aa4b0;
+	--medal-silver-ink: #2c333d;
+	--medal-bronze-hi: #f1c49b;
+	--medal-bronze-lo: #b06a35;
+	--medal-bronze-ink: #3b1d07;
+	--art-drop: rgb(0 0 0 / 0.16);
+	--art-drop-strong: rgb(0 0 0 / 0.28);
 }
 
+/* Dark neutrals and inks. Kept in two copies: system preference and explicit choice. */
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme='light']) {
 		color-scheme: dark;
@@ -180,41 +310,29 @@
 		--ink-2: #a8a8a1;
 		--ink-3: #9a9a93;
 		--untyped: #6e6e68;
+		--logo: #f2f2ee;
+		--lime-ink: var(--lime);
+		--cyan-ink: var(--cyan);
+		--orange-ink: var(--orange);
+		--violet-ink: var(--violet);
+		--amber-ink: var(--amber);
 		--error: #ff5c5c;
 		--error-soft: #3d1214;
+		--heat-ink-light: var(--white);
+		--heat-ink-dark: #0a0a0a;
 		--key: #121212;
 		--key-edge: #2c2c2c;
 		--key-label: #b5b5ae;
 		--key-pressed: #222222;
-		--chart-wpm: #3987e5;
-		--chart-raw: #d95926;
-		--chart-acc: #199e70;
-		--chart-prev: #8a8a84;
-		--chart-grid: #222222;
-		--heat-1: #14213a;
-		--heat-2: #1d3a68;
-		--heat-3: #275aa2;
-		--heat-4: #4a86d9;
-		--heat-5: #9cc3f3;
-		--heat-ink-light: #ffffff;
-		--heat-ink-dark: #0a0a0a;
-		--f-pinky: #9085e9;
-		--f-ring: #199e70;
-		--f-middle: #d95926;
-		--f-index: #3987e5;
-		--f-thumb: #d55181;
-		--blue: #5b9cf0;
-		--green: #2fc48a;
-		--amber: #f2bb3b;
-		--orange: #f07a45;
-		--violet: #9a8cf2;
-		--rose: #ec6f9f;
-		--blue-soft: #0f1d33;
-		--green-soft: #0b2419;
-		--amber-soft: #2a2008;
-		--orange-soft: #2c140a;
-		--violet-soft: #1a1633;
-		--rose-soft: #2c0f1b;
+		--finger-red-ink: var(--finger-red);
+		--finger-yellow-ink: var(--finger-yellow);
+		--finger-green-ink: var(--finger-green);
+		--finger-blue-ink: #1e86e1;
+		--finger-purple-ink: #9573c3;
+		--zone-min: 0.9;
+		--zone-min-thumb: 0.9;
+		--zone-span: 0.1;
+		--zone-label-index: var(--white);
 		--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 		--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 		--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
@@ -234,41 +352,29 @@
 	--ink-2: #a8a8a1;
 	--ink-3: #9a9a93;
 	--untyped: #6e6e68;
+	--logo: #f2f2ee;
+	--lime-ink: var(--lime);
+	--cyan-ink: var(--cyan);
+	--orange-ink: var(--orange);
+	--violet-ink: var(--violet);
+	--amber-ink: var(--amber);
 	--error: #ff5c5c;
 	--error-soft: #3d1214;
+	--heat-ink-light: var(--white);
+	--heat-ink-dark: #0a0a0a;
 	--key: #121212;
 	--key-edge: #2c2c2c;
 	--key-label: #b5b5ae;
 	--key-pressed: #222222;
-	--chart-wpm: #3987e5;
-	--chart-raw: #d95926;
-	--chart-acc: #199e70;
-	--chart-prev: #8a8a84;
-	--chart-grid: #222222;
-	--heat-1: #14213a;
-	--heat-2: #1d3a68;
-	--heat-3: #275aa2;
-	--heat-4: #4a86d9;
-	--heat-5: #9cc3f3;
-	--heat-ink-light: #ffffff;
-	--heat-ink-dark: #0a0a0a;
-	--f-pinky: #9085e9;
-	--f-ring: #199e70;
-	--f-middle: #d95926;
-	--f-index: #3987e5;
-	--f-thumb: #d55181;
-	--blue: #5b9cf0;
-	--green: #2fc48a;
-	--amber: #f2bb3b;
-	--orange: #f07a45;
-	--violet: #9a8cf2;
-	--rose: #ec6f9f;
-	--blue-soft: #0f1d33;
-	--green-soft: #0b2419;
-	--amber-soft: #2a2008;
-	--orange-soft: #2c140a;
-	--violet-soft: #1a1633;
-	--rose-soft: #2c0f1b;
+	--finger-red-ink: var(--finger-red);
+	--finger-yellow-ink: var(--finger-yellow);
+	--finger-green-ink: var(--finger-green);
+	--finger-blue-ink: #1e86e1;
+	--finger-purple-ink: #9573c3;
+	--zone-min: 0.9;
+	--zone-min-thumb: 0.9;
+	--zone-span: 0.1;
+	--zone-label-index: var(--white);
 	--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 	--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 	--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
@@ -296,12 +402,6 @@
 	--color-untyped: var(--untyped);
 	--color-error: var(--error);
 	--color-error-soft: var(--error-soft);
-	--color-blue: var(--blue);
-	--color-green: var(--green);
-	--color-amber: var(--amber);
-	--color-orange: var(--orange);
-	--color-violet: var(--violet);
-	--color-rose: var(--rose);
 }
 
 /* ---------- Base ---------- */
@@ -331,9 +431,15 @@ dd {
 	text-wrap: pretty;
 }
 
+/* Layout: the header floats over the page; main starts below it. */
+:root {
+	--header-h: 70px;
+	--main-top: clamp(20px, 4vh, 44px);
+}
+
 /* Anchored sections stay clear of the sticky header. */
 [id] {
-	scroll-margin-top: 96px;
+	scroll-margin-top: calc(var(--header-h) + 26px);
 }
 
 a,
@@ -364,6 +470,32 @@ body {
 	inset: 0 calc(50% - 50vw);
 	z-index: -1;
 	background: var(--band, transparent);
+}
+
+[data-area='learn'] {
+	--accent: var(--area-learn);
+	--on-accent: var(--on-area);
+}
+[data-area='practice'] {
+	--accent: var(--area-practice);
+	--on-accent: var(--on-area);
+}
+[data-area='competitive'] {
+	--accent: var(--area-competitive);
+	--on-accent: var(--on-area);
+}
+[data-area='map'] {
+	--accent: var(--area-map);
+	--on-accent: var(--on-area);
+}
+[data-area='games'] {
+	--accent: var(--area-games);
+	--on-accent: var(--on-area);
+}
+/* Fixed dark bands keep a light primary in both themes. */
+.on-dark {
+	--primary: var(--band-ink);
+	--on-primary: var(--band-bg);
 }
 
 ::selection {
@@ -433,18 +565,18 @@ body {
 	transform: translateX(3px);
 }
 .btn-primary {
-	background: var(--accent);
-	color: var(--on-accent);
+	background: var(--primary);
+	color: var(--on-primary);
 	border-color: transparent;
 }
 .btn-primary:hover {
-	background: var(--accent);
+	background: var(--primary);
 	border-color: transparent;
 	filter: brightness(0.94);
 }
 .btn-danger {
 	background: var(--error);
-	color: #fff;
+	color: var(--white);
 	border-color: transparent;
 }
 .btn-danger:hover {
@@ -624,8 +756,8 @@ body {
 		--ink-2: #222;
 	}
 	body {
-		background: #fff;
-		color: #000;
+		background: var(--bg);
+		color: var(--ink);
 	}
 	a {
 		color: inherit;

@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { FINGERS, type Finger } from '@sqwer/layouts';
+	import type { Component } from 'svelte';
 	import { CHAPTERS, LESSONS } from '#lib/courses/catalog.ts';
 	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
 	import { RANKS } from '#lib/courses/progression.ts';
 	import RankBadge from '#lib/courses/RankBadge.svelte';
 	import { courses } from '#lib/courses/store.svelte.ts';
-	import Hands from '#lib/hands/Hands.svelte';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
 	import { results } from '#lib/results/store.svelte.ts';
+	import { areaRgb } from '#lib/site/areas.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import { CONTACT_EMAIL } from '#lib/site/links.ts';
 	import Icon from '#lib/ui/Icon.svelte';
@@ -19,43 +19,14 @@
 	onMount(() => {
 		results.load();
 		ready = true;
-		return startTyping();
+		// three.js loads in its own chunk after the page is up.
+		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
 	});
+	let Dither = $state<Component<{ waveColors?: [number, number, number][]; colorNum?: number; pixelSize?: number; waveSpeed?: number; waveAmplitude?: number; enableMouseInteraction?: boolean }>>();
 
 	// Returning learners are offered their next step instead of starting again.
 	const next = $derived(ready && courses.loaded ? learnerNextStep() : null);
 	const returning = $derived(next !== null && next.stage !== 'welcome');
-
-	// The hero hands show where each finger rests: the home row and the space bar.
-	const HOME: Record<string, string> = { lp: 'A', lr: 'S', lm: 'D', li: 'F', lt: '␣', rt: '␣', ri: 'J', rm: 'K', rr: 'L', rp: ';' };
-	// Every few seconds the hands type a short home-row word: each finger and its key label light up in turn.
-	const KEY_FINGER: Record<string, Finger> = { a: 'lp', s: 'lr', d: 'lm', f: 'li', j: 'ri', k: 'rm', l: 'rr', ';': 'rp', ' ': 'rt' };
-	// Real words made only from the labelled keys: A, S, D, F, J, K, L and the space bar.
-	const WORDS = ['flask', 'salad', 'fall', 'ask', 'lad', 'sad', 'all', 'dad'];
-	let lit = $state<Finger | null>(null);
-	const heroLegend = $derived(
-		Object.fromEntries(FINGERS.map((f) => [f, { value: HOME[f]!, strong: f === 'li' || f === 'ri', lit: lit === f }]))
-	);
-	const heroTone = $derived(Object.fromEntries(FINGERS.map((f) => [f, lit ? (f === lit ? 1 : 0.45) : f === 'li' || f === 'ri' ? 1 : 0.7])));
-
-	function startTyping() {
-		if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-		const timers: ReturnType<typeof setTimeout>[] = [];
-		let word = 0;
-		const play = () => {
-			if (document.visibilityState !== 'visible') return void timers.push(setTimeout(play, 2000));
-			const keys = [...WORDS[word % WORDS.length]!, ' '];
-			word++;
-			keys.forEach((k, i) => {
-				timers.push(setTimeout(() => (lit = KEY_FINGER[k] ?? null), i * 260));
-				timers.push(setTimeout(() => (lit = null), i * 260 + 190));
-			});
-			timers.push(setTimeout(play, keys.length * 260 + 2600));
-		};
-		// Begin once the entrance animation has finished.
-		timers.push(setTimeout(play, 2200));
-		return () => timers.forEach(clearTimeout);
-	}
 
 	// Ranks shown on the road, at the chapter where a steady learner reaches them.
 	const RANK_AT: Record<number, number> = { 1: 2, 3: 3, 4: 4, 7: 5, 9: 6, 10: 7, 12: 9 };
@@ -90,16 +61,20 @@
 />
 
 <div class="landing">
-	<!-- Hero: a dot grid that fades out behind the hands. -->
+	<!-- Hero: centered copy over the dither field. -->
 	<section class="hero band" aria-labelledby="hero-title">
+		<div class="hero-field">
+			{#if Dither}
+				<Dither waveColors={areaRgb()} colorNum={4} pixelSize={2} waveSpeed={0.03} waveAmplitude={0.3} enableMouseInteraction={false} />
+			{/if}
+		</div>
 		<div class="hero-copy">
-			<p class="kicker rise">A typing course for everyone</p>
-			<h1 id="hero-title" class="rise" style:--d="60ms">Learn to type <span class="mark">properly</span>, one key at a time.</h1>
-			<p class="lede rise" style:--d="120ms">
+			<h1 id="hero-title" class="rise">Stop looking down. Start typing <span class="mark">for real</span>.</h1>
+			<p class="lede rise" style:--d="60ms">
 				Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and
 				for self-taught typists who want to do it right.
 			</p>
-			<div class="hero-action rise" style:--d="180ms">
+			<div class="hero-action rise" style:--d="120ms">
 				{#if returning && next}
 					<p class="resume"><Icon name="route" size={16} /> {next.title}</p>
 					<a class="btn btn-primary btn-lg" href={next.href}>{next.action} <Icon name="arrow" size={18} /></a>
@@ -108,20 +83,16 @@
 				{/if}
 				<a class="link-arrow quiet" href="#road">See the whole course <Icon name="chevron" size={16} class="down" /></a>
 			</div>
-			<ul class="facts rise" style:--d="240ms" aria-label="Key facts">
+			<ul class="facts rise" style:--d="180ms" aria-label="Key facts">
 				<li><Icon name="check" size={16} /> Free</li>
 				<li><Icon name="flag" size={16} /> Starts from zero</li>
 				<li><Icon name="lock" size={16} /> No ads or tracking</li>
 			</ul>
 		</div>
-		<figure class="hero-figure">
-			<Hands label="Two hands resting on the home row: A, S, D and F on the left, J, K, L and semicolon on the right, thumbs on the space bar" tone={heroTone} legend={heroLegend} legendSize={13} animate />
-			<figcaption>Where your fingers rest; ␣ is the space bar. Lesson 1 starts with F and J.</figcaption>
-		</figure>
 	</section>
 
 	<!-- The course road: a timeline of every chapter, with ranks along the way. -->
-	<section id="road" class="road band" aria-labelledby="road-title">
+	<section id="road" class="road band" data-area="learn" aria-labelledby="road-title">
 		<header class="section-head" use:reveal>
 			<p class="kicker">The course</p>
 			<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
@@ -150,7 +121,7 @@
 	</section>
 
 	<!-- Games: a dark band with live previews. -->
-	<section class="games band" aria-labelledby="games-title">
+	<section class="games band on-dark" data-area="games" aria-labelledby="games-title">
 		<header class="section-head" use:reveal>
 			<p class="kicker">Learn by playing</p>
 			<h2 id="games-title">Practice that feels like a game.</h2>
@@ -199,7 +170,7 @@
 	</section>
 
 	<!-- Ranks: motivation without competition. -->
-	<section class="ranks band" aria-labelledby="ranks-title">
+	<section class="ranks band" data-area="competitive" aria-labelledby="ranks-title">
 		<header class="section-head center" use:reveal>
 			<p class="kicker">Ranks and streaks</p>
 			<h2 id="ranks-title">Watch yourself grow.</h2>
@@ -213,7 +184,7 @@
 	</section>
 
 	<!-- For typists who already type. -->
-	<section class="split band technique" aria-labelledby="map-title">
+	<section class="split band technique" data-area="map" aria-labelledby="map-title">
 		<div class="copy" use:reveal>
 			<p class="kicker">Already type?</p>
 			<h2 id="map-title">See how your hands really type.</h2>
@@ -232,7 +203,7 @@
 		</div>
 	</section>
 
-	<section class="principles" aria-labelledby="principles-title" use:reveal>
+	<section class="principles" data-area="practice" aria-labelledby="principles-title" use:reveal>
 		<h2 id="principles-title" class="sr-only">Commitments</h2>
 		<div class="principle">
 			<Icon name="user" size={22} />
@@ -286,30 +257,51 @@
 
 	/* ---------- Hero ---------- */
 	.hero {
-		--band: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 13%, transparent) 1px, transparent 0) 0 0 / 26px 26px;
+		/* A soft wash of the page color keeps the copy readable over the field. */
+		--band: radial-gradient(ellipse 46% 52% at 50% 50%, var(--bg) 30%, color-mix(in srgb, var(--bg) 70%, transparent) 60%, transparent 100%);
 		display: grid;
-		grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-		align-items: center;
-		gap: clamp(32px, 5vw, 72px);
-		min-height: min(calc(100dvh - 120px), 760px);
-		padding: clamp(24px, 6vh, 64px) 0 clamp(56px, 9vh, 96px);
+		place-items: center;
+		/* Fills the first screen; svh keeps it steady while mobile toolbars move. */
+		min-height: 100vh;
+		min-height: 100svh;
+		/* Starts at the page top, under the floating header and over main's top padding. */
+		margin-top: calc(-1 * (var(--header-h) + var(--main-top)));
+		padding: calc(var(--header-h) + clamp(48px, 10vh, 112px)) 0 clamp(48px, 10vh, 112px);
 	}
-	/* The dot grid fades out toward the edges of the hero. */
-	.hero::before {
-		-webkit-mask-image: radial-gradient(ellipse 70% 75% at 60% 45%, #000 20%, transparent 75%);
-		mask-image: radial-gradient(ellipse 70% 75% at 60% 45%, #000 20%, transparent 75%);
+	/* Full-bleed dither field, under the wash. */
+	.hero-field {
+		position: absolute;
+		inset: 0 calc(50% - 50vw);
+		z-index: -2;
+		overflow: hidden;
+		animation: field-in 1200ms ease-out both;
+	}
+	@keyframes field-in {
+		from {
+			opacity: 0;
+		}
+	}
+	/* The field reads louder on cream than on black. */
+	:global(:root:not([data-theme='dark'])) .hero-field {
+		opacity: 0.7;
+	}
+	@media (prefers-color-scheme: dark) {
+		:global(:root:not([data-theme='light'])) .hero-field {
+			opacity: 1;
+		}
 	}
 	.hero-copy {
 		display: flex;
 		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
+		text-align: center;
+		max-width: 820px;
 	}
 	h1 {
-		margin-top: 14px;
-		font-size: clamp(42px, 5.4vw, 74px);
+		font-size: clamp(42px, 6vw, 84px);
 		line-height: 1;
 		letter-spacing: -0.025em;
-		max-width: 13ch;
+		max-width: 15ch;
 	}
 	/* Emphasis is carried by weight alone. */
 	.mark {
@@ -325,7 +317,7 @@
 	.hero-action {
 		display: flex;
 		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
 		gap: 14px;
 		margin-top: 30px;
 	}
@@ -354,6 +346,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 8px 20px;
+		justify-content: center;
 		margin-top: 34px;
 		padding-top: 18px;
 		border-top: 1px solid var(--line);
@@ -364,19 +357,6 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 7px;
-	}
-	.hero-figure {
-		position: relative;
-		width: 100%;
-		max-width: 540px;
-		justify-self: center;
-		padding: 40px 34px 20px;
-	}
-	.hero-figure figcaption {
-		margin-top: 14px;
-		text-align: center;
-		font-size: 13px;
-		color: var(--ink-2);
 	}
 	.rise {
 		animation: rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -393,11 +373,26 @@
 	.road {
 		padding: clamp(64px, 9vw, 112px) 0;
 	}
+	/* A survey-map ground: area-tinted light from the top over the surface. */
 	.road::before {
 		background:
-			repeating-linear-gradient(135deg, color-mix(in srgb, var(--ink) 3%, transparent) 0 1px, transparent 1px 14px),
+			radial-gradient(ellipse 70% 55% at 50% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
+			radial-gradient(ellipse 45% 35% at 100% 100%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%),
 			var(--surface);
 		border-block: 1px solid var(--line);
+	}
+	/* Map grid with key-sized cells, fading out toward the edges. */
+	.road::after {
+		content: '';
+		position: absolute;
+		inset: 0 calc(50% - 50vw);
+		z-index: -1;
+		pointer-events: none;
+		--grid: color-mix(in srgb, var(--ink) 7%, transparent);
+		background:
+			linear-gradient(var(--grid) 1px, transparent 1px) 50% 0 / 40px 40px,
+			linear-gradient(90deg, var(--grid) 1px, transparent 1px) 50% 0 / 40px 40px;
+		mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 25%, transparent 100%);
 	}
 	.timeline {
 		position: relative;
@@ -503,19 +498,19 @@
 	/* ---------- Games ---------- */
 	.games {
 		padding: clamp(64px, 9vw, 112px) 0;
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	.games::before {
 		background:
 			radial-gradient(ellipse 50% 60% at 85% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
-			radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.06) 1px, transparent 0) 0 0 / 24px 24px,
-			#0b0b0b;
+			radial-gradient(circle at 1px 1px, var(--band-dot) 1px, transparent 0) 0 0 / 24px 24px,
+			var(--band-bg);
 	}
 	.games .kicker {
 		color: var(--accent);
 	}
 	.games .section-head > p:last-child {
-		color: #b9b9b3;
+		color: var(--band-ink-2);
 	}
 	.game-grid {
 		display: grid;
@@ -529,15 +524,15 @@
 		gap: 8px;
 		padding: 14px 14px 20px;
 		border-radius: 3px;
-		border: 1px solid #262626;
-		background: #121212;
+		border: 1px solid var(--band-line);
+		background: var(--band-surface);
 		transition:
 			transform 220ms ease,
 			border-color 220ms ease;
 	}
 	.game:hover {
 		transform: translateY(-3px);
-		border-color: #3a3a3a;
+		border-color: var(--band-line-strong);
 	}
 	.game h3 {
 		margin-top: 8px;
@@ -547,7 +542,7 @@
 	.game p {
 		font-size: 14.5px;
 		line-height: 1.5;
-		color: #b9b9b3;
+		color: var(--band-ink-2);
 	}
 	.preview {
 		position: relative;
@@ -555,13 +550,13 @@
 		overflow: hidden;
 		border-radius: 3px;
 		background:
-			radial-gradient(120% 90% at 50% 120%, rgb(204 249 0 / 0.1), transparent 60%),
-			radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.05) 1px, transparent 0) 0 0 / 16px 16px,
-			#0b0b0b;
-		border: 1px solid #1f1f1f;
+			radial-gradient(120% 90% at 50% 120%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
+			radial-gradient(circle at 1px 1px, var(--band-dot) 1px, transparent 0) 0 0 / 16px 16px,
+			var(--band-bg);
+		border: 1px solid var(--band-line);
 	}
 	.game:hover .preview {
-		border-color: #333;
+		border-color: var(--band-line-strong);
 	}
 	/* Falling letters: keycaps drop, and one bursts as it is typed. */
 	.fl {
@@ -572,9 +567,9 @@
 		width: 30px;
 		height: 30px;
 		border-radius: 3px;
-		border-bottom: 3px solid #9a9a93;
-		background: #f2f2ee;
-		color: #111;
+		border-bottom: 3px solid var(--band-ink-3);
+		background: var(--band-ink);
+		color: var(--band-bg);
 		font-family: var(--font-mono);
 		font-weight: 600;
 		animation: fall 3.4s linear infinite;
@@ -615,9 +610,9 @@
 		right: 0;
 		bottom: 0;
 		height: 14px;
-		background: color-mix(in srgb, var(--accent) 26%, #0b0b0b);
+		background: color-mix(in srgb, var(--accent) 26%, var(--band-bg));
 		border-top: 2px solid var(--accent);
-		box-shadow: 0 -10px 24px -8px rgb(204 249 0 / 0.5);
+		box-shadow: 0 -10px 24px -8px color-mix(in srgb, var(--accent) 50%, transparent);
 	}
 	/* Falling words: whole words drop in place of letters. */
 	.fw {
@@ -645,8 +640,8 @@
 		width: 120px;
 		height: 56px;
 		border-radius: 3px;
-		background: rgb(204 249 0 / 0.08);
-		border: 1px solid rgb(204 249 0 / 0.25);
+		background: color-mix(in srgb, var(--accent) 8%, transparent);
+		border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
 	}
 	.wave {
 		display: flex;
@@ -674,7 +669,7 @@
 	.typed {
 		font-family: var(--font-mono);
 		font-size: 20px;
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	.caret {
 		display: inline-block;
@@ -707,10 +702,10 @@
 		width: 20px;
 		height: 22px;
 		border-radius: 3px;
-		border: 1px solid #2c2c2c;
+		border: 1px solid var(--band-line);
 		border-bottom-width: 2px;
-		background: #151515;
-		color: #77776f;
+		background: var(--band-surface);
+		color: var(--band-ink-3);
 		font-family: var(--font-mono);
 		font-size: 10px;
 		font-weight: 600;
@@ -719,8 +714,8 @@
 	.mk.target {
 		border-color: var(--accent);
 		background: var(--accent);
-		color: #111;
-		box-shadow: 0 0 16px rgb(204 249 0 / 0.6);
+		color: var(--on-accent);
+		box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 60%, transparent);
 		animation: hunt 2.4s ease-in-out infinite;
 	}
 	@keyframes hunt {
@@ -739,7 +734,7 @@
 		width: 120px;
 		height: 4px;
 		border-radius: 3px;
-		background: linear-gradient(90deg, var(--accent), #9a8cf2);
+		background: linear-gradient(90deg, var(--accent), var(--violet));
 		transform-origin: left;
 		animation: fuse 2.4s linear infinite;
 	}
@@ -757,7 +752,7 @@
 		width: 100%;
 		height: 22px;
 		border-radius: 3px;
-		background: #161616;
+		background: var(--band-surface-2);
 	}
 	.trail {
 		position: absolute;
@@ -772,7 +767,7 @@
 		background: linear-gradient(90deg, transparent, var(--accent));
 	}
 	.trail.pace {
-		background: linear-gradient(90deg, transparent, #9a8cf2);
+		background: linear-gradient(90deg, transparent, var(--violet));
 		animation-duration: 4.4s;
 	}
 	@keyframes trail {
@@ -794,10 +789,10 @@
 	}
 	.runner.me {
 		background: var(--accent);
-		box-shadow: 0 0 12px rgb(204 249 0 / 0.6);
+		box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
 	}
 	.runner.pace {
-		background: #9a8cf2;
+		background: var(--violet);
 		animation-duration: 4.4s;
 	}
 	@keyframes run {
@@ -811,20 +806,20 @@
 		right: 0;
 		width: 8px;
 		height: 100%;
-		background: conic-gradient(#f2f2ee 25%, #0b0b0b 0 50%, #f2f2ee 0 75%, #0b0b0b 0) 0 0 / 4px 4px;
+		background: conic-gradient(var(--band-ink) 25%, var(--band-bg) 0 50%, var(--band-ink) 0 75%, var(--band-bg) 0) 0 0 / 4px 4px;
 		border-radius: 0 3px 3px 0;
 	}
 	.race-text {
 		align-self: flex-start;
 		font-family: var(--font-mono);
 		font-size: 16px;
-		color: #f2f2ee;
+		color: var(--band-ink);
 	}
 	.race-text b {
 		color: var(--accent);
 	}
 	.race-text span {
-		color: #5a5a55;
+		color: var(--band-ink-4);
 	}
 	/* Echo: keys light up in turn, then turn green as they are repeated. */
 	.echo-label {
@@ -832,7 +827,7 @@
 		font-weight: 600;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		color: #8e8e88;
+		color: var(--band-ink-3);
 	}
 	.echo-row {
 		display: flex;
@@ -844,10 +839,10 @@
 		width: 38px;
 		height: 40px;
 		border-radius: 3px;
-		border: 1px solid #333;
+		border: 1px solid var(--band-line-strong);
 		border-bottom-width: 3px;
-		background: #161616;
-		color: #8e8e88;
+		background: var(--band-surface-2);
+		color: var(--band-ink-3);
 		font-family: var(--font-mono);
 		font-size: 14px;
 		font-weight: 600;
@@ -858,19 +853,19 @@
 	@keyframes echo {
 		0%,
 		24% {
-			background: #161616;
+			background: var(--band-surface-2);
 		}
 		8% {
 			background: var(--accent);
 			border-color: var(--accent);
-			color: #111;
-			box-shadow: 0 0 14px rgb(204 249 0 / 0.5);
+			color: var(--on-accent);
+			box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 50%, transparent);
 		}
 		58%,
 		100% {
-			background: color-mix(in srgb, #2fc48a 30%, #161616);
-			border-color: #2fc48a;
-			color: #f2f2ee;
+			background: color-mix(in srgb, var(--lime) 30%, var(--band-surface-2));
+			border-color: var(--lime);
+			color: var(--band-ink);
 		}
 	}
 	/* ---------- Ranks ---------- */
@@ -985,11 +980,7 @@
 	}
 	@media (max-width: 900px) {
 		.hero {
-			grid-template-columns: 1fr;
-			min-height: 0;
-		}
-		.hero-figure {
-			max-width: 460px;
+			--band: radial-gradient(ellipse 95% 48% at 50% 50%, var(--bg) 40%, color-mix(in srgb, var(--bg) 70%, transparent) 70%, transparent 100%);
 		}
 		.split {
 			grid-template-columns: 1fr;

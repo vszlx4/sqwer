@@ -16,7 +16,7 @@
 		avatar?: string | null;
 		banner: string;
 		rank?: Rank | null;
-		stats?: { label: string; value: string; tone?: 'amber' | 'orange' | 'green' | 'blue' | 'violet' }[];
+		stats?: { label: string; value: string; tone?: 'reward' | 'streak' | 'success' | 'info' | 'rank' }[];
 		/** Headline level for the name; the public page uses 1. */
 		level?: 1 | 2 | 3;
 		size?: 'compact' | 'full';
@@ -73,8 +73,8 @@
 		position: absolute;
 		inset: 0;
 		background:
-			linear-gradient(rgb(255 255 255 / 0.14) 1px, transparent 1px) 0 0 / 28px 28px,
-			linear-gradient(90deg, rgb(255 255 255 / 0.14) 1px, transparent 1px) 0 0 / 28px 28px;
+			linear-gradient(color-mix(in srgb, var(--white) 14%, transparent) 1px, transparent 1px) 0 0 / 28px 28px,
+			linear-gradient(90deg, color-mix(in srgb, var(--white) 14%, transparent) 1px, transparent 1px) 0 0 / 28px 28px;
 		mask-image: linear-gradient(to bottom, #000, transparent);
 	}
 	.body {
@@ -111,8 +111,8 @@
 		gap: 6px;
 		padding: 4px 10px 4px 4px;
 		border-radius: 3px;
-		background: var(--violet-soft);
-		color: var(--violet);
+		background: var(--rank-soft);
+		color: var(--rank);
 		font-size: 13px;
 		font-weight: 700;
 	}
@@ -176,19 +176,19 @@
 		font-variant-numeric: tabular-nums;
 		color: var(--ink);
 	}
-	.stats dd.amber {
-		color: var(--amber);
+	.stats dd.reward {
+		color: var(--reward);
 	}
-	.stats dd.orange {
-		color: var(--orange);
+	.stats dd.streak {
+		color: var(--streak);
 	}
-	.stats dd.green {
-		color: var(--green);
+	.stats dd.success {
+		color: var(--success);
 	}
-	.stats dd.blue {
-		color: var(--blue);
+	.stats dd.info {
+		color: var(--info);
 	}
-	.stats dd.violet {
-		color: var(--violet);
+	.stats dd.rank {
+		color: var(--rank);
 	}
 </style>

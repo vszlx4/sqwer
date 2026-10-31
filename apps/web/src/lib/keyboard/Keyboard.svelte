@@ -46,7 +46,7 @@
 
 	const width = $derived((layout.width + PAD * 2) * U);
 	const height = $derived((layout.height + PAD * 2) * U);
-	const zoneColor = (f: Finger) => `var(--f-${kindOf(f)})`;
+	const zoneColor = (f: Finger) => `var(--zone-${kindOf(f)})`;
 
 	function legend(k: KeyDef): { main: string; top?: string } {
 		if (!k.char || k.code === 'Space') return { main: k.label };
@@ -71,7 +71,7 @@
 		idle: 'var(--key)'
 	};
 	const INK: Record<KeyState, string> = {
-		error: '#ffffff',
+		error: 'var(--white)',
 		ok: 'var(--on-accent)',
 		highlight: 'var(--on-accent)',
 		pressed: 'var(--key-label)',
@@ -121,24 +121,24 @@
 		{@const zone = state === 'idle' || state === 'pressed' ? zoneFor(k) : null}
 		{@const pending = pendingKeys?.has(k.code) && !zone && state === 'idle'}
 		{@const l = legend(k)}
+		{@const ink = zone ? `var(--zone-label-${kindOf(zone.finger)})` : INK[state]}
 		<g class="key" style:transform={down ? 'translateY(1.5px)' : 'none'}>
 			<rect {x} {y} width={w} height={h} rx="3" fill={pending ? `url(#${uid}-pending)` : FILL[state]} stroke="var(--key-edge)" stroke-width="1.2" />
 			{#if zone}
-				<rect {x} {y} width={w} height={h} rx="3" fill={zoneColor(zone.finger)} opacity={0.12 + zone.strength * 0.3} />
-				<rect x={x + 6} y={y + h - 6} width={w - 12} height="3" rx="1.5" fill={zoneColor(zone.finger)} />
+				<rect {x} {y} width={w} height={h} rx="3" fill={zoneColor(zone.finger)} style:opacity={`calc(var(--zone-min-${kindOf(zone.finger)}, var(--zone-min)) + ${zone.strength} * var(--zone-span))`} />
 			{/if}
 			{#if selectedKey === k.code}
 				<rect x={x - 2} y={y - 2} width={w + 4} height={h + 4} rx="3" fill="none" stroke="var(--ink)" stroke-width="2.5" />
 			{/if}
 			{#if k.char && k.code !== 'Space'}
 				{#if l.top}
-					<text x={x + w / 2} y={y + h * 0.36} text-anchor="middle" class="legend sym" fill={INK[state]}>{l.top}</text>
-					<text x={x + w / 2} y={y + h * 0.72} text-anchor="middle" class="legend sym" fill={INK[state]}>{l.main}</text>
+					<text x={x + w / 2} y={y + h * 0.36} text-anchor="middle" class="legend sym" fill={ink}>{l.top}</text>
+					<text x={x + w / 2} y={y + h * 0.72} text-anchor="middle" class="legend sym" fill={ink}>{l.main}</text>
 				{:else}
-					<text x={x + w / 2} y={y + h * 0.48} text-anchor="middle" dominant-baseline="middle" class="legend letter" fill={INK[state]}>{l.main}</text>
+					<text x={x + w / 2} y={y + h * 0.48} text-anchor="middle" dominant-baseline="middle" class="legend letter" fill={ink}>{l.main}</text>
 				{/if}
 				{#if k.code === 'KeyF' || k.code === 'KeyJ'}
-					<rect x={x + w / 2 - 6} y={y + h - 11} width="12" height="2" rx="1" fill={INK[state]} opacity="0.7" />
+					<rect x={x + w / 2 - 6} y={y + h - 11} width="12" height="2" rx="1" fill={ink} opacity="0.7" />
 				{/if}
 			{:else if k.code !== 'Space'}
 				<text
@@ -147,7 +147,7 @@
 					text-anchor={k.align === 'end' ? 'end' : k.align === 'center' ? 'middle' : 'start'}
 					dominant-baseline={small ? 'middle' : 'auto'}
 					class="legend mod"
-					fill={INK[state]}>{l.main}</text
+					fill={ink}>{l.main}</text
 				>
 			{/if}
 		</g>

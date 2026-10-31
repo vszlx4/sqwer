@@ -12,6 +12,7 @@ import {
 } from '#lib/server/auth.ts';
 import { startAnalyticsMaintenance } from '#lib/server/analytics/maintenance.ts';
 import { DEFAULT_LOCALE, LOCALES } from '#lib/i18n/locales.ts';
+import { areaFor } from '#lib/site/areas.ts';
 
 /** Background upkeep of analytics (daily totals and retention), once per server process. */
 export const init: ServerInit = () => {
@@ -98,7 +99,13 @@ const locale: Handle = async ({ event, resolve }) => {
 	event.locals.locale = DEFAULT_LOCALE;
 	const { dir } = LOCALES[event.locals.locale];
 	return resolve(event, {
-		transformPageChunk: ({ html }) => html.replace('%sqwer.lang%', event.locals.locale).replace('%sqwer.dir%', dir)
+		transformPageChunk: ({ html }) => {
+			const area = areaFor(event.url.pathname);
+			return html
+				.replace('%sqwer.lang%', event.locals.locale)
+				.replace('%sqwer.dir%', dir)
+				.replace('%sqwer.area%', area ? ` data-area="${area}"` : '');
+		}
 	});
 };
 

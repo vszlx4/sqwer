@@ -195,7 +195,7 @@
 		margin-top: 8px;
 		font-size: 14px;
 		font-weight: 600;
-		color: var(--f-middle);
+		color: var(--streak);
 	}
 	.guest {
 		margin-top: 8px;

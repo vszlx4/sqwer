@@ -63,7 +63,7 @@ export const settings = $state<Settings>(load());
 function syncThemeColor(theme: ThemePref) {
 	for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) {
 		const darkSlot = meta.media.includes('dark');
-		meta.content = theme === 'dark' || (theme === 'system' && darkSlot) ? '#000000' : '#FBFAF4';
+		meta.content = theme === 'dark' || (theme === 'system' && darkSlot) ? '#000000' : '#F8F8F6'; // --bg of each theme (app.css)
 	}
 }
 

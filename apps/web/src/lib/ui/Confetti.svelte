@@ -20,7 +20,8 @@
 		};
 		resize();
 		const style = getComputedStyle(document.documentElement);
-		const colours = ['--accent', '--blue', '--green', '--amber', '--orange', '--violet', '--rose'].map((v) => style.getPropertyValue(v).trim() || '#ccf900');
+		// The five palette hues (app.css); ink if a value is missing.
+		const colours = ['--lime', '--cyan', '--orange', '--violet', '--amber'].map((v) => style.getPropertyValue(v).trim() || style.getPropertyValue('--ink').trim());
 		const W = innerWidth;
 		const parts = Array.from({ length: pieces }, () => ({
 			x: W / 2 + (Math.random() - 0.5) * W * 0.5,

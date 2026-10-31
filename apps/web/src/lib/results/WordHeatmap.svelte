@@ -13,7 +13,7 @@
 		return [q(0.2), q(0.4), q(0.6), q(0.8)];
 	});
 	const band = (wpm: number) => 1 + thresholds.filter((t) => wpm >= t).length;
-	const inkFor = (b: number) => (b >= 4 ? 'var(--heat-ink-dark)' : 'var(--heat-ink-light)');
+	const inkFor = (b: number) => (b >= 2 ? 'var(--heat-ink-dark)' : 'var(--heat-ink-light)');
 
 	const describe = (w: WordRecord) =>
 		`${w.w}: ${Math.round(w.wpm)} WPM in ${(w.ms / 1000).toFixed(2)} seconds${w.ok ? '' : `, typed as “${w.t || '(skipped)'}”`}`;

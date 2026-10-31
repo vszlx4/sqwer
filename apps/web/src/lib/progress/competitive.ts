@@ -3,6 +3,8 @@
  * (III → I), then Zenith at 300+ WPM.
  */
 
+import { LEAGUE_GLASS } from './rank-art.ts';
+
 export const COMPETITIVE_SECONDS = 60;
 export const MIN_ACCURACY = 92;
 export const MIN_WPM = 50;
@@ -11,19 +13,19 @@ export const ZENITH_WPM = 300;
 /** Speeds above this are not accepted as genuine (the same limit applies to every saved result). */
 export const MAX_WPM = 400;
 
-/** Each rank with the speed at which each of its divisions (III, II, I) begins. */
+/** Each rank with the speed at which each of its divisions (III, II, I) begins; colour is its chip color (rank-art.ts). */
 export const LEAGUES = [
-	{ id: 'silver', name: 'Silver', starts: [50, 53, 57], colour: '#8b96a3' },
-	{ id: 'gold', name: 'Gold', starts: [60, 63, 67], colour: '#c9930f' },
-	{ id: 'diamond', name: 'Diamond', starts: [70, 75, 80], colour: '#3f7fe0' },
-	{ id: 'master', name: 'Master', starts: [85, 90, 95], colour: '#1f9c70' },
-	{ id: 'elite', name: 'Elite', starts: [100, 107, 113], colour: '#1a8eb0' },
-	{ id: 'champion', name: 'Champion', starts: [120, 127, 133], colour: '#b827b8' },
-	{ id: 'grandmaster', name: 'Grandmaster', starts: [140, 148, 156], colour: '#7454e0' },
-	{ id: 'prodigy', name: 'Prodigy', starts: [165, 175, 185], colour: '#e0601c' },
-	{ id: 'overlord', name: 'Overlord', starts: [195, 210, 225], colour: '#d81e48' },
-	{ id: 'transcendent', name: 'Transcendent', starts: [240, 260, 280], colour: '#d9a000' },
-	{ id: 'zenith', name: 'Zenith', starts: [ZENITH_WPM], colour: '#a9b8d6' }
+	{ id: 'silver', name: 'Silver', starts: [50, 53, 57], colour: LEAGUE_GLASS.silver.dark },
+	{ id: 'gold', name: 'Gold', starts: [60, 63, 67], colour: LEAGUE_GLASS.gold.dark },
+	{ id: 'diamond', name: 'Diamond', starts: [70, 75, 80], colour: LEAGUE_GLASS.diamond.dark },
+	{ id: 'master', name: 'Master', starts: [85, 90, 95], colour: LEAGUE_GLASS.master.dark },
+	{ id: 'elite', name: 'Elite', starts: [100, 107, 113], colour: LEAGUE_GLASS.elite.dark },
+	{ id: 'champion', name: 'Champion', starts: [120, 127, 133], colour: LEAGUE_GLASS.champion.dark },
+	{ id: 'grandmaster', name: 'Grandmaster', starts: [140, 148, 156], colour: LEAGUE_GLASS.grandmaster.dark },
+	{ id: 'prodigy', name: 'Prodigy', starts: [165, 175, 185], colour: LEAGUE_GLASS.prodigy.dark },
+	{ id: 'overlord', name: 'Overlord', starts: [195, 210, 225], colour: LEAGUE_GLASS.overlord.dark },
+	{ id: 'transcendent', name: 'Transcendent', starts: [240, 260, 280], colour: LEAGUE_GLASS.transcendent.dark },
+	{ id: 'zenith', name: 'Zenith', starts: [ZENITH_WPM], colour: LEAGUE_GLASS.zenith.dark }
 ] as const;
 
 export type League = (typeof LEAGUES)[number];
