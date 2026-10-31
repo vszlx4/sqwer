@@ -7,7 +7,7 @@
 	and card clicks; swaps both ways; gsap through lib/motion with named eases and durations; instant under reduced
 	motion; front card marked aria-current; stack depth capped so long decks stay compact; offsets from the card size
 	(resize aware); slots in CSS so SSR renders the stack; ordered list markup, no role=button; tokens for colours,
-	border and radius.
+	border and radius (`--card-radius` override).
 -->
 <script lang="ts" generics="T">
 	import type { Snippet } from 'svelte';
@@ -167,7 +167,6 @@
 		--dy: calc(var(--h) * var(--sy));
 		position: relative;
 		width: calc(var(--w) + var(--back) * var(--dx));
-		max-width: 100%;
 		height: calc(var(--h) + var(--back) * var(--dy));
 		perspective: 900px;
 		perspective-origin: 30% 70%;
@@ -182,10 +181,11 @@
 		left: 0;
 		bottom: 0;
 		width: var(--w);
-		max-width: 100%;
 		height: var(--h);
+		overflow: hidden;
 		border: 1px solid var(--line-strong);
-		border-radius: 3px;
+		/* Cards may set their own radius; tokens default otherwise. */
+		border-radius: var(--card-radius, 3px);
 		background: var(--bg);
 		box-shadow: var(--lift);
 		transform-style: preserve-3d;

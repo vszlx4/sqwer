@@ -153,14 +153,28 @@
 					<p class="road-end"><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
 				</header>
 				<div class="road-deck">
-					<CardSwap items={CHAPTERS} active={chapter} width="min(400px, (100vw - 40px) / 1.36)" height="var(--card-h)" label="Course chapters">
-						{#snippet card(c)}
-							<div class="chapter">
-								<h3>{c.title}</h3>
-								<p>{c.summary}</p>
-							</div>
-						{/snippet}
-					</CardSwap>
+					<div class="deck-anchor">
+						<CardSwap
+							items={CHAPTERS}
+							active={chapter}
+							width="var(--card-w)"
+							height="var(--card-h)"
+							spreadX={0.15}
+							spreadY={0.11}
+							skew={5}
+							label="Course chapters"
+						>
+							{#snippet card(c)}
+								<div class="window">
+									<div class="window-bar">
+										<span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+										<h3>{c.title}</h3>
+									</div>
+									<p class="window-body">{c.summary}</p>
+								</div>
+							{/snippet}
+						</CardSwap>
+					</div>
 					<GradualBlur position="bottom" height="var(--drop)" strength={2} divCount={6} curve="bezier" zIndex={20} />
 				</div>
 			</div>
@@ -488,41 +502,71 @@
 	.road-end {
 		margin-top: 24px;
 	}
-	/* Room for the stack's offsets; the blur covers where the front card drops out. */
+	/* Deck column runs to the screen edge; cards bleed off its right and bottom. The blur covers the bottom strip. */
+	.road-stage {
+		margin-right: calc(50% - 50vw);
+	}
 	.road-deck {
-		--card-h: 210px;
-		--drop: 96px;
+		--card-w: min(680px, 52vw);
+		--card-h: min(600px, 66svh);
+		--drop: 120px;
 		position: relative;
-		display: grid;
-		place-items: end start;
-		padding: 40px 0 var(--drop);
+		align-self: stretch;
+		display: flex;
+		align-items: flex-end;
+		min-height: 0;
 		overflow: clip;
 	}
-	.chapter {
+	.deck-anchor {
+		--card-radius: 16px;
+		margin-bottom: calc(var(--card-h) * -0.2);
+	}
+	/* A window: title bar with lights and the chapter, body tinted with the area. */
+	.window {
 		display: flex;
 		flex-direction: column;
-		justify-content: flex-end;
-		gap: 8px;
 		height: 100%;
-		padding: 24px 26px;
+		background: color-mix(in srgb, var(--accent) 16%, var(--bg));
 	}
-	/* Only the front card shows its text; the stack behind reads as paper. */
-	.road-deck :global(li:not([aria-current]) .chapter) {
-		opacity: 0;
+	.window-bar {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		height: 60px;
+		flex: none;
+		padding: 0 22px;
+		border-bottom: 1px solid var(--line-strong);
+		background: linear-gradient(100deg, var(--bg) 40%, var(--surface));
 	}
-	.chapter {
+	.lights {
+		display: flex;
+		gap: 7px;
+	}
+	.lights i {
+		width: 11px;
+		height: 11px;
+		border-radius: 50%;
+		background: color-mix(in srgb, var(--ink) 22%, transparent);
+	}
+	.window-bar h3 {
+		overflow: hidden;
+		font-size: 19px;
+		font-weight: 600;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+	.window-body {
+		max-width: 30ch;
+		padding: 32px 30px;
+		font-family: var(--font-serif);
+		font-size: clamp(22px, 2.2vw, 30px);
+		line-height: 1.25;
+		color: var(--ink);
 		transition: opacity 300ms ease;
 	}
-	.chapter h3 {
-		font-family: var(--font-serif);
-		font-size: 26px;
-		font-weight: 400;
-		line-height: 1.15;
-	}
-	.chapter p {
-		font-size: 15px;
-		line-height: 1.5;
-		color: var(--ink-2);
+	/* Behind the front card only the title bars read; their bodies stay empty. */
+	.road-deck :global(li:not([aria-current]) .window-body) {
+		opacity: 0;
 	}
 
 	/* ---------- Games ---------- */
@@ -1025,8 +1069,12 @@
 		/* The road stacks: copy over the deck. */
 		.road-stage {
 			grid-template-columns: minmax(0, 1fr);
-			align-content: center;
-			gap: 8px;
+			grid-template-rows: auto minmax(0, 1fr);
+			gap: 20px;
+			padding-top: calc(var(--header-h) + 24px);
+		}
+		.road-stage .section-head {
+			padding-right: 16px;
 		}
 		.road-stage .section-head > p:not(.kicker) {
 			font-size: 15px;
@@ -1038,15 +1086,24 @@
 			margin-top: 12px;
 		}
 		.road-deck {
-			--card-h: 180px;
-			--drop: 64px;
-			padding-top: 20px;
+			--card-w: min(420px, 100vw - 72px);
+			--card-h: min(380px, 44svh);
+			--drop: 72px;
 		}
-		.chapter {
-			padding: 18px 20px;
+		.deck-anchor {
+			--card-radius: 12px;
 		}
-		.chapter h3 {
-			font-size: 22px;
+		.window-bar {
+			height: 48px;
+			gap: 12px;
+			padding: 0 16px;
+		}
+		.window-bar h3 {
+			font-size: 16px;
+		}
+		.window-body {
+			padding: 22px 20px;
+			font-size: 21px;
 		}
 	}
 	@media (max-width: 560px) {
