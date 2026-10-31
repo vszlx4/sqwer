@@ -2,7 +2,7 @@
 	import { onMount, tick } from 'svelte';
 	import { page } from '$app/state';
 	import type { Component } from 'svelte';
-	import { CHAPTERS, LESSONS } from '#lib/courses/catalog.ts';
+	import { CHAPTERS, LESSONS, PARTS } from '#lib/courses/catalog.ts';
 	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
 	import { RANKS } from '#lib/courses/progression.ts';
 	import RankBadge from '#lib/courses/RankBadge.svelte';
@@ -22,8 +22,10 @@
 	let ready = $state(false);
 	let heroCopy: HTMLElement;
 	let roadTrack: HTMLElement;
-	// Chapter at the front of the road deck; scrolling through the track moves it.
-	let chapter = $state(0);
+	let roadDeck: HTMLElement;
+	// Scroll through the road track (0 to 1) and the course part at the front of the deck.
+	let roadProgress = $state(0);
+	let part = $state(0);
 	let roadScrolls = $state(false);
 	onMount(() => {
 		results.load();
@@ -32,25 +34,36 @@
 		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
 		const mm = whenMotion(() => enterHero(heroCopy));
 		let road: ScrollTrigger | undefined;
+		let glide: gsap.MatchMedia | undefined;
 		roadScrolls = true;
-		tick().then(() => (road = roadScroll(roadTrack)));
+		tick().then(() => {
+			road = roadScroll(roadTrack);
+			glide = whenMotion(() => roadGlide(roadTrack, roadDeck));
+		});
 		return () => {
 			mm.revert();
 			road?.kill();
+			glide?.revert();
 		};
 	});
 
-	// The track gets one scroll step per chapter (CSS, behind data-scroll) while its stage stays stuck.
-	// Without scripts it stays one screen tall and shows the first chapter.
+	// The track gets one scroll step per part (CSS, behind data-scroll) while its stage stays stuck; the first and
+	// last tenth hold the deck still. Without scripts it stays one screen tall and shows the first part.
 	function roadScroll(track: HTMLElement) {
 		motion();
-		const last = CHAPTERS.length - 1;
 		return ScrollTrigger.create({
 			trigger: track,
 			start: 'top top',
 			end: 'bottom bottom',
-			onUpdate: (st) => (chapter = Math.round(st.progress * last))
+			onUpdate: (st) => (roadProgress = Math.min(1, Math.max(0, (st.progress - 0.1) / 0.8)))
 		});
+	}
+
+	// The deck rises into place while the stage scrolls in and drifts up as it leaves, so the pin has no hard edge.
+	function roadGlide(track: HTMLElement, deck: HTMLElement) {
+		const gsap = motion();
+		gsap.fromTo(deck, { y: '22svh' }, { y: 0, ease: 'none', scrollTrigger: { trigger: track, start: 'top bottom', end: 'top top', scrub: 0.8 } });
+		gsap.to(deck, { y: '-12svh', ease: 'none', scrollTrigger: { trigger: track, start: 'bottom bottom', end: 'bottom top', scrub: 0.8 } });
 	}
 
 	// Hero copy rises in on load. CSS holds it hidden until then; skip if its fallback already showed it.
@@ -79,6 +92,14 @@
 		{ kind: 'race', title: 'Race', body: 'Type a passage before the pacer reaches the finish line.' },
 		{ kind: 'echo', title: 'Echo', body: 'The letters of a word light up one at a time and fade. Type the word from memory.' }
 	] as const;
+
+	// One mark per course part in the window bars: circle, square, triangle, diamond.
+	const SHAPES = [
+		'<circle cx="6" cy="6" r="5.5"/>',
+		'<rect x="1" y="1" width="10" height="10" rx="1.5"/>',
+		'<path d="M6 .5 11.5 11h-11z"/>',
+		'<path d="M6 0 12 6 6 12 0 6z"/>'
+	];
 
 	const site = $derived(page.data.siteUrl ?? '');
 	const jsonLd = $derived([
@@ -131,46 +152,59 @@
 		</div>
 	</section>
 
-	<!-- The course road: one card per chapter, swapped by scrolling through the section. -->
-	<section id="road" class="road band" data-area="learn" aria-labelledby="road-title">
-		<div class="road-track" bind:this={roadTrack} data-scroll={roadScrolls || undefined} style:--steps={CHAPTERS.length - 1}>
+	<!-- The course road: one window per course part, swapped by scrolling through the section. -->
+	<section id="road" class="road band on-dark" data-area="learn" aria-labelledby="road-title">
+		<div class="road-track" bind:this={roadTrack} data-scroll={roadScrolls || undefined} style:--steps={PARTS.length - 1}>
 			<div class="road-stage">
 				<header class="section-head">
 					<p class="kicker">The course</p>
 					<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
-					<p>
-						Each chapter adds a few keys or one skill, and gives you everything the next chapter needs. Start at the beginning,
-						or let a one-minute test find your chapter.
+					<p class="road-lede">
+						Four parts, each built on the one before. Start at the beginning, or let a one-minute test find your chapter.
 					</p>
 					<div class="road-progress" aria-hidden="true">
-						<span class="count">{String(chapter + 1).padStart(2, '0')} / {CHAPTERS.length}</span>
+						<span class="count">{String(part + 1).padStart(2, '0')} / {String(PARTS.length).padStart(2, '0')}</span>
 						<span class="ticks">
-							{#each CHAPTERS as c, i (c.number)}
-								<span class:on={i <= chapter}></span>
+							{#each PARTS as q, i (q.id)}
+								<span class:on={i <= part} style:--part="var(--{q.colour})"></span>
 							{/each}
 						</span>
 					</div>
 					<p class="road-end"><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
 				</header>
 				<div class="road-deck">
-					<div class="deck-anchor">
+					<div class="deck-anchor" bind:this={roadDeck}>
 						<CardSwap
-							items={CHAPTERS}
-							active={chapter}
+							items={[...PARTS]}
+							progress={roadProgress}
+							bind:current={part}
 							width="var(--card-w)"
 							height="var(--card-h)"
-							spreadX={0.15}
+							spreadX={0.06}
 							spreadY={0.11}
-							skew={5}
-							label="Course chapters"
+							rotateX={6}
+							rotateY={10}
+							perspective={2400}
+							label="Course parts"
 						>
-							{#snippet card(c)}
-								<div class="window">
+							{#snippet card(q, i)}
+								<div class="window" style:--part="var(--{q.colour})">
 									<div class="window-bar">
-										<span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
-										<h3>{c.title}</h3>
+										<span class="shapes" aria-hidden="true">
+											{#each PARTS as _, j (j)}
+												<svg class="shape" class:lit={j <= i} viewBox="0 0 12 12">{@html SHAPES[j]}</svg>
+											{/each}
+										</span>
+										<h3>{q.title}</h3>
 									</div>
-									<p class="window-body">{c.summary}</p>
+									<div class="window-body">
+										<p class="window-summary">{q.summary}</p>
+										<ol class="window-chapters">
+											{#each q.chapters as n (n)}
+												<li>{CHAPTERS[n - 1]!.title}</li>
+											{/each}
+										</ol>
+									</div>
 								</div>
 							{/snippet}
 						</CardSwap>
@@ -335,6 +369,8 @@
 		inset: 0 calc(50% - 50vw);
 		z-index: -2;
 		overflow: hidden;
+		/* Fades out at the bottom so the dark road below meets no hard edge. */
+		mask-image: linear-gradient(to bottom, #000 72%, transparent);
 		animation: field-in 1200ms ease-out both;
 	}
 	@keyframes field-in {
@@ -433,46 +469,49 @@
 	}
 
 	/* ---------- The road ---------- */
+	/* A fixed dark band. Its top padding fades in from the page, so the light hero runs into it without a seam. */
 	.road {
-		padding: clamp(64px, 9vw, 112px) 0;
+		padding-top: 28svh;
+		color: var(--band-ink);
 	}
-	/* A survey-map ground: area-tinted light from the top over the surface. */
 	.road::before {
-		background:
-			radial-gradient(ellipse 70% 55% at 50% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
-			radial-gradient(ellipse 45% 35% at 100% 100%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%),
-			var(--surface);
-		border-block: 1px solid var(--line);
+		background: linear-gradient(
+			to bottom,
+			transparent,
+			color-mix(in srgb, var(--band-bg) 20%, transparent) 6svh,
+			color-mix(in srgb, var(--band-bg) 65%, transparent) 15svh,
+			var(--band-bg) 28svh
+		);
 	}
-	/* Map grid with key-sized cells, fading out toward the edges. */
-	.road::after {
-		content: '';
-		position: absolute;
-		inset: 0 calc(50% - 50vw);
-		z-index: -1;
-		pointer-events: none;
-		--grid: color-mix(in srgb, var(--ink) 7%, transparent);
-		background:
-			linear-gradient(var(--grid) 1px, transparent 1px) 50% 0 / 40px 40px,
-			linear-gradient(90deg, var(--grid) 1px, transparent 1px) 50% 0 / 40px 40px;
-		mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 25%, transparent 100%);
+	.road .kicker {
+		color: var(--accent);
+	}
+	.road .link-arrow {
+		color: var(--band-ink);
 	}
 	.road-track[data-scroll] {
-		height: calc(100svh + var(--steps) * 38svh);
+		height: calc(100svh + var(--steps) * 80svh);
 	}
 	.road-stage {
 		position: sticky;
 		top: 0;
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+		grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
 		align-items: center;
 		gap: 48px;
 		min-height: 100svh;
+		margin-right: calc(50% - 50vw);
 		padding-top: var(--header-h);
 	}
 	.road-stage .section-head {
 		margin: 0;
 		text-align: left;
+	}
+	.road-lede {
+		margin-top: 14px;
+		font-size: 17px;
+		line-height: 1.6;
+		color: var(--band-ink-2);
 	}
 	.road-progress {
 		display: flex;
@@ -483,32 +522,29 @@
 	.count {
 		font-variant-numeric: tabular-nums;
 		font-size: 14px;
-		color: var(--ink-2);
+		color: var(--band-ink-2);
 	}
 	.ticks {
 		display: flex;
-		gap: 4px;
+		gap: 6px;
 	}
 	.ticks span {
-		width: 14px;
+		width: 28px;
 		height: 4px;
 		border-radius: 1px;
-		background: color-mix(in srgb, var(--ink) 15%, transparent);
-		transition: background-color 220ms ease;
+		background: color-mix(in srgb, var(--band-ink) 15%, transparent);
+		transition: background-color 300ms ease;
 	}
 	.ticks span.on {
-		background: var(--accent);
+		background: var(--part);
 	}
 	.road-end {
 		margin-top: 24px;
 	}
-	/* Deck column runs to the screen edge; cards bleed off its right and bottom. The blur covers the bottom strip. */
-	.road-stage {
-		margin-right: calc(50% - 50vw);
-	}
+	/* Deck column runs to the screen edge; windows bleed off its right and bottom. The blur covers the bottom strip. */
 	.road-deck {
-		--card-w: min(680px, 52vw);
-		--card-h: min(600px, 66svh);
+		--card-w: max(64rem, 58vw);
+		--card-h: min(660px, 74svh);
 		--drop: 120px;
 		position: relative;
 		align-self: stretch;
@@ -518,54 +554,81 @@
 		overflow: clip;
 	}
 	.deck-anchor {
-		--card-radius: 16px;
-		margin-bottom: calc(var(--card-h) * -0.2);
+		--card-radius: 18px;
+		margin-bottom: calc(var(--card-h) * -0.18);
 	}
-	/* A window: title bar with lights and the chapter, body tinted with the area. */
+	.road-deck :global(.deck > ol > li) {
+		border-color: color-mix(in srgb, var(--band-ink) 16%, transparent);
+		background: var(--band-bg);
+	}
+	/* A window: title bar in the part's colour with the four part marks, dark body tinted by the part. */
 	.window {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
-		background: color-mix(in srgb, var(--accent) 16%, var(--bg));
+		background: color-mix(in srgb, var(--part) 10%, var(--band-bg-deep));
 	}
 	.window-bar {
 		display: flex;
 		align-items: center;
-		gap: 16px;
-		height: 60px;
+		gap: 18px;
+		height: 64px;
 		flex: none;
-		padding: 0 22px;
-		border-bottom: 1px solid var(--line-strong);
-		background: linear-gradient(100deg, var(--bg) 40%, var(--surface));
+		padding: 0 24px;
+		background: var(--part);
+		color: var(--band-bg);
 	}
-	.lights {
+	.shapes {
 		display: flex;
-		gap: 7px;
+		gap: 8px;
 	}
-	.lights i {
-		width: 11px;
-		height: 11px;
-		border-radius: 50%;
-		background: color-mix(in srgb, var(--ink) 22%, transparent);
+	.shape {
+		width: 13px;
+		height: 13px;
+		fill: color-mix(in srgb, var(--band-bg) 28%, transparent);
+	}
+	.shape.lit {
+		fill: var(--band-ink);
+		filter: drop-shadow(0 1px 1.5px color-mix(in srgb, var(--band-bg) 45%, transparent));
 	}
 	.window-bar h3 {
 		overflow: hidden;
 		font-size: 19px;
-		font-weight: 600;
+		font-weight: 700;
 		white-space: nowrap;
 		text-overflow: ellipsis;
 	}
 	.window-body {
-		max-width: 30ch;
-		padding: 32px 30px;
-		font-family: var(--font-serif);
-		font-size: clamp(22px, 2.2vw, 30px);
-		line-height: 1.25;
-		color: var(--ink);
-		transition: opacity 300ms ease;
+		display: flex;
+		flex-direction: column;
+		gap: 26px;
+		padding: 36px 34px;
+		transition: opacity 400ms ease;
 	}
-	/* Behind the front card only the title bars read; their bodies stay empty. */
-	.road-deck :global(li:not([aria-current]) .window-body) {
+	.window-summary {
+		max-width: 22ch;
+		font-family: var(--font-serif);
+		font-size: clamp(26px, 2.6vw, 38px);
+		line-height: 1.15;
+		color: var(--band-ink);
+	}
+	.window-chapters {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		max-width: 34rem;
+		padding: 0;
+		list-style: none;
+	}
+	.window-chapters li {
+		padding: 6px 12px;
+		border: 1px solid color-mix(in srgb, var(--part) 45%, transparent);
+		border-radius: 6px;
+		font-size: 14px;
+		color: var(--band-ink-2);
+	}
+	/* Behind the front window only the title bars read; their bodies stay empty. */
+	.road-deck :global(.deck > ol > li:not([aria-current]) .window-body) {
 		opacity: 0;
 	}
 
@@ -1076,7 +1139,7 @@
 		.road-stage .section-head {
 			padding-right: 16px;
 		}
-		.road-stage .section-head > p:not(.kicker) {
+		.road-lede {
 			font-size: 15px;
 		}
 		.road-progress {
@@ -1086,15 +1149,15 @@
 			margin-top: 12px;
 		}
 		.road-deck {
-			--card-w: min(420px, 100vw - 72px);
-			--card-h: min(380px, 44svh);
+			--card-w: 100vw;
+			--card-h: min(440px, 52svh);
 			--drop: 72px;
 		}
 		.deck-anchor {
-			--card-radius: 12px;
+			--card-radius: 14px;
 		}
 		.window-bar {
-			height: 48px;
+			height: 50px;
 			gap: 12px;
 			padding: 0 16px;
 		}
@@ -1102,8 +1165,14 @@
 			font-size: 16px;
 		}
 		.window-body {
+			gap: 18px;
 			padding: 22px 20px;
-			font-size: 21px;
+		}
+		.window-summary {
+			font-size: 24px;
+		}
+		.window-chapters li {
+			font-size: 13px;
 		}
 	}
 	@media (max-width: 560px) {
