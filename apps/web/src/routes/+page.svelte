@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { page } from '$app/state';
 	import type { Component } from 'svelte';
 	import { CHAPTERS, LESSONS } from '#lib/courses/catalog.ts';
@@ -7,8 +7,10 @@
 	import { RANKS } from '#lib/courses/progression.ts';
 	import RankBadge from '#lib/courses/RankBadge.svelte';
 	import { courses } from '#lib/courses/store.svelte.ts';
+	import CardSwap from '#lib/bits/CardSwap.svelte';
+	import GradualBlur from '#lib/bits/GradualBlur.svelte';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
-	import { motion, whenMotion } from '#lib/motion/gsap.ts';
+	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import { areaRgb } from '#lib/site/areas.ts';
@@ -19,14 +21,37 @@
 
 	let ready = $state(false);
 	let heroCopy: HTMLElement;
+	let roadTrack: HTMLElement;
+	// Chapter at the front of the road deck; scrolling through the track moves it.
+	let chapter = $state(0);
+	let roadScrolls = $state(false);
 	onMount(() => {
 		results.load();
 		ready = true;
 		// three.js loads in its own chunk after the page is up.
 		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
 		const mm = whenMotion(() => enterHero(heroCopy));
-		return () => mm.revert();
+		let road: ScrollTrigger | undefined;
+		roadScrolls = true;
+		tick().then(() => (road = roadScroll(roadTrack)));
+		return () => {
+			mm.revert();
+			road?.kill();
+		};
 	});
+
+	// The track gets one scroll step per chapter (CSS, behind data-scroll) while its stage stays stuck.
+	// Without scripts it stays one screen tall and shows the first chapter.
+	function roadScroll(track: HTMLElement) {
+		motion();
+		const last = CHAPTERS.length - 1;
+		return ScrollTrigger.create({
+			trigger: track,
+			start: 'top top',
+			end: 'bottom bottom',
+			onUpdate: (st) => (chapter = Math.round(st.progress * last))
+		});
+	}
 
 	// Hero copy rises in on load. CSS holds it hidden until then; skip if its fallback already showed it.
 	function enterHero(copy: HTMLElement) {
@@ -45,9 +70,6 @@
 	// Returning learners are offered their next step instead of starting again.
 	const next = $derived(ready && courses.loaded ? learnerNextStep() : null);
 	const returning = $derived(next !== null && next.stage !== 'welcome');
-
-	// Ranks shown on the road, at the chapter where a steady learner reaches them.
-	const RANK_AT: Record<number, number> = { 1: 2, 3: 3, 4: 4, 7: 5, 9: 6, 10: 7, 12: 9 };
 
 	const GAMES = [
 		{ kind: 'falling', title: 'Falling letters', body: 'Letters drop from the top. Type each one before it lands.' },
@@ -109,33 +131,40 @@
 		</div>
 	</section>
 
-	<!-- The course road: a timeline of every chapter, with ranks along the way. -->
+	<!-- The course road: one card per chapter, swapped by scrolling through the section. -->
 	<section id="road" class="road band" data-area="learn" aria-labelledby="road-title">
-		<header class="section-head" use:reveal>
-			<p class="kicker">The course</p>
-			<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
-			<p>
-				Each chapter adds a few keys or one skill, and gives you everything the next chapter needs. Start at the beginning, or
-				let a one-minute test find your chapter.
-			</p>
-		</header>
-		<ol class="timeline">
-			{#each CHAPTERS as c, i (c.number)}
-				<li class="milestone" class:right={i % 2 === 1} use:reveal={{ delay: (i % 2) * 80 }}>
-					<span class="dot" aria-hidden="true">{c.number}</span>
-					<div class="card">
-						<p class="ch">Chapter {c.number} · {c.lessons.length} lessons</p>
-						<h3>{c.title}</h3>
-						<p>{c.summary}</p>
-						{#if RANK_AT[c.number]}
-							{@const rank = RANKS[RANK_AT[c.number]! - 1]!}
-							<p class="rank-on"><RankBadge {rank} size={26} /> Around here: <b>{rank.name}</b></p>
-						{/if}
+		<div class="road-track" bind:this={roadTrack} data-scroll={roadScrolls || undefined} style:--steps={CHAPTERS.length - 1}>
+			<div class="road-stage">
+				<header class="section-head">
+					<p class="kicker">The course</p>
+					<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
+					<p>
+						Each chapter adds a few keys or one skill, and gives you everything the next chapter needs. Start at the beginning,
+						or let a one-minute test find your chapter.
+					</p>
+					<div class="road-progress" aria-hidden="true">
+						<span class="count">{String(chapter + 1).padStart(2, '0')} / {CHAPTERS.length}</span>
+						<span class="ticks">
+							{#each CHAPTERS as c, i (c.number)}
+								<span class:on={i <= chapter}></span>
+							{/each}
+						</span>
 					</div>
-				</li>
-			{/each}
-		</ol>
-		<p class="road-end" use:reveal><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
+					<p class="road-end"><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
+				</header>
+				<div class="road-deck">
+					<CardSwap items={CHAPTERS} active={chapter} width="min(400px, (100vw - 40px) / 1.36)" height="var(--card-h)" label="Course chapters">
+						{#snippet card(c)}
+							<div class="chapter">
+								<h3>{c.title}</h3>
+								<p>{c.summary}</p>
+							</div>
+						{/snippet}
+					</CardSwap>
+					<GradualBlur position="bottom" height="var(--drop)" strength={2} divCount={6} curve="bezier" zIndex={20} />
+				</div>
+			</div>
+		</div>
 	</section>
 
 	<!-- Games: a dark band with live previews. -->
@@ -414,105 +443,86 @@
 			linear-gradient(90deg, var(--grid) 1px, transparent 1px) 50% 0 / 40px 40px;
 		mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 25%, transparent 100%);
 	}
-	.timeline {
-		position: relative;
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		column-gap: 64px;
-		margin-top: 44px;
+	.road-track[data-scroll] {
+		height: calc(100svh + var(--steps) * 38svh);
 	}
-	/* The road itself: a dashed line down the middle. */
-	.timeline::before {
-		content: '';
-		position: absolute;
-		left: 50%;
+	.road-stage {
+		position: sticky;
 		top: 0;
-		bottom: 0;
-		width: 3px;
-		margin-left: -1.5px;
-		background: repeating-linear-gradient(to bottom, var(--ink) 0 10px, transparent 10px 20px);
-		opacity: 0.25;
-	}
-	.milestone {
-		position: relative;
-		grid-column: 1;
-		padding: 0 0 28px;
-	}
-	.milestone.right {
-		grid-column: 2;
-		margin-top: 70px;
-	}
-	.dot {
-		position: absolute;
-		top: 18px;
-		right: -50px;
-		z-index: 1;
 		display: grid;
-		place-items: center;
-		width: 36px;
-		height: 36px;
-		border-radius: 3px;
-		background: var(--bg);
-		border: 2px solid var(--ink);
-		font-family: var(--font-serif);
-		font-size: 17px;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+		align-items: center;
+		gap: 48px;
+		min-height: 100svh;
+		padding-top: var(--header-h);
 	}
-	.milestone.right .dot {
-		right: auto;
-		left: -50px;
+	.road-stage .section-head {
+		margin: 0;
+		text-align: left;
 	}
-	.milestone:first-child .dot {
-		background: var(--accent);
-		border-color: var(--accent);
-		color: var(--on-accent);
+	.road-progress {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		margin-top: 28px;
 	}
-	.card {
-		padding: 18px 20px;
-		border-radius: 3px;
-		border: 1px solid var(--line);
-		background: var(--bg);
-		transition:
-			transform 220ms ease,
-			box-shadow 220ms ease;
-	}
-	.card:hover {
-		transform: translateY(-2px);
-		box-shadow: var(--lift);
-	}
-	.ch {
-		font-size: 12.5px;
-		font-weight: 700;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
+	.count {
+		font-variant-numeric: tabular-nums;
+		font-size: 14px;
 		color: var(--ink-2);
 	}
-	.card h3 {
-		margin-top: 4px;
-		font-size: 19px;
-		font-weight: 700;
+	.ticks {
+		display: flex;
+		gap: 4px;
 	}
-	.card p:not(.ch):not(.rank-on) {
-		margin-top: 4px;
+	.ticks span {
+		width: 14px;
+		height: 4px;
+		border-radius: 1px;
+		background: color-mix(in srgb, var(--ink) 15%, transparent);
+		transition: background-color 220ms ease;
+	}
+	.ticks span.on {
+		background: var(--accent);
+	}
+	.road-end {
+		margin-top: 24px;
+	}
+	/* Room for the stack's offsets; the blur covers where the front card drops out. */
+	.road-deck {
+		--card-h: 210px;
+		--drop: 96px;
+		position: relative;
+		display: grid;
+		place-items: end start;
+		padding: 40px 0 var(--drop);
+		overflow: clip;
+	}
+	.chapter {
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		gap: 8px;
+		height: 100%;
+		padding: 24px 26px;
+	}
+	/* Only the front card shows its text; the stack behind reads as paper. */
+	.road-deck :global(li:not([aria-current]) .chapter) {
+		opacity: 0;
+	}
+	.chapter {
+		transition: opacity 300ms ease;
+	}
+	.chapter h3 {
+		font-family: var(--font-serif);
+		font-size: 26px;
+		font-weight: 400;
+		line-height: 1.15;
+	}
+	.chapter p {
 		font-size: 15px;
 		line-height: 1.5;
 		color: var(--ink-2);
-	}
-	.rank-on {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		margin-top: 10px;
-		padding-top: 10px;
-		border-top: 1px solid var(--line);
-		font-size: 13.5px;
-		color: var(--ink-2);
-	}
-	.rank-on b {
-		color: var(--ink);
-	}
-	.road-end {
-		margin-top: 28px;
-		text-align: center;
 	}
 
 	/* ---------- Games ---------- */
@@ -1012,23 +1022,31 @@
 			border-left: 0;
 			border-top: 1px solid var(--line);
 		}
-		/* The road becomes a single column with the line on the left. */
-		.timeline {
-			grid-template-columns: 1fr;
-			padding-left: 52px;
+		/* The road stacks: copy over the deck. */
+		.road-stage {
+			grid-template-columns: minmax(0, 1fr);
+			align-content: center;
+			gap: 8px;
 		}
-		.timeline::before {
-			left: 17px;
+		.road-stage .section-head > p:not(.kicker) {
+			font-size: 15px;
 		}
-		.milestone,
-		.milestone.right {
-			grid-column: 1;
-			margin-top: 0;
+		.road-progress {
+			margin-top: 16px;
 		}
-		.dot,
-		.milestone.right .dot {
-			left: -52px;
-			right: auto;
+		.road-end {
+			margin-top: 12px;
+		}
+		.road-deck {
+			--card-h: 180px;
+			--drop: 64px;
+			padding-top: 20px;
+		}
+		.chapter {
+			padding: 18px 20px;
+		}
+		.chapter h3 {
+			font-size: 22px;
 		}
 	}
 	@media (max-width: 560px) {
