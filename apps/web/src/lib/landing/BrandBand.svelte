@@ -7,7 +7,8 @@
 	/* The name between the games and the ranks: a big cream wordmark with the curve's star perched on its last letter,
 	   filled orange to violet under a grain. Scrubbed across the band, never held: the letters rise in and the star
 	   spins in as the band arrives, both float away (Scroll Float) as it leaves. The star turns with the scroll only.
-	   For a short stretch in the middle the letters turn to liquid metal (Metallic Paint) and back. */
+	   For a short stretch in the middle a band of light crosses the name and leaves polished metal behind (Metallic
+	   Paint), then crosses again the same way and hands the cream letters back. */
 
 	const LETTERS = [...'sqwer'];
 	// A five-point star with curved sides, kin to the ✦ of the curved loop, on a 100 unit box: each side bows in
@@ -33,6 +34,10 @@
 	// The metal pass: the wordmark drawn to an image once the band is near, and whether its shader runs.
 	let metal = $state<{ src: string; light: string; dark: string; tint: string }>();
 	let metalOn = $state(false);
+	// The metal shows between these two fronts, 0 to 1 across the name; outside the window both sit off the left.
+	const OFF = -0.4;
+	const ON = 1.4;
+	let sweep = $state({ lo: -1, hi: OFF });
 
 	/** The letters as laid out, drawn black on clear at twice their size, for Metallic Paint to shape. */
 	function drawWord() {
@@ -59,7 +64,7 @@
 			ctx.fillText(el.textContent ?? '', (el.offsetLeft + pad) * scale, baseline);
 		}
 		const token = (name: string) => getComputedStyle(band).getPropertyValue(name).trim();
-		return { src: canvas.toDataURL(), light: token('--band-ink'), dark: token('--band-bg'), tint: token('--violet') };
+		return { src: canvas.toDataURL(), light: token('--band-ink'), dark: token('--band-bg'), tint: `color-mix(in srgb, ${token('--violet')} 30%, white)` };
 	}
 
 	onMount(() => {
@@ -75,8 +80,13 @@
 			);
 			near.observe(band);
 			const letters = word.querySelectorAll('.letter');
+			// The two fronts of the metal pass, tweened below and copied out on every render, either direction.
+			const front = { lo: -1, hi: OFF };
 			const tl = motion().timeline({
 				defaults: { ease: 'none' },
+				onUpdate: () => {
+					if (front.lo !== sweep.lo || front.hi !== sweep.hi) sweep = { lo: front.lo, hi: front.hi };
+				},
 				scrollTrigger: {
 					trigger: band,
 					start: 'top bottom',
@@ -99,11 +109,14 @@
 			tl.to(star, { rotate: 72, duration: 0.08 }, 0.52);
 			tl.to(letters, { ...FLOAT, scaleX: 1, transformOrigin: '50% 50%', stagger: { each: 0.02, from: 'center' }, duration: 0.3, ease: 'in-quick' }, 0.62);
 			tl.to(star, { opacity: 0, filter: 'blur(16px)', scale: 1.6, rotate: 162, duration: 0.26, ease: 'in-quick' }, 0.6);
-			// The metal pass: cream gives way to liquid metal and comes back before the float.
-			tl.fromTo(metalEl, { opacity: 0 }, { opacity: 1, duration: 0.07, ease: 'out-soft' }, 0.36);
-			tl.fromTo(lettersEl, { opacity: 1 }, { opacity: 0, duration: 0.07, ease: 'out-soft' }, 0.36);
-			tl.to(metalEl, { opacity: 0, duration: 0.07, ease: 'in-quick' }, 0.5);
-			tl.to(lettersEl, { opacity: 1, duration: 0.07, ease: 'in-quick' }, 0.5);
+			// The metal pass: a light front crosses the name and leaves metal behind it, the cream letters hide once it has
+			// passed, then a second front wipes the metal away the same way.
+			tl.set(metalEl, { opacity: 1 }, 0.35);
+			tl.to(front, { hi: ON, duration: 0.08, ease: 'power1.inOut' }, 0.36);
+			tl.set(lettersEl, { opacity: 0 }, 0.44);
+			tl.fromTo(front, { lo: OFF }, { lo: ON, duration: 0.08, ease: 'power1.inOut', immediateRender: false }, 0.5);
+			tl.set(lettersEl, { opacity: 1 }, 0.5);
+			tl.set(metalEl, { opacity: 0 }, 0.59);
 			return () => near.disconnect();
 		});
 		return () => mm.revert();
@@ -119,7 +132,26 @@
 		</span>
 		<span class="metal" bind:this={metalEl} aria-hidden="true">
 			{#if metal}
-				<MetallicPaint imageSrc={metal.src} active={metalOn} lightColor={metal.light} darkColor={metal.dark} tintColor={metal.tint} speed={0.25} />
+				<MetallicPaint
+					imageSrc={metal.src}
+					active={metalOn}
+					lightColor={metal.light}
+					darkColor={metal.dark}
+					tintColor={metal.tint}
+					revealFrom={sweep.lo}
+					revealTo={sweep.hi}
+					speed={0.06}
+					scale={7}
+					contour={0.25}
+					liquid={0.05}
+					distortion={0.1}
+					waveAmplitude={0.25}
+					chromaticSpread={0.3}
+					blur={0.006}
+					patternSharpness={1.9}
+					contrast={1.1}
+					brightness={1.6}
+				/>
 			{/if}
 		</span>
 		<svg class="star" bind:this={star} viewBox="-20 -20 140 140" aria-hidden="true">
