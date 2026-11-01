@@ -335,6 +335,8 @@
 	.landing {
 		display: flex;
 		flex-direction: column;
+		/* The last band runs down to the footer: no strip of page and no second border between them. */
+		margin-bottom: calc(-1 * var(--main-bottom));
 	}
 	.kicker {
 		font-size: 13px;
@@ -879,7 +881,7 @@
 		padding: clamp(64px, 9vw, 112px) 0;
 	}
 	.technique::before {
-		border-block: 1px solid var(--line);
+		border-top: 1px solid var(--line);
 	}
 	.copy {
 		display: flex;

@@ -435,6 +435,7 @@ dd {
 :root {
 	--header-h: 70px;
 	--main-top: clamp(20px, 4vh, 44px);
+	--main-bottom: 48px;
 }
 
 /* Anchored sections stay clear of the sticky header. */
