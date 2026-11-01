@@ -14,7 +14,9 @@ Components (source path, upstream commit):
 - Dither.svelte: static/r/dither.json @ c37078c5ff7a
 - GlassSurface.svelte: static/r/glass-surface.json @ c37078c5ff7a
 - GradualBlur.svelte: static/r/gradual-blur.json @ c37078c5ff7a
+- ScrollFloat.svelte: static/r/scroll-float.json @ c37078c5ff7a
 - StaggeredMenu.svelte: static/r/staggered-menu.json @ c37078c5ff7a
+- TextPressure.svelte: static/r/text-pressure.json @ c37078c5ff7a
 
 MIT + Commons Clause License Condition v1.0
 
