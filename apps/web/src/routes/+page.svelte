@@ -15,7 +15,7 @@
 	import RacePreview from '#lib/landing/games/RacePreview.svelte';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
 	import RankTimeline from '#lib/landing/RankTimeline.svelte';
-	import { reveal as rise } from '#lib/motion/actions.ts';
+	import { parallax, reveal, stagger } from '#lib/motion/actions.ts';
 	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
 	import { results } from '#lib/results/store.svelte.ts';
@@ -23,7 +23,6 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import { CONTACT_EMAIL } from '#lib/site/links.ts';
 	import Icon from '#lib/ui/Icon.svelte';
-	import { reveal } from '#lib/ui/reveal.ts';
 
 	let ready = $state(false);
 	let heroCopy: HTMLElement;
@@ -223,7 +222,7 @@
 
 	<!-- Games: a dark band with live previews. -->
 	<section class="games band on-dark" data-area="games" aria-labelledby="games-title">
-		<header class="section-head" use:rise>
+		<header class="section-head" use:reveal>
 			<p class="kicker">Learn by playing</p>
 			<h2 id="games-title">Practice that feels like a game.</h2>
 			<p>Every lesson mixes short drills with games, so repetition never feels like repetition.</p>
@@ -231,7 +230,7 @@
 		<div class="game-grid">
 			{#each GAMES as g, i (g.kind)}
 				<!-- Stagger per row of three; each card triggers on its own, so phones never wait. -->
-				<article class="game" use:rise={{ delay: (i % 3) * STAGGER.base }}>
+				<article class="game" use:reveal={{ delay: (i % 3) * STAGGER.base }}>
 					<div class="preview" aria-hidden="true"><g.Preview /></div>
 					<h3>{g.title}</h3>
 					<p>{g.body}</p>
@@ -242,7 +241,7 @@
 
 	<!-- Ranks: motivation without competition. -->
 	<section class="ranks band" data-area="competitive" aria-labelledby="ranks-title">
-		<header class="section-head center" use:rise>
+		<header class="section-head center" use:reveal>
 			<p class="kicker">Ranks and streaks</p>
 			<h2 id="ranks-title">Watch yourself grow.</h2>
 			<p>Earn stars in every lesson and climb ten ranks, from Novice to Legend. Your progress is measured against yourself, never against others.</p>
@@ -265,12 +264,14 @@
 				<li><Icon name="check" size={18} /> The speed and accuracy of each finger</li>
 			</ul>
 		</div>
-		<div class="visual card" use:reveal={{ delay: 120 }}>
-			<MapPreview />
+		<div class="visual" use:parallax={{ distance: -40 }}>
+			<div class="card" use:reveal={{ delay: STAGGER.base }}>
+				<MapPreview />
+			</div>
 		</div>
 	</section>
 
-	<section class="principles" data-area="practice" aria-labelledby="principles-title" use:reveal>
+	<section class="principles" data-area="practice" aria-labelledby="principles-title" use:stagger={{ selector: '.principle' }}>
 		<h2 id="principles-title" class="sr-only">Commitments</h2>
 		<div class="principle">
 			<Icon name="user" size={22} />
@@ -717,7 +718,7 @@
 		background: var(--accent);
 		color: var(--on-accent);
 	}
-	.visual.card {
+	.visual .card {
 		background: var(--bg);
 		padding: clamp(18px, 2.4vw, 28px);
 	}
