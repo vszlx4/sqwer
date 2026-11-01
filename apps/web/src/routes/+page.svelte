@@ -83,7 +83,7 @@
 			{ opacity: 1, y: 0, duration: DURATIONS.reveal, ease: 'out-soft', stagger: STAGGER.base, clearProps: 'transform' }
 		);
 	}
-	let Dither = $state<Component<{ waveColors?: [number, number, number][]; colorNum?: number; pixelSize?: number; waveSpeed?: number; waveAmplitude?: number; enableMouseInteraction?: boolean }>>();
+	let Dither = $state<Component<{ waveColors?: [number, number, number][]; colorNum?: number; pixelSize?: number; waveSpeed?: number; waveAmplitude?: number; enableMouseInteraction?: boolean; disableAnimation?: boolean; clouds?: boolean }>>();
 
 	// Returning learners are offered their next step instead of starting again.
 	const next = $derived(ready && courses.loaded ? learnerNextStep() : null);
@@ -131,7 +131,7 @@
 	<section class="hero band" aria-labelledby="hero-title">
 		<div class="hero-field">
 			{#if Dither}
-				<Dither waveColors={areaRgb()} colorNum={4} pixelSize={2} waveSpeed={0.03} waveAmplitude={0.3} enableMouseInteraction={false} />
+				<Dither waveColors={areaRgb()} colorNum={4} pixelSize={2} waveSpeed={0.04} waveAmplitude={0.3} clouds={false} enableMouseInteraction={false} />
 			{/if}
 		</div>
 		<div class="hero-copy" bind:this={heroCopy}>
