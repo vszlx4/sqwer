@@ -271,24 +271,6 @@
 		</div>
 	</section>
 
-	<section class="principles" data-area="practice" aria-labelledby="principles-title" use:stagger={{ selector: '.principle' }}>
-		<h2 id="principles-title" class="sr-only">Commitments</h2>
-		<div class="principle">
-			<Icon name="user" size={22} />
-			<h3>Free to learn</h3>
-			<p>The whole course is free. An account saves your progress, stars and rank on every device.</p>
-		</div>
-		<div class="principle">
-			<Icon name="shield" size={22} />
-			<h3>Your data stays yours</h3>
-			<p>No advertising or tracking. Export or delete everything at any time.</p>
-		</div>
-		<div class="principle">
-			<Icon name="info" size={22} />
-			<h3>Clear definitions</h3>
-			<p>Every figure is defined, and the same rules are applied to every result.</p>
-		</div>
-	</section>
 </div>
 
 <style>
@@ -711,35 +693,6 @@
 		padding: clamp(18px, 2.4vw, 28px);
 	}
 
-	/* ---------- Commitments ---------- */
-	.principles {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		margin: clamp(56px, 8vw, 96px) 0 clamp(24px, 4vw, 48px);
-		border-top: 1px solid var(--line);
-		border-bottom: 1px solid var(--line);
-	}
-	.principle {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-		padding: 32px clamp(16px, 2.4vw, 32px);
-		color: var(--ink-2);
-	}
-	.principle + .principle {
-		border-left: 1px solid var(--line);
-	}
-	.principle h3 {
-		margin-top: 6px;
-		font-size: 18px;
-		font-weight: 600;
-		color: var(--ink);
-	}
-	.principle p {
-		font-size: 15px;
-		line-height: 1.55;
-	}
-
 	@media (max-width: 1000px) {
 		.game-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -751,13 +704,6 @@
 		}
 		.split {
 			grid-template-columns: 1fr;
-		}
-		.principles {
-			grid-template-columns: 1fr;
-		}
-		.principle + .principle {
-			border-left: 0;
-			border-top: 1px solid var(--line);
 		}
 		/* The road stacks: copy over the deck. */
 		.road-stage {
