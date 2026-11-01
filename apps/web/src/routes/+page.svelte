@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
+	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import type { Component } from 'svelte';
 	import { CHAPTERS, LESSONS, PARTS } from '#lib/courses/catalog.ts';
@@ -14,10 +14,12 @@
 	import ListenPreview from '#lib/landing/games/ListenPreview.svelte';
 	import RacePreview from '#lib/landing/games/RacePreview.svelte';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
+	import { partKeys, partLessons, ROWS } from '#lib/landing/partKeys.ts';
 	import RankTimeline from '#lib/landing/RankTimeline.svelte';
 	import { parallax, reveal, stagger } from '#lib/motion/actions.ts';
 	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
+	import { LESSON_MINUTES, roughTime } from '#lib/courses/journey.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import { areaRgb } from '#lib/site/areas.ts';
 	import Seo from '#lib/site/Seo.svelte';
@@ -26,50 +28,17 @@
 
 	let ready = $state(false);
 	let heroCopy: HTMLElement;
-	let roadTrack: HTMLElement;
-	let roadDeck: HTMLElement;
-	// Scroll through the road track (0 to 1) and the course part at the front of the deck.
-	let roadProgress = $state(0);
+	// The course part at the front of the deck, and the time until the next one comes forward (0 to 1).
 	let part = $state(0);
-	let roadScrolls = $state(false);
+	let wait = $state(0);
 	onMount(() => {
 		results.load();
 		ready = true;
 		// three.js loads in its own chunk after the page is up.
 		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
 		const mm = whenMotion(() => enterHero(heroCopy));
-		let road: ScrollTrigger | undefined;
-		let glide: gsap.MatchMedia | undefined;
-		roadScrolls = true;
-		tick().then(() => {
-			road = roadScroll(roadTrack);
-			glide = whenMotion(() => roadGlide(roadTrack, roadDeck));
-		});
-		return () => {
-			mm.revert();
-			road?.kill();
-			glide?.revert();
-		};
+		return () => mm.revert();
 	});
-
-	// The track gets one scroll step per part (CSS, behind data-scroll) while its stage stays stuck; the first and
-	// last tenth hold the deck still. Without scripts it stays one screen tall and shows the first part.
-	function roadScroll(track: HTMLElement) {
-		motion();
-		return ScrollTrigger.create({
-			trigger: track,
-			start: 'top top',
-			end: 'bottom bottom',
-			onUpdate: (st) => (roadProgress = Math.min(1, Math.max(0, (st.progress - 0.1) / 0.8)))
-		});
-	}
-
-	// The deck rises into place while the stage scrolls in and drifts up as it leaves, so the pin has no hard edge.
-	function roadGlide(track: HTMLElement, deck: HTMLElement) {
-		const gsap = motion();
-		gsap.fromTo(deck, { y: '22svh' }, { y: 0, ease: 'none', scrollTrigger: { trigger: track, start: 'top bottom', end: 'top top', scrub: 0.8 } });
-		gsap.to(deck, { y: '-12svh', ease: 'none', scrollTrigger: { trigger: track, start: 'bottom bottom', end: 'bottom top', scrub: 0.8 } });
-	}
 
 	// Hero copy rises in on load. CSS holds it hidden until then; skip if its fallback already showed it.
 	function enterHero(copy: HTMLElement) {
@@ -97,6 +66,16 @@
 		{ kind: 'race', Preview: RacePreview, title: 'Race', body: 'Type a passage before the pacer reaches the finish line.' },
 		{ kind: 'echo', Preview: EchoPreview, title: 'Echo', body: 'The letters of a word light up one at a time and fade. Type the word from memory.' }
 	] as const;
+
+	// What a learner types by the end of each part: the typed run, then what is still ahead of the caret.
+	const SAMPLES: Record<(typeof PARTS)[number]['id'], [string, string]> = {
+		letters: ['a glad lass asks', ' for jars of salsa'],
+		marks: ['Dear Sam, the train', ' leaves at 9:45. Ready?'],
+		words: ['the river runs past', ' the old mill at dawn'],
+		mastery: ['if (x > 0) { ret', 'urn [x, y]; } // 92 wpm']
+	};
+	const KEYS = PARTS.map((_, i) => partKeys(i));
+	const KEY_LABEL: Record<string, string> = { 'shift-l': 'shift', 'shift-r': 'shift' };
 
 	// One mark per course part in the window bars: circle, square, triangle, diamond.
 	const SHAPES = [
@@ -157,65 +136,77 @@
 		</div>
 	</section>
 
-	<!-- The course road: one window per course part, swapped by scrolling through the section. -->
+	<!-- The course road: one window per course part; idle windows take turns at the front. -->
 	<section id="road" class="road band on-dark" data-area="learn" aria-labelledby="road-title">
-		<div class="road-track" bind:this={roadTrack} data-scroll={roadScrolls || undefined} style:--steps={PARTS.length - 1}>
-			<div class="road-stage">
-				<header class="section-head">
-					<p class="kicker">The course</p>
-					<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
-					<p class="road-lede">
-						Four parts, each built on the one before. Start at the beginning, or let a one-minute test find your chapter.
-					</p>
-					<div class="road-progress" aria-hidden="true">
-						<span class="count">{String(part + 1).padStart(2, '0')} / {String(PARTS.length).padStart(2, '0')}</span>
-						<span class="ticks">
-							{#each PARTS as q, i (q.id)}
-								<span class:on={i <= part} style:--part="var(--{q.colour})"></span>
-							{/each}
-						</span>
-					</div>
-					<p class="road-end"><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
-				</header>
-				<div class="road-deck">
-					<div class="deck-anchor" bind:this={roadDeck}>
-						<CardSwap
-							items={[...PARTS]}
-							progress={roadProgress}
-							bind:current={part}
-							width="var(--card-w)"
-							height="var(--card-h)"
-							spreadX={0.06}
-							spreadY={0.11}
-							rotateX={6}
-							rotateY={10}
-							perspective={2400}
-							label="Course parts"
-						>
-							{#snippet card(q, i)}
-								<div class="window" style:--part="var(--{q.colour})">
-									<div class="window-bar">
-										<span class="shapes" aria-hidden="true">
-											{#each PARTS as _, j (j)}
-												<svg class="shape" class:lit={j <= i} viewBox="0 0 12 12">{@html SHAPES[j]}</svg>
-											{/each}
-										</span>
-										<h3>{q.title}</h3>
-									</div>
-									<div class="window-body">
-										<p class="window-summary">{q.summary}</p>
-										<ol class="window-chapters">
-											{#each q.chapters as n (n)}
-												<li>{CHAPTERS[n - 1]!.title}</li>
-											{/each}
-										</ol>
-									</div>
-								</div>
-							{/snippet}
-						</CardSwap>
-					</div>
-					<GradualBlur position="bottom" height="var(--drop)" strength={2} divCount={6} curve="bezier" zIndex={20} />
+		<div class="road-stage">
+			<header class="section-head" use:stagger>
+				<p class="kicker">The course</p>
+				<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
+				<p class="road-lede">
+					Four parts, each built on the one before. Start at the beginning, or let a one-minute test find your chapter.
+				</p>
+				<div class="road-progress">
+					<span class="count" aria-hidden="true">{String(part + 1).padStart(2, '0')} / {String(PARTS.length).padStart(2, '0')}</span>
+					<span class="ticks" aria-hidden="true">
+						{#each PARTS as q, i (q.id)}
+							<span class:done={i < part} class:on={i === part} style:--part="var(--{q.colour})" style:--fill={i === part ? wait : 0}></span>
+						{/each}
+					</span>
 				</div>
+				<p class="road-end"><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
+			</header>
+			<div class="road-deck" use:reveal={{ y: 40 }}>
+				<div class="deck-anchor">
+					<CardSwap
+						items={[...PARTS]}
+						bind:current={part}
+						bind:wait
+						width="var(--card-w)"
+						height="var(--card-h)"
+						spreadX={0.06}
+						spreadY={0.11}
+						rotateX={6}
+						rotateY={10}
+						perspective={2400}
+						interval={6}
+						label="Course parts"
+					>
+						{#snippet card(q, i)}
+							<div class="window" style:--part="var(--{q.colour})">
+								<div class="window-bar">
+									<span class="shapes" aria-hidden="true">
+										{#each PARTS as _, j (j)}
+											<svg class="shape" class:lit={j <= i} viewBox="0 0 12 12">{@html SHAPES[j]}</svg>
+										{/each}
+									</span>
+									<h3>{q.title}</h3>
+								</div>
+								<div class="window-body">
+									<div class="w-head">
+										<span class="w-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+										<p class="window-summary">{q.summary}</p>
+									</div>
+									<p class="w-type" aria-hidden="true"><span class="typed">{SAMPLES[q.id][0]}</span><span class="caret"></span><span class="ahead">{SAMPLES[q.id][1]}</span></p>
+									<div class="w-board" aria-hidden="true">
+										{#each ROWS as row, r (r)}
+											<div class="w-row" style:--indent={r}>
+												{#each row as k (k)}
+													<span class="w-key {KEYS[i]!.get(k)}" class:wide={k.startsWith('shift')}>{KEY_LABEL[k] ?? k}</span>
+												{/each}
+											</div>
+										{/each}
+									</div>
+									<dl class="w-stats">
+										<div><dt>Chapters</dt><dd>{q.chapters.length}</dd></div>
+										<div><dt>Lessons</dt><dd>{partLessons(q)}</dd></div>
+										<div><dt>Course time</dt><dd>{roughTime(partLessons(q) * LESSON_MINUTES)}</dd></div>
+									</dl>
+								</div>
+							</div>
+						{/snippet}
+					</CardSwap>
+				</div>
+				<GradualBlur position="bottom" height="var(--drop)" strength={2.4} divCount={8} curve="bezier" zIndex={20} />
 			</div>
 		</div>
 	</section>
@@ -444,19 +435,12 @@
 	.road .link-arrow {
 		color: var(--band-ink);
 	}
-	.road-track[data-scroll] {
-		height: calc(100svh + var(--steps) * 80svh);
-	}
 	.road-stage {
-		position: sticky;
-		top: 0;
 		display: grid;
 		grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
 		align-items: center;
 		gap: 48px;
-		min-height: 100svh;
 		margin-right: calc(50% - 50vw);
-		padding-top: var(--header-h);
 	}
 	.road-stage .section-head {
 		margin: 0;
@@ -483,15 +467,32 @@
 		display: flex;
 		gap: 6px;
 	}
+	/* One bar per part: parts behind are filled, the one in front fills up until the next card comes forward. */
 	.ticks span {
-		width: 28px;
+		position: relative;
+		width: 40px;
 		height: 4px;
+		overflow: hidden;
 		border-radius: 1px;
 		background: color-mix(in srgb, var(--band-ink) 15%, transparent);
-		transition: background-color 300ms ease;
 	}
-	.ticks span.on {
+	.ticks span::after {
+		content: '';
+		position: absolute;
+		inset: 0;
 		background: var(--part);
+		transform: scaleX(var(--fill));
+		transform-origin: left;
+	}
+	.ticks span.done::after {
+		transform: none;
+		opacity: 0.45;
+	}
+	/* Without the clock (reduced motion, no scripts) the front part just shows as filled. */
+	@media (prefers-reduced-motion: reduce) {
+		.ticks span.on::after {
+			transform: none;
+		}
 	}
 	.road-end {
 		margin-top: 24px;
@@ -499,18 +500,20 @@
 	/* Deck column runs to the screen edge; windows bleed off its right and bottom. The blur covers the bottom strip. */
 	.road-deck {
 		--card-w: max(64rem, 58vw);
-		--card-h: min(660px, 74svh);
-		--drop: 120px;
+		--card-h: min(740px, 82svh);
+		--drop: 220px;
 		position: relative;
-		align-self: stretch;
 		display: flex;
 		align-items: flex-end;
-		min-height: 0;
+		/* The front window plus the strips of the three behind it, less what bleeds off the bottom. */
+		height: calc(var(--card-h) * 1.3);
 		overflow: clip;
+		/* The last strip fades into the band, so the blur's bottom edge never shows the page behind the screen edge. */
+		mask-image: linear-gradient(to bottom, #000 calc(100% - var(--drop) * 0.45), transparent);
 	}
 	.deck-anchor {
 		--card-radius: 18px;
-		margin-bottom: calc(var(--card-h) * -0.18);
+		margin-bottom: calc(var(--card-h) * -0.04);
 	}
 	.road-deck :global(.deck > ol > li) {
 		border-color: color-mix(in srgb, var(--band-ink) 16%, transparent);
@@ -556,8 +559,8 @@
 	.window-body {
 		display: flex;
 		flex-direction: column;
-		gap: 26px;
-		padding: 36px 34px;
+		gap: 22px;
+		padding: 30px 34px;
 		transition: opacity 400ms ease;
 	}
 	.window-summary {
@@ -567,20 +570,95 @@
 		line-height: 1.15;
 		color: var(--band-ink);
 	}
-	.window-chapters {
+	.w-head {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 8px;
-		max-width: 34rem;
-		padding: 0;
-		list-style: none;
+		align-items: baseline;
+		gap: 22px;
 	}
-	.window-chapters li {
-		padding: 6px 12px;
-		border: 1px solid color-mix(in srgb, var(--part) 45%, transparent);
-		border-radius: 6px;
-		font-size: 14px;
+	.w-num {
+		font-family: var(--font-mono);
+		font-size: clamp(36px, 3.4vw, 52px);
+		font-weight: 300;
+		line-height: 1;
+		color: var(--part);
+	}
+	/* A line as the learner types it by the end of the part, the caret where the hands are. */
+	.w-type {
+		font-family: var(--font-mono);
+		font-size: clamp(15px, 1.25vw, 19px);
+		white-space: nowrap;
+		color: var(--band-ink-3);
+	}
+	.w-type .typed {
+		color: var(--band-ink);
+	}
+	.caret {
+		display: inline-block;
+		width: 0.6em;
+		height: 1.15em;
+		margin: 0 1px -0.2em;
+		background: var(--part);
+		animation: caret 1.1s steps(1) infinite;
+	}
+	@keyframes caret {
+		50% {
+			opacity: 0;
+		}
+	}
+	/* The part's keys on a small board: new ones in the part color, earlier ones dim, the rest outlined. */
+	.w-board {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+	.w-row {
+		display: flex;
+		gap: 5px;
+		padding-left: calc(var(--indent) * 14px);
+	}
+	.w-key {
+		display: grid;
+		place-items: center;
+		width: 28px;
+		height: 28px;
+		border-radius: 4px;
+		border: 1px solid color-mix(in srgb, var(--band-ink) 14%, transparent);
+		font-family: var(--font-mono);
+		font-size: 12px;
+		color: color-mix(in srgb, var(--band-ink) 35%, transparent);
+	}
+	.w-key.wide {
+		width: 48px;
+		font-size: 10px;
+	}
+	.w-key.known {
+		border-color: color-mix(in srgb, var(--part) 30%, transparent);
+		background: color-mix(in srgb, var(--part) 12%, transparent);
 		color: var(--band-ink-2);
+	}
+	.w-key.new {
+		border-color: var(--part);
+		background: var(--part);
+		color: var(--band-bg);
+		font-weight: 600;
+	}
+	.w-stats {
+		display: flex;
+		gap: 36px;
+		padding-top: 18px;
+		border-top: 1px solid color-mix(in srgb, var(--part) 25%, transparent);
+	}
+	.w-stats dt {
+		font-size: 12px;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--band-ink-3);
+	}
+	.w-stats dd {
+		margin-top: 4px;
+		font-family: var(--font-mono);
+		font-size: 20px;
+		color: var(--band-ink);
 	}
 	/* Behind the front window only the title bars read; their bodies stay empty. */
 	.road-deck :global(.deck > ol > li:not([aria-current]) .window-body) {
@@ -708,9 +786,7 @@
 		/* The road stacks: copy over the deck. */
 		.road-stage {
 			grid-template-columns: minmax(0, 1fr);
-			grid-template-rows: auto minmax(0, 1fr);
-			gap: 20px;
-			padding-top: calc(var(--header-h) + 24px);
+			gap: 28px;
 		}
 		.road-stage .section-head {
 			padding-right: 16px;
@@ -726,8 +802,8 @@
 		}
 		.road-deck {
 			--card-w: 100vw;
-			--card-h: min(440px, 52svh);
-			--drop: 72px;
+			--card-h: min(520px, 62svh);
+			--drop: 120px;
 		}
 		.deck-anchor {
 			--card-radius: 14px;
@@ -747,8 +823,23 @@
 		.window-summary {
 			font-size: 24px;
 		}
-		.window-chapters li {
-			font-size: 13px;
+		.w-key {
+			width: 22px;
+			height: 22px;
+			font-size: 10px;
+		}
+		.w-key.wide {
+			width: 36px;
+		}
+		.w-row {
+			gap: 3px;
+			padding-left: calc(var(--indent) * 8px);
+		}
+		.w-board {
+			gap: 3px;
+		}
+		.w-stats {
+			gap: 22px;
 		}
 	}
 	@media (max-width: 560px) {
