@@ -1,14 +1,16 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { page } from '$app/state';
 	import type { Component } from 'svelte';
-	import { CHAPTERS, LESSONS } from '#lib/courses/catalog.ts';
+	import { CHAPTERS, LESSONS, PARTS } from '#lib/courses/catalog.ts';
 	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
 	import { RANKS } from '#lib/courses/progression.ts';
 	import RankBadge from '#lib/courses/RankBadge.svelte';
 	import { courses } from '#lib/courses/store.svelte.ts';
+	import CardSwap from '#lib/bits/CardSwap.svelte';
+	import GradualBlur from '#lib/bits/GradualBlur.svelte';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
-	import { motion, whenMotion } from '#lib/motion/gsap.ts';
+	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import { areaRgb } from '#lib/site/areas.ts';
@@ -19,14 +21,50 @@
 
 	let ready = $state(false);
 	let heroCopy: HTMLElement;
+	let roadTrack: HTMLElement;
+	let roadDeck: HTMLElement;
+	// Scroll through the road track (0 to 1) and the course part at the front of the deck.
+	let roadProgress = $state(0);
+	let part = $state(0);
+	let roadScrolls = $state(false);
 	onMount(() => {
 		results.load();
 		ready = true;
 		// three.js loads in its own chunk after the page is up.
 		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
 		const mm = whenMotion(() => enterHero(heroCopy));
-		return () => mm.revert();
+		let road: ScrollTrigger | undefined;
+		let glide: gsap.MatchMedia | undefined;
+		roadScrolls = true;
+		tick().then(() => {
+			road = roadScroll(roadTrack);
+			glide = whenMotion(() => roadGlide(roadTrack, roadDeck));
+		});
+		return () => {
+			mm.revert();
+			road?.kill();
+			glide?.revert();
+		};
 	});
+
+	// The track gets one scroll step per part (CSS, behind data-scroll) while its stage stays stuck; the first and
+	// last tenth hold the deck still. Without scripts it stays one screen tall and shows the first part.
+	function roadScroll(track: HTMLElement) {
+		motion();
+		return ScrollTrigger.create({
+			trigger: track,
+			start: 'top top',
+			end: 'bottom bottom',
+			onUpdate: (st) => (roadProgress = Math.min(1, Math.max(0, (st.progress - 0.1) / 0.8)))
+		});
+	}
+
+	// The deck rises into place while the stage scrolls in and drifts up as it leaves, so the pin has no hard edge.
+	function roadGlide(track: HTMLElement, deck: HTMLElement) {
+		const gsap = motion();
+		gsap.fromTo(deck, { y: '22svh' }, { y: 0, ease: 'none', scrollTrigger: { trigger: track, start: 'top bottom', end: 'top top', scrub: 0.8 } });
+		gsap.to(deck, { y: '-12svh', ease: 'none', scrollTrigger: { trigger: track, start: 'bottom bottom', end: 'bottom top', scrub: 0.8 } });
+	}
 
 	// Hero copy rises in on load. CSS holds it hidden until then; skip if its fallback already showed it.
 	function enterHero(copy: HTMLElement) {
@@ -46,9 +84,6 @@
 	const next = $derived(ready && courses.loaded ? learnerNextStep() : null);
 	const returning = $derived(next !== null && next.stage !== 'welcome');
 
-	// Ranks shown on the road, at the chapter where a steady learner reaches them.
-	const RANK_AT: Record<number, number> = { 1: 2, 3: 3, 4: 4, 7: 5, 9: 6, 10: 7, 12: 9 };
-
 	const GAMES = [
 		{ kind: 'falling', title: 'Falling letters', body: 'Letters drop from the top. Type each one before it lands.' },
 		{ kind: 'words', title: 'Falling words', body: 'Whole words fall instead of letters. Type each before it lands; they speed up as you go.' },
@@ -57,6 +92,14 @@
 		{ kind: 'race', title: 'Race', body: 'Type a passage before the pacer reaches the finish line.' },
 		{ kind: 'echo', title: 'Echo', body: 'The letters of a word light up one at a time and fade. Type the word from memory.' }
 	] as const;
+
+	// One mark per course part in the window bars: circle, square, triangle, diamond.
+	const SHAPES = [
+		'<circle cx="6" cy="6" r="5.5"/>',
+		'<rect x="1" y="1" width="10" height="10" rx="1.5"/>',
+		'<path d="M6 .5 11.5 11h-11z"/>',
+		'<path d="M6 0 12 6 6 12 0 6z"/>'
+	];
 
 	const site = $derived(page.data.siteUrl ?? '');
 	const jsonLd = $derived([
@@ -109,33 +152,67 @@
 		</div>
 	</section>
 
-	<!-- The course road: a timeline of every chapter, with ranks along the way. -->
-	<section id="road" class="road band" data-area="learn" aria-labelledby="road-title">
-		<header class="section-head" use:reveal>
-			<p class="kicker">The course</p>
-			<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
-			<p>
-				Each chapter adds a few keys or one skill, and gives you everything the next chapter needs. Start at the beginning, or
-				let a one-minute test find your chapter.
-			</p>
-		</header>
-		<ol class="timeline">
-			{#each CHAPTERS as c, i (c.number)}
-				<li class="milestone" class:right={i % 2 === 1} use:reveal={{ delay: (i % 2) * 80 }}>
-					<span class="dot" aria-hidden="true">{c.number}</span>
-					<div class="card">
-						<p class="ch">Chapter {c.number} · {c.lessons.length} lessons</p>
-						<h3>{c.title}</h3>
-						<p>{c.summary}</p>
-						{#if RANK_AT[c.number]}
-							{@const rank = RANKS[RANK_AT[c.number]! - 1]!}
-							<p class="rank-on"><RankBadge {rank} size={26} /> Around here: <b>{rank.name}</b></p>
-						{/if}
+	<!-- The course road: one window per course part, swapped by scrolling through the section. -->
+	<section id="road" class="road band on-dark" data-area="learn" aria-labelledby="road-title">
+		<div class="road-track" bind:this={roadTrack} data-scroll={roadScrolls || undefined} style:--steps={PARTS.length - 1}>
+			<div class="road-stage">
+				<header class="section-head">
+					<p class="kicker">The course</p>
+					<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
+					<p class="road-lede">
+						Four parts, each built on the one before. Start at the beginning, or let a one-minute test find your chapter.
+					</p>
+					<div class="road-progress" aria-hidden="true">
+						<span class="count">{String(part + 1).padStart(2, '0')} / {String(PARTS.length).padStart(2, '0')}</span>
+						<span class="ticks">
+							{#each PARTS as q, i (q.id)}
+								<span class:on={i <= part} style:--part="var(--{q.colour})"></span>
+							{/each}
+						</span>
 					</div>
-				</li>
-			{/each}
-		</ol>
-		<p class="road-end" use:reveal><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
+					<p class="road-end"><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
+				</header>
+				<div class="road-deck">
+					<div class="deck-anchor" bind:this={roadDeck}>
+						<CardSwap
+							items={[...PARTS]}
+							progress={roadProgress}
+							bind:current={part}
+							width="var(--card-w)"
+							height="var(--card-h)"
+							spreadX={0.06}
+							spreadY={0.11}
+							rotateX={6}
+							rotateY={10}
+							perspective={2400}
+							label="Course parts"
+						>
+							{#snippet card(q, i)}
+								<div class="window" style:--part="var(--{q.colour})">
+									<div class="window-bar">
+										<span class="shapes" aria-hidden="true">
+											{#each PARTS as _, j (j)}
+												<svg class="shape" class:lit={j <= i} viewBox="0 0 12 12">{@html SHAPES[j]}</svg>
+											{/each}
+										</span>
+										<h3>{q.title}</h3>
+									</div>
+									<div class="window-body">
+										<p class="window-summary">{q.summary}</p>
+										<ol class="window-chapters">
+											{#each q.chapters as n (n)}
+												<li>{CHAPTERS[n - 1]!.title}</li>
+											{/each}
+										</ol>
+									</div>
+								</div>
+							{/snippet}
+						</CardSwap>
+					</div>
+					<GradualBlur position="bottom" height="var(--drop)" strength={2} divCount={6} curve="bezier" zIndex={20} />
+				</div>
+			</div>
+		</div>
 	</section>
 
 	<!-- Games: a dark band with live previews. -->
@@ -292,6 +369,8 @@
 		inset: 0 calc(50% - 50vw);
 		z-index: -2;
 		overflow: hidden;
+		/* Fades out at the bottom so the dark road below meets no hard edge. */
+		mask-image: linear-gradient(to bottom, #000 72%, transparent);
 		animation: field-in 1200ms ease-out both;
 	}
 	@keyframes field-in {
@@ -390,129 +469,167 @@
 	}
 
 	/* ---------- The road ---------- */
+	/* A fixed dark band. Its top padding fades in from the page, so the light hero runs into it without a seam. */
 	.road {
-		padding: clamp(64px, 9vw, 112px) 0;
+		padding-top: 28svh;
+		color: var(--band-ink);
 	}
-	/* A survey-map ground: area-tinted light from the top over the surface. */
 	.road::before {
-		background:
-			radial-gradient(ellipse 70% 55% at 50% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
-			radial-gradient(ellipse 45% 35% at 100% 100%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%),
-			var(--surface);
-		border-block: 1px solid var(--line);
+		background: linear-gradient(
+			to bottom,
+			transparent,
+			color-mix(in srgb, var(--band-bg) 20%, transparent) 6svh,
+			color-mix(in srgb, var(--band-bg) 65%, transparent) 15svh,
+			var(--band-bg) 28svh
+		);
 	}
-	/* Map grid with key-sized cells, fading out toward the edges. */
-	.road::after {
-		content: '';
-		position: absolute;
-		inset: 0 calc(50% - 50vw);
-		z-index: -1;
-		pointer-events: none;
-		--grid: color-mix(in srgb, var(--ink) 7%, transparent);
-		background:
-			linear-gradient(var(--grid) 1px, transparent 1px) 50% 0 / 40px 40px,
-			linear-gradient(90deg, var(--grid) 1px, transparent 1px) 50% 0 / 40px 40px;
-		mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 25%, transparent 100%);
+	.road .kicker {
+		color: var(--accent);
 	}
-	.timeline {
-		position: relative;
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		column-gap: 64px;
-		margin-top: 44px;
+	.road .link-arrow {
+		color: var(--band-ink);
 	}
-	/* The road itself: a dashed line down the middle. */
-	.timeline::before {
-		content: '';
-		position: absolute;
-		left: 50%;
+	.road-track[data-scroll] {
+		height: calc(100svh + var(--steps) * 80svh);
+	}
+	.road-stage {
+		position: sticky;
 		top: 0;
-		bottom: 0;
-		width: 3px;
-		margin-left: -1.5px;
-		background: repeating-linear-gradient(to bottom, var(--ink) 0 10px, transparent 10px 20px);
-		opacity: 0.25;
-	}
-	.milestone {
-		position: relative;
-		grid-column: 1;
-		padding: 0 0 28px;
-	}
-	.milestone.right {
-		grid-column: 2;
-		margin-top: 70px;
-	}
-	.dot {
-		position: absolute;
-		top: 18px;
-		right: -50px;
-		z-index: 1;
 		display: grid;
-		place-items: center;
-		width: 36px;
-		height: 36px;
-		border-radius: 3px;
-		background: var(--bg);
-		border: 2px solid var(--ink);
-		font-family: var(--font-serif);
+		grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+		align-items: center;
+		gap: 48px;
+		min-height: 100svh;
+		margin-right: calc(50% - 50vw);
+		padding-top: var(--header-h);
+	}
+	.road-stage .section-head {
+		margin: 0;
+		text-align: left;
+	}
+	.road-lede {
+		margin-top: 14px;
 		font-size: 17px;
+		line-height: 1.6;
+		color: var(--band-ink-2);
 	}
-	.milestone.right .dot {
-		right: auto;
-		left: -50px;
-	}
-	.milestone:first-child .dot {
-		background: var(--accent);
-		border-color: var(--accent);
-		color: var(--on-accent);
-	}
-	.card {
-		padding: 18px 20px;
-		border-radius: 3px;
-		border: 1px solid var(--line);
-		background: var(--bg);
-		transition:
-			transform 220ms ease,
-			box-shadow 220ms ease;
-	}
-	.card:hover {
-		transform: translateY(-2px);
-		box-shadow: var(--lift);
-	}
-	.ch {
-		font-size: 12.5px;
-		font-weight: 700;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		color: var(--ink-2);
-	}
-	.card h3 {
-		margin-top: 4px;
-		font-size: 19px;
-		font-weight: 700;
-	}
-	.card p:not(.ch):not(.rank-on) {
-		margin-top: 4px;
-		font-size: 15px;
-		line-height: 1.5;
-		color: var(--ink-2);
-	}
-	.rank-on {
+	.road-progress {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		margin-top: 10px;
-		padding-top: 10px;
-		border-top: 1px solid var(--line);
-		font-size: 13.5px;
-		color: var(--ink-2);
+		gap: 14px;
+		margin-top: 28px;
 	}
-	.rank-on b {
-		color: var(--ink);
+	.count {
+		font-variant-numeric: tabular-nums;
+		font-size: 14px;
+		color: var(--band-ink-2);
+	}
+	.ticks {
+		display: flex;
+		gap: 6px;
+	}
+	.ticks span {
+		width: 28px;
+		height: 4px;
+		border-radius: 1px;
+		background: color-mix(in srgb, var(--band-ink) 15%, transparent);
+		transition: background-color 300ms ease;
+	}
+	.ticks span.on {
+		background: var(--part);
 	}
 	.road-end {
-		margin-top: 28px;
-		text-align: center;
+		margin-top: 24px;
+	}
+	/* Deck column runs to the screen edge; windows bleed off its right and bottom. The blur covers the bottom strip. */
+	.road-deck {
+		--card-w: max(64rem, 58vw);
+		--card-h: min(660px, 74svh);
+		--drop: 120px;
+		position: relative;
+		align-self: stretch;
+		display: flex;
+		align-items: flex-end;
+		min-height: 0;
+		overflow: clip;
+	}
+	.deck-anchor {
+		--card-radius: 18px;
+		margin-bottom: calc(var(--card-h) * -0.18);
+	}
+	.road-deck :global(.deck > ol > li) {
+		border-color: color-mix(in srgb, var(--band-ink) 16%, transparent);
+		background: var(--band-bg);
+	}
+	/* A window: title bar in the part's colour with the four part marks, dark body tinted by the part. */
+	.window {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		background: color-mix(in srgb, var(--part) 10%, var(--band-bg-deep));
+	}
+	.window-bar {
+		display: flex;
+		align-items: center;
+		gap: 18px;
+		height: 64px;
+		flex: none;
+		padding: 0 24px;
+		background: var(--part);
+		color: var(--band-bg);
+	}
+	.shapes {
+		display: flex;
+		gap: 8px;
+	}
+	.shape {
+		width: 13px;
+		height: 13px;
+		fill: color-mix(in srgb, var(--band-bg) 28%, transparent);
+	}
+	.shape.lit {
+		fill: var(--band-ink);
+		filter: drop-shadow(0 1px 1.5px color-mix(in srgb, var(--band-bg) 45%, transparent));
+	}
+	.window-bar h3 {
+		overflow: hidden;
+		font-size: 19px;
+		font-weight: 700;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+	.window-body {
+		display: flex;
+		flex-direction: column;
+		gap: 26px;
+		padding: 36px 34px;
+		transition: opacity 400ms ease;
+	}
+	.window-summary {
+		max-width: 22ch;
+		font-family: var(--font-serif);
+		font-size: clamp(26px, 2.6vw, 38px);
+		line-height: 1.15;
+		color: var(--band-ink);
+	}
+	.window-chapters {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		max-width: 34rem;
+		padding: 0;
+		list-style: none;
+	}
+	.window-chapters li {
+		padding: 6px 12px;
+		border: 1px solid color-mix(in srgb, var(--part) 45%, transparent);
+		border-radius: 6px;
+		font-size: 14px;
+		color: var(--band-ink-2);
+	}
+	/* Behind the front window only the title bars read; their bodies stay empty. */
+	.road-deck :global(.deck > ol > li:not([aria-current]) .window-body) {
+		opacity: 0;
 	}
 
 	/* ---------- Games ---------- */
@@ -1012,23 +1129,50 @@
 			border-left: 0;
 			border-top: 1px solid var(--line);
 		}
-		/* The road becomes a single column with the line on the left. */
-		.timeline {
-			grid-template-columns: 1fr;
-			padding-left: 52px;
+		/* The road stacks: copy over the deck. */
+		.road-stage {
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-rows: auto minmax(0, 1fr);
+			gap: 20px;
+			padding-top: calc(var(--header-h) + 24px);
 		}
-		.timeline::before {
-			left: 17px;
+		.road-stage .section-head {
+			padding-right: 16px;
 		}
-		.milestone,
-		.milestone.right {
-			grid-column: 1;
-			margin-top: 0;
+		.road-lede {
+			font-size: 15px;
 		}
-		.dot,
-		.milestone.right .dot {
-			left: -52px;
-			right: auto;
+		.road-progress {
+			margin-top: 16px;
+		}
+		.road-end {
+			margin-top: 12px;
+		}
+		.road-deck {
+			--card-w: 100vw;
+			--card-h: min(440px, 52svh);
+			--drop: 72px;
+		}
+		.deck-anchor {
+			--card-radius: 14px;
+		}
+		.window-bar {
+			height: 50px;
+			gap: 12px;
+			padding: 0 16px;
+		}
+		.window-bar h3 {
+			font-size: 16px;
+		}
+		.window-body {
+			gap: 18px;
+			padding: 22px 20px;
+		}
+		.window-summary {
+			font-size: 24px;
+		}
+		.window-chapters li {
+			font-size: 13px;
 		}
 	}
 	@media (max-width: 560px) {
