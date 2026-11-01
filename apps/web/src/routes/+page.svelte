@@ -10,6 +10,7 @@
 	import CardSwap from '#lib/bits/CardSwap.svelte';
 	import GradualBlur from '#lib/bits/GradualBlur.svelte';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
+	import { reveal as rise } from '#lib/motion/actions.ts';
 	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
 	import { results } from '#lib/results/store.svelte.ts';
@@ -217,14 +218,15 @@
 
 	<!-- Games: a dark band with live previews. -->
 	<section class="games band on-dark" data-area="games" aria-labelledby="games-title">
-		<header class="section-head" use:reveal>
+		<header class="section-head" use:rise>
 			<p class="kicker">Learn by playing</p>
 			<h2 id="games-title">Practice that feels like a game.</h2>
 			<p>Every lesson mixes short drills with games, so repetition never feels like repetition.</p>
 		</header>
 		<div class="game-grid">
 			{#each GAMES as g, i (g.kind)}
-				<article class="game" use:reveal={{ delay: i * 80 }}>
+				<!-- Stagger per row of three; each card triggers on its own, so phones never wait. -->
+				<article class="game" use:rise={{ delay: (i % 3) * STAGGER.base }}>
 					<div class={`preview p-${g.kind}`} aria-hidden="true">
 						{#if g.kind === 'falling'}
 							{#each ['f', 'j', 'k', 'd', 'g'] as l, n (l)}<span class="fl" style:left={`${10 + n * 19}%`} style:--n={n}>{l}</span>{/each}
