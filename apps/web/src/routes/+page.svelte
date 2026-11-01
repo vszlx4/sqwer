@@ -9,6 +9,12 @@
 	import { courses } from '#lib/courses/store.svelte.ts';
 	import CardSwap from '#lib/bits/CardSwap.svelte';
 	import GradualBlur from '#lib/bits/GradualBlur.svelte';
+	import EchoPreview from '#lib/landing/games/EchoPreview.svelte';
+	import FallingLetters from '#lib/landing/games/FallingLetters.svelte';
+	import FallingWords from '#lib/landing/games/FallingWords.svelte';
+	import KeyHuntPreview from '#lib/landing/games/KeyHuntPreview.svelte';
+	import ListenPreview from '#lib/landing/games/ListenPreview.svelte';
+	import RacePreview from '#lib/landing/games/RacePreview.svelte';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
 	import { reveal as rise } from '#lib/motion/actions.ts';
 	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
@@ -86,12 +92,12 @@
 	const returning = $derived(next !== null && next.stage !== 'welcome');
 
 	const GAMES = [
-		{ kind: 'falling', title: 'Falling letters', body: 'Letters drop from the top. Type each one before it lands.' },
-		{ kind: 'words', title: 'Falling words', body: 'Whole words fall instead of letters. Type each before it lands; they speed up as you go.' },
-		{ kind: 'listen', title: 'Listen and type', body: 'Hear a word and type it, without seeing it first.' },
-		{ kind: 'keyhunt', title: 'Key hunt', body: 'A key lights up. Find it by touch before its light runs out.' },
-		{ kind: 'race', title: 'Race', body: 'Type a passage before the pacer reaches the finish line.' },
-		{ kind: 'echo', title: 'Echo', body: 'The letters of a word light up one at a time and fade. Type the word from memory.' }
+		{ kind: 'falling', Preview: FallingLetters, title: 'Falling letters', body: 'Letters drop from the top. Type each one before it lands.' },
+		{ kind: 'words', Preview: FallingWords, title: 'Falling words', body: 'Whole words fall instead of letters. Type each before it lands; they speed up as you go.' },
+		{ kind: 'listen', Preview: ListenPreview, title: 'Listen and type', body: 'Hear a word and type it, without seeing it first.' },
+		{ kind: 'keyhunt', Preview: KeyHuntPreview, title: 'Key hunt', body: 'A key lights up. Find it by touch before its light runs out.' },
+		{ kind: 'race', Preview: RacePreview, title: 'Race', body: 'Type a passage before the pacer reaches the finish line.' },
+		{ kind: 'echo', Preview: EchoPreview, title: 'Echo', body: 'The letters of a word light up one at a time and fade. Type the word from memory.' }
 	] as const;
 
 	// One mark per course part in the window bars: circle, square, triangle, diamond.
@@ -227,38 +233,7 @@
 			{#each GAMES as g, i (g.kind)}
 				<!-- Stagger per row of three; each card triggers on its own, so phones never wait. -->
 				<article class="game" use:rise={{ delay: (i % 3) * STAGGER.base }}>
-					<div class={`preview p-${g.kind}`} aria-hidden="true">
-						{#if g.kind === 'falling'}
-							{#each ['f', 'j', 'k', 'd', 'g'] as l, n (l)}<span class="fl" style:left={`${10 + n * 19}%`} style:--n={n}>{l}</span>{/each}
-							<span class="pop"></span>
-							<span class="floor"></span>
-						{:else if g.kind === 'words'}
-							{#each ['steady', 'hand', 'river', 'quiet'] as w, n (w)}<span class="fl fw" style:left={`${6 + n * 23}%`} style:--n={n}>{w}</span>{/each}
-							<span class="floor"></span>
-						{:else if g.kind === 'listen'}
-							<span class="speaker"><span class="wave">{#each [0, 1, 2, 3, 4, 5, 6, 7, 8] as n (n)}<span style:--n={n}></span>{/each}</span></span>
-							<span class="typed">steady<span class="caret"></span></span>
-						{:else if g.kind === 'keyhunt'}
-							<span class="mini-kb">
-								{#each ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'] as row, r (row)}
-									<span class="kb-row" style:--r={r}>{#each [...row] as k (k)}<span class="mk" class:target={k === 'j'}>{k}</span>{/each}</span>
-								{/each}
-							</span>
-							<span class="fuse"></span>
-						{:else if g.kind === 'race'}
-							{#each ['me', 'pace'] as who (who)}
-								<span class="race-lane">
-									<span class="trail {who}"></span>
-									<span class="runner {who}"></span>
-									<span class="flag"></span>
-								</span>
-							{/each}
-							<span class="race-text">the quick <b>r</b><span>ace</span></span>
-						{:else}
-							<span class="echo-label">Watch, then repeat</span>
-							<span class="echo-row">{#each ['s', 'k', 'd', 'l'] as k, n (n)}<span class="ek" style:--n={n}>{k}</span>{/each}</span>
-						{/if}
-					</div>
+					<div class="preview" aria-hidden="true"><g.Preview /></div>
 					<h3>{g.title}</h3>
 					<p>{g.body}</p>
 				</article>
@@ -697,316 +672,6 @@
 	.game:hover .preview {
 		border-color: var(--band-line-strong);
 	}
-	/* Falling letters: keycaps drop, and one bursts as it is typed. */
-	.fl {
-		position: absolute;
-		top: -36px;
-		display: grid;
-		place-items: center;
-		width: 30px;
-		height: 30px;
-		border-radius: 3px;
-		border-bottom: 3px solid var(--band-ink-3);
-		background: var(--band-ink);
-		color: var(--band-bg);
-		font-family: var(--font-mono);
-		font-weight: 600;
-		animation: fall 3.4s linear infinite;
-		animation-delay: calc(var(--n) * -0.68s);
-	}
-	@keyframes fall {
-		to {
-			transform: translateY(190px);
-		}
-	}
-	.pop {
-		position: absolute;
-		left: 46%;
-		top: 52%;
-		width: 44px;
-		height: 44px;
-		border-radius: 3px;
-		border: 3px solid var(--accent);
-		animation: pop-burst 1.7s ease-out infinite;
-	}
-	@keyframes pop-burst {
-		0%,
-		60% {
-			opacity: 0;
-			transform: scale(0.4) rotate(0deg);
-		}
-		70% {
-			opacity: 1;
-		}
-		100% {
-			opacity: 0;
-			transform: scale(1.6) rotate(45deg);
-		}
-	}
-	.floor {
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		height: 14px;
-		background: color-mix(in srgb, var(--accent) 26%, var(--band-bg));
-		border-top: 2px solid var(--accent);
-		box-shadow: 0 -10px 24px -8px color-mix(in srgb, var(--accent) 50%, transparent);
-	}
-	/* Falling words: whole words drop in place of letters. */
-	.fw {
-		width: auto;
-		padding: 0 8px;
-		font-size: 13px;
-		animation-duration: 4.4s;
-		animation-delay: calc(var(--n) * -1.1s);
-	}
-	/* Listening: a voice wave and the word appearing as it is typed. */
-	.p-listen,
-	.p-keyhunt,
-	.p-echo,
-	.p-race {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 14px;
-		padding: 0 18px;
-	}
-	.speaker {
-		display: grid;
-		place-items: center;
-		width: 120px;
-		height: 56px;
-		border-radius: 3px;
-		background: color-mix(in srgb, var(--accent) 8%, transparent);
-		border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
-	}
-	.wave {
-		display: flex;
-		align-items: center;
-		gap: 5px;
-		height: 36px;
-	}
-	.wave span {
-		width: 4px;
-		height: 100%;
-		border-radius: 2px;
-		background: var(--accent);
-		animation: wave 1.1s ease-in-out infinite;
-		animation-delay: calc(var(--n) * -0.13s);
-	}
-	@keyframes wave {
-		0%,
-		100% {
-			transform: scaleY(0.2);
-		}
-		50% {
-			transform: scaleY(1);
-		}
-	}
-	.typed {
-		font-family: var(--font-mono);
-		font-size: 20px;
-		color: var(--band-ink);
-	}
-	.caret {
-		display: inline-block;
-		width: 2px;
-		height: 1em;
-		margin-left: 2px;
-		vertical-align: -0.12em;
-		background: var(--accent);
-		animation: blink 1s steps(1) infinite;
-	}
-	@keyframes blink {
-		50% {
-			opacity: 0;
-		}
-	}
-	/* Key hunt: a small keyboard with one key lit and its fuse running out. */
-	.mini-kb {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-	}
-	.kb-row {
-		display: flex;
-		gap: 4px;
-		margin-left: calc(var(--r) * 9px);
-	}
-	.mk {
-		display: grid;
-		place-items: center;
-		width: 20px;
-		height: 22px;
-		border-radius: 3px;
-		border: 1px solid var(--band-line);
-		border-bottom-width: 2px;
-		background: var(--band-surface);
-		color: var(--band-ink-3);
-		font-family: var(--font-mono);
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-	}
-	.mk.target {
-		border-color: var(--accent);
-		background: var(--accent);
-		color: var(--on-accent);
-		box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 60%, transparent);
-		animation: hunt 2.4s ease-in-out infinite;
-	}
-	@keyframes hunt {
-		0%,
-		100% {
-			transform: translateY(0);
-		}
-		80% {
-			transform: translateY(0);
-		}
-		88% {
-			transform: translateY(2px);
-		}
-	}
-	.fuse {
-		width: 120px;
-		height: 4px;
-		border-radius: 3px;
-		background: linear-gradient(90deg, var(--accent), var(--violet));
-		transform-origin: left;
-		animation: fuse 2.4s linear infinite;
-	}
-	@keyframes fuse {
-		from {
-			transform: scaleX(1);
-		}
-		to {
-			transform: scaleX(0);
-		}
-	}
-	/* Race: two lanes, trails, a checkered finish and the passage being typed. */
-	.race-lane {
-		position: relative;
-		width: 100%;
-		height: 22px;
-		border-radius: 3px;
-		background: var(--band-surface-2);
-	}
-	.trail {
-		position: absolute;
-		left: 0;
-		top: 50%;
-		height: 3px;
-		margin-top: -1.5px;
-		border-radius: 3px;
-		animation: trail 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-	}
-	.trail.me {
-		background: linear-gradient(90deg, transparent, var(--accent));
-	}
-	.trail.pace {
-		background: linear-gradient(90deg, transparent, var(--violet));
-		animation-duration: 4.4s;
-	}
-	@keyframes trail {
-		from {
-			width: 0;
-		}
-		to {
-			width: calc(100% - 26px);
-		}
-	}
-	.runner {
-		position: absolute;
-		top: 3px;
-		left: 3px;
-		width: 16px;
-		height: 16px;
-		border-radius: 3px;
-		animation: run 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-	}
-	.runner.me {
-		background: var(--accent);
-		box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
-	}
-	.runner.pace {
-		background: var(--violet);
-		animation-duration: 4.4s;
-	}
-	@keyframes run {
-		to {
-			left: calc(100% - 28px);
-		}
-	}
-	.flag {
-		position: absolute;
-		top: 0;
-		right: 0;
-		width: 8px;
-		height: 100%;
-		background: conic-gradient(var(--band-ink) 25%, var(--band-bg) 0 50%, var(--band-ink) 0 75%, var(--band-bg) 0) 0 0 / 4px 4px;
-		border-radius: 0 3px 3px 0;
-	}
-	.race-text {
-		align-self: flex-start;
-		font-family: var(--font-mono);
-		font-size: 16px;
-		color: var(--band-ink);
-	}
-	.race-text b {
-		color: var(--accent);
-	}
-	.race-text span {
-		color: var(--band-ink-4);
-	}
-	/* Echo: keys light up in turn, then turn green as they are repeated. */
-	.echo-label {
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		color: var(--band-ink-3);
-	}
-	.echo-row {
-		display: flex;
-		gap: 8px;
-	}
-	.ek {
-		display: grid;
-		place-items: center;
-		width: 38px;
-		height: 40px;
-		border-radius: 3px;
-		border: 1px solid var(--band-line-strong);
-		border-bottom-width: 3px;
-		background: var(--band-surface-2);
-		color: var(--band-ink-3);
-		font-family: var(--font-mono);
-		font-size: 14px;
-		font-weight: 600;
-		text-transform: uppercase;
-		animation: echo 3.6s ease infinite;
-		animation-delay: calc(var(--n) * 0.35s);
-	}
-	@keyframes echo {
-		0%,
-		24% {
-			background: var(--band-surface-2);
-		}
-		8% {
-			background: var(--accent);
-			border-color: var(--accent);
-			color: var(--on-accent);
-			box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 50%, transparent);
-		}
-		58%,
-		100% {
-			background: color-mix(in srgb, var(--lime) 30%, var(--band-surface-2));
-			border-color: var(--lime);
-			color: var(--band-ink);
-		}
-	}
 	/* ---------- Ranks ---------- */
 	.ranks {
 		--band: radial-gradient(ellipse 60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
@@ -1184,22 +849,6 @@
 		.hero-action,
 		.hero-action :global(.btn) {
 			width: 100%;
-		}
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.fl,
-		.wave span,
-		.caret,
-		.pop,
-		.mk.target,
-		.fuse,
-		.trail,
-		.ek,
-		.runner {
-			animation: none;
-		}
-		.fl {
-			top: 40px;
 		}
 	}
 </style>
