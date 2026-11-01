@@ -6,7 +6,8 @@
 	Changes: no pointer (mouse listener and mouseAnimation dropped); the loop runs only while `active` and motion is
 	allowed; canvas sized to its own box (ratio uniform from it) instead of a fixed 1000px square; colors accepted as
 	any CSS color (tokens) instead of hex only; keyword defaults instead of hex literals; scoped class instead of
-	Tailwind utilities; canvas aria-hidden.
+	Tailwind utilities; canvas aria-hidden; glyph mask kept at full resolution with a crisp edge (depth still solved at
+	1000 px); a revealFrom/revealTo window along a slanted axis with a glint on each front, for sweeping in and out.
 -->
 <script module lang="ts">
 	const VS = `#version 300 es
@@ -23,6 +24,7 @@ uniform sampler2D u_tex;
 uniform float u_time,u_ratio,u_imgRatio,u_seed,u_scale,u_refract,u_blur,u_liquid;
 uniform float u_bright,u_contrast,u_angle,u_fresnel,u_sharp,u_wave,u_noise,u_chroma;
 uniform float u_distort,u_contour;
+uniform vec2 u_win;
 uniform vec3 u_lightColor,u_darkColor,u_tint;
 vec3 sC,sM;
 vec3 pW(vec3 v){vec3 i=floor(v),f=fract(v),s=sign(fract(v*.5)-.5),h=fract(sM*i+i.yzx),c=f*(f-1.);return s*c*((h*16.-4.)*c-1.);}
@@ -58,7 +60,8 @@ void main(){
   vec2 iC=fA();
   vec4 texSample=texture(u_tex,iC);
   float dp=texSample.r;
-  float shapeMask=texSample.a;
+  float aw=max(fwidth(texSample.a),.002);
+  float shapeMask=smoothstep(.5-aw,.5+aw,texSample.a);
   vec3 hi=u_lightColor*u_bright;
   vec3 lo=u_darkColor*(2.-u_bright);
   lo.b+=smoothstep(.6,1.4,sc.x+sc.y)*.08;
@@ -126,6 +129,12 @@ void main(){
   col=clamp(col,0.,1.);
   col=mix(col,1.-min(vec3(1.),(1.-col)/max(u_tint,vec3(.001))),length(u_tint-1.)*.5);
   col=clamp(col,0.,1.);
+  // The sweep: shown between the two fronts, a glint riding each one.
+  float f=iC.x+(iC.y-.5)*.25,ew=.03;
+  float win=smoothstep(u_win.x-ew,u_win.x+ew,f)*(1.-smoothstep(u_win.y-ew,u_win.y+ew,f));
+  float gn=exp(-pow((f-u_win.x)/.045,2.))+exp(-pow((f-u_win.y)/.045,2.));
+  col=mix(col,min(hi,vec3(1.)),clamp(gn,0.,1.)*.9);
+  vs*=max(win,clamp(gn,0.,1.));
   oC=vec4(col*vs,vs);
 }`;
 
@@ -147,27 +156,38 @@ void main(){
 			: [1, 1, 1];
 	}
 
+	/** The image's size with its long side brought within min and max. */
+	function fit(img: HTMLImageElement, max: number, min: number): [number, number] {
+		const w = img.naturalWidth || img.width;
+		const h = img.naturalHeight || img.height;
+		const long = Math.max(w, h);
+		const scale = long > max ? max / long : long < min ? min / long : 1;
+		return [Math.round(w * scale), Math.round(h * scale)];
+	}
+
+	/** Depth solved at up to 1000 px (the costly part), then stretched under the full-size alpha so edges stay sharp. */
 	function processImage(img: HTMLImageElement): ImageData {
-		const MAX_SIZE = 1000,
-			MIN_SIZE = 500;
-		let width = img.naturalWidth || img.width;
-		let height = img.naturalHeight || img.height;
-		if (width > MAX_SIZE || height > MAX_SIZE || width < MIN_SIZE || height < MIN_SIZE) {
-			const scale =
-				width > height
-					? width > MAX_SIZE
-						? MAX_SIZE / width
-						: width < MIN_SIZE
-							? MIN_SIZE / width
-							: 1
-					: height > MAX_SIZE
-						? MAX_SIZE / height
-						: height < MIN_SIZE
-							? MIN_SIZE / height
-							: 1;
-			width = Math.round(width * scale);
-			height = Math.round(height * scale);
-		}
+		const depth = solveDepth(img);
+		const [width, height] = fit(img, 2048, 500);
+		const canvas = document.createElement('canvas');
+		canvas.width = width;
+		canvas.height = height;
+		const ctx = canvas.getContext('2d')!;
+		ctx.drawImage(img, 0, 0, width, height);
+		const alpha = ctx.getImageData(0, 0, width, height).data;
+		const src = document.createElement('canvas');
+		src.width = depth.width;
+		src.height = depth.height;
+		src.getContext('2d')!.putImageData(depth, 0, 0);
+		ctx.clearRect(0, 0, width, height);
+		ctx.drawImage(src, 0, 0, width, height);
+		const out = ctx.getImageData(0, 0, width, height);
+		for (let i = 3; i < out.data.length; i += 4) out.data[i] = alpha[i]!;
+		return out;
+	}
+
+	function solveDepth(img: HTMLImageElement): ImageData {
+		const [width, height] = fit(img, 1000, 500);
 		const canvas = document.createElement('canvas');
 		canvas.width = width;
 		canvas.height = height;
@@ -235,7 +255,7 @@ void main(){
 			const depth = u[i] / maxVal;
 			const gray = Math.round(255 * (1 - depth * depth));
 			outData.data[px] = outData.data[px + 1] = outData.data[px + 2] = gray;
-			outData.data[px + 3] = Math.round(alphaValues[i] * 255);
+			outData.data[px + 3] = 255;
 		}
 		return outData;
 	}
@@ -267,6 +287,9 @@ void main(){
 		distortion?: number;
 		contour?: number;
 		tintColor?: string;
+		/** Shown between these two fronts, 0 to 1 across the image on a slant; a glint rides each front. */
+		revealFrom?: number;
+		revealTo?: number;
 	};
 	let {
 		imageSrc,
@@ -289,15 +312,23 @@ void main(){
 		active = true,
 		distortion = 1,
 		contour = 0.2,
-		tintColor = 'plum'
+		tintColor = 'plum',
+		revealFrom = -1,
+		revealTo = 2
 	}: Props = $props();
 
 	let canvas: HTMLCanvasElement;
-	let loop: { start(): void; stop(): void } | null = null;
+	let loop: { start(): void; stop(): void; reveal(from: number, to: number): void } | null = null;
 
 	$effect(() => {
 		if (active) loop?.start();
 		else loop?.stop();
+	});
+
+	$effect(() => {
+		// Read before the optional call, which would skip them while the GL state is still being built.
+		const [from, to] = [revealFrom, revealTo];
+		loop?.reveal(from, to);
 	});
 
 	$effect(() => {
@@ -338,10 +369,10 @@ void main(){
 		gl.enableVertexAttribArray(pos);
 		gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
 
-		// The canvas takes its own box, capped at 1000 px wide; the shader fits the image by the ratio.
+		// The canvas takes its own box, capped at 2048 px wide; the shader fits the image by the ratio.
 		const box = canvas.getBoundingClientRect();
 		const dpr = Math.min(window.devicePixelRatio || 1, 2);
-		const w = Math.max(1, Math.round(Math.min(box.width * dpr, 1000)));
+		const w = Math.max(1, Math.round(Math.min(box.width * dpr, 2048)));
 		const h = Math.max(1, Math.round(w * (box.height / Math.max(box.width, 1))));
 		canvas.width = w;
 		canvas.height = h;
@@ -404,6 +435,7 @@ void main(){
 			gl.uniform1f(uniforms.u_distort, distortion);
 			gl.uniform1f(uniforms.u_contour, contour);
 			gl.uniform3f(uniforms.u_tint, tint[0], tint[1], tint[2]);
+			gl.uniform2f(uniforms.u_win, untrack(() => revealFrom), untrack(() => revealTo));
 		};
 		updateUniforms();
 
@@ -427,6 +459,11 @@ void main(){
 			stop() {
 				cancelAnimationFrame(raf);
 				raf = 0;
+			},
+			// Drawn at once when the loop is idle, so a scroll that skips the window never leaves a stale frame.
+			reveal(from, to) {
+				gl.uniform2f(uniforms.u_win, from, to);
+				if (!raf && textureReady) gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 			}
 		};
 		if (untrack(() => active)) loop.start();
