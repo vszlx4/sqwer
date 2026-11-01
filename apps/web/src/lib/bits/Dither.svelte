@@ -6,7 +6,8 @@
 	Changes: renderer without antialias or preserved buffer; no WebGL leaves the container empty; pointer read on
 	window so content can sit above the canvas; still frame under reduced motion; loop stops offscreen and in hidden
 	tabs; elapsed time instead of THREE.Clock; container aria-hidden; waveColors blends up to five colors across
-	the field through a slow low-frequency noise.
+	the field through a slow low-frequency noise; `clouds={false}` swaps the noise clouds for an edge field with a slow drifting grain;
+	the loop only runs while something moves (time or pointer).
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
@@ -24,6 +25,8 @@
 		disableAnimation?: boolean;
 		enableMouseInteraction?: boolean;
 		mouseRadius?: number;
+		/** Noise clouds; off draws an edge field with a slow drifting grain instead. */
+		clouds?: boolean;
 	};
 
 	let {
@@ -36,13 +39,14 @@
 		pixelSize = 2,
 		disableAnimation = false,
 		enableMouseInteraction = true,
-		mouseRadius = 1
+		mouseRadius = 1,
+		clouds = true
 	}: Props = $props();
 
 	let containerRef: HTMLDivElement;
 	const current = $derived({
 		waveSpeed, waveFrequency, waveAmplitude, waveColor, waveColors, colorNum, pixelSize,
-		disableAnimation, enableMouseInteraction, mouseRadius
+		disableAnimation, enableMouseInteraction, mouseRadius, clouds
 	});
 
 	const waveVertexShader = `
@@ -66,6 +70,7 @@ uniform int colorCount;
 uniform vec2 mousePos;
 uniform int enableMouseInteraction;
 uniform float mouseRadius;
+uniform int clouds;
 vec4 mod289(vec4 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
 vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
 vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
@@ -117,7 +122,12 @@ void main() {
   vec2 uv = gl_FragCoord.xy / resolution.xy;
   uv -= 0.5;
   uv.x *= resolution.x / resolution.y;
-  float f = pattern(uv);
+  // Without clouds: a field faint behind the centre and full from the edges in, breathing slowly, with a soft grain
+  // of low-frequency noise drifting through it so the dither keeps moving.
+  float edge = smoothstep(0.12, 0.85, length(uv * vec2(0.7, 1.0)));
+  float breathe = 0.92 + 0.08 * sin(time * waveSpeed * 12.0);
+  float grain = cnoise(uv * 1.6 + vec2(time * waveSpeed, -time * waveSpeed * 0.6));
+  float f = clouds == 1 ? pattern(uv) : (0.22 + 0.78 * edge) * (0.82 + 0.36 * grain) * breathe * waveAmplitude * 3.2;
   if (enableMouseInteraction == 1) {
     vec2 mouseNDC = (mousePos / resolution - 0.5) * vec2(1.0, -1.0);
     mouseNDC.x *= resolution.x / resolution.y;
@@ -207,7 +217,8 @@ void main() { vUv = uv; gl_Position = vec4(position, 1.0); }`;
 			colorCount: { value: 0 },
 			mousePos: { value: new THREE.Vector2(0, 0) },
 			enableMouseInteraction: { value: enableMouseInteraction ? 1 : 0 },
-			mouseRadius: { value: mouseRadius }
+			mouseRadius: { value: mouseRadius },
+			clouds: { value: clouds ? 1 : 0 }
 		};
 		const waveMat = new THREE.ShaderMaterial({
 			vertexShader: waveVertexShader,
@@ -281,6 +292,7 @@ void main() { vUv = uv; gl_Position = vec4(position, 1.0); }`;
 			waveUniforms.colorCount.value = colors.length;
 			waveUniforms.enableMouseInteraction.value = current.enableMouseInteraction ? 1 : 0;
 			waveUniforms.mouseRadius.value = current.mouseRadius;
+			waveUniforms.clouds.value = current.clouds ? 1 : 0;
 			if (current.enableMouseInteraction && !reduced.matches) waveUniforms.mousePos.value.copy(mouse);
 			compUniforms.colorNum.value = current.colorNum;
 			compUniforms.pixelSize.value = current.pixelSize;
@@ -304,7 +316,8 @@ void main() { vUv = uv; gl_Position = vec4(position, 1.0); }`;
 			raf = requestAnimationFrame(tick);
 		};
 		const sync = () => {
-			const run = onScreen && document.visibilityState === 'visible' && !reduced.matches;
+			const moving = !current.disableAnimation || current.enableMouseInteraction;
+			const run = moving && onScreen && document.visibilityState === 'visible' && !reduced.matches;
 			if (run === loop) return;
 			loop = run;
 			if (run) {
