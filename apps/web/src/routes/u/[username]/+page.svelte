@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ProfileCard from '#lib/account/ProfileCard.svelte';
+	import { enter } from '#lib/motion/actions.ts';
 	import { EXPERIENCE, GOALS, labelOf, PLATFORMS } from '#lib/profile.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import type { PageProps } from './$types';
@@ -25,7 +26,7 @@
 <Seo title={`${p.displayName} (@${p.username})`} description={`The sqwer typing profile of ${p.displayName}.`} noindex />
 
 <div class="profile">
-	<div class="rise" style:--i="0">
+	<div use:enter>
 		<ProfileCard
 			name={p.displayName}
 			username={p.username}
@@ -44,7 +45,7 @@
 	</div>
 
 	<div class="grid">
-		<section class="panel rise" style:--i="1" aria-labelledby="about-title">
+		<section class="panel" aria-labelledby="about-title" use:enter={{ i: 1 }}>
 			<h2 id="about-title">Typing</h2>
 			<dl class="tiles">
 				<div><dt>Experience</dt><dd>{labelOf(EXPERIENCE, p.experience)}</dd></div>
@@ -56,7 +57,7 @@
 
 		{#if s.rank}
 			{@const r = s.rank.status}
-			<section class="panel rise" style:--i="2" aria-labelledby="rank-title">
+			<section class="panel" aria-labelledby="rank-title" use:enter={{ i: 2 }}>
 				<h2 id="rank-title">Course rank</h2>
 				<p class="rank-line"><b>{r.rank.name}</b> · {r.points.toLocaleString('en')} points</p>
 				<p class="note">{r.rank.note}</p>
@@ -69,7 +70,7 @@
 			</section>
 		{/if}
 
-		<section class="panel rise" style:--i="3" aria-labelledby="fm-title">
+		<section class="panel" aria-labelledby="fm-title" use:enter={{ i: 3 }}>
 			<h2 id="fm-title">Finger map</h2>
 			{#if data.fingerMap}
 				<dl class="tiles">

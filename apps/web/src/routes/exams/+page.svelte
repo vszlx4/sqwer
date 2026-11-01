@@ -13,7 +13,7 @@
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
-	import { reveal } from '#lib/ui/reveal.ts';
+	import { reveal } from '#lib/motion/actions.ts';
 	import { GAMES, loadRecords, type EndlessRecord, type GameId } from '#lib/games/endless.ts';
 
 	let mounted = $state(false);
@@ -117,7 +117,7 @@
 				{#each exams as exam, i (exam.id)}
 					{@const s = status(exam)}
 					{@const isNext = recommended === exam.id && !s.locked}
-					<article class="exam-card" class:locked={s.locked} class:next={isNext} use:reveal={{ delay: i * 70 }}>
+					<article class="exam-card" class:locked={s.locked} class:next={isNext} use:reveal={{ delay: i * 0.07 }}>
 						<div class="art">
 							<ExamVisual exam={exam.id} />
 							{#if isNext}<span class="badge">Recommended</span>{/if}
@@ -158,7 +158,7 @@
 		</div>
 		<ul class="game-list">
 			{#each GAMES as g, i (g.id)}
-				<li use:reveal={{ delay: i * 50 }}>
+				<li use:reveal={{ delay: i * 0.05 }}>
 					<a href={`/play/${g.id}`}>
 						<span class="game-icon" aria-hidden="true"><Icon name={g.icon} size={18} /></span>
 						<span class="game-title">{g.title}</span>

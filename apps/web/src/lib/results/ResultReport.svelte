@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { enter } from '#lib/motion/actions.ts';
 	import { MIN_ACCURACY, tierFor } from '#lib/progress/competitive.ts';
 	import { examXp } from '#lib/progress/xp.ts';
 	import CountUp from '#lib/ui/CountUp.svelte';
@@ -64,7 +65,7 @@
 </script>
 
 <section class="report" aria-labelledby="report-title">
-	<header class="head rise" style:--i="0">
+	<header class="head" use:enter>
 		<h2 id="report-title">{exam?.title ?? 'Typing test'}</h2>
 		<p class="meta">
 			{record.label} · {when}
@@ -79,7 +80,7 @@
 		{/if}
 	</header>
 
-	<div class="top rise" style:--i="1">
+	<div class="top" use:enter={{ i: 1 }}>
 		<div class="numbers">
 			<div class="big">
 				<span class="label">WPM</span>
@@ -107,7 +108,7 @@
 	</div>
 
 	{#if d}
-		<dl class="details rise" style:--i="2">
+		<dl class="details" use:enter={{ i: 2 }}>
 			<div>
 				<dt>Characters</dt>
 				<dd>
@@ -156,7 +157,7 @@
 		</section>
 	{/if}
 
-	<div class="guidance rise" style:--i="3">
+	<div class="guidance" use:enter={{ i: 3 }}>
 		<section class="insights" aria-labelledby="insights-title">
 			<h3 id="insights-title">What this result shows</h3>
 			<ul>
@@ -171,7 +172,7 @@
 		</section>
 	</div>
 
-	<div class="actions rise" style:--i="4">
+	<div class="actions" use:enter={{ i: 4 }}>
 		{#if onnext}
 			<button type="button" class="btn" onclick={onnext}>New test <Icon name="arrow" size={16} /></button>
 		{/if}
