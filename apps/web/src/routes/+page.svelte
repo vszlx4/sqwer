@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { flushSync, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import type { Component } from 'svelte';
 	import { CHAPTERS, LESSONS, PARTS } from '#lib/courses/catalog.ts';
@@ -16,9 +16,7 @@
 	import MapPreview from '#lib/landing/MapPreview.svelte';
 	import { partKeys, partLessons, ROWS } from '#lib/landing/partKeys.ts';
 	import RankTimeline from '#lib/landing/RankTimeline.svelte';
-	import { heroTakeover } from '#lib/landing/takeover.ts';
 	import CurvedLoop from '#lib/bits/CurvedLoop.svelte';
-	import TextPressure from '#lib/bits/TextPressure.svelte';
 	import { parallax, reveal, stagger } from '#lib/motion/actions.ts';
 	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
@@ -30,17 +28,7 @@
 	import Icon from '#lib/ui/Icon.svelte';
 
 	let ready = $state(false);
-	let hero: HTMLElement;
 	let heroCopy: HTMLElement;
-	// Bound inside {#if}/{#each} blocks, so they are state.
-	let heroButton = $state<HTMLElement>()!;
-	let portal = $state<HTMLElement>()!;
-	let portalLabel = $state<HTMLElement>()!;
-	let portalLine = $state<HTMLElement>()!;
-	let veil = $state<HTMLElement>()!;
-	// The hero becomes a scroll track for the takeover only while motion is allowed; otherwise it stays one screen.
-	let takeover = $state(false);
-	let pressure = $state(0);
 	// The course part at the front of the deck, and the time until the next one comes forward (0 to 1).
 	let part = $state(0);
 	let wait = $state(0);
@@ -49,24 +37,7 @@
 		ready = true;
 		// three.js loads in its own chunk after the page is up.
 		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
-		const mm = whenMotion(() => {
-			enterHero(heroCopy);
-			// The track has to be tall before the timeline measures it.
-			flushSync(() => (takeover = true));
-			heroTakeover({
-				track: hero,
-				button: heroButton,
-				portal,
-				label: portalLabel,
-				line: portalLine,
-				veil,
-				fade: [...heroCopy.querySelectorAll('h1, .lede, .resume, .quiet, .facts')],
-				onPressure: (p) => (pressure = p)
-			});
-			// Every trigger below was measured before the hero grew into a track; measure them again.
-			ScrollTrigger.refresh();
-			return () => (takeover = false);
-		});
+		const mm = whenMotion(() => enterHero(heroCopy));
 		return () => mm.revert();
 	});
 
@@ -142,47 +113,33 @@
 />
 
 <div class="landing">
-	<!-- Hero: centered copy over the dither field. With motion, scrolling grows the button into the dark (takeover.ts). -->
-	<section class="hero" bind:this={hero} data-takeover={takeover || undefined} aria-labelledby="hero-title">
-		<div class="hero-stage band">
-			<div class="hero-field">
-				{#if Dither}
-					<Dither waveColors={areaRgb()} colorNum={4} pixelSize={2} waveSpeed={0.04} waveAmplitude={0.3} clouds={false} enableMouseInteraction={false} />
-				{/if}
-			</div>
-			<div class="hero-copy" bind:this={heroCopy}>
-				<h1 id="hero-title">Stop looking down. Start typing <span class="mark">for real</span>.</h1>
-				<p class="lede">
-					Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and
-					for self-taught typists who want to do it right.
-				</p>
-				<div class="hero-action">
-					{#if returning && next}
-						<p class="resume"><Icon name="route" size={16} /> {next.title}</p>
-						<a class="btn btn-primary btn-lg" href={next.href} bind:this={heroButton}>{next.action} <Icon name="arrow" size={18} /></a>
-					{:else}
-						<a class="btn btn-primary btn-lg" href="/start" bind:this={heroButton}>Get started <Icon name="arrow" size={18} /></a>
-					{/if}
-					<a class="link-arrow quiet" href="#road">See the whole course <Icon name="chevron" size={16} class="down" /></a>
-				</div>
-				<ul class="facts" aria-label="Key facts">
-					<li><Icon name="check" size={16} /> Free</li>
-					<li><Icon name="flag" size={16} /> Starts from zero</li>
-					<li><Icon name="lock" size={16} /> No ads or tracking</li>
-				</ul>
-			</div>
-			{#if takeover}
-				<div class="hero-veil" bind:this={veil} aria-hidden="true"></div>
-				<div class="portal" bind:this={portal} aria-hidden="true">
-					<span class="portal-label btn-lg" bind:this={portalLabel}>
-						{returning && next ? next.action : 'Get started'} <Icon name="arrow" size={18} />
-					</span>
-					<span class="portal-line" bind:this={portalLine}>
-						<TextPressure text="Your journey" {pressure} />
-						<TextPressure text="starts here" pressure={Math.min(1, pressure * 1.15)} />
-					</span>
-				</div>
+	<!-- Hero: centered copy over the dither field. -->
+	<section class="hero band" aria-labelledby="hero-title">
+		<div class="hero-field">
+			{#if Dither}
+				<Dither waveColors={areaRgb()} colorNum={4} pixelSize={2} waveSpeed={0.04} waveAmplitude={0.3} clouds={false} enableMouseInteraction={false} />
 			{/if}
+		</div>
+		<div class="hero-copy" bind:this={heroCopy}>
+			<h1 id="hero-title">Stop looking down. Start typing <span class="mark">for real</span>.</h1>
+			<p class="lede">
+				Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and
+				for self-taught typists who want to do it right.
+			</p>
+			<div class="hero-action">
+				{#if returning && next}
+					<p class="resume"><Icon name="route" size={16} /> {next.title}</p>
+					<a class="btn btn-primary btn-lg" href={next.href}>{next.action} <Icon name="arrow" size={18} /></a>
+				{:else}
+					<a class="btn btn-primary btn-lg" href="/start">Get started <Icon name="arrow" size={18} /></a>
+				{/if}
+				<a class="link-arrow quiet" href="#road">See the whole course <Icon name="chevron" size={16} class="down" /></a>
+			</div>
+			<ul class="facts" aria-label="Key facts">
+				<li><Icon name="check" size={16} /> Free</li>
+				<li><Icon name="flag" size={16} /> Starts from zero</li>
+				<li><Icon name="lock" size={16} /> No ads or tracking</li>
+			</ul>
 		</div>
 	</section>
 
@@ -355,70 +312,14 @@
 	.hero {
 		/* A soft wash of the page color keeps the copy readable over the field. */
 		--band: radial-gradient(ellipse 46% 52% at 50% 50%, var(--bg) 30%, color-mix(in srgb, var(--bg) 70%, transparent) 60%, transparent 100%);
-		/* Starts at the page top, under the floating header and over main's top padding. */
-		margin-top: calc(-1 * (var(--header-h) + var(--main-top)));
-	}
-	/* The takeover track: the stage holds still for 1.8 screens of scroll while the button grows. */
-	.hero[data-takeover] {
-		height: 280vh;
-		height: 280svh;
-	}
-	.hero-stage {
 		display: grid;
 		place-items: center;
 		/* Fills the first screen; svh keeps it steady while mobile toolbars move. */
 		min-height: 100vh;
 		min-height: 100svh;
+		/* Starts at the page top, under the floating header and over main's top padding. */
+		margin-top: calc(-1 * (var(--header-h) + var(--main-top)));
 		padding: calc(var(--header-h) + clamp(48px, 10vh, 112px)) 0 clamp(48px, 10vh, 112px);
-	}
-	.hero[data-takeover] .hero-stage {
-		position: sticky;
-		top: 0;
-		height: 100vh;
-		height: 100svh;
-	}
-	/* Corners blur and fall into a vignette as the portal opens. */
-	.hero-veil {
-		position: absolute;
-		inset: 0 calc(50% - 50vw);
-		z-index: 1;
-		visibility: hidden;
-		pointer-events: none;
-		background: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 38%, color-mix(in srgb, var(--band-bg) 72%, transparent) 100%);
-		-webkit-backdrop-filter: blur(14px);
-		backdrop-filter: blur(14px);
-		mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 32%, #000 92%);
-	}
-	/* The dark that grows out of the button; GSAP clips it to the button first. */
-	.portal {
-		position: absolute;
-		inset: 0 calc(50% - 50vw);
-		z-index: 2;
-		display: grid;
-		place-items: center;
-		visibility: hidden;
-		pointer-events: none;
-		background: var(--band-bg);
-		color: var(--band-ink);
-	}
-	.portal-label,
-	.portal-line {
-		grid-area: 1 / 1;
-	}
-	.portal-label {
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-		font-weight: 600;
-		white-space: nowrap;
-	}
-	.portal-line {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		visibility: hidden;
-		line-height: 0.92;
-		letter-spacing: -0.02em;
 	}
 	/* Full-bleed dither field, under the wash. */
 	.hero-field {
@@ -545,13 +446,6 @@
 	}
 	.road .link-arrow {
 		color: var(--band-ink);
-	}
-	/* After the takeover the page is already dark: the road starts solid, without the fade from the light hero. */
-	.landing:has(.hero[data-takeover]) .road {
-		padding-top: clamp(64px, 9vw, 112px);
-	}
-	.landing:has(.hero[data-takeover]) .road::before {
-		background: var(--band-bg);
 	}
 	.road-stage {
 		display: grid;

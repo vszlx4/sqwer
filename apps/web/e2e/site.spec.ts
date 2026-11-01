@@ -14,8 +14,6 @@ test('home page: one primary action above the fold, leading to getting started',
 	await expect(page).toHaveURL(/#road$/);
 	await expect(page.getByRole('heading', { name: /One long road/ })).toBeInViewport();
 
-	// Past the top the takeover stands in for the button; back at the top it is the real link again.
-	await page.evaluate(() => window.scrollTo(0, 0));
 	await cta.click();
 	await expect(page).toHaveURL(/\/start$/);
 	await expect(page.getByRole('heading', { name: 'How would you describe your typing today?' })).toBeVisible();
