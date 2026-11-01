@@ -60,7 +60,6 @@
 			color-mix(in srgb, var(--lime) 30%, var(--band-surface-2)) calc(var(--ok) * 100%),
 			color-mix(in srgb, var(--hue) calc(var(--lit) * 100%), var(--band-surface-2))
 		);
-		box-shadow: 0 0 16px color-mix(in srgb, var(--hue) calc(var(--lit) * 55%), transparent);
 		color: color-mix(in srgb, var(--label) calc(var(--lit) * 100%), var(--band-ink));
 		font-family: var(--font-mono);
 		font-size: 14px;

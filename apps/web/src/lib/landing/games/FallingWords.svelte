@@ -50,9 +50,7 @@
 		border: 1px solid
 			color-mix(in srgb, var(--error) calc(var(--slip) * 100%), color-mix(in srgb, var(--hue) calc(var(--focus) * 100%), var(--band-line-strong)));
 		background: var(--band-surface-2);
-		box-shadow:
-			inset 3px 0 0 var(--hue),
-			0 0 18px -4px color-mix(in srgb, var(--hue) calc(var(--focus) * 55%), transparent);
+		box-shadow: inset 3px 0 0 var(--hue);
 		opacity: var(--fill);
 	}
 	.ch {
@@ -63,7 +61,7 @@
 		color: var(--band-ink);
 		font-weight: 700;
 	}
-	/* Landing zone: a dashed line over a soft warning glow, not a solid floor. */
+	/* Landing zone: a dashed line, not a solid floor. */
 	.zone {
 		position: absolute;
 		left: 0;
@@ -71,6 +69,5 @@
 		bottom: 0;
 		height: 26px;
 		border-top: 1px dashed color-mix(in srgb, var(--life) 60%, transparent);
-		background: linear-gradient(to top, color-mix(in srgb, var(--life) 18%, transparent), transparent);
 	}
 </style>

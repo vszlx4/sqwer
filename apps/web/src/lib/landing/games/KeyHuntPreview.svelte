@@ -62,9 +62,7 @@
 		border-bottom-width: 2px;
 		background: color-mix(in srgb, var(--hue) calc(var(--lit) * 100%), var(--band-surface));
 		color: color-mix(in srgb, var(--label) calc(var(--lit) * 100%), var(--band-ink-3));
-		box-shadow:
-			0 0 0 calc((var(--ok) + var(--miss)) * 3px) color-mix(in srgb, var(--error) calc(var(--miss) * 100%), var(--lime)),
-			0 0 16px color-mix(in srgb, var(--hue) calc(var(--lit) * 60%), transparent);
+		box-shadow: 0 0 0 calc((var(--ok) + var(--miss)) * 3px) color-mix(in srgb, var(--error) calc(var(--miss) * 100%), var(--lime));
 		font-family: var(--font-mono);
 		font-size: 10px;
 		font-weight: 600;
