@@ -16,6 +16,7 @@
 	import MapPreview from '#lib/landing/MapPreview.svelte';
 	import { partKeys, partLessons, ROWS } from '#lib/landing/partKeys.ts';
 	import RankTimeline from '#lib/landing/RankTimeline.svelte';
+	import CurvedLoop from '#lib/bits/CurvedLoop.svelte';
 	import { parallax, reveal, stagger } from '#lib/motion/actions.ts';
 	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
@@ -66,6 +67,12 @@
 		{ kind: 'race', Preview: RacePreview, title: 'Race', body: 'Type a passage before the pacer reaches the finish line.' },
 		{ kind: 'echo', Preview: EchoPreview, title: 'Echo', body: 'The letters of a word light up one at a time and fade. Type the word from memory.' }
 	] as const;
+
+	// Phrases on the curve, each led by a star with wide gaps either side (the loop trims trailing space).
+	const GAP = '\u00a0'.repeat(4);
+	const DRIFT = ['Your hands already know the way', 'Accuracy first, speed follows', 'A few minutes, every day', 'Eyes on the words, not the keys']
+		.map((w) => `${GAP}✦${GAP}${w}`)
+		.join('');
 
 	// What a learner types by the end of each part: the typed run, then what is still ahead of the caret.
 	const SAMPLES: Record<(typeof PARTS)[number]['id'], [string, string]> = {
@@ -210,6 +217,11 @@
 			</div>
 		</div>
 	</section>
+
+	<!-- Between the road and the games: a curved line of encouragement, drifting on its own. -->
+	<div class="drift band on-dark">
+		<CurvedLoop text={DRIFT} speed={45} curveAmount={-48} interactive={false} />
+	</div>
 
 	<!-- Games: a dark band with live previews. -->
 	<section class="games band on-dark" data-area="games" aria-labelledby="games-title">
@@ -665,6 +677,22 @@
 		opacity: 0;
 	}
 
+	/* ---------- Drift ---------- */
+	/* Clear air above and below the curve, so the road and the games each get their own room. */
+	.drift {
+		--band: var(--band-bg);
+		padding: clamp(140px, 18vw, 280px) 0 clamp(120px, 15vw, 240px);
+		color: var(--band-ink);
+	}
+	.drift :global(.curved) {
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+		font-family: var(--font-serif);
+		font-size: 30px;
+		letter-spacing: 0.01em;
+		color: var(--band-ink-2);
+	}
+
 	/* ---------- Games ---------- */
 	.games {
 		padding: clamp(64px, 9vw, 112px) 0;
@@ -843,6 +871,10 @@
 		}
 	}
 	@media (max-width: 560px) {
+		/* The curve scales with the screen; on phones its type needs more viewBox units to stay readable. */
+		.drift :global(.curved) {
+			font-size: 64px;
+		}
 		.game-grid {
 			grid-template-columns: 1fr;
 		}
