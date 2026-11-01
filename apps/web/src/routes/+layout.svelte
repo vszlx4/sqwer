@@ -73,7 +73,7 @@
 	}
 	main {
 		flex: 1;
-		padding: calc(var(--header-h) + var(--main-top)) 0 48px;
+		padding: calc(var(--header-h) + var(--main-top)) 0 var(--main-bottom);
 	}
 	.skip {
 		position: absolute;
