@@ -107,6 +107,9 @@
 		{ kind: 'echo', Preview: EchoPreview, title: 'Echo', body: 'The letters of a word light up one at a time and fade. Type the word from memory.' }
 	] as const;
 
+	// Site colors that pass over a few letters of the journey line.
+	const ACCENTS = ['var(--lime)', 'var(--cyan)', 'var(--orange)', 'var(--violet)', 'var(--amber)'];
+
 	// Phrases on the curve, each led by a star with wide gaps either side (the loop trims trailing space).
 	const GAP = '\u00a0'.repeat(4);
 	const DRIFT = ['Your hands already know the way', 'Accuracy first, speed follows', 'A few minutes, every day', 'Eyes on the words, not the keys']
@@ -187,8 +190,8 @@
 						{cta.label} <Icon name="arrow" size={18} />
 					</span>
 					<span class="portal-line" bind:this={portalLine}>
-						<TextPressure text="Your journey" {pressure} />
-						<TextPressure text="starts here" pressure={Math.min(1, pressure * 1.15)} />
+						<TextPressure text="Your journey" {pressure} accents={ACCENTS} />
+						<TextPressure text="starts here" pressure={Math.min(1, pressure * 1.15)} accents={ACCENTS.slice(2)} />
 					</span>
 				</div>
 			{/if}
