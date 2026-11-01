@@ -1,3 +1,5 @@
+import type { BranchedMenuSection } from '#lib/bits/BranchedMenu.svelte';
+
 export const CONTACT_EMAIL = 'info@mughram.com';
 
 /** Operator legal details for the legal pages. Empty values are omitted. */
@@ -30,44 +32,42 @@ export const ACCOUNT_LINKS = [
 	{ href: '/account/data', label: 'Your data' }
 ] as const;
 
-/** The footer is the complete site map; other pages link only to what the reader needs next. */
-export const FOOTER_GROUPS = [
+/** Footer columns, each drawn as a branched menu: the product by area, then help. Account pages live in the account
+ *  menu and legal pages in the footer's bottom line. */
+export const FOOTER_SECTIONS = [
 	{
-		title: 'Learn',
+		label: 'Learn',
 		links: [
-			{ href: '/start', label: 'Get started' },
-			...NAV_LINKS.map(({ href, label }) => ({ href, label })),
-			{ href: '/map', label: 'Finger map' },
-			{ href: '/history', label: 'History' }
+			{ href: '/learn', label: 'Learning path', icon: 'route' },
+			{ href: '/start', label: 'Find your level', icon: 'target' }
 		]
 	},
 	{
-		title: 'Account',
+		label: 'Practice',
 		links: [
-			{ href: '/signup', label: 'Create an account' },
-			{ href: '/signin', label: 'Sign in' },
-			{ href: '/account/profile', label: 'Profile' },
-			{ href: '/account/data', label: 'Download or delete data' }
+			{ href: '/exams', label: 'Typing tests', icon: 'gauge' },
+			{ href: '/map', label: 'Finger map', icon: 'hand' },
+			{ href: '/history', label: 'History', icon: 'history' },
+			{ href: '/competitive', label: 'Competitive', icon: 'trophy' }
 		]
 	},
 	{
-		title: 'Help',
+		label: 'Help',
 		links: [
-			{ href: '/about', label: 'How it works' },
-			{ href: '/faq', label: 'Questions and answers' },
-			{ href: '/accessibility', label: 'Accessibility' },
-			{ href: `mailto:${CONTACT_EMAIL}`, label: 'Contact us' }
-		]
-	},
-	{
-		title: 'Legal',
-		links: [
-			{ href: '/legal', label: 'Legal center' },
-			{ href: '/terms', label: 'Terms and Conditions' },
-			{ href: '/privacy', label: 'Privacy Policy' },
-			{ href: '/cookies', label: 'Cookies and storage' },
-			{ href: '/copyright', label: 'Content and copyright' },
-			{ href: '/security', label: 'Security' }
+			{ href: '/about', label: 'How it works', icon: 'info' },
+			{ href: '/faq', label: 'FAQ', icon: 'question' },
+			{ href: '/accessibility', label: 'Accessibility', icon: 'access' },
+			{ href: `mailto:${CONTACT_EMAIL}`, label: 'Contact', icon: 'mail' }
 		]
 	}
+] as const satisfies readonly BranchedMenuSection[];
+
+/** The footer's bottom line: every legal document, the legal center first. */
+export const FOOTER_LEGAL = [
+	{ href: '/legal', label: 'Legal' },
+	{ href: '/terms', label: 'Terms' },
+	{ href: '/privacy', label: 'Privacy' },
+	{ href: '/cookies', label: 'Cookies' },
+	{ href: '/copyright', label: 'Copyright' },
+	{ href: '/security', label: 'Security' }
 ] as const;

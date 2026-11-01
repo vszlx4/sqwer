@@ -52,7 +52,9 @@ for (const [path, heading] of [
 		await page.goto(path);
 		await expect(page.getByRole('heading', { level: 1 })).toContainText(heading);
 		await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toBeVisible();
-		await expect(page.getByRole('contentinfo')).toContainText('info@mughram.com');
+		const footer = page.getByRole('contentinfo');
+		await expect(footer.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', 'mailto:info@mughram.com');
+		await expect(footer.getByRole('navigation', { name: 'Legal' })).toBeVisible();
 		await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /.{40,}/);
 	});
 }

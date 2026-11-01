@@ -1,9 +1,9 @@
 <script lang="ts">
 	import LogoWordmark from '#lib/brand/LogoWordmark.svelte';
+	import BranchedMenu from '#lib/bits/BranchedMenu.svelte';
 	import { page } from '$app/state';
 	import { consent } from '#lib/analytics/consent.svelte.ts';
-	import Icon from '#lib/ui/Icon.svelte';
-	import { CONTACT_EMAIL, FOOTER_GROUPS, LEGAL } from './links.ts';
+	import { FOOTER_LEGAL, FOOTER_SECTIONS, LEGAL } from './links.ts';
 
 	const year = new Date().getFullYear();
 </script>
@@ -13,36 +13,26 @@
 		<div class="top">
 			<div class="intro">
 				<a href="/" class="logo" aria-label="sqwer home"><LogoWordmark class="footer-wordmark" /></a>
-				<p class="tagline">Learn to touch type, measure every finger and improve with purpose. Free, with no advertising.</p>
-				<a class="contact" href={`mailto:${CONTACT_EMAIL}`}><Icon name="mail" size={16} /> {CONTACT_EMAIL}</a>
-				<a class="start" href="/start">Find your level <Icon name="arrow" size={16} /></a>
+				<p class="tagline">Learn to touch type, measure every finger and improve with purpose.</p>
+				<p class="free">Free, with no advertising.</p>
 			</div>
 
 			<div class="groups">
-				{#each FOOTER_GROUPS as group (group.title)}
-					<nav aria-labelledby={`footer-${group.title}`}>
-						<h2 id={`footer-${group.title}`}>{group.title}</h2>
-						<ul>
-							{#each group.links as link (link.href)}
-								<li><a href={link.href}>{link.label}</a></li>
-							{/each}
-						</ul>
-					</nav>
-				{/each}
+				<BranchedMenu sections={FOOTER_SECTIONS} current={page.url.pathname} />
 			</div>
 		</div>
 
 		<div class="bottom">
-			<span>© {year} <span translate="no">sqwer</span>. A free, non-commercial project by {LEGAL.operatorName}.</span>
-			<span class="build" translate="no">v{__APP_VERSION__}{__APP_COMMIT__ ? ` · ${__APP_COMMIT__}` : ''}</span>
-			<span class="links">
-				<a href="/terms">Terms</a>
-				<a href="/privacy">Privacy</a>
-				<a href="/cookies">Cookies</a>
+			<p class="owner">© {year} <span translate="no">sqwer</span> · A free, non-commercial project by {LEGAL.operatorName}</p>
+			<nav class="legal" aria-label="Legal">
+				{#each FOOTER_LEGAL as link (link.href)}
+					<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
+				{/each}
 				{#if page.data.analytics !== false}
 					<button type="button" class="prefs" onclick={() => ((consent.ready || consent.load()), (consent.open = true))}>Analytics preferences</button>
 				{/if}
-			</span>
+			</nav>
+			<span class="build" translate="no">v{__APP_VERSION__}{__APP_COMMIT__ ? ` · ${__APP_COMMIT__}` : ''}</span>
 		</div>
 	</div>
 </footer>
@@ -60,7 +50,7 @@
 		padding: 64px clamp(16px, 4vw, 40px) calc(28px + env(safe-area-inset-bottom));
 		display: flex;
 		flex-direction: column;
-		gap: 40px;
+		gap: 48px;
 	}
 	.top {
 		display: grid;
@@ -71,7 +61,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 14px;
+		gap: 12px;
 	}
 	.logo {
 		display: inline-flex;
@@ -83,84 +73,55 @@
 		width: auto;
 	}
 	.tagline {
+		margin-top: 4px;
 		font-size: 15px;
 		line-height: 1.55;
 		color: var(--ink-2);
 	}
-	.contact,
-	.start {
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-		font-size: 14.5px;
-		text-decoration: none;
-	}
-	.contact {
-		color: var(--ink);
-	}
-	.contact:hover {
-		color: var(--ink);
-	}
-	.start {
-		margin-top: 4px;
-		padding: 9px 14px;
-		border-radius: 3px;
-		background: var(--ink);
-		color: var(--bg);
-		font-weight: 600;
-	}
-	.groups {
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 28px;
-	}
-	h2 {
-		font-family: var(--font-sans);
-		font-size: 12.5px;
-		font-weight: 600;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--ink-2);
-		margin-bottom: 14px;
-	}
-	ul {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-	}
-	ul a {
-		font-size: 14.5px;
-		color: var(--ink);
-		text-decoration: none;
-		transition: color 140ms ease;
-	}
-	ul a:hover {
-		color: var(--ink);
-	}
-	.build {
-		font-family: var(--font-mono);
-		font-size: 12px;
+	.free {
+		font-size: 14px;
 		color: var(--ink-3);
 	}
+	/* Three branched columns, each its own nav; they wrap to two, then one, as the footer narrows. */
+	.groups {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+		gap: 32px 28px;
+		align-items: start;
+	}
 	.bottom {
-		display: flex;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: 10px 20px;
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: center;
+		gap: 12px 24px;
 		padding-top: 20px;
 		border-top: 1px solid var(--line);
 		font-size: 13px;
 		color: var(--ink-2);
 	}
-	.links {
+	.legal {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 16px;
+		gap: 6px 18px;
+		grid-column: 1 / -1;
+		grid-row: 1;
 	}
-	.links a,
+	.owner {
+		grid-row: 2;
+	}
+	.build {
+		grid-row: 2;
+		font-family: var(--font-mono);
+		font-size: 12px;
+		color: var(--ink-3);
+	}
+	.legal a,
 	.prefs {
 		color: var(--ink-2);
 		text-decoration: none;
+	}
+	.legal a[aria-current='page'] {
+		color: var(--ink);
 	}
 	.prefs {
 		padding: 0;
@@ -169,7 +130,7 @@
 		font: inherit;
 		cursor: pointer;
 	}
-	.links a:hover,
+	.legal a:hover,
 	.prefs:hover {
 		color: var(--ink);
 	}
@@ -182,8 +143,11 @@
 		}
 	}
 	@media (max-width: 640px) {
-		.groups {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
+		.bottom {
+			grid-template-columns: 1fr;
+		}
+		.build {
+			grid-row: 3;
 		}
 	}
 </style>
