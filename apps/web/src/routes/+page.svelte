@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
+	import { flushSync, onMount } from 'svelte';
 	import { page } from '$app/state';
 	import type { Component } from 'svelte';
 	import { CHAPTERS, LESSONS, PARTS } from '#lib/courses/catalog.ts';
@@ -14,10 +14,16 @@
 	import ListenPreview from '#lib/landing/games/ListenPreview.svelte';
 	import RacePreview from '#lib/landing/games/RacePreview.svelte';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
+	import { partKeys, partLessons, ROWS } from '#lib/landing/partKeys.ts';
 	import RankTimeline from '#lib/landing/RankTimeline.svelte';
+	import { heroTakeover } from '#lib/landing/takeover.ts';
+	import BrandBand from '#lib/landing/BrandBand.svelte';
+	import CurvedLoop from '#lib/bits/CurvedLoop.svelte';
+	import TextPressure from '#lib/bits/TextPressure.svelte';
 	import { parallax, reveal, stagger } from '#lib/motion/actions.ts';
 	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
+	import { LESSON_MINUTES, roughTime } from '#lib/courses/journey.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import { areaRgb } from '#lib/site/areas.ts';
 	import Seo from '#lib/site/Seo.svelte';
@@ -25,51 +31,45 @@
 	import Icon from '#lib/ui/Icon.svelte';
 
 	let ready = $state(false);
+	let hero: HTMLElement;
 	let heroCopy: HTMLElement;
-	let roadTrack: HTMLElement;
-	let roadDeck: HTMLElement;
-	// Scroll through the road track (0 to 1) and the course part at the front of the deck.
-	let roadProgress = $state(0);
+	// Bound inside {#if}/{#each} blocks, so they are state.
+	let heroButton = $state<HTMLElement>()!;
+	let portal = $state<HTMLElement>()!;
+	let portalLabel = $state<HTMLElement>()!;
+	let portalLine = $state<HTMLElement>()!;
+	let veil = $state<HTMLElement>()!;
+	// The hero becomes a scroll track for the takeover only while motion is allowed; otherwise it stays one screen.
+	let takeover = $state(false);
+	let pressure = $state(0);
+	// The course part at the front of the deck, and the time until the next one comes forward (0 to 1).
 	let part = $state(0);
-	let roadScrolls = $state(false);
+	let wait = $state(0);
 	onMount(() => {
 		results.load();
 		ready = true;
 		// three.js loads in its own chunk after the page is up.
 		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
-		const mm = whenMotion(() => enterHero(heroCopy));
-		let road: ScrollTrigger | undefined;
-		let glide: gsap.MatchMedia | undefined;
-		roadScrolls = true;
-		tick().then(() => {
-			road = roadScroll(roadTrack);
-			glide = whenMotion(() => roadGlide(roadTrack, roadDeck));
+		const mm = whenMotion(() => {
+			enterHero(heroCopy);
+			// The track has to be tall before the timeline measures it.
+			flushSync(() => (takeover = true));
+			heroTakeover({
+				track: hero,
+				button: heroButton,
+				portal,
+				label: portalLabel,
+				line: portalLine,
+				veil,
+				fade: [...heroCopy.querySelectorAll('h1, .lede, .resume, .quiet, .facts')],
+				onPressure: (p) => (pressure = p)
+			});
+			// Every trigger below was measured before the hero grew into a track; measure them again.
+			ScrollTrigger.refresh();
+			return () => (takeover = false);
 		});
-		return () => {
-			mm.revert();
-			road?.kill();
-			glide?.revert();
-		};
+		return () => mm.revert();
 	});
-
-	// The track gets one scroll step per part (CSS, behind data-scroll) while its stage stays stuck; the first and
-	// last tenth hold the deck still. Without scripts it stays one screen tall and shows the first part.
-	function roadScroll(track: HTMLElement) {
-		motion();
-		return ScrollTrigger.create({
-			trigger: track,
-			start: 'top top',
-			end: 'bottom bottom',
-			onUpdate: (st) => (roadProgress = Math.min(1, Math.max(0, (st.progress - 0.1) / 0.8)))
-		});
-	}
-
-	// The deck rises into place while the stage scrolls in and drifts up as it leaves, so the pin has no hard edge.
-	function roadGlide(track: HTMLElement, deck: HTMLElement) {
-		const gsap = motion();
-		gsap.fromTo(deck, { y: '22svh' }, { y: 0, ease: 'none', scrollTrigger: { trigger: track, start: 'top bottom', end: 'top top', scrub: 0.8 } });
-		gsap.to(deck, { y: '-12svh', ease: 'none', scrollTrigger: { trigger: track, start: 'bottom bottom', end: 'bottom top', scrub: 0.8 } });
-	}
 
 	// Hero copy rises in on load. CSS holds it hidden until then; skip if its fallback already showed it.
 	function enterHero(copy: HTMLElement) {
@@ -83,7 +83,7 @@
 			{ opacity: 1, y: 0, duration: DURATIONS.reveal, ease: 'out-soft', stagger: STAGGER.base, clearProps: 'transform' }
 		);
 	}
-	let Dither = $state<Component<{ waveColors?: [number, number, number][]; colorNum?: number; pixelSize?: number; waveSpeed?: number; waveAmplitude?: number; enableMouseInteraction?: boolean }>>();
+	let Dither = $state<Component<{ waveColors?: [number, number, number][]; colorNum?: number; pixelSize?: number; waveSpeed?: number; waveAmplitude?: number; enableMouseInteraction?: boolean; disableAnimation?: boolean; clouds?: boolean }>>();
 
 	// Returning learners are offered their next step instead of starting again.
 	const next = $derived(ready && courses.loaded ? learnerNextStep() : null);
@@ -97,6 +97,22 @@
 		{ kind: 'race', Preview: RacePreview, title: 'Race', body: 'Type a passage before the pacer reaches the finish line.' },
 		{ kind: 'echo', Preview: EchoPreview, title: 'Echo', body: 'The letters of a word light up one at a time and fade. Type the word from memory.' }
 	] as const;
+
+	// Phrases on the curve, each led by a star with wide gaps either side (the loop trims trailing space).
+	const GAP = '\u00a0'.repeat(4);
+	const DRIFT = ['Your hands already know the way', 'Accuracy first, speed follows', 'A few minutes, every day', 'Eyes on the words, not the keys']
+		.map((w) => `${GAP}✦${GAP}${w}`)
+		.join('');
+
+	// What a learner types by the end of each part: the typed run, then what is still ahead of the caret.
+	const SAMPLES: Record<(typeof PARTS)[number]['id'], [string, string]> = {
+		letters: ['a glad lass asks', ' for jars of salsa'],
+		marks: ['Dear Sam, the train', ' leaves at 9:45. Ready?'],
+		words: ['the river runs past', ' the old mill at dawn'],
+		mastery: ['if (x > 0) { ret', 'urn [x, y]; } // 92 wpm']
+	};
+	const KEYS = PARTS.map((_, i) => partKeys(i));
+	const KEY_LABEL: Record<string, string> = { 'shift-l': 'shift', 'shift-r': 'shift' };
 
 	// One mark per course part in the window bars: circle, square, triangle, diamond.
 	const SHAPES = [
@@ -127,98 +143,129 @@
 />
 
 <div class="landing">
-	<!-- Hero: centered copy over the dither field. -->
-	<section class="hero band" aria-labelledby="hero-title">
-		<div class="hero-field">
-			{#if Dither}
-				<Dither waveColors={areaRgb()} colorNum={4} pixelSize={2} waveSpeed={0.03} waveAmplitude={0.3} enableMouseInteraction={false} />
-			{/if}
-		</div>
-		<div class="hero-copy" bind:this={heroCopy}>
-			<h1 id="hero-title">Stop looking down. Start typing <span class="mark">for real</span>.</h1>
-			<p class="lede">
-				Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and
-				for self-taught typists who want to do it right.
-			</p>
-			<div class="hero-action">
-				{#if returning && next}
-					<p class="resume"><Icon name="route" size={16} /> {next.title}</p>
-					<a class="btn btn-primary btn-lg" href={next.href}>{next.action} <Icon name="arrow" size={18} /></a>
-				{:else}
-					<a class="btn btn-primary btn-lg" href="/start">Get started <Icon name="arrow" size={18} /></a>
+	<!-- Hero: centered copy over the dither field. With motion, scrolling grows the button into the dark (takeover.ts). -->
+	<section class="hero" bind:this={hero} data-takeover={takeover || undefined} aria-labelledby="hero-title">
+		<div class="hero-stage band">
+			<div class="hero-field">
+				{#if Dither}
+					<Dither waveColors={areaRgb()} colorNum={4} pixelSize={2} waveSpeed={0.04} waveAmplitude={0.3} clouds={false} enableMouseInteraction={false} />
 				{/if}
-				<a class="link-arrow quiet" href="#road">See the whole course <Icon name="chevron" size={16} class="down" /></a>
 			</div>
-			<ul class="facts" aria-label="Key facts">
-				<li><Icon name="check" size={16} /> Free</li>
-				<li><Icon name="flag" size={16} /> Starts from zero</li>
-				<li><Icon name="lock" size={16} /> No ads or tracking</li>
-			</ul>
+			<div class="hero-copy" bind:this={heroCopy}>
+				<h1 id="hero-title">Stop looking down. Start typing <span class="mark">for real</span>.</h1>
+				<p class="lede">
+					Short lessons, games and a clear road from your first two keys to fluent typing. Built for complete beginners, and
+					for self-taught typists who want to do it right.
+				</p>
+				<div class="hero-action">
+					{#if returning && next}
+						<p class="resume"><Icon name="route" size={16} /> {next.title}</p>
+						<a class="btn btn-primary btn-lg" href={next.href} bind:this={heroButton}>{next.action} <Icon name="arrow" size={18} /></a>
+					{:else}
+						<a class="btn btn-primary btn-lg" href="/start" bind:this={heroButton}>Get started <Icon name="arrow" size={18} /></a>
+					{/if}
+					<a class="link-arrow quiet" href="#road">See the whole course <Icon name="chevron" size={16} class="down" /></a>
+				</div>
+				<ul class="facts" aria-label="Key facts">
+					<li><Icon name="check" size={16} /> Free</li>
+					<li><Icon name="flag" size={16} /> Starts from zero</li>
+					<li><Icon name="lock" size={16} /> No ads or tracking</li>
+				</ul>
+			</div>
+			{#if takeover}
+				<div class="hero-veil" bind:this={veil} aria-hidden="true"></div>
+				<div class="portal" bind:this={portal} aria-hidden="true">
+					<span class="portal-label btn-lg" bind:this={portalLabel}>
+						{returning && next ? next.action : 'Get started'} <Icon name="arrow" size={18} />
+					</span>
+					<span class="portal-line" bind:this={portalLine}>
+						<TextPressure text="Your journey" {pressure} />
+						<TextPressure text="starts here" pressure={Math.min(1, pressure * 1.15)} />
+					</span>
+				</div>
+			{/if}
 		</div>
 	</section>
 
-	<!-- The course road: one window per course part, swapped by scrolling through the section. -->
+	<!-- The course road: one window per course part; press a window to bring it forward, idle ones take turns. -->
 	<section id="road" class="road band on-dark" data-area="learn" aria-labelledby="road-title">
-		<div class="road-track" bind:this={roadTrack} data-scroll={roadScrolls || undefined} style:--steps={PARTS.length - 1}>
-			<div class="road-stage">
-				<header class="section-head">
-					<p class="kicker">The course</p>
-					<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
-					<p class="road-lede">
-						Four parts, each built on the one before. Start at the beginning, or let a one-minute test find your chapter.
-					</p>
-					<div class="road-progress" aria-hidden="true">
-						<span class="count">{String(part + 1).padStart(2, '0')} / {String(PARTS.length).padStart(2, '0')}</span>
-						<span class="ticks">
-							{#each PARTS as q, i (q.id)}
-								<span class:on={i <= part} style:--part="var(--{q.colour})"></span>
-							{/each}
-						</span>
-					</div>
-					<p class="road-end"><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
-				</header>
-				<div class="road-deck">
-					<div class="deck-anchor" bind:this={roadDeck}>
-						<CardSwap
-							items={[...PARTS]}
-							progress={roadProgress}
-							bind:current={part}
-							width="var(--card-w)"
-							height="var(--card-h)"
-							spreadX={0.06}
-							spreadY={0.11}
-							rotateX={6}
-							rotateY={10}
-							perspective={2400}
-							label="Course parts"
-						>
-							{#snippet card(q, i)}
-								<div class="window" style:--part="var(--{q.colour})">
-									<div class="window-bar">
-										<span class="shapes" aria-hidden="true">
-											{#each PARTS as _, j (j)}
-												<svg class="shape" class:lit={j <= i} viewBox="0 0 12 12">{@html SHAPES[j]}</svg>
-											{/each}
-										</span>
-										<h3>{q.title}</h3>
-									</div>
-									<div class="window-body">
-										<p class="window-summary">{q.summary}</p>
-										<ol class="window-chapters">
-											{#each q.chapters as n (n)}
-												<li>{CHAPTERS[n - 1]!.title}</li>
-											{/each}
-										</ol>
-									</div>
-								</div>
-							{/snippet}
-						</CardSwap>
-					</div>
-					<GradualBlur position="bottom" height="var(--drop)" strength={2} divCount={6} curve="bezier" zIndex={20} />
+		<div class="road-stage">
+			<header class="section-head" use:stagger>
+				<p class="kicker">The course</p>
+				<h2 id="road-title">One long road, {CHAPTERS.length} chapters, {LESSONS.length} lessons.</h2>
+				<p class="road-lede">
+					Four parts, each built on the one before. Start at the beginning, or let a one-minute test find your chapter.
+				</p>
+				<div class="road-progress">
+					<span class="count" aria-hidden="true">{String(part + 1).padStart(2, '0')} / {String(PARTS.length).padStart(2, '0')}</span>
+					<span class="ticks" aria-hidden="true">
+						{#each PARTS as q, i (q.id)}
+							<span class:done={i < part} class:on={i === part} style:--part="var(--{q.colour})" style:--fill={i === part ? wait : 0}></span>
+						{/each}
+					</span>
 				</div>
+				<p class="road-end"><a class="link-arrow" href="/learn">Open the full roadmap <Icon name="arrow" size={16} /></a></p>
+			</header>
+			<div class="road-deck" use:reveal={{ y: 40 }}>
+				<div class="deck-anchor">
+					<CardSwap
+						items={[...PARTS]}
+						bind:current={part}
+						bind:wait
+						width="var(--card-w)"
+						height="var(--card-h)"
+						spreadX={0.06}
+						spreadY={0.11}
+						rotateX={6}
+						rotateY={10}
+						perspective={2400}
+						interval={6}
+						label="Course parts"
+					>
+						{#snippet card(q, i)}
+							<div class="window" style:--part="var(--{q.colour})">
+								<div class="window-bar">
+									<span class="shapes" aria-hidden="true">
+										{#each PARTS as _, j (j)}
+											<svg class="shape" class:lit={j <= i} viewBox="0 0 12 12">{@html SHAPES[j]}</svg>
+										{/each}
+									</span>
+									<h3>{q.title}</h3>
+								</div>
+								<div class="window-body">
+									<div class="w-head">
+										<span class="w-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+										<p class="window-summary">{q.summary}</p>
+									</div>
+									<p class="w-type" aria-hidden="true"><span class="typed">{SAMPLES[q.id][0]}</span><span class="caret"></span><span class="ahead">{SAMPLES[q.id][1]}</span></p>
+									<div class="w-board" aria-hidden="true">
+										{#each ROWS as row, r (r)}
+											<div class="w-row" style:--indent={r}>
+												{#each row as k (k)}
+													<span class="w-key {KEYS[i]!.get(k)}" class:wide={k.startsWith('shift')}>{KEY_LABEL[k] ?? k}</span>
+												{/each}
+											</div>
+										{/each}
+									</div>
+									<dl class="w-stats">
+										<div><dt>Chapters</dt><dd>{q.chapters.length}</dd></div>
+										<div><dt>Lessons</dt><dd>{partLessons(q)}</dd></div>
+										<div><dt>Course time</dt><dd>{roughTime(partLessons(q) * LESSON_MINUTES)}</dd></div>
+									</dl>
+								</div>
+							</div>
+						{/snippet}
+					</CardSwap>
+				</div>
+				<GradualBlur position="bottom" height="var(--drop)" strength={2.4} divCount={8} curve="bezier" zIndex={20} />
 			</div>
 		</div>
 	</section>
+
+	<!-- Between the road and the games: a curved line of encouragement, drifting on its own (drag to throw it). -->
+	<div class="drift band on-dark">
+		<CurvedLoop text={DRIFT} speed={45} curveAmount={-48} interactive={false} />
+	</div>
 
 	<!-- Games: a dark band with live previews. -->
 	<section class="games band on-dark" data-area="games" aria-labelledby="games-title">
@@ -238,6 +285,9 @@
 			{/each}
 		</div>
 	</section>
+
+	<!-- The name on the games' ground, between the games and the ranks. -->
+	<BrandBand />
 
 	<!-- Ranks: motivation without competition. -->
 	<section class="ranks band" data-area="competitive" aria-labelledby="ranks-title">
@@ -271,24 +321,6 @@
 		</div>
 	</section>
 
-	<section class="principles" data-area="practice" aria-labelledby="principles-title" use:stagger={{ selector: '.principle' }}>
-		<h2 id="principles-title" class="sr-only">Commitments</h2>
-		<div class="principle">
-			<Icon name="user" size={22} />
-			<h3>Free to learn</h3>
-			<p>The whole course is free. An account saves your progress, stars and rank on every device.</p>
-		</div>
-		<div class="principle">
-			<Icon name="shield" size={22} />
-			<h3>Your data stays yours</h3>
-			<p>No advertising or tracking. Export or delete everything at any time.</p>
-		</div>
-		<div class="principle">
-			<Icon name="info" size={22} />
-			<h3>Clear definitions</h3>
-			<p>Every figure is defined, and the same rules are applied to every result.</p>
-		</div>
-	</section>
 </div>
 
 <style>
@@ -327,14 +359,70 @@
 	.hero {
 		/* A soft wash of the page color keeps the copy readable over the field. */
 		--band: radial-gradient(ellipse 46% 52% at 50% 50%, var(--bg) 30%, color-mix(in srgb, var(--bg) 70%, transparent) 60%, transparent 100%);
+		/* Starts at the page top, under the floating header and over main's top padding. */
+		margin-top: calc(-1 * (var(--header-h) + var(--main-top)));
+	}
+	/* The takeover track: the stage holds still for 1.8 screens of scroll while the button grows. */
+	.hero[data-takeover] {
+		height: 280vh;
+		height: 280svh;
+	}
+	.hero-stage {
 		display: grid;
 		place-items: center;
 		/* Fills the first screen; svh keeps it steady while mobile toolbars move. */
 		min-height: 100vh;
 		min-height: 100svh;
-		/* Starts at the page top, under the floating header and over main's top padding. */
-		margin-top: calc(-1 * (var(--header-h) + var(--main-top)));
 		padding: calc(var(--header-h) + clamp(48px, 10vh, 112px)) 0 clamp(48px, 10vh, 112px);
+	}
+	.hero[data-takeover] .hero-stage {
+		position: sticky;
+		top: 0;
+		height: 100vh;
+		height: 100svh;
+	}
+	/* Corners blur and fall into a vignette as the portal opens. */
+	.hero-veil {
+		position: absolute;
+		inset: 0 calc(50% - 50vw);
+		z-index: 1;
+		visibility: hidden;
+		pointer-events: none;
+		background: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 38%, color-mix(in srgb, var(--band-bg) 72%, transparent) 100%);
+		-webkit-backdrop-filter: blur(14px);
+		backdrop-filter: blur(14px);
+		mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 32%, #000 92%);
+	}
+	/* The dark that grows out of the button; GSAP clips it to the button first. */
+	.portal {
+		position: absolute;
+		inset: 0 calc(50% - 50vw);
+		z-index: 2;
+		display: grid;
+		place-items: center;
+		visibility: hidden;
+		pointer-events: none;
+		background: var(--band-bg);
+		color: var(--band-ink);
+	}
+	.portal-label,
+	.portal-line {
+		grid-area: 1 / 1;
+	}
+	.portal-label {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+	.portal-line {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		visibility: hidden;
+		line-height: 0.92;
+		letter-spacing: -0.02em;
 	}
 	/* Full-bleed dither field, under the wash. */
 	.hero-field {
@@ -462,19 +550,19 @@
 	.road .link-arrow {
 		color: var(--band-ink);
 	}
-	.road-track[data-scroll] {
-		height: calc(100svh + var(--steps) * 80svh);
+	/* After the takeover the page is already dark: the road starts solid, without the fade from the light hero. */
+	.landing:has(.hero[data-takeover]) .road {
+		padding-top: clamp(64px, 9vw, 112px);
+	}
+	.landing:has(.hero[data-takeover]) .road::before {
+		background: var(--band-bg);
 	}
 	.road-stage {
-		position: sticky;
-		top: 0;
 		display: grid;
 		grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
 		align-items: center;
 		gap: 48px;
-		min-height: 100svh;
 		margin-right: calc(50% - 50vw);
-		padding-top: var(--header-h);
 	}
 	.road-stage .section-head {
 		margin: 0;
@@ -501,15 +589,32 @@
 		display: flex;
 		gap: 6px;
 	}
+	/* One bar per part: parts behind are filled, the one in front fills up until the next card comes forward. */
 	.ticks span {
-		width: 28px;
+		position: relative;
+		width: 40px;
 		height: 4px;
+		overflow: hidden;
 		border-radius: 1px;
 		background: color-mix(in srgb, var(--band-ink) 15%, transparent);
-		transition: background-color 300ms ease;
 	}
-	.ticks span.on {
+	.ticks span::after {
+		content: '';
+		position: absolute;
+		inset: 0;
 		background: var(--part);
+		transform: scaleX(var(--fill));
+		transform-origin: left;
+	}
+	.ticks span.done::after {
+		transform: none;
+		opacity: 0.45;
+	}
+	/* Without the clock (reduced motion, no scripts) the front part just shows as filled. */
+	@media (prefers-reduced-motion: reduce) {
+		.ticks span.on::after {
+			transform: none;
+		}
 	}
 	.road-end {
 		margin-top: 24px;
@@ -517,18 +622,20 @@
 	/* Deck column runs to the screen edge; windows bleed off its right and bottom. The blur covers the bottom strip. */
 	.road-deck {
 		--card-w: max(64rem, 58vw);
-		--card-h: min(660px, 74svh);
-		--drop: 120px;
+		--card-h: min(740px, 82svh);
+		--drop: 220px;
 		position: relative;
-		align-self: stretch;
 		display: flex;
 		align-items: flex-end;
-		min-height: 0;
+		/* The front window plus the strips of the three behind it, less what bleeds off the bottom. */
+		height: calc(var(--card-h) * 1.3);
 		overflow: clip;
+		/* The last strip fades into the band, so the blur's bottom edge never shows the page behind the screen edge. */
+		mask-image: linear-gradient(to bottom, #000 calc(100% - var(--drop) * 0.45), transparent);
 	}
 	.deck-anchor {
 		--card-radius: 18px;
-		margin-bottom: calc(var(--card-h) * -0.18);
+		margin-bottom: calc(var(--card-h) * -0.04);
 	}
 	.road-deck :global(.deck > ol > li) {
 		border-color: color-mix(in srgb, var(--band-ink) 16%, transparent);
@@ -574,8 +681,8 @@
 	.window-body {
 		display: flex;
 		flex-direction: column;
-		gap: 26px;
-		padding: 36px 34px;
+		gap: 22px;
+		padding: 30px 34px;
 		transition: opacity 400ms ease;
 	}
 	.window-summary {
@@ -585,24 +692,115 @@
 		line-height: 1.15;
 		color: var(--band-ink);
 	}
-	.window-chapters {
+	.w-head {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 8px;
-		max-width: 34rem;
-		padding: 0;
-		list-style: none;
+		align-items: baseline;
+		gap: 22px;
 	}
-	.window-chapters li {
-		padding: 6px 12px;
-		border: 1px solid color-mix(in srgb, var(--part) 45%, transparent);
-		border-radius: 6px;
-		font-size: 14px;
+	.w-num {
+		font-family: var(--font-mono);
+		font-size: clamp(36px, 3.4vw, 52px);
+		font-weight: 300;
+		line-height: 1;
+		color: var(--part);
+	}
+	/* A line as the learner types it by the end of the part, the caret where the hands are. */
+	.w-type {
+		font-family: var(--font-mono);
+		font-size: clamp(15px, 1.25vw, 19px);
+		white-space: nowrap;
+		color: var(--band-ink-3);
+	}
+	.w-type .typed {
+		color: var(--band-ink);
+	}
+	.caret {
+		display: inline-block;
+		width: 0.6em;
+		height: 1.15em;
+		margin: 0 1px -0.2em;
+		background: var(--part);
+		animation: caret 1.1s steps(1) infinite;
+	}
+	@keyframes caret {
+		50% {
+			opacity: 0;
+		}
+	}
+	/* The part's keys on a small board: new ones in the part color, earlier ones dim, the rest outlined. */
+	.w-board {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+	.w-row {
+		display: flex;
+		gap: 5px;
+		padding-left: calc(var(--indent) * 14px);
+	}
+	.w-key {
+		display: grid;
+		place-items: center;
+		width: 28px;
+		height: 28px;
+		border-radius: 4px;
+		border: 1px solid color-mix(in srgb, var(--band-ink) 14%, transparent);
+		font-family: var(--font-mono);
+		font-size: 12px;
+		color: color-mix(in srgb, var(--band-ink) 35%, transparent);
+	}
+	.w-key.wide {
+		width: 48px;
+		font-size: 10px;
+	}
+	.w-key.known {
+		border-color: color-mix(in srgb, var(--part) 30%, transparent);
+		background: color-mix(in srgb, var(--part) 12%, transparent);
 		color: var(--band-ink-2);
+	}
+	.w-key.new {
+		border-color: var(--part);
+		background: var(--part);
+		color: var(--band-bg);
+		font-weight: 600;
+	}
+	.w-stats {
+		display: flex;
+		gap: 36px;
+		padding-top: 18px;
+		border-top: 1px solid color-mix(in srgb, var(--part) 25%, transparent);
+	}
+	.w-stats dt {
+		font-size: 12px;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--band-ink-3);
+	}
+	.w-stats dd {
+		margin-top: 4px;
+		font-family: var(--font-mono);
+		font-size: 20px;
+		color: var(--band-ink);
 	}
 	/* Behind the front window only the title bars read; their bodies stay empty. */
 	.road-deck :global(.deck > ol > li:not([aria-current]) .window-body) {
 		opacity: 0;
+	}
+
+	/* ---------- Drift ---------- */
+	/* Clear air above and below the curve, so the road and the games each get their own room. */
+	.drift {
+		--band: var(--band-bg);
+		padding: clamp(140px, 18vw, 280px) 0 clamp(120px, 15vw, 240px);
+		color: var(--band-ink);
+	}
+	.drift :global(.curved) {
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+		font-family: var(--font-serif);
+		font-size: 30px;
+		letter-spacing: 0.01em;
+		color: var(--band-ink-2);
 	}
 
 	/* ---------- Games ---------- */
@@ -612,7 +810,6 @@
 	}
 	.games::before {
 		background:
-			radial-gradient(ellipse 50% 60% at 85% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
 			radial-gradient(circle at 1px 1px, var(--band-dot) 1px, transparent 0) 0 0 / 24px 24px,
 			var(--band-bg);
 	}
@@ -636,13 +833,6 @@
 		border-radius: 3px;
 		border: 1px solid var(--band-line);
 		background: var(--band-surface);
-		transition:
-			transform 220ms ease,
-			border-color 220ms ease;
-	}
-	.game:hover {
-		transform: translateY(-3px);
-		border-color: var(--band-line-strong);
 	}
 	.game h3 {
 		margin-top: 8px;
@@ -660,13 +850,9 @@
 		overflow: hidden;
 		border-radius: 3px;
 		background:
-			radial-gradient(120% 90% at 50% 120%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
 			radial-gradient(circle at 1px 1px, var(--band-dot) 1px, transparent 0) 0 0 / 16px 16px,
 			var(--band-bg);
 		border: 1px solid var(--band-line);
-	}
-	.game:hover .preview {
-		border-color: var(--band-line-strong);
 	}
 	/* ---------- Ranks ---------- */
 	.ranks {
@@ -723,35 +909,6 @@
 		padding: clamp(18px, 2.4vw, 28px);
 	}
 
-	/* ---------- Commitments ---------- */
-	.principles {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		margin: clamp(56px, 8vw, 96px) 0 clamp(24px, 4vw, 48px);
-		border-top: 1px solid var(--line);
-		border-bottom: 1px solid var(--line);
-	}
-	.principle {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-		padding: 32px clamp(16px, 2.4vw, 32px);
-		color: var(--ink-2);
-	}
-	.principle + .principle {
-		border-left: 1px solid var(--line);
-	}
-	.principle h3 {
-		margin-top: 6px;
-		font-size: 18px;
-		font-weight: 600;
-		color: var(--ink);
-	}
-	.principle p {
-		font-size: 15px;
-		line-height: 1.55;
-	}
-
 	@media (max-width: 1000px) {
 		.game-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -764,19 +921,10 @@
 		.split {
 			grid-template-columns: 1fr;
 		}
-		.principles {
-			grid-template-columns: 1fr;
-		}
-		.principle + .principle {
-			border-left: 0;
-			border-top: 1px solid var(--line);
-		}
 		/* The road stacks: copy over the deck. */
 		.road-stage {
 			grid-template-columns: minmax(0, 1fr);
-			grid-template-rows: auto minmax(0, 1fr);
-			gap: 20px;
-			padding-top: calc(var(--header-h) + 24px);
+			gap: 28px;
 		}
 		.road-stage .section-head {
 			padding-right: 16px;
@@ -792,8 +940,8 @@
 		}
 		.road-deck {
 			--card-w: 100vw;
-			--card-h: min(440px, 52svh);
-			--drop: 72px;
+			--card-h: min(520px, 62svh);
+			--drop: 120px;
 		}
 		.deck-anchor {
 			--card-radius: 14px;
@@ -813,11 +961,30 @@
 		.window-summary {
 			font-size: 24px;
 		}
-		.window-chapters li {
-			font-size: 13px;
+		.w-key {
+			width: 22px;
+			height: 22px;
+			font-size: 10px;
+		}
+		.w-key.wide {
+			width: 36px;
+		}
+		.w-row {
+			gap: 3px;
+			padding-left: calc(var(--indent) * 8px);
+		}
+		.w-board {
+			gap: 3px;
+		}
+		.w-stats {
+			gap: 22px;
 		}
 	}
 	@media (max-width: 560px) {
+		/* The curve scales with the screen; on phones its type needs more viewBox units to stay readable. */
+		.drift :global(.curved) {
+			font-size: 64px;
+		}
 		.game-grid {
 			grid-template-columns: 1fr;
 		}

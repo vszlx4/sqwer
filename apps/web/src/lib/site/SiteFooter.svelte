@@ -48,13 +48,11 @@
 </footer>
 
 <style>
-	/* The footer is a dark band in both themes. */
+	/* The footer sits on the page color, flush with the last section above it. */
 	.site-footer {
-		background:
-			radial-gradient(60% 120% at 0% 0%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 60%),
-			var(--band-bg);
-		color: var(--band-ink);
-		border-top: 1px solid var(--band-line);
+		background: var(--bg);
+		color: var(--ink);
+		border-top: 1px solid var(--line);
 	}
 	.inner {
 		max-width: 1180px;
@@ -77,7 +75,7 @@
 	}
 	.logo {
 		display: inline-flex;
-		color: var(--white);
+		color: var(--ink);
 		border-radius: 3px;
 	}
 	.logo :global(.footer-wordmark) {
@@ -87,7 +85,7 @@
 	.tagline {
 		font-size: 15px;
 		line-height: 1.55;
-		color: var(--band-ink-2);
+		color: var(--ink-2);
 	}
 	.contact,
 	.start {
@@ -98,17 +96,17 @@
 		text-decoration: none;
 	}
 	.contact {
-		color: var(--band-ink);
+		color: var(--ink);
 	}
 	.contact:hover {
-		color: var(--white);
+		color: var(--ink);
 	}
 	.start {
 		margin-top: 4px;
 		padding: 9px 14px;
 		border-radius: 3px;
-		background: var(--band-ink);
-		color: var(--band-bg);
+		background: var(--ink);
+		color: var(--bg);
 		font-weight: 600;
 	}
 	.groups {
@@ -122,7 +120,7 @@
 		font-weight: 600;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		color: var(--band-ink-2);
+		color: var(--ink-2);
 		margin-bottom: 14px;
 	}
 	ul {
@@ -132,17 +130,17 @@
 	}
 	ul a {
 		font-size: 14.5px;
-		color: var(--band-ink);
+		color: var(--ink);
 		text-decoration: none;
 		transition: color 140ms ease;
 	}
 	ul a:hover {
-		color: var(--white);
+		color: var(--ink);
 	}
 	.build {
 		font-family: var(--font-mono);
 		font-size: 12px;
-		color: var(--band-ink-3);
+		color: var(--ink-3);
 	}
 	.bottom {
 		display: flex;
@@ -150,9 +148,9 @@
 		flex-wrap: wrap;
 		gap: 10px 20px;
 		padding-top: 20px;
-		border-top: 1px solid var(--band-line);
+		border-top: 1px solid var(--line);
 		font-size: 13px;
-		color: var(--band-ink-2);
+		color: var(--ink-2);
 	}
 	.links {
 		display: flex;
@@ -161,7 +159,7 @@
 	}
 	.links a,
 	.prefs {
-		color: var(--band-ink-2);
+		color: var(--ink-2);
 		text-decoration: none;
 	}
 	.prefs {
@@ -173,10 +171,10 @@
 	}
 	.links a:hover,
 	.prefs:hover {
-		color: var(--white);
+		color: var(--ink);
 	}
 	.site-footer :global(:focus-visible) {
-		outline-color: var(--white);
+		outline-color: var(--ink);
 	}
 	@media (max-width: 960px) {
 		.top {
