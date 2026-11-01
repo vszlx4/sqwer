@@ -612,7 +612,6 @@
 	}
 	.games::before {
 		background:
-			radial-gradient(ellipse 50% 60% at 85% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
 			radial-gradient(circle at 1px 1px, var(--band-dot) 1px, transparent 0) 0 0 / 24px 24px,
 			var(--band-bg);
 	}
@@ -636,13 +635,6 @@
 		border-radius: 3px;
 		border: 1px solid var(--band-line);
 		background: var(--band-surface);
-		transition:
-			transform 220ms ease,
-			border-color 220ms ease;
-	}
-	.game:hover {
-		transform: translateY(-3px);
-		border-color: var(--band-line-strong);
 	}
 	.game h3 {
 		margin-top: 8px;
@@ -660,13 +652,9 @@
 		overflow: hidden;
 		border-radius: 3px;
 		background:
-			radial-gradient(120% 90% at 50% 120%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
 			radial-gradient(circle at 1px 1px, var(--band-dot) 1px, transparent 0) 0 0 / 16px 16px,
 			var(--band-bg);
 		border: 1px solid var(--band-line);
-	}
-	.game:hover .preview {
-		border-color: var(--band-line-strong);
 	}
 	/* ---------- Ranks ---------- */
 	.ranks {

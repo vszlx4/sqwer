@@ -75,6 +75,5 @@
 		height: 16px;
 		border-top: 2px solid color-mix(in srgb, var(--life) calc(var(--hit) * 100%), var(--accent));
 		background: color-mix(in srgb, var(--life) calc(var(--hit) * 45%), color-mix(in srgb, var(--accent) 24%, var(--band-bg)));
-		box-shadow: 0 -10px 24px -8px color-mix(in srgb, var(--life) calc(var(--hit) * 100%), color-mix(in srgb, var(--accent) 50%, transparent));
 	}
 </style>

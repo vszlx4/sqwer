@@ -58,10 +58,7 @@
 		border-radius: 3px;
 		background: var(--hue);
 	}
-	.me .runner {
-		box-shadow: 0 0 calc(10px + var(--win) * 14px) color-mix(in srgb, var(--accent) calc(50% + var(--win) * 40%), transparent);
-	}
-	/* Checkered finish; the winner's lights up. */
+	/* Checkered finish. */
 	.flag {
 		position: absolute;
 		top: 0;
@@ -70,9 +67,6 @@
 		height: 100%;
 		background: conic-gradient(var(--band-ink) 25%, var(--band-bg) 0 50%, var(--band-ink) 0 75%, var(--band-bg) 0) 0 0 / 4px 4px;
 		border-radius: 0 3px 3px 0;
-	}
-	.me .flag {
-		box-shadow: 0 0 calc(var(--win) * 14px) color-mix(in srgb, var(--accent) calc(var(--win) * 90%), transparent);
 	}
 	.passage {
 		margin-top: 4px;
