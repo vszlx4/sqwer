@@ -9,6 +9,7 @@ Location: apps/web/src/lib/bits/
 
 Components (source path, upstream commit):
 
+- BranchedMenu.svelte: static/r/branched-menu.json @ 8fa93ce9a919
 - CardSwap.svelte: static/r/card-swap.json @ c37078c5ff7a
 - CurvedLoop.svelte: static/r/curved-loop.json @ c37078c5ff7a
 - Dither.svelte: static/r/dither.json @ c37078c5ff7a
