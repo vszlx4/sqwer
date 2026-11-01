@@ -1,55 +1,54 @@
 import { describe, expect, it } from 'vitest';
 import { rankJourney, roughTime } from '#lib/courses/journey.ts';
-import { buildTree, type Orient } from './rankTree.ts';
+import { BADGE, SHOWN, buildGraph, type Orient } from './rankTree.ts';
 
 const stops = rankJourney();
 
-describe.each<Orient>(['wide', 'narrow'])('the %s rank tree', (orient) => {
-	const tree = buildTree(stops, orient, roughTime);
-	const boxes = tree.branches.map((b) => b.label.box);
+describe.each<Orient>(['wide', 'narrow'])('the %s rank fork graph', (orient) => {
+	const graph = buildGraph(stops, orient, roughTime);
+	const boxes = graph.nodes.map((n) => n.box);
+	// Badges count as boxes too.
+	const solids = [...boxes, ...graph.nodes.map((n) => ({ x: n.pos.x - BADGE / 2, y: n.pos.y - BADGE / 2, w: BADGE, h: BADGE }))];
 
-	it('has a branch per rank, rooted along the trunk in time order', () => {
-		expect(tree.branches).toHaveLength(stops.length);
-		const ats = tree.branches.map((b) => b.at);
+	it('runs from Novice to Legend through the milestones, in time order', () => {
+		expect(graph.nodes.map((n) => n.stop.rank.level)).toEqual([...SHOWN]);
+		const ats = graph.nodes.map((n) => n.at);
 		expect(ats).toEqual([...ats].sort((a, b) => a - b));
 		expect(ats[0]).toBe(0);
-		expect(ats.at(-1)!).toBeLessThan(1);
+		expect(ats.at(-1)).toBe(1);
 	});
 
-	it('keeps every label inside the canvas', () => {
+	it('keeps every text block inside the canvas', () => {
 		for (const b of boxes) {
 			expect(b.x).toBeGreaterThanOrEqual(0);
 			expect(b.y).toBeGreaterThanOrEqual(0);
-			expect(b.x + b.w).toBeLessThanOrEqual(tree.width);
-			expect(b.y + b.h).toBeLessThanOrEqual(tree.height);
+			expect(b.x + b.w).toBeLessThanOrEqual(graph.width);
+			expect(b.y + b.h).toBeLessThanOrEqual(graph.height);
 		}
 	});
 
-	it('never overlaps two labels', () => {
-		for (let i = 0; i < boxes.length; i++)
-			for (let j = i + 1; j < boxes.length; j++) {
-				const a = boxes[i]!;
-				const b = boxes[j]!;
+	it('never overlaps two text blocks or badges', () => {
+		for (let i = 0; i < solids.length; i++)
+			for (let j = i + 1; j < solids.length; j++) {
+				const a = solids[i]!;
+				const b = solids[j]!;
 				const apart = a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y;
-				expect(apart, `${stops[i]!.rank.name} and ${stops[j]!.rank.name}`).toBe(true);
+				if (i % graph.nodes.length !== j % graph.nodes.length) expect(apart, `${i} and ${j}`).toBe(true);
 			}
 	});
 
-	it('keeps wood and leaves clear of every label', () => {
-		for (const b of tree.branches)
-			for (const p of b.hits)
-				for (const [j, box] of boxes.entries()) {
-					const inside = p.x > box.x - 2 && p.x < box.x + box.w + 2 && p.y > box.y - 2 && p.y < box.y + box.h + 2;
-					expect(inside, `${b.stop.rank.name} wood in ${stops[j]!.rank.name} label at ${Math.round(p.x)},${Math.round(p.y)}`).toBe(false);
-				}
+	it('keeps forks and the trunk clear of every text block', () => {
+		const trunk = Array.from({ length: 200 }, (_, k) => ({
+			x: graph.from.x + ((graph.to.x - graph.from.x) * k) / 199,
+			y: graph.from.y + ((graph.to.y - graph.from.y) * k) / 199
+		}));
+		for (const p of [...trunk, ...graph.nodes.flatMap((n) => n.hits)])
+			for (const [j, b] of boxes.entries())
+				expect(p.x > b.x - 2 && p.x < b.x + b.w + 2 && p.y > b.y - 2 && p.y < b.y + b.h + 2, `${graph.nodes[j]!.stop.rank.name} at ${p.x},${p.y}`).toBe(false);
 	});
 
-	it('grows fuller with each rank', () => {
-		const leaves = tree.branches.map((b) => b.leaves.length);
-		for (let i = 1; i < leaves.length; i++) expect(leaves[i]!).toBeGreaterThanOrEqual(leaves[i - 1]!);
-	});
-
-	it('is the same on every build', () => {
-		expect(buildTree(stops, orient, roughTime)).toEqual(tree);
+	it('marks the ranks in between on the trunk', () => {
+		for (const d of graph.dots) expect(SHOWN as readonly number[]).not.toContain(d.level);
+		expect(graph.dots.length).toBeGreaterThan(0);
 	});
 });

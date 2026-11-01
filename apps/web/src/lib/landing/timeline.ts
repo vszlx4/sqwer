@@ -1,50 +1,48 @@
 import type { Action } from 'svelte/action';
 import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
-import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
+import { DURATIONS } from '#lib/motion/tokens.ts';
 
-// Trunk draw time, in seconds; every branch, sprig and hour mark is timed to the tip, so this paces the whole tree.
-const GROW = 3;
+// Trunk draw time, in seconds; every fork and mark is timed to the trunk's tip, so this paces the whole graph.
+const GROW = 2.6;
+const START = 0.3;
 
 const $ = <T extends Element>(root: ParentNode, sel: string) => [...root.querySelectorAll<T>(sel)];
-const at = (el: Element) => Number((el as HTMLElement).dataset.at ?? 0) * GROW;
+const at = (el: Element) => START + Number((el as HTMLElement).dataset.at ?? 0) * GROW;
 
-/** Draws a masked shape along its centerline, from base to tip. */
+/** Draws a stroked path from its start. The gap outruns the path, so no sliver shows before it begins. */
 function draw(tl: gsap.core.Timeline, path: SVGPathElement, duration: number, ease: string, time: number) {
-	// A gap longer than the path, so no sliver of dash shows at either end before it starts.
 	const len = path.getTotalLength();
 	tl.fromTo(path, { strokeDasharray: `${len} ${len + 4}`, strokeDashoffset: len + 2 }, { strokeDashoffset: 0, duration, ease }, time);
-}
-
-/** Shoots and leaves sprout from their base; twigs carry their base in data-base. */
-function sprout(tl: gsap.core.Timeline, root: Element, time: number) {
-	for (const [k, twig] of $<SVGPathElement>(root, ':scope > .twig').entries())
-		tl.from(twig, { scale: 0, svgOrigin: twig.dataset.base, duration: DURATIONS.slow, ease: 'out-soft' }, time + k * STAGGER.base);
-	tl.from($(root, '.leaf'), { scale: 0, rotation: -24, transformOrigin: '0% 50%', duration: DURATIONS.reveal, ease: 'spring-soft', stagger: STAGGER.tight }, time + 0.15);
 }
 
 function build(svg: SVGSVGElement): gsap.core.Timeline {
 	const gsap = motion();
 	const tl = gsap.timeline({ paused: true });
 
-	// Roots first, then the trunk climbs; hour marks appear as the tip passes them.
-	sprout(tl, svg.querySelector('.wood')!, 0);
-	draw(tl, svg.querySelector('mask[id$="-trunk"] .grow')!, GROW, 'none', 0.2);
-	for (const tick of $(svg, '.tick')) tl.from(tick, { opacity: 0, duration: DURATIONS.slow }, 0.2 + at(tick));
-	for (const sprig of $(svg, '.sprig')) sprout(tl, sprig, 0.2 + at(sprig));
+	draw(tl, svg.querySelector('.trunk')!, GROW, 'none', START);
+	for (const dot of $(svg, '.dot')) tl.from(dot, { scale: 0, transformOrigin: '50% 50%', duration: DURATIONS.base, ease: 'out-pop' }, at(dot));
 
-	// Each branch grows out where the tip meets it, then twigs, leaves, the bud and its rank.
-	for (const [i, branch] of $(svg, '.branch').entries()) {
-		const t = 0.2 + at(branch);
-		draw(tl, svg.querySelector(`mask[id$="-b${i}"] .grow`)!, 0.9, 'out-soft', t);
-		sprout(tl, branch, t + 0.4);
-		tl.from(branch.querySelector('.bud'), { scale: 0, transformOrigin: '50% 50%', duration: DURATIONS.slow, ease: 'out-pop' }, t + 0.7)
-			.from(branch.querySelector('.label'), { opacity: 0, y: 8, duration: DURATIONS.reveal, ease: 'out-soft' }, t + 0.75);
+	// Each rank as the tip reaches it: the junction, the fork drawn out, the badge, then its figures.
+	for (const node of $(svg, '.node')) {
+		let t = at(node);
+		const fork = node.querySelector<SVGPathElement>('.fork');
+		const junction = node.querySelector('.junction');
+		if (junction) tl.from(junction, { scale: 0, transformOrigin: '50% 50%', duration: DURATIONS.base, ease: 'out-pop' }, t);
+		if (fork) {
+			draw(tl, fork, 0.6, 'out-soft', t + 0.05);
+			t += 0.5;
+		}
+		tl.from(node.querySelector('.badge'), { scale: 0.4, opacity: 0, transformOrigin: '50% 50%', duration: DURATIONS.reveal, ease: 'spring-soft' }, t).from(
+			node.querySelector('.text'),
+			{ opacity: 0, x: -10, duration: DURATIONS.reveal, ease: 'out-soft' },
+			t + 0.1
+		);
 	}
 	return tl;
 }
 
 /**
- * Grows the rank tree once: played on entry for the wide tree, scrubbed forward by scroll for the tall narrow one.
+ * Draws the rank graph once: played on entry when wide, scrubbed forward by scroll when tall and narrow.
  * Left as drawn if on screen at mount (also after a breakpoint swap) or under reduced motion.
  */
 export const growTree: Action<SVGSVGElement> = (svg) => {
@@ -58,7 +56,7 @@ export const growTree: Action<SVGSVGElement> = (svg) => {
 					trigger: svg,
 					start: 'top 75%',
 					end: 'bottom 85%',
-					// Forward only: scrolling back never ungrows it.
+					// Forward only: scrolling back never undraws it.
 					onUpdate: (self) => {
 						if (self.progress > tl.progress()) gsap.to(tl, { progress: self.progress, duration: 0.6, ease: 'out-soft', overwrite: true });
 					}
@@ -67,7 +65,8 @@ export const growTree: Action<SVGSVGElement> = (svg) => {
 		return () => {
 			st.kill();
 			tl.progress(1).kill();
-			gsap.set($(svg, '[style]'), { clearProps: 'all' });
+			// Only what the timeline wrote; inline tier colors stay.
+			gsap.set($(svg, '.trunk, .fork, .dot, .junction, .badge, .text'), { clearProps: 'transform,opacity,strokeDasharray,strokeDashoffset' });
 		};
 	});
 	return { destroy: () => mm.revert() };

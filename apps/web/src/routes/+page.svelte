@@ -669,9 +669,9 @@
 	}
 	/* ---------- Ranks ---------- */
 	.ranks {
-		--band: radial-gradient(ellipse 60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
 		padding: clamp(64px, 9vw, 112px) 0;
 	}
+
 	/* ---------- Technique ---------- */
 	.split {
 		display: grid;
