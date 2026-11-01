@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { flushSync, onMount } from 'svelte';
+	import { flushSync, onMount, tick } from 'svelte';
 	import { page } from '$app/state';
 	import type { Component } from 'svelte';
 	import { CHAPTERS, LESSONS, PARTS } from '#lib/courses/catalog.ts';
@@ -88,6 +88,15 @@
 	// Returning learners are offered their next step instead of starting again.
 	const next = $derived(ready && courses.loaded ? learnerNextStep() : null);
 	const returning = $derived(next !== null && next.stage !== 'welcome');
+	const cta = $derived(returning && next ? { href: next.href, label: next.action } : { href: '/start', label: 'Get started' });
+
+	// A returning learner's button changes label and moves down under the resume line once progress loads; the
+	// takeover measures the button, so measure again after that render.
+	$effect(() => {
+		void cta.label;
+		void returning;
+		if (takeover) tick().then(() => ScrollTrigger.refresh());
+	});
 
 	const GAMES = [
 		{ kind: 'falling', Preview: FallingLetters, title: 'Falling letters', body: 'Letters drop from the top. Type each one before it lands.' },
@@ -160,10 +169,9 @@
 				<div class="hero-action">
 					{#if returning && next}
 						<p class="resume"><Icon name="route" size={16} /> {next.title}</p>
-						<a class="btn btn-primary btn-lg" href={next.href} bind:this={heroButton}>{next.action} <Icon name="arrow" size={18} /></a>
-					{:else}
-						<a class="btn btn-primary btn-lg" href="/start" bind:this={heroButton}>Get started <Icon name="arrow" size={18} /></a>
 					{/if}
+					<!-- One button for both states: the takeover holds on to this element, so it must never be swapped. -->
+					<a class="btn btn-primary btn-lg" href={cta.href} bind:this={heroButton}>{cta.label} <Icon name="arrow" size={18} /></a>
 					<a class="link-arrow quiet" href="#road">See the whole course <Icon name="chevron" size={16} class="down" /></a>
 				</div>
 				<ul class="facts" aria-label="Key facts">
@@ -176,7 +184,7 @@
 				<div class="hero-veil" bind:this={veil} aria-hidden="true"></div>
 				<div class="portal" bind:this={portal} aria-hidden="true">
 					<span class="portal-label btn-lg" bind:this={portalLabel}>
-						{returning && next ? next.action : 'Get started'} <Icon name="arrow" size={18} />
+						{cta.label} <Icon name="arrow" size={18} />
 					</span>
 					<span class="portal-line" bind:this={portalLine}>
 						<TextPressure text="Your journey" {pressure} />
