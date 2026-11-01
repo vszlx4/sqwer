@@ -17,6 +17,7 @@
 	import { partKeys, partLessons, ROWS } from '#lib/landing/partKeys.ts';
 	import RankTimeline from '#lib/landing/RankTimeline.svelte';
 	import { heroTakeover } from '#lib/landing/takeover.ts';
+	import BrandBand from '#lib/landing/BrandBand.svelte';
 	import CurvedLoop from '#lib/bits/CurvedLoop.svelte';
 	import TextPressure from '#lib/bits/TextPressure.svelte';
 	import { parallax, reveal, stagger } from '#lib/motion/actions.ts';
@@ -284,6 +285,9 @@
 			{/each}
 		</div>
 	</section>
+
+	<!-- The name on the games' ground, between the games and the ranks. -->
+	<BrandBand />
 
 	<!-- Ranks: motivation without competition. -->
 	<section class="ranks band" data-area="competitive" aria-labelledby="ranks-title">
