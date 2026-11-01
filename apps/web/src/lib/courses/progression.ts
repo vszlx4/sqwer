@@ -3,13 +3,16 @@ import type { LessonProgress, StepResult } from './types.ts';
 
 /* Stars, points, ranks. Points come only from completed lessons' best stars; repeats add nothing. */
 
+/** Average accuracy, in percent, for three stars. */
+export const THREE_STARS_AT = 98;
+
 /** Stars for a lesson: none unless every step passed, then by the average accuracy of graded steps. */
 export function lessonStars(results: StepResult[]): number {
 	if (!results.length || results.some((r) => !r.passed)) return 0;
 	const graded = results.filter((r) => r.graded !== false);
 	if (!graded.length) return 3;
 	const accuracy = graded.reduce((sum, r) => sum + r.accuracy, 0) / graded.length;
-	return accuracy >= 98 ? 3 : accuracy >= 94 ? 2 : 1;
+	return accuracy >= THREE_STARS_AT ? 3 : accuracy >= 94 ? 2 : 1;
 }
 
 export const POINTS_PER_LESSON = 50;

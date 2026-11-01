@@ -4,8 +4,6 @@
 	import type { Component } from 'svelte';
 	import { CHAPTERS, LESSONS, PARTS } from '#lib/courses/catalog.ts';
 	import { learnerNextStep } from '#lib/courses/learner.svelte.ts';
-	import { RANKS } from '#lib/courses/progression.ts';
-	import RankBadge from '#lib/courses/RankBadge.svelte';
 	import { courses } from '#lib/courses/store.svelte.ts';
 	import CardSwap from '#lib/bits/CardSwap.svelte';
 	import GradualBlur from '#lib/bits/GradualBlur.svelte';
@@ -16,6 +14,7 @@
 	import ListenPreview from '#lib/landing/games/ListenPreview.svelte';
 	import RacePreview from '#lib/landing/games/RacePreview.svelte';
 	import MapPreview from '#lib/landing/MapPreview.svelte';
+	import RankTimeline from '#lib/landing/RankTimeline.svelte';
 	import { reveal as rise } from '#lib/motion/actions.ts';
 	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
@@ -243,16 +242,12 @@
 
 	<!-- Ranks: motivation without competition. -->
 	<section class="ranks band" data-area="competitive" aria-labelledby="ranks-title">
-		<header class="section-head center" use:reveal>
+		<header class="section-head center" use:rise>
 			<p class="kicker">Ranks and streaks</p>
 			<h2 id="ranks-title">Watch yourself grow.</h2>
 			<p>Earn stars in every lesson and climb ten ranks, from Novice to Legend. Your progress is measured against yourself, never against others.</p>
 		</header>
-		<ol class="ladder" use:reveal>
-			{#each RANKS as r, i (r.level)}
-				<li style:--i={i}><RankBadge rank={r} size={i === RANKS.length - 1 ? 64 : 48} /><span>{r.name}</span></li>
-			{/each}
-		</ol>
+		<RankTimeline />
 	</section>
 
 	<!-- For typists who already type. -->
@@ -674,28 +669,7 @@
 	}
 	/* ---------- Ranks ---------- */
 	.ranks {
-		--band: radial-gradient(ellipse 60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
 		padding: clamp(64px, 9vw, 112px) 0;
-	}
-	.ladder {
-		display: flex;
-		justify-content: center;
-		align-items: flex-end;
-		flex-wrap: wrap;
-		gap: 18px 10px;
-		margin-top: 40px;
-	}
-	.ladder li {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 96px;
-		text-align: center;
-		font-size: 12.5px;
-		font-weight: 700;
-		line-height: 1.25;
-		transform: translateY(calc(var(--i) * -3px));
 	}
 
 	/* ---------- Technique ---------- */
