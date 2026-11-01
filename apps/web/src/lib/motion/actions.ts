@@ -2,7 +2,7 @@ import type { Action } from 'svelte/action';
 import { motion, whenMotion } from './gsap';
 import { DURATIONS, STAGGER, type EaseName } from './tokens';
 
-// Start line for scroll entrances; matches ui/reveal.ts rootMargin (-8%).
+// Start line for scroll entrances, 8% above the fold.
 const START = 'top 92%';
 
 function onScreen(node: Element): boolean {
@@ -55,7 +55,7 @@ export interface StaggerOptions {
 	immediate?: boolean;
 }
 
-/** Rises the node's children in sequence (the `.rise` pattern). */
+/** Rises the node's children in sequence. */
 export const stagger: Action<HTMLElement, StaggerOptions | undefined> = (node, options) =>
 	scoped(node, options, (el, o) => {
 		const targets = o?.selector ? el.querySelectorAll(o.selector) : el.children;
@@ -67,6 +67,33 @@ export const stagger: Action<HTMLElement, StaggerOptions | undefined> = (node, o
 			ease: 'out-expo',
 			stagger: o?.each ?? STAGGER.base,
 			scrollTrigger: o?.immediate ? undefined : { trigger: el, start: START, once: true }
+		});
+	});
+
+export interface EnterOptions {
+	/** Place in the view's entrance order; each step waits one stagger. */
+	i?: number;
+}
+
+// Server-rendered views are already on screen when scripts arrive; entrances start once the app has mounted.
+let mounted = false;
+
+/** Marks the app as mounted; called once by the root layout. */
+export function appMounted() {
+	mounted = true;
+}
+
+/** Rises the node in on mount (the `.rise` pattern), for views that swap in on the client. */
+export const enter: Action<HTMLElement, EnterOptions | undefined> = (node, options) =>
+	scoped(node, options, (el, o) => {
+		if (!mounted) return;
+		motion().from(el, {
+			opacity: 0,
+			y: 14,
+			duration: DURATIONS.slow,
+			ease: 'out-expo',
+			delay: 0.06 + (o?.i ?? 0) * STAGGER.base,
+			clearProps: 'opacity,transform'
 		});
 	});
 

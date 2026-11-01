@@ -8,6 +8,7 @@
 	import Stars from '#lib/courses/Stars.svelte';
 	import { STEP_INFO, lessonGames, lessonMinutes } from '#lib/courses/stepInfo.ts';
 	import { courses } from '#lib/courses/store.svelte.ts';
+	import { enter } from '#lib/motion/actions.ts';
 	import { results } from '#lib/results/store.svelte.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
@@ -152,7 +153,7 @@
 						{#each part.chapters as n, ci (n)}
 							{@const chapter = CHAPTERS[n - 1]!}
 							{@const cp = chapterProgress(n, courses.progress)}
-							<li class="rise" style:--i={pi * 3 + ci}>
+							<li use:enter={{ i: pi * 3 + ci }}>
 								<button
 									type="button"
 									class="card"
@@ -181,7 +182,7 @@
 		<!-- The selected chapter and its lessons. -->
 		<article class="detail" bind:this={detail} aria-labelledby="chapter-title" style:--part={`var(--${selectedPart.colour}-ink)`} style:--part-soft={`var(--${selectedPart.colour}-soft)`}>
 			{#key selected.number}
-				<header class="detail-head rise">
+				<header class="detail-head" use:enter>
 					<div class="detail-title">
 						<p class="part-tag">{selectedPart.title} · Chapter {selected.number}</p>
 						<h3 id="chapter-title">{selected.title}</h3>
@@ -202,7 +203,7 @@
 						{@const stars = p?.stars ?? 0}
 						{@const locked = loaded && !signedIn && lesson.id !== FIRST_LESSON.id}
 						{@const games = lessonGames(lesson)}
-						<li class="rise" style:--i={i + 1}>
+						<li use:enter={{ i: i + 1 }}>
 							<a
 								class="lesson"
 								class:done={stars > 0}

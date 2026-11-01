@@ -4,6 +4,7 @@
 	import { beforeNavigate, onNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { areaFor } from '#lib/site/areas.ts';
+	import { appMounted } from '#lib/motion/actions.ts';
 	import { smoothScroll, stopSmoothScroll } from '#lib/motion/smooth-scroll.ts';
 	import { installKeyboardGuards } from '#lib/ui/typing-focus.ts';
 	import SiteFooter from '#lib/site/SiteFooter.svelte';
@@ -41,6 +42,7 @@
 	// Space never scrolls the page, and running exercises keep the keyboard (lib/ui/typing-focus.ts).
 	onMount(() => installKeyboardGuards());
 	onMount(() => smoothScroll());
+	onMount(appMounted);
 </script>
 
 <a class="skip" href="#content">Skip to content</a>

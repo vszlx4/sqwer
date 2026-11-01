@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { lessonById } from '#lib/courses/catalog.ts';
 	import { courses } from '#lib/courses/store.svelte.ts';
+	import { enter } from '#lib/motion/actions.ts';
 	import { EXPERIENCE, GOALS, labelOf, PLATFORMS } from '#lib/profile.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon, { type IconName } from '#lib/ui/Icon.svelte';
@@ -48,7 +49,7 @@
 		</div>
 		<ul class="steps">
 			{#each steps as s, i (s.title)}
-				<li class="rise" style:--i={i}>
+				<li use:enter={{ i }}>
 					<a href={s.href} data-sveltekit-reload={s.href.startsWith('/test') ? '' : undefined}>
 						<span class="step-icon" aria-hidden="true"><Icon name={s.icon} size={18} /></span>
 						<span class="step-text"><b>{s.title}</b><span>{s.body}</span></span>

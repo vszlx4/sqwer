@@ -4,6 +4,7 @@
 	import ResultReport from '#lib/results/ResultReport.svelte';
 	import type { UploadOutcome } from '#lib/results/store.svelte.ts';
 	import type { ResultRecord } from '#lib/results/types.ts';
+	import { enter } from '#lib/motion/actions.ts';
 	import { MIN_ACCURACY, TIERS, nextTier, tierFor, tierRange } from '#lib/progress/competitive.ts';
 	import { examXp } from '#lib/progress/xp.ts';
 	import Confetti from '#lib/ui/Confetti.svelte';
@@ -70,7 +71,7 @@
 {#if rankedUp && check !== 'rejected'}<Confetti pieces={220} />{/if}
 
 <section class="ranked" aria-labelledby="ranked-title">
-	<header class="hero rise">
+	<header class="hero" use:enter>
 		<div class="emblem" class:up={rankedUp}>
 			<RankEmblem league={tier?.league ?? null} size={156} />
 		</div>
@@ -83,7 +84,7 @@
 	</header>
 
 	{#if ladder}
-		<div class="ladder rise" style:--i="1" style:--league={ladder.next.league.colour}>
+		<div class="ladder" style:--league={ladder.next.league.colour} use:enter={{ i: 1 }}>
 			<div class="ends">
 				<span>{tier?.name ?? 'Unranked'} <small>{ladder.from} WPM</small></span>
 				<span class="to"><RankEmblem league={ladder.next.league} size={22} /> {ladder.next.name} <small>{ladder.next.from} WPM</small></span>
@@ -95,7 +96,7 @@
 		</div>
 	{/if}
 
-	<div class="figures rise" style:--i="2">
+	<div class="figures" use:enter={{ i: 2 }}>
 		<div class="big">
 			<span class="label">Speed</span>
 			<span class="value" data-testid="result-wpm"><CountUp value={record.wpm} /><small>WPM</small></span>
@@ -117,14 +118,14 @@
 		</dl>
 	</div>
 
-	<p class={`check rise ${check}`} style:--i="3">
+	<p class={`check ${check}`} use:enter={{ i: 3 }}>
 		{#if check === 'pending'}<span class="spinner" aria-hidden="true"></span> Checking the result on the server…
 		{:else if check === 'verified'}<Icon name="check" size={16} /> Verified{standing ? `. You are #${standing.position} of ${standing.players} on the leaderboard.` : '.'}
 		{:else if check === 'rejected'}<Icon name="info" size={16} /> Not counted: this result did not pass the ranked checks (duration, accuracy and keystroke timing).
 		{:else}<Icon name="info" size={16} /> {signedIn ? 'The result could not be saved. Your connection may have dropped.' : 'Sign in to save ranked results and appear on the leaderboard.'}{/if}
 	</p>
 
-	<div class="actions rise" style:--i="4">
+	<div class="actions" use:enter={{ i: 4 }}>
 		<button type="button" class="btn btn-primary" onclick={onnext}><Icon name="play" size={17} /> Play again <kbd>Tab</kbd></button>
 		<button type="button" class="btn" onclick={onrepeat}><Icon name="repeat" size={17} /> Same words</button>
 		<a class="btn" href="/competitive#leaderboard"><Icon name="trophy" size={17} /> Leaderboard</a>
@@ -133,7 +134,7 @@
 </section>
 
 {#if full}
-	<div class="full rise">
+	<div class="full" use:enter>
 		<ResultReport {record} onnext={onnext} onrepeat={onrepeat} />
 	</div>
 {/if}

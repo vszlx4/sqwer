@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import Avatar from '#lib/account/Avatar.svelte';
 	import RankEmblem from '#lib/competitive/RankEmblem.svelte';
+	import { enter } from '#lib/motion/actions.ts';
 	import { LEAGUES, MIN_ACCURACY, TIERS, ZENITH_WPM, nextTier, tierFor, tierRange, type League } from '#lib/progress/competitive.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
@@ -106,7 +107,7 @@
 		</div>
 
 		{#key selected.id}
-			<div class="detail rise" id="rank-detail" role="tabpanel" style:--league={selected.colour}>
+			<div class="detail" id="rank-detail" role="tabpanel" style:--league={selected.colour} use:enter>
 				<div class="detail-emblem">
 					<RankEmblem league={selected} size={200} />
 				</div>
