@@ -6,12 +6,21 @@
 
 	/* The name between the games and the ranks: a big cream wordmark with the curve's star perched on its last letter,
 	   filled orange to violet under a grain. Scrubbed across the band, never held: the letters rise in and the star
-	   spins in as the band arrives, both float away (Scroll Float) as it leaves. The star also turns slowly on its own.
+	   spins in as the band arrives, both float away (Scroll Float) as it leaves. The star turns with the scroll only.
 	   For a short stretch in the middle the letters turn to liquid metal (Metallic Paint) and back. */
 
 	const LETTERS = [...'sqwer'];
-	// Four-point star, the ✦ of the curved loop, drawn on a 100 unit box.
-	const STAR = 'M50 0C55 33 67 45 100 50C67 55 55 67 50 100C45 67 33 55 0 50C33 45 45 33 50 0Z';
+	// A five-point star with curved sides, kin to the ✦ of the curved loop, on a 100 unit box: each side bows in
+	// through a control point near the centre.
+	const STAR = (() => {
+		const at = (deg: number, r: number) => {
+			const a = (deg * Math.PI) / 180;
+			return `${(50 + r * Math.cos(a)).toFixed(2)} ${(50 + r * Math.sin(a)).toFixed(2)}`;
+		};
+		let d = `M${at(-90, 50)}`;
+		for (let k = 0; k < 5; k++) d += `Q${at(-90 + 72 * k + 36, 14)} ${at(-90 + 72 * (k + 1), 50)}`;
+		return `${d}Z`;
+	})();
 	const id = $props.id();
 	// How far the metal layer reaches past the letters' box, in em, so no glyph is cut at its edge.
 	const PAD = 0.3;
@@ -86,8 +95,10 @@
 				0.05
 			);
 			tl.fromTo(star, { scale: 0, rotate: -160, opacity: 0 }, { scale: 1, rotate: 0, opacity: 1, duration: 0.3, ease: 'spring-soft' }, 0.22);
+			// Keeps turning slowly while the name rests, a fifth of a turn: point back on point.
+			tl.to(star, { rotate: 72, duration: 0.08 }, 0.52);
 			tl.to(letters, { ...FLOAT, scaleX: 1, transformOrigin: '50% 50%', stagger: { each: 0.02, from: 'center' }, duration: 0.3, ease: 'in-quick' }, 0.62);
-			tl.to(star, { opacity: 0, filter: 'blur(16px)', scale: 1.6, rotate: 90, duration: 0.26, ease: 'in-quick' }, 0.6);
+			tl.to(star, { opacity: 0, filter: 'blur(16px)', scale: 1.6, rotate: 162, duration: 0.26, ease: 'in-quick' }, 0.6);
 			// The metal pass: cream gives way to liquid metal and comes back before the float.
 			tl.fromTo(metalEl, { opacity: 0 }, { opacity: 1, duration: 0.07, ease: 'out-soft' }, 0.36);
 			tl.fromTo(lettersEl, { opacity: 1 }, { opacity: 0, duration: 0.07, ease: 'out-soft' }, 0.36);
@@ -111,19 +122,36 @@
 				<MetallicPaint imageSrc={metal.src} active={metalOn} lightColor={metal.light} darkColor={metal.dark} tintColor={metal.tint} speed={0.25} />
 			{/if}
 		</span>
-		<svg class="star" bind:this={star} viewBox="0 0 100 100" aria-hidden="true">
+		<svg class="star" bind:this={star} viewBox="-20 -20 140 140" aria-hidden="true">
 			<defs>
-				<linearGradient id="{id}-fill" x1="0" y1="0" x2="1" y2="1">
+				<!-- One warm color easing into a rose, then down to a deep violet along the lower edge. -->
+				<linearGradient id="{id}-fill" x1="0.8" y1="0" x2="0.2" y2="1">
 					<stop offset="0" style:stop-color="var(--orange)" />
-					<stop offset="1" style:stop-color="var(--violet)" />
+					<stop offset="0.55" style:stop-color="color-mix(in srgb, var(--orange) 55%, var(--violet))" />
+					<stop offset="1" style:stop-color="color-mix(in srgb, var(--violet) 55%, var(--band-bg))" />
 				</linearGradient>
-				<!-- Grain: fractal noise turned into speckled alpha, laid over the gradient inside the star only. -->
-				<filter id="{id}-grain" x="0" y="0" width="100%" height="100%">
+				<!-- Grain: fractal noise turned into speckled alpha. -->
+				<filter id="{id}-grain" x="-20" y="-20" width="140" height="140" filterUnits="userSpaceOnUse">
 					<feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" stitchTiles="stitch" />
 					<feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.1" />
 				</filter>
+				<!-- The same grain in the star's warm color, for the speckles that drift past its edge. -->
+				<filter id="{id}-dust" x="-20" y="-20" width="140" height="140" filterUnits="userSpaceOnUse">
+					<feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" stitchTiles="stitch" result="noise" />
+					<feColorMatrix in="noise" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.3" result="dots" />
+					<feFlood style:flood-color="color-mix(in srgb, var(--orange) 70%, var(--violet))" />
+					<feComposite in2="dots" operator="in" />
+				</filter>
+				<filter id="{id}-soft" x="-20" y="-20" width="140" height="140" filterUnits="userSpaceOnUse">
+					<feGaussianBlur stdDeviation="5" />
+				</filter>
+				<!-- Strong on the edge and fading a few units out: a blurred copy of the star. -->
+				<mask id="{id}-spill" maskUnits="userSpaceOnUse" x="-20" y="-20" width="140" height="140">
+					<path d={STAR} fill="white" filter="url(#{id}-soft)" />
+				</mask>
 				<clipPath id="{id}-clip"><path d={STAR} /></clipPath>
 			</defs>
+			<rect class="dust" x="-20" y="-20" width="140" height="140" filter="url(#{id}-dust)" mask="url(#{id}-spill)" />
 			<g clip-path="url(#{id}-clip)">
 				<rect width="100" height="100" fill="url(#{id}-fill)" />
 				<rect class="grain" width="100" height="100" filter="url(#{id}-grain)" />
@@ -169,26 +197,17 @@
 	/* Perched over the last letter, like a mark on the name. */
 	.star {
 		position: absolute;
-		top: -0.24em;
-		right: -0.3em;
-		width: 0.44em;
-		height: 0.44em;
+		top: -0.33em;
+		right: -0.39em;
+		width: 0.62em;
+		height: 0.62em;
 		overflow: visible;
 	}
 	.grain {
 		mix-blend-mode: soft-light;
 		opacity: 0.85;
 	}
-	/* A slow turn of its own, on the inner group so it never fights the scroll tween on the svg. */
-	@media (prefers-reduced-motion: no-preference) {
-		.star g {
-			transform-origin: 50px 50px;
-			animation: turn 24s linear infinite;
-		}
-	}
-	@keyframes turn {
-		to {
-			transform: rotate(360deg);
-		}
+	.dust {
+		opacity: 0.55;
 	}
 </style>
