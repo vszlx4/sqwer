@@ -22,6 +22,7 @@
 	import TextPressure from '#lib/bits/TextPressure.svelte';
 	import { parallax, reveal, stagger } from '#lib/motion/actions.ts';
 	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
+	import { scrollSpeed } from '#lib/motion/smooth-scroll.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
 	import { LESSON_MINUTES, roughTime } from '#lib/courses/journey.ts';
 	import { results } from '#lib/results/store.svelte.ts';
@@ -51,10 +52,10 @@
 		// three.js loads in its own chunk after the page is up.
 		import('#lib/bits/Dither.svelte').then((m) => (Dither = m.default));
 		const mm = whenMotion(() => {
-			enterHero(heroCopy);
+			const entrance = enterHero(heroCopy);
 			// The track has to be tall before the timeline measures it.
 			flushSync(() => (takeover = true));
-			heroTakeover({
+			const { remeasure, speed } = heroTakeover({
 				track: hero,
 				button: heroButton,
 				portal,
@@ -66,18 +67,35 @@
 			});
 			// Every trigger below was measured before the hero grew into a track; measure them again.
 			ScrollTrigger.refresh();
-			return () => (takeover = false);
+			// Web fonts move the button once they swap in.
+			document.fonts?.ready.then(() => ScrollTrigger.refresh());
+			// The wheel speeds through the takeover's phases (takeover.ts, PACE).
+			scrollSpeed(speed);
+			// Leaving the hero, the portal takes the button's rect again.
+			const leave = () => {
+				if (window.scrollY > 1) return;
+				// The entrance still lifting the button would offset the portal.
+				entrance?.progress(1);
+				remeasure();
+			};
+			const opts = { capture: true, passive: true } as const;
+			for (const type of ['wheel', 'touchstart', 'keydown'] as const) window.addEventListener(type, leave, opts);
+			return () => {
+				scrollSpeed();
+				for (const type of ['wheel', 'touchstart', 'keydown'] as const) window.removeEventListener(type, leave, opts);
+				takeover = false;
+			};
 		});
 		return () => mm.revert();
 	});
 
 	// Hero copy rises in on load. CSS holds it hidden until then; skip if its fallback already showed it.
-	function enterHero(copy: HTMLElement) {
+	function enterHero(copy: HTMLElement): gsap.core.Tween | undefined {
 		const parts = copy.children;
 		const shown = getComputedStyle(parts[0]).opacity === '1';
 		copy.dataset.entered = '';
 		if (shown) return;
-		motion().fromTo(
+		return motion().fromTo(
 			parts,
 			{ opacity: 0, y: 14 },
 			{ opacity: 1, y: 0, duration: DURATIONS.reveal, ease: 'out-soft', stagger: STAGGER.base, clearProps: 'transform' }
