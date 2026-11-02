@@ -15,10 +15,17 @@ jobs:
       - name: Check branch name and title
         env:
           HEAD: ${{ github.head_ref }}
+          BASE: ${{ github.base_ref }}
           TITLE: ${{ github.event.pull_request.title }}
         run: |
           fail=0
-          if ! [[ "$HEAD" =~ ^(feat|fix|docs|chore|refactor|test|design|security)/[a-z0-9][a-z0-9-]*$ || "$HEAD" =~ ^dependabot/ ]]; then
+          # main takes releases from dev and hotfixes only; everything else goes to dev.
+          if [ "$BASE" = main ]; then
+            if ! [[ "$HEAD" == dev || "$HEAD" =~ ^(fix|security)/[a-z0-9][a-z0-9-]*$ ]]; then
+              echo "::error::Pull requests into main come from dev (releases) or fix/ and security/ hotfixes. Target dev instead."
+              fail=1
+            fi
+          elif ! [[ "$HEAD" =~ ^(feat|fix|docs|chore|refactor|test|design|security)/[a-z0-9][a-z0-9-]*$ || "$HEAD" =~ ^dependabot/ ]]; then
             echo "::error::Branch '$HEAD' must look like feat/short-name, fix/short-name, docs/..., chore/..., refactor/..., test/..., design/..., security/...."
             fail=1
           fi

@@ -1,11 +1,11 @@
-# Audit, type check, unit tests and build on main and its pull requests. E2E runs locally.
+# Audit, type check, unit tests and build on main, dev and their pull requests. E2E runs locally.
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 permissions:
   contents: read

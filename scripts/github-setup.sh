@@ -7,8 +7,9 @@ VISIBILITY=$(gh repo view "$REPO" --json visibility -q .visibility)
 echo "Configuring $REPO ($VISIBILITY)"
 
 gh api -X PATCH "repos/$REPO" \
-  -F allow_squash_merge=true -F allow_merge_commit=false -F allow_rebase_merge=false \
+  -F allow_squash_merge=true -F allow_merge_commit=true -F allow_rebase_merge=false \
   -f squash_merge_commit_title=PR_TITLE -f squash_merge_commit_message=PR_BODY \
+  -f merge_commit_title=PR_TITLE -f merge_commit_message=PR_BODY \
   -F delete_branch_on_merge=true -F allow_auto_merge=true -F allow_update_branch=true \
   -F has_issues=true -F has_wiki=false -F has_projects=false >/dev/null
 echo "Repository settings applied"
@@ -34,7 +35,22 @@ ruleset() { # name, json body
   echo "Ruleset '$name' applied"
 }
 
-# main: PR, one code owner approval, squash only. Admin bypass via PR.
+# Shared by main and dev: PR with one code owner approval, verify and naming green. Admin bypass via PR.
+review='{ "type": "pull_request", "parameters": {
+    "required_approving_review_count": 1,
+    "dismiss_stale_reviews_on_push": true,
+    "require_code_owner_review": true,
+    "require_last_push_approval": true,
+    "required_review_thread_resolution": true,
+    "allowed_merge_methods": [METHODS] } }'
+checks() { # strict: whether the head must be up to date with the base
+  echo '{ "type": "required_status_checks", "parameters": {
+    "strict_required_status_checks_policy": '"$1"',
+    "required_status_checks": [ { "context": "verify" }, { "context": "naming" } ] } }'
+}
+
+# main: release PRs from dev as merge commits (one shared history, never squashed) and squashed hotfixes. Not
+# strict: dev never holds main's merge commits, and its checks ran on the same tree.
 ruleset "Protect main" '{
   "name": "Protect main",
   "target": "branch",
@@ -44,18 +60,33 @@ ruleset "Protect main" '{
   "rules": [
     { "type": "deletion" },
     { "type": "non_fast_forward" },
-    { "type": "required_linear_history" },
-    { "type": "pull_request", "parameters": {
-        "required_approving_review_count": 1,
-        "dismiss_stale_reviews_on_push": true,
-        "require_code_owner_review": true,
-        "require_last_push_approval": true,
-        "required_review_thread_resolution": true,
-        "allowed_merge_methods": ["squash"] } },
-    { "type": "required_status_checks", "parameters": {
-        "strict_required_status_checks_policy": true,
-        "required_status_checks": [ { "context": "verify" }, { "context": "naming" } ] } }
+    '"${review/METHODS/\"merge\", \"squash\"}"',
+    '"$(checks false)"'
   ]
+}'
+
+# dev: where every task lands, squash only, linear.
+ruleset "Protect dev" '{
+  "name": "Protect dev",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": { "ref_name": { "include": ["refs/heads/dev"], "exclude": [] } },
+  "bypass_actors": [ { "actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "pull_request" } ],
+  "rules": [
+    { "type": "required_linear_history" },
+    '"${review/METHODS/\"squash\"}"',
+    '"$(checks true)"'
+  ]
+}'
+
+# dev outlives every release PR: no deletion (auto-delete on merge included) or force push, for anyone.
+ruleset "Keep dev" '{
+  "name": "Keep dev",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": { "ref_name": { "include": ["refs/heads/dev"], "exclude": [] } },
+  "bypass_actors": [],
+  "rules": [ { "type": "deletion" }, { "type": "non_fast_forward" } ]
 }'
 
 # Release tags: admins only.

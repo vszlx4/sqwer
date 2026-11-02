@@ -1,6 +1,7 @@
-// npm run release -- <alpha|beta|rc|stable|patch|minor|major> [patch|minor|major]   open a version bump PR
-// npm run release -- publish [--notes <file>]                                     tag main and create the GitHub Release
-// npm run release -- bump                                                         bump this branch one step past main
+// npm run release -- <alpha|beta|rc|stable|patch|minor|major> [patch|minor|major]   on dev: open a version PR into dev
+// npm run release -- promote                                                      on dev: open the release PR dev → main
+// npm run release -- publish [--notes <file>]                                     on main: tag it and create the GitHub Release
+// npm run release -- bump                                                         on a hotfix branch: one step past main
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -57,12 +58,14 @@ function readVersion() {
 	return JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 }
 
-function requireCleanMain() {
-	if (run('git', ['branch', '--show-current']) !== 'main') fail('switch to main first');
+function requireClean(branch) {
+	if (run('git', ['branch', '--show-current']) !== branch) fail(`switch to ${branch} first`);
 	if (run('git', ['status', '--porcelain'])) fail('working tree is not clean');
-	run('git', ['fetch', '-q', 'origin', 'main']);
-	if (run('git', ['rev-parse', 'HEAD']) !== run('git', ['rev-parse', 'origin/main'])) fail('main is not in sync with origin/main');
+	run('git', ['fetch', '-q', 'origin', branch]);
+	if (run('git', ['rev-parse', 'HEAD']) !== run('git', ['rev-parse', `origin/${branch}`])) fail(`${branch} is not in sync with origin/${branch}`);
 }
+
+const versionOn = (ref) => JSON.parse(run('git', ['show', `${ref}:package.json`])).version;
 
 function writeVersion(target) {
 	for (const file of MANIFESTS) {
@@ -74,11 +77,12 @@ function writeVersion(target) {
 	run('npm', ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund']);
 }
 
-// One bump per PR: the target is always main's version plus one step, so reruns are no-ops.
+// Hotfixes only (branched off main, merged into main): one step past main's version, so reruns are no-ops. Work
+// for dev carries no version; it is set once per release.
 function bumpBranch() {
-	if (run('git', ['branch', '--show-current']) === 'main') fail('bump on a feature branch, not main');
+	if (['main', 'dev'].includes(run('git', ['branch', '--show-current']))) fail('bump on a hotfix branch, not main or dev');
 	run('git', ['fetch', '-q', 'origin', 'main']);
-	const base = JSON.parse(run('git', ['show', 'origin/main:package.json'])).version;
+	const base = versionOn('origin/main');
 	const target = next(base, 'bump');
 	const current = readVersion();
 	if (current === target) return console.log(`already v${target}`);
@@ -88,7 +92,7 @@ function bumpBranch() {
 }
 
 function bump(step, part) {
-	requireCleanMain();
+	requireClean('dev');
 	const current = readVersion();
 	let target;
 	try {
@@ -102,9 +106,22 @@ function bump(step, part) {
 	run('git', ['add', ...MANIFESTS, 'package-lock.json']);
 	run('git', ['commit', '-q', '-m', `Release v${target}`]);
 	run('git', ['push', '-q', '-u', 'origin', branch], { stdio: 'inherit' });
-	const url = run('gh', ['pr', 'create', '--base', 'main', '--head', branch, '--title', `Release v${target}`, '--body', `Version ${current} → ${target}.`]);
+	const url = run('gh', ['pr', 'create', '--base', 'dev', '--head', branch, '--title', `Set version ${target} for release`, '--body', `Version ${current} → ${target}.`]);
 	console.log(`v${current} → v${target}: ${url}`);
-	console.log('After merging: git switch main && git pull --ff-only && npm run release -- publish');
+	console.log('After merging: git switch dev && git pull --ff-only && npm run release -- promote');
+}
+
+// The release PR: dev into main as a merge commit, so the two keep one history.
+function promote() {
+	requireClean('dev');
+	run('git', ['fetch', '-q', 'origin', 'main']);
+	const version = readVersion();
+	const live = versionOn('origin/main');
+	if (version === live) fail(`dev is still on v${live}; run npm run release -- <stage> first`);
+	const log = run('git', ['log', '--first-parent', '--format=- %s', 'origin/main..HEAD']);
+	const url = run('gh', ['pr', 'create', '--base', 'main', '--head', 'dev', '--title', `Release v${version}`, '--body', `Version ${live} → ${version}.\n\n${log}`]);
+	console.log(`v${version}: ${url}`);
+	console.log('Merge with a merge commit (never squash, never delete dev), then: git switch main && git pull --ff-only && npm run release -- publish');
 }
 
 function releaseExists(tag) {
@@ -126,7 +143,7 @@ function waitForRemoteTag(tag) {
 }
 
 function publish(notesFile) {
-	requireCleanMain();
+	requireClean('main');
 	const version = readVersion();
 	const tag = `v${version}`;
 	if (releaseExists(tag)) fail(`release ${tag} already exists`);
@@ -152,9 +169,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 		publish(i >= 0 ? rest[i + 1] : undefined);
 	} else if (step === 'bump') {
 		bumpBranch();
+	} else if (step === 'promote') {
+		promote();
 	} else if (step) {
 		bump(step, rest[0]);
 	} else {
-		fail('usage: npm run release -- <alpha|beta|rc|stable|patch|minor|major> [patch|minor|major] | bump | publish [--notes <file>]');
+		fail('usage: npm run release -- <alpha|beta|rc|stable|patch|minor|major> [patch|minor|major] | promote | publish [--notes <file>] | bump');
 	}
 }

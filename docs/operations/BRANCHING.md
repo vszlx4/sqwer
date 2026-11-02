@@ -2,31 +2,39 @@
 
 How work moves through the repository. The checks that enforce it live in `.github/` and run on every pull request.
 
-## The long-lived branch
+## The long-lived branches
 
-`main` is the site: SvelteKit (`apps/web`) and the shared packages. It always builds, is always deployable, and only
-changes through pull requests. Nothing else is long-lived.
+```
+<type>/<name> ──PR──▶ dev ──release PR──▶ main ──tag──▶ GitHub Release
+```
+
+- `main` is the released site: SvelteKit (`apps/web`) and the shared packages. Every commit on it is a published
+  version. It only changes through release pull requests from `dev` and hotfixes. Clones and the GitHub page show it
+  by default.
+- `dev` is where finished work lands and waits for the next release. It always builds and passes checks, but is not
+  released yet. To try what is coming: `git clone -b dev https://github.com/vszlx4/sqwer.git`.
+
+Nothing else is long-lived.
 
 ## Short-lived branches
 
-Named `<type>/<short-kebab-name>`, cut from `main`:
+Named `<type>/<short-kebab-name>`, cut from `dev` (hotfixes from `main`):
 
 `feat/`, `fix/`, `docs/`, `chore/`, `refactor/`, `test/`, `design/`, `security/`
 
-Dependabot's `dependabot/...` branches are automatic. Delete a branch after its pull request merges (the repository
+Dependabot's `dependabot/...` branches are automatic and target `dev`. Delete a branch after its pull request merges (the repository
 setting does this).
 
 ## A change, start to finish
 
 1. **Issue.** Open one from a template (bug, feature, design task) so the reason is written down.
-2. **Branch.** From `main`, named as above: `git switch -c fix/lesson-keyboard main`.
-3. **Version.** `npm run release -- bump` sets the version one step past `main` (`1.0.0-beta.1` → `-beta.2`; a
-   stable version gets the next patch) and is committed with the change. Running it again does nothing. Skipped only
-   when a pull request touches nothing but docs or `.github/`.
-4. **Pull request** into `main`. The template asks what changed, how it was checked, and the risk.
-5. **Checks.** *CI* (audit, type check, unit tests, build), *Pull request hygiene* (branch name, title, target) and
+2. **Branch.** From `dev`, named as above: `git switch -c fix/lesson-keyboard dev`.
+3. **Pull request** into `dev`. The template asks what changed, how it was checked, and the risk. No version change:
+   the version moves once per release.
+4. **Checks.** *CI* (audit, type check, unit tests, build), *Pull request hygiene* (branch name, title, target) and
    automatic labels. The code owner (`.github/CODEOWNERS`) is asked to review.
-6. **Squash merge.** One commit per pull request, titled like the pull request. Link issues with `Closes #123`.
+5. **Squash merge.** One commit per pull request, titled like the pull request. `Closes #123` only closes issues on
+   `main`, so close the issue when the pull request merges into `dev`.
 
 ## Releases
 
@@ -34,15 +42,24 @@ Versions follow SemVer with pre-release stages: `1.0.0-alpha.N` → `-beta.N` �
 and major. The version lives in the root `package.json`; builds show it with the commit in the footer
 (`v1.0.0-beta.1 · 3f78679`).
 
-Every pull request bumps the number within the current stage (step 3), so publishing that stage needs no version PR.
-A version PR is only for moving to another stage or cutting a stable, patch, minor or major release.
+A release ships everything waiting on `dev` once it adds up to something worth shipping (usually a finished
+milestone or parent issue), in three steps:
 
 ```sh
-npm run release -- bump            # on a feature branch: one step past main
-npm run release -- rc              # or alpha, beta, stable, patch, minor, major; opens a version PR
+npm run release -- beta            # on dev: version PR into dev (beta.4 → beta.5; or alpha, rc, stable, patch, minor, major)
 npm run release -- beta minor      # from a stable version: next minor as beta.1
-npm run release -- publish         # on main: tags it and creates the GitHub Release
+npm run release -- promote         # on dev, after the version PR: release PR dev → main
+npm run release -- publish         # on main, after the release PR: tag it and create the GitHub Release
 ```
+
+The release PR is merged with a **merge commit**, never squashed, and `dev` is never deleted: the two branches then
+keep one history and the next release merges without conflicts.
+
+### Hotfixes
+
+For a released bug that cannot wait for the next release: branch `fix/<name>` (or `security/<name>`) from `main`, run
+`npm run release -- bump` (one step past `main`), open the pull request into `main`, squash merge and publish. Then
+bring the same change to `dev` with a `fix/<name>-dev` branch (`git cherry-pick`) so the next release keeps it.
 
 Release notes are generated from pull-request labels (`.github/release.yml`); `publish --notes <file>` adds text above
 them. Pre-releases are marked as such on GitHub.
@@ -66,14 +83,15 @@ Restyle copied components to the site tokens and note each edit under `Changes` 
 
 ```sh
 git branch --show-current          # the branch you are on
-git status -sb                     # "## main...origin/main" and nothing listed = clean and in sync
+git status -sb                     # "## dev...origin/dev" and nothing listed = clean and in sync
+git log --oneline origin/main..origin/dev   # what the next release will ship
 git log --oneline --graph -8       # recent history
 ```
 
 
 ## One-time repository setup
 
-`scripts/github-setup.sh` (GitHub CLI, `gh auth login`) applies the settings that cannot be kept in files: squash-only
-merging, a ruleset on `main` (pull request, code owner approval, passing `verify` and `naming`), protected release
-tags, read-only workflow tokens and Dependabot alerts. Run it again after the repository goes public for secret
+`scripts/github-setup.sh` (GitHub CLI, `gh auth login`) applies the settings that cannot be kept in files: rulesets on
+`dev` (squash only) and `main` (merge commits for releases, squash for hotfixes), both with pull request, code owner
+approval and passing `verify` and `naming`; `dev` can never be deleted or force-pushed; protected release tags, read-only workflow tokens and Dependabot alerts. Run it again after the repository goes public for secret
 scanning, private vulnerability reporting and collaborator-only interaction limits (renew every six months).
