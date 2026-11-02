@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import { describe, expect, it } from 'vitest';
 import { motion } from './gsap';
-import { LERP, step, wheelPixels } from './smooth-scroll';
+import { LERP, step, travel, wheelPixels } from './smooth-scroll';
 import { bezier, cssEase, DURATIONS, EASES, type EaseName } from './tokens';
 
 describe('motion tokens', () => {
@@ -57,5 +57,15 @@ describe('smooth scroll', () => {
 		let y = 0;
 		for (let i = 0; i < 200 && y !== 500; i++) y = step(y, 500, 1);
 		expect(y).toBe(500);
+	});
+
+	it('walks wheel travel through speed changes, both ways', () => {
+		expect(travel(100, 50)).toBe(150);
+		expect(travel(100, -40, () => 2)).toBe(20);
+		// Double speed below 100, half above: the wheel past the change goes a quarter as far.
+		const speed = (y: number) => (y < 100 ? 2 : 0.5);
+		expect(travel(0, 50, speed)).toBe(100);
+		expect(travel(0, 82, speed)).toBeLessThan(100 + 32);
+		expect(travel(100, -50, speed)).toBeLessThan(50);
 	});
 });

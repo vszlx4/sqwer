@@ -35,7 +35,28 @@ function native(e: WheelEvent): boolean {
 	return false;
 }
 
+/** Wheel speed at a scroll position; 1 is normal. */
+export type Speed = (y: number) => number;
+
+/** Wheel px per speed sample. */
+const STEP = 8;
+
+/** Where a wheel delta takes the page from `from`, walked in small steps so speed changes along the way count. */
+export function travel(from: number, delta: number, speed?: Speed): number {
+	if (!speed) return from + delta;
+	const dir = Math.sign(delta);
+	let y = from;
+	for (let left = Math.abs(delta); left > 0; left -= STEP) y += dir * Math.min(STEP, left) * speed(y);
+	return y;
+}
+
 let stopActive: (() => void) | undefined;
+let speedAt: Speed | undefined;
+
+/** Scales wheel travel by position, e.g. to hold back through a scrubbed passage. Call with nothing to reset. */
+export function scrollSpeed(speed?: Speed): void {
+	speedAt = speed;
+}
 
 /** Drops any wheel glide in progress, e.g. before the router sets the scroll position. */
 export function stopSmoothScroll(): void {
@@ -67,7 +88,7 @@ export function smoothScroll(): () => void {
 			e.preventDefault();
 			if (!running) current = target = window.scrollY;
 			const max = html.scrollHeight - window.innerHeight;
-			target = gsap.utils.clamp(0, max, target + wheelPixels(e, window.innerHeight));
+			target = gsap.utils.clamp(0, max, travel(target, wheelPixels(e, window.innerHeight), speedAt));
 			if (!running && target !== current) {
 				running = true;
 				gsap.ticker.add(tick);
