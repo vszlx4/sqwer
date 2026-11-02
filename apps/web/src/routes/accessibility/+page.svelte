@@ -57,7 +57,7 @@
 		<li><strong>Screen readers:</strong> pages use semantic headings, landmarks and labels; illustrations that convey information have text alternatives, and decorative ones are hidden from assistive technology.</li>
 		<li><strong>Color and contrast:</strong> text meets the contrast ratios of Level AA in both light and dark themes; the finger colors are always accompanied by finger names or labels, so color is never the only means of conveying information.</li>
 		<li><strong>Motion:</strong> animations are reduced or removed when your device asks for reduced motion.</li>
-		<li><strong>Sound:</strong> sound effects can be switched off. Listening exercises show the word instead when no voice is available on your device.</li>
+		<li><strong>Sound:</strong> sound effects can be switched off. Listening exercises offer a natural voice that runs on your device, and show the word instead when no voice is available. Words that sound the same and British spellings are accepted.</li>
 		<li><strong>Text size:</strong> pages can be zoomed to 200% and reflow at narrow widths without loss of content.</li>
 		<li><strong>Forms:</strong> every field has a visible label; required fields are marked with an asterisk (*) and announced as required; errors are described in text next to the field. Account forms have no time limit.</li>
 		<li><strong>Verification:</strong> the check on account forms offers a text question as an alternative to the image of characters, so it can be completed without sight.</li>

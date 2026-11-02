@@ -2,8 +2,10 @@
 	import { claimTyping } from '#lib/ui/typing-focus.ts';
 	import { onDestroy, onMount, untrack } from 'svelte';
 	import Icon from '#lib/ui/Icon.svelte';
-	import { canSpeak, speak, voicesReady } from '../audio.ts';
-	import { COURSE_WORDS } from '@sqwer/content';
+	import { canSpeak, speak, stopSpeaking, voicesReady } from '../audio.ts';
+	import { voice } from '../voice/voice.svelte.ts';
+	import { MODEL_MB } from '../voice/protocol.ts';
+	import { COURSE_WORDS, matchHeard, type HeardMatch } from '@sqwer/content';
 	import { activityWords, seeded, shuffle } from '../generate.ts';
 	import type { StepResult } from '../types.ts';
 
@@ -18,22 +20,19 @@
 
 	let { pool, focus, words, count, target, oncomplete }: Props = $props();
 
-	/** Words that sound like other words, which cannot be told apart by ear. */
-	const HOMOPHONES = new Set(['to', 'too', 'two', 'there', 'their', 'here', 'hear', 'know', 'no', 'new', 'knew', 'right', 'write', 'whole', 'hole', 'one', 'won', 'for', 'four', 'by', 'buy', 'see', 'sea', 'its', 'our', 'hour', 'weather', 'whether', 'week', 'weak', 'piece', 'peace', 'where', 'wear', 'which', 'witch', 'road', 'rode', 'sun', 'son', 'meet', 'meat', 'plane', 'plain', 'tail', 'tale', 'wait', 'weight', 'flower', 'flour', 'break', 'brake', 'mail', 'male', 'sail', 'sale', 'heard', 'herd', 'board', 'bored']);
 
 	/**
-	 * Spoken words: five letters or more first, then four; no homophones. Topped up from course vocabulary
-	 * with taught keys.
+	 * Spoken words: five letters or more first, then four. Sound-alikes stay in: any spelling of the sound is
+	 * accepted (matchHeard). Topped up from course vocabulary with taught keys.
 	 */
 	const list = untrack(() => {
 		const rand = seeded(Date.now() % 100000);
-		const clear = (w: string) => !HOMOPHONES.has(w.toLowerCase());
-		const given = activityWords(pool, focus, words, rand).filter(clear);
+		const given = activityWords(pool, focus, words, rand);
 		const long = given.filter((w) => w.length >= 5);
 		if (long.length < count) {
 			const allowed = new Set([...pool]);
 			const extra = shuffle(
-				COURSE_WORDS.filter((w) => w.length >= 5 && w.length <= 9 && clear(w) && !long.includes(w) && [...w].every((c) => allowed.has(c))),
+				COURSE_WORDS.filter((w) => w.length >= 5 && w.length <= 9 && !long.includes(w) && [...w].every((c) => allowed.has(c))),
 				rand
 			);
 			long.push(...extra.slice(0, count - long.length));
@@ -41,26 +40,39 @@
 		const rest = given.filter((w) => w.length === 4 && !long.includes(w));
 		return [...long, ...rest, ...given.filter((w) => w.length < 4)].slice(0, count);
 	});
-	// Without a voice built into the device, the word is shown briefly and typed from memory instead.
+	// Without any voice on the device, the word is shown briefly and typed from memory instead.
 	let speech = $state(canSpeak());
+	/** Whether the natural voice was downloaded before; it then loads without asking. */
+	let downloaded = $state(false);
 
 	let phase = $state<'ready' | 'playing' | 'over'>('ready');
 	let index = $state(0);
 	let value = $state('');
 	let showWord = $state(false);
-	let feedback = $state<{ ok: boolean; word: string } | null>(null);
+	let feedback = $state<{ match: HeardMatch; word: string } | null>(null);
 	let correct = $state(0);
 	let input: HTMLInputElement | undefined = $state();
 	let timers: ReturnType<typeof setTimeout>[] = [];
 	onDestroy(() => {
 		timers.forEach(clearTimeout);
-		if (speech) speechSynthesis.cancel();
+		stopSpeaking();
 	});
 	onMount(() => {
 		// Voices load asynchronously in some browsers; the mode is settled before the exercise starts.
 		void voicesReady().then(() => {
 			if (phase === 'ready') speech = canSpeak();
 		});
+		void voice.cached().then((yes) => {
+			downloaded = yes;
+			if (yes) voice.load();
+		});
+	});
+
+	// Once the natural voice is ready, the words are synthesised ahead and a show-only start becomes a spoken one.
+	$effect(() => {
+		if (voice.status !== 'ready') return;
+		voice.prepare(list);
+		if (untrack(() => phase) === 'ready') speech = true;
 	});
 
 	const word = $derived(list[index] ?? '');
@@ -84,9 +96,10 @@
 	function submit() {
 		const answer = value.trim();
 		if (!answer || feedback) return;
-		const ok = answer.toLowerCase() === word.toLowerCase();
+		const match = matchHeard(word, answer);
+		const ok = match.ok;
 		if (ok) correct++;
-		feedback = { ok, word };
+		feedback = { match, word };
 		timers.push(
 			setTimeout(
 				() => {
@@ -104,7 +117,7 @@
 						);
 					}
 				},
-				ok ? 650 : 1500
+				match.ok && match.how === 'exact' ? 650 : 1500
 			)
 		);
 	}
@@ -154,7 +167,7 @@
 			<p class="title">{speech ? 'Listen and type' : 'Look and type'}</p>
 			<p>
 				{#if speech}
-					You will hear {list.length} words, one at a time. Type each word, then press <kbd>Enter</kbd>. Press
+					You will hear {list.length} words, one at a time. Words that sound the same and British spellings count. Type each word, then press <kbd>Enter</kbd>. Press
 					<kbd>Enter</kbd> with an empty answer to hear the word again.
 				{:else}
 					No voice is built into this device, so each word is shown for a moment instead. Type it from memory, then press
@@ -162,16 +175,37 @@
 				{/if}
 			</p>
 			<p>Type <b>{target}</b> of {list.length} correctly to pass. Turn your sound on.</p>
+			{#if voice.supported}
+				<div class="voice" data-testid="listen-voice">
+					{#if voice.status === 'ready'}
+						<p><Icon name="check" size={16} /> Natural voice ready.</p>
+					{:else if voice.status === 'loading'}
+						<p role="status">
+							{downloaded ? 'Loading the natural voice…' : `Downloading the natural voice… ${Math.round(voice.progress * 100)}%`}
+						</p>
+						<progress max="1" value={voice.progress} aria-label="Natural voice download"></progress>
+					{:else if voice.status === 'failed'}
+						<p role="status">The natural voice could not load{speech ? ", so this device's voice is used" : ''}.</p>
+					{:else}
+						<button type="button" class="btn" onclick={() => voice.load()} data-testid="listen-voice-download">Use the natural voice</button>
+						<p class="note">A {MODEL_MB} MB download, once. It stays on this device and speaks without sending the words anywhere.</p>
+					{/if}
+				</div>
+			{/if}
 			<button type="button" class="btn btn-primary" onclick={begin}>Start <kbd>Space</kbd></button>
 		</div>
 	{:else}
 		<p class="count">Word {Math.min(index + 1, list.length)} of {list.length} · {correct} correct</p>
-		<div class="card" class:ok={feedback?.ok} class:bad={feedback && !feedback.ok}>
+		<div class="card" class:ok={feedback?.match.ok} class:bad={feedback && !feedback.match.ok}>
 			{#if !speech && showWord}
 				<p class="shown">{word}</p>
 			{:else if feedback}
 				<p class="result" role="status">
-					{#if feedback.ok}<Icon name="check" size={22} /> Correct{:else}The word was <b>{feedback.word}</b>{/if}
+					{#if feedback.match.ok}
+						<Icon name="check" size={22} /> Correct
+						{#if feedback.match.how === 'spelling'}<span class="also">· also spelled <b>{feedback.word}</b></span>
+						{:else if feedback.match.how === 'sound'}<span class="also">· sounds like <b>{feedback.word}</b></span>{/if}
+					{:else}The word was <b>{feedback.word}</b>{/if}
 				</p>
 			{:else if speech}
 				<button type="button" class="replay" onclick={() => speak(word)} aria-label="Hear the word again">
@@ -301,6 +335,32 @@
 	}
 	.result b {
 		font-family: var(--font-mono);
+	}
+	.also {
+		font-size: 15px;
+		font-weight: 400;
+		color: var(--ink-2);
+	}
+	.voice {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6px;
+		font-size: 14px;
+	}
+	.voice p {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+	}
+	.voice .note {
+		max-width: 400px;
+		font-size: 13px;
+	}
+	.voice progress {
+		width: 220px;
+		height: 4px;
+		accent-color: var(--ink);
 	}
 	.answer input {
 		width: min(460px, 86vw);

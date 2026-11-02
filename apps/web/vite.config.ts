@@ -3,6 +3,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
 const { version } = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
@@ -23,6 +24,12 @@ export default defineConfig({
 	},
 	// Word lists are fetched, and connect-src 'self' blocks data: URLs.
 	build: { assetsInlineLimit: (file) => (file.endsWith('.txt') ? false : undefined) },
+	// ONNX Runtime's WASM files, served by us rather than its default CDN (voice/kokoro.worker.ts).
+	resolve: { alias: { 'onnxruntime-web-dist': fileURLToPath(new URL('../../node_modules/onnxruntime-web/dist', import.meta.url)) } },
+	// Kept out of dependency pre-bundling, which would inline the runtime instead of giving its URL.
+	optimizeDeps: { exclude: ['onnxruntime-web-dist'] },
+	// The voice worker imports modules on demand.
+	worker: { format: 'es' },
 	plugins: [
 		tailwindcss(),
 		sveltekit({
@@ -39,8 +46,8 @@ export default defineConfig({
 				mode: 'auto',
 				directives: {
 					'default-src': ['self'],
-					// Cloudflare Turnstile, used for bot protection when it is configured.
-					'script-src': ['self', 'https://challenges.cloudflare.com'],
+					// Cloudflare Turnstile, used for bot protection when it is configured. WASM for the voice model.
+					'script-src': ['self', 'wasm-unsafe-eval', 'https://challenges.cloudflare.com'],
 					'frame-src': ['https://challenges.cloudflare.com'],
 					'style-src': ['self', 'unsafe-inline'],
 					'img-src': ['self', 'data:', 'blob:'],

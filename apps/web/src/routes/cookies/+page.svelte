@@ -160,6 +160,22 @@
 			</tbody>
 		</table>
 	</div>
+	<h3>Cache storage</h3>
+	<div class="table-wrap">
+		<table>
+			<thead>
+				<tr><th scope="col">Name</th><th scope="col">Purpose</th><th scope="col">Duration</th><th scope="col">Sent to sqwer</th></tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th scope="row"><code>transformers-cache</code></th>
+					<td>The natural voice for listening exercises (about 92 MB), stored only after you choose to use it. It holds the voice model and none of your data.</td>
+					<td>Until you remove it</td>
+					<td>No</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
 	<h2 id="analytics">5. Analytics, only with consent</h2>
 	<p>
@@ -186,7 +202,7 @@
 
 	<h2 id="other">6. Other device features</h2>
 	<ul>
-		<li><strong>Speech:</strong> the listening exercises use a voice built into your device. Only voices that run on your device are used; the words are not sent anywhere.</li>
+		<li><strong>Speech:</strong> the listening exercises speak each word on your device, with the natural voice once you have chosen to download it (section 4), or else with a voice built into your device. Only voices that run on your device are used; the words are not sent anywhere.</li>
 		<li><strong>Sound:</strong> the Echo game plays soft notes generated in your browser, and can be muted. No audio is recorded.</li>
 		<li><strong>Verification:</strong> sqwer’s own check on account forms performs a computation in your browser and stores nothing on your device. Where Cloudflare Turnstile is enabled, its check runs in a frame from challenges.cloudflare.com, under Cloudflare’s Turnstile privacy terms; Cloudflare states that the data is used only to tell people from bots and not for advertising.</li>
 	</ul>

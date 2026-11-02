@@ -1,6 +1,7 @@
-/* Course audio: synthesised tones (Echo) and on-device speech synthesis. No network. */
+/* Course audio: synthesised tones (Echo) and on-device speech: the natural voice, else the device's own voices. */
 
 import { DEFAULT_LOCALE } from '#lib/i18n/locales.ts';
+import { voice } from './voice/voice.svelte.ts';
 
 let context: AudioContext | null = null;
 let output: AudioNode | null = null;
@@ -64,8 +65,8 @@ function localVoices(): SpeechSynthesisVoice[] {
 	return speechSynthesis.getVoices().filter((v) => v.localService && v.lang.toLowerCase().startsWith('en'));
 }
 
-/** On-device speech available. Voices can load late; recheck after `voiceschanged`. */
-export const canSpeak = () => localVoices().length > 0;
+/** On-device speech available. Device voices can load late; recheck after `voiceschanged`. */
+export const canSpeak = () => voice.status === 'ready' || localVoices().length > 0;
 
 /** Resolves once the browser has listed its voices, or after a short wait. */
 export function voicesReady(): Promise<void> {
@@ -77,10 +78,21 @@ export function voicesReady(): Promise<void> {
 	});
 }
 
-/** Speaks a word with an English voice where one is available. */
-export function speak(text: string, rate = 0.85): Promise<void> {
+/** Speaks a word: the natural voice when loaded, else a device voice. */
+export async function speak(text: string, rate = 0.85): Promise<void> {
+	if (voice.status === 'ready' && (await voice.say(text))) return;
+	return speakDevice(text, rate);
+}
+
+/** Stops whatever is being spoken. */
+export function stopSpeaking() {
+	voice.stop();
+	if (speechAvailable()) speechSynthesis.cancel();
+}
+
+function speakDevice(text: string, rate: number): Promise<void> {
 	return new Promise((resolve) => {
-		if (!canSpeak()) return resolve();
+		if (!localVoices().length) return resolve();
 		speechSynthesis.cancel();
 		const u = new SpeechSynthesisUtterance(text);
 		// Only voices built into the device: online voices would send the text to the browser's vendor.

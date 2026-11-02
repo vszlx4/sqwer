@@ -600,8 +600,10 @@
 		<a href="/cookies">Cookie and Storage Policy</a>.
 	</p>
 	<p>
-		19.2. The listening exercises in the Courses use a voice built into your device. Only voices that run on your device
-		are used, so the words are spoken locally and are not sent to us or to any speech service.
+		19.2. The listening exercises speak each word on your device and never send it to us or to any speech service. If
+		you choose the natural voice, its model (about 92 MB) is downloaded once from sqwer's own server and kept in your
+		browser; the voice then runs entirely on your device. Otherwise a voice built into your device is used, and only
+		voices that run on your device.
 	</p>
 
 	<h2 id="changes">20. Changes and version history</h2>
@@ -616,7 +618,8 @@
 				<tr><th scope="col">Version</th><th scope="col">Effective</th><th scope="col">Changes</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>2.4</td><td>{formatDay(doc.effectiveIso)}</td><td>Signed-in devices end at most 90 days after signing in; downloads of your data appear in your security activity.</td></tr>
+				<tr><td>2.5</td><td>{formatDay(doc.effectiveIso)}</td><td>The natural voice for listening exercises: an optional download that runs on your device.</td></tr>
+				<tr><td>2.4</td><td>{formatDay('2026-10-18')}</td><td>Signed-in devices end at most 90 days after signing in; downloads of your data appear in your security activity.</td></tr>
 				<tr><td>2.3</td><td>{formatDay('2026-10-18')}</td><td>First-party usage analytics: visit statistics with consent, account and product events, administrator access, 13-month retention and the consent banner.</td></tr>
 				<tr><td>2.2</td><td>{formatDay('2026-10-16')}</td><td>Experience and levels, competitive results and their checks, leaderboards, and the adaptive pace of the Courses.</td></tr>
 				<tr><td>2.1</td><td>{formatDay('2026-10-15')}</td><td>Profile headline, pronouns, banner and showcase choices, and what public profiles show.</td></tr>

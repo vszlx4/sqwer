@@ -48,6 +48,7 @@
 		"altcha-lib": "^2.8.0",
 		"drizzle-orm": "^0.45.4",
 		"gsap": "^3.15.0",
+		"kokoro-js": "^1.2.1",
 		"pg": "^8.23.1",
 		"qrcode-generator": "2.0.4",
 		"three": "^0.186.1",

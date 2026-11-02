@@ -4,3 +4,4 @@ export * from './mapping.ts';
 export * from './lessons.ts';
 export * from './exam.ts';
 export * from './lists.ts';
+export * from './heard.ts';
