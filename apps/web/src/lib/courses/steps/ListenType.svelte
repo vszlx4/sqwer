@@ -4,7 +4,6 @@
 	import Icon from '#lib/ui/Icon.svelte';
 	import { canSpeak, speak, stopSpeaking, voicesReady } from '../audio.ts';
 	import { voice } from '../voice/voice.svelte.ts';
-	import { MODEL_MB } from '../voice/protocol.ts';
 	import { COURSE_WORDS, matchHeard, type HeardMatch } from '@sqwer/content';
 	import { activityWords, seeded, shuffle } from '../generate.ts';
 	import type { StepResult } from '../types.ts';
@@ -42,8 +41,6 @@
 	});
 	// Without any voice on the device, the word is shown briefly and typed from memory instead.
 	let speech = $state(canSpeak());
-	/** Whether the natural voice was downloaded before; it then loads without asking. */
-	let downloaded = $state(false);
 
 	let phase = $state<'ready' | 'playing' | 'over'>('ready');
 	let index = $state(0);
@@ -62,17 +59,8 @@
 		void voicesReady().then(() => {
 			if (phase === 'ready') speech = canSpeak();
 		});
-		void voice.cached().then((yes) => {
-			downloaded = yes;
-			if (yes) voice.load();
-		});
-	});
-
-	// Once the natural voice is ready, the words are synthesised ahead and a show-only start becomes a spoken one.
-	$effect(() => {
-		if (voice.status !== 'ready') return;
+		// Clips are fetched while the intro is read, so the first word plays at once.
 		voice.prepare(list);
-		if (untrack(() => phase) === 'ready') speech = true;
 	});
 
 	const word = $derived(list[index] ?? '');
@@ -80,12 +68,15 @@
 	function present() {
 		feedback = null;
 		value = '';
-		if (speech) void speak(word);
-		else {
-			showWord = true;
-			timers.push(setTimeout(() => (showWord = false), 1200));
-		}
+		if (speech) void speak(word).then((spoken) => !spoken && flash());
+		else flash();
 		requestAnimationFrame(() => input?.focus());
+	}
+
+	/** Shows the word for a moment, when it cannot be heard. */
+	function flash() {
+		showWord = true;
+		timers.push(setTimeout(() => (showWord = false), 1200));
 	}
 
 	function begin() {
@@ -175,29 +166,12 @@
 				{/if}
 			</p>
 			<p>Type <b>{target}</b> of {list.length} correctly to pass. Turn your sound on.</p>
-			{#if voice.supported}
-				<div class="voice" data-testid="listen-voice">
-					{#if voice.status === 'ready'}
-						<p><Icon name="check" size={16} /> Natural voice ready.</p>
-					{:else if voice.status === 'loading'}
-						<p role="status">
-							{downloaded ? 'Loading the natural voice…' : `Downloading the natural voice… ${Math.round(voice.progress * 100)}%`}
-						</p>
-						<progress max="1" value={voice.progress} aria-label="Natural voice download"></progress>
-					{:else if voice.status === 'failed'}
-						<p role="status">The natural voice could not load{speech ? ", so this device's voice is used" : ''}.</p>
-					{:else}
-						<button type="button" class="btn" onclick={() => voice.load()} data-testid="listen-voice-download">Use the natural voice</button>
-						<p class="note">A {MODEL_MB} MB download, once. It stays on this device and speaks without sending the words anywhere.</p>
-					{/if}
-				</div>
-			{/if}
 			<button type="button" class="btn btn-primary" onclick={begin}>Start <kbd>Space</kbd></button>
 		</div>
 	{:else}
 		<p class="count">Word {Math.min(index + 1, list.length)} of {list.length} · {correct} correct</p>
 		<div class="card" class:ok={feedback?.match.ok} class:bad={feedback && !feedback.match.ok}>
-			{#if !speech && showWord}
+			{#if showWord}
 				<p class="shown">{word}</p>
 			{:else if feedback}
 				<p class="result" role="status">
@@ -340,27 +314,6 @@
 		font-size: 15px;
 		font-weight: 400;
 		color: var(--ink-2);
-	}
-	.voice {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 6px;
-		font-size: 14px;
-	}
-	.voice p {
-		display: inline-flex;
-		align-items: center;
-		gap: 6px;
-	}
-	.voice .note {
-		max-width: 400px;
-		font-size: 13px;
-	}
-	.voice progress {
-		width: 220px;
-		height: 4px;
-		accent-color: var(--ink);
 	}
 	.answer input {
 		width: min(460px, 86vw);

@@ -66,7 +66,7 @@ function localVoices(): SpeechSynthesisVoice[] {
 }
 
 /** On-device speech available. Device voices can load late; recheck after `voiceschanged`. */
-export const canSpeak = () => voice.status === 'ready' || localVoices().length > 0;
+export const canSpeak = () => voice.supported || localVoices().length > 0;
 
 /** Resolves once the browser has listed its voices, or after a short wait. */
 export function voicesReady(): Promise<void> {
@@ -78,9 +78,9 @@ export function voicesReady(): Promise<void> {
 	});
 }
 
-/** Speaks a word: the natural voice when loaded, else a device voice. */
-export async function speak(text: string, rate = 0.85): Promise<void> {
-	if (voice.status === 'ready' && (await voice.say(text))) return;
+/** Speaks a word: its clip from the natural voice, else a device voice. False when nothing could say it. */
+export async function speak(text: string, rate = 0.85): Promise<boolean> {
+	if (await voice.say(text)) return true;
 	return speakDevice(text, rate);
 }
 
@@ -90,19 +90,19 @@ export function stopSpeaking() {
 	if (speechAvailable()) speechSynthesis.cancel();
 }
 
-function speakDevice(text: string, rate: number): Promise<void> {
+function speakDevice(text: string, rate: number): Promise<boolean> {
 	return new Promise((resolve) => {
-		if (!localVoices().length) return resolve();
+		if (!localVoices().length) return resolve(false);
 		speechSynthesis.cancel();
 		const u = new SpeechSynthesisUtterance(text);
 		// Only voices built into the device: online voices would send the text to the browser's vendor.
 		const voices = localVoices();
 		u.voice = voices.find((v) => v.lang === DEFAULT_LOCALE) ?? voices[0] ?? null;
-		if (!u.voice) return resolve();
+		if (!u.voice) return resolve(false);
 		u.lang = u.voice?.lang ?? DEFAULT_LOCALE;
 		u.rate = rate;
-		u.onend = () => resolve();
-		u.onerror = () => resolve();
+		u.onend = () => resolve(true);
+		u.onerror = () => resolve(false);
 		speechSynthesis.speak(u);
 	});
 }
