@@ -18,6 +18,7 @@
 	import RankTimeline from '#lib/landing/RankTimeline.svelte';
 	import { heroTakeover } from '#lib/landing/takeover.ts';
 	import BrandBand from '#lib/landing/BrandBand.svelte';
+	import ClosingBand from '#lib/landing/ClosingBand.svelte';
 	import CurvedLoop from '#lib/bits/CurvedLoop.svelte';
 	import TextPressure from '#lib/bits/TextPressure.svelte';
 	import { parallax, reveal, stagger } from '#lib/motion/actions.ts';
@@ -331,6 +332,9 @@
 			</div>
 		</div>
 	</section>
+
+	<!-- The way back in: the journey line and the hero's button, so the page never just stops. -->
+	<ClosingBand {cta} {returning} />
 
 </div>
 
