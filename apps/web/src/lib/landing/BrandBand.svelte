@@ -80,9 +80,13 @@
 			tl.to(star, { opacity: 0, filter: 'blur(16px)', scale: 1.6, duration: 0.24, ease: 'in-quick' }, 0.62);
 		});
 		// Without motion the name simply rests at the logo's proportions.
-		mm.add(REDUCED, () => {
-			motion().set(lettersEl, { scaleX: stretch() });
-			motion().set(star, { x: shift(stretch()) });
+		// Measured once the font is in, or the ratio comes from the fallback.
+		mm.add(REDUCED, (ctx) => {
+			const rest = ctx.add(() => {
+				motion().set(lettersEl, { scaleX: stretch() });
+				motion().set(star, { x: shift(stretch()) });
+			});
+			document.fonts.ready.then(() => rest());
 		});
 		return () => mm.revert();
 	});
