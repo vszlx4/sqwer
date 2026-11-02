@@ -82,11 +82,12 @@
 		// Without motion the name simply rests at the logo's proportions.
 		// Measured once the font is in, or the ratio comes from the fallback.
 		mm.add(REDUCED, (ctx) => {
-			const rest = ctx.add(() => {
-				motion().set(lettersEl, { scaleX: stretch() });
-				motion().set(star, { x: shift(stretch()) });
-			});
-			document.fonts.ready.then(() => rest());
+			document.fonts.ready.then(() =>
+				ctx.add(() => {
+					motion().set(lettersEl, { scaleX: stretch() });
+					motion().set(star, { x: shift(stretch()) });
+				})
+			);
 		});
 		return () => mm.revert();
 	});
