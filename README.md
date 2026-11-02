@@ -73,8 +73,8 @@ different from the live version.
 ## Contributing
 
 Contributions are by invitation. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the
-[branching guide](docs/operations/BRANCHING.md) first. In short: open or pick an issue, branch from `main`, and open a
-pull request once `npm run check`, `npm test` and `npm run build` pass.
+[branching guide](docs/operations/BRANCHING.md) first. In short: open or pick an issue, branch from `dev`, and open a
+pull request into `dev` once `npm run check`, `npm test` and `npm run build` pass.
 
 Feedback on the website is welcome from anyone: [open a Feedback issue](https://github.com/vszlx4/sqwer/issues/new?template=feedback.yml).
 
