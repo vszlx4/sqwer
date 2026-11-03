@@ -9,7 +9,8 @@ export const EASES = {
 	'out-pop': [0.2, 0.8, 0.2, 1],
 	spring: [0.3, 1.6, 0.5, 1],
 	'spring-soft': [0.34, 1.56, 0.64, 1],
-	'in-quick': [0.4, 0, 1, 1]
+	'in-quick': [0.4, 0, 1, 1],
+	'in-out': [0.65, 0, 0.35, 1]
 } as const satisfies Record<string, Curve>;
 
 export type EaseName = keyof typeof EASES;

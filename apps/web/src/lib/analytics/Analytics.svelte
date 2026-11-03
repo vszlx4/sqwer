@@ -35,7 +35,7 @@
 		<h2 id="consent-title">Can sqwer count your visit?</h2>
 		<p id="consent-text">
 			With your permission, sqwer records which pages you open and for how long, with your device type and browser, to see
-			how the site is used. No cookies, no advertising, nothing shared with anyone. You can change this at any time under
+			how the site is used. No cookies, nothing shared with anyone. You can change this at any time under
 			Analytics preferences at the foot of every page. <a href="/privacy#analytics">How analytics works</a>
 		</p>
 		{#if consent.optOut}

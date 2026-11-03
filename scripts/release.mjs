@@ -11,7 +11,8 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const MANIFESTS = ['package.json', 'apps/web/package.json'];
 const STAGES = ['alpha', 'beta', 'rc'];
 
-const run = (cmd, args, opts = {}) => execFileSync(cmd, args, { cwd: root, encoding: 'utf8', ...opts }).trim();
+// Output is null when stdio is inherited (pushes show their progress).
+const run = (cmd, args, opts = {}) => (execFileSync(cmd, args, { cwd: root, encoding: 'utf8', ...opts }) ?? '').trim();
 const fail = (msg) => {
 	console.error(`release: ${msg}`);
 	process.exit(1);
@@ -31,6 +32,11 @@ function bumpBase(v, part) {
 	if (part === 'major') return { ...v, major: v.major + 1, minor: 0, patch: 0 };
 	if (part === 'minor') return { ...v, minor: v.minor + 1, patch: 0 };
 	return { ...v, patch: v.patch + 1 };
+}
+
+/** Version PR branch; lowercase kebab-case after chore/, as the naming check wants (.github/workflows/pr-hygiene.yml). */
+export function releaseBranch(version) {
+	return `chore/release-${version.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }
 
 /** Next version for a step. Pre-release steps continue the current stage or start a later one. */
@@ -100,7 +106,7 @@ function bump(step, part) {
 	} catch (e) {
 		fail(e.message);
 	}
-	const branch = `chore/release-v${target}`;
+	const branch = releaseBranch(target);
 	run('git', ['switch', '-q', '-c', branch]);
 	writeVersion(target);
 	run('git', ['add', ...MANIFESTS, 'package-lock.json']);

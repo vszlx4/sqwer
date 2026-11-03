@@ -5,7 +5,7 @@ export const CONTACT_EMAIL = 'info@mughram.com';
 
 /** Operator legal details for the legal pages. Empty values are omitted. */
 export const LEGAL = {
-	/** The individual who runs sqwer as a free, non-commercial project. */
+	/** The individual who runs sqwer. */
 	operatorName: 'Ahmed Mughram',
 	operatorCountry: 'the Kingdom of Saudi Arabia',
 	/** Representative in the EU under Article 27 GDPR: name, address and email, once appointed. */
@@ -34,8 +34,8 @@ export const ACCOUNT_LINKS = [
 	{ href: '/account/data', label: 'Your data' }
 ] as const;
 
-/** Footer columns, each drawn as a branched menu: the product by area, then help. Account pages live in the account
- *  menu and legal pages in the footer's bottom line. */
+/** Footer columns, each drawn as a branched menu: the product by area, help, then every legal document, the legal
+ *  center first. Account pages live in the account menu. */
 export const FOOTER_SECTIONS = [
 	{
 		label: 'Learn',
@@ -61,15 +61,16 @@ export const FOOTER_SECTIONS = [
 			{ href: '/accessibility', label: 'Accessibility', icon: 'access' },
 			{ href: `mailto:${CONTACT_EMAIL}`, label: 'Contact', icon: 'mail' }
 		]
+	},
+	{
+		label: 'Legal',
+		links: [
+			{ href: '/legal', label: 'Legal center', icon: 'scale' },
+			{ href: '/terms', label: 'Terms', icon: 'document' },
+			{ href: '/privacy', label: 'Privacy', icon: 'lock' },
+			{ href: '/cookies', label: 'Cookies', icon: 'cookie' },
+			{ href: '/copyright', label: 'Copyright', icon: 'copyright' },
+			{ href: '/security', label: 'Security', icon: 'shield' }
+		]
 	}
 ] as const satisfies readonly BranchedMenuSection[];
-
-/** The footer's bottom line: every legal document, the legal center first. */
-export const FOOTER_LEGAL = [
-	{ href: '/legal', label: 'Legal' },
-	{ href: '/terms', label: 'Terms' },
-	{ href: '/privacy', label: 'Privacy' },
-	{ href: '/cookies', label: 'Cookies' },
-	{ href: '/copyright', label: 'Copyright' },
-	{ href: '/security', label: 'Security' }
-] as const;
