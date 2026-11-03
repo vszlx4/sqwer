@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { flushSync, onMount, tick } from 'svelte';
+	import { pushState } from '$app/navigation';
 	import { page } from '$app/state';
 	import type { Component } from 'svelte';
 	import { CHAPTERS, LESSONS, PARTS } from '#lib/courses/catalog.ts';
@@ -22,7 +23,7 @@
 	import TextPressure from '#lib/bits/TextPressure.svelte';
 	import { parallax, reveal, stagger } from '#lib/motion/actions.ts';
 	import { motion, ScrollTrigger, whenMotion } from '#lib/motion/gsap.ts';
-	import { scrollSpeed } from '#lib/motion/smooth-scroll.ts';
+	import { glideTo, scrollSpeed } from '#lib/motion/smooth-scroll.ts';
 	import { DURATIONS, STAGGER } from '#lib/motion/tokens.ts';
 	import { LESSON_MINUTES, roughTime } from '#lib/courses/journey.ts';
 	import { results } from '#lib/results/store.svelte.ts';
@@ -79,7 +80,7 @@
 				remeasure();
 			};
 			const opts = { capture: true, passive: true } as const;
-			for (const type of ['wheel', 'touchstart', 'keydown'] as const) window.addEventListener(type, leave, opts);
+			for (const type of ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const) window.addEventListener(type, leave, opts);
 			// The portal blends resolved colors: take them again when the theme changes.
 			const themed = new MutationObserver(recolor);
 			themed.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -89,12 +90,21 @@
 				themed.disconnect();
 				scheme.removeEventListener('change', recolor);
 				scrollSpeed();
-				for (const type of ['wheel', 'touchstart', 'keydown'] as const) window.removeEventListener(type, leave, opts);
+				for (const type of ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const) window.removeEventListener(type, leave, opts);
 				takeover = false;
 			};
 		});
 		return () => mm.revert();
 	});
+
+	// The course link glides down through the takeover instead of jumping.
+	function toCourse(e: MouseEvent) {
+		const road = document.getElementById('road');
+		if (!road || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+		e.preventDefault();
+		pushState('#road', {});
+		glideTo(road);
+	}
 
 	// Hero copy rises in on load. CSS holds it hidden until then; skip if its fallback already showed it.
 	function enterHero(copy: HTMLElement): gsap.core.Tween | undefined {
@@ -201,7 +211,7 @@
 					{/if}
 					<!-- One button for both states: the takeover holds on to this element, so it must never be swapped. -->
 					<a class="btn btn-primary btn-lg" href={cta.href} bind:this={heroButton}>{cta.label} <Icon name="arrow" size={18} /></a>
-					<a class="link-arrow quiet" href="#road">See the whole course <Icon name="chevron" size={16} class="down" /></a>
+					<a class="link-arrow quiet" href="#road" onclick={toCourse}>See the whole course <Icon name="chevron" size={16} class="down" /></a>
 				</div>
 				<ul class="facts" aria-label="Key facts">
 					<li><Icon name="check" size={16} /> Free</li>

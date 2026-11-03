@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import { describe, expect, it } from 'vitest';
 import { motion } from './gsap';
-import { LERP, step, travel, wheelPixels } from './smooth-scroll';
+import { glideDuration, LERP, step, travel, wheelPixels } from './smooth-scroll';
 import { bezier, cssEase, DURATIONS, EASES, type EaseName } from './tokens';
 
 describe('motion tokens', () => {
@@ -67,5 +67,14 @@ describe('smooth scroll', () => {
 		expect(travel(0, 50, speed)).toBe(100);
 		expect(travel(0, 82, speed)).toBeLessThan(100 + 32);
 		expect(travel(100, -50, speed)).toBeLessThan(50);
+	});
+});
+
+describe('glideDuration', () => {
+	it('grows with the distance within bounds, either direction', () => {
+		expect(glideDuration(0)).toBe(0.6);
+		expect(glideDuration(1500)).toBeCloseTo(0.95, 5);
+		expect(glideDuration(-1500)).toBeCloseTo(0.95, 5);
+		expect(glideDuration(20000)).toBe(1.6);
 	});
 });
