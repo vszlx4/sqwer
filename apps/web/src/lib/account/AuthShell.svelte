@@ -219,7 +219,7 @@
 	.footer :global(a:hover) {
 		color: var(--rank);
 	}
-	@media (max-width: 860px) {
+	@media (max-width: 900px) {
 		.auth {
 			grid-template-columns: 1fr;
 		}

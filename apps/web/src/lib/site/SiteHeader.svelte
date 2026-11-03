@@ -242,7 +242,7 @@
 		--sm-header-padding: 0 calc(clamp(10px, 3vw, 24px) + clamp(8px, 1.5vw, 12px) + 6px);
 		--sm-panel-top: 96px;
 	}
-	@media (max-width: 1080px) {
+	@media (max-width: 1100px) {
 		.resume span {
 			display: none;
 		}
@@ -265,7 +265,7 @@
 			display: none;
 		}
 	}
-	@media (max-width: 600px) {
+	@media (max-width: 560px) {
 		.brand :global(.wordmark) {
 			display: none;
 		}

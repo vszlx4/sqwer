@@ -101,7 +101,7 @@
 		color: var(--rank);
 		font-variant-numeric: tabular-nums;
 	}
-	@media (max-width: 480px) {
+	@media (max-width: 420px) {
 		.centred,
 		.centred .buttons {
 			align-self: stretch;

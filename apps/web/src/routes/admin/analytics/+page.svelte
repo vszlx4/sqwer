@@ -468,13 +468,13 @@
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 20px;
 	}
-	@media (max-width: 860px) {
+	@media (max-width: 900px) {
 		.pair,
 		.grid {
 			grid-template-columns: 1fr;
 		}
 	}
-	@media (max-width: 480px) {
+	@media (max-width: 420px) {
 		.panel {
 			padding: 14px;
 		}

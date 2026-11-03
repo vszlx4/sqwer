@@ -234,7 +234,7 @@
 	.empty p {
 		color: var(--ink-2);
 	}
-	@media (max-width: 860px) {
+	@media (max-width: 900px) {
 		.summary {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}

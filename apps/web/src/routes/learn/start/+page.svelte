@@ -224,7 +224,7 @@
 		color: var(--ink);
 		cursor: pointer;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 560px) {
 		.list li {
 			grid-template-columns: 44px minmax(0, 1fr);
 		}

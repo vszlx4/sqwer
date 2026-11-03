@@ -10,6 +10,7 @@
 	import { courses } from '#lib/courses/store.svelte.ts';
 	import { enter } from '#lib/motion/actions.ts';
 	import { results } from '#lib/results/store.svelte.ts';
+	import { below } from '#lib/site/breakpoints.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import Skeleton from '#lib/ui/Skeleton.svelte';
@@ -38,7 +39,7 @@
 	function pick(n: number) {
 		picked = n;
 		// On narrow screens the lessons sit below the chapters; bring them into view.
-		if (matchMedia('(max-width: 900px)').matches) untrack(() => detail?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+		if (matchMedia(below('desktop')).matches) untrack(() => detail?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
 	}
 
 	const totals = $derived.by(() => {
@@ -762,7 +763,7 @@
 			grid-template-columns: 1fr;
 		}
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 560px) {
 		.facts {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}

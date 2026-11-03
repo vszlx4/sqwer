@@ -791,7 +791,7 @@
 		background: var(--bg);
 		border: 1px solid var(--line);
 	}
-	@media (max-width: 960px) {
+	@media (max-width: 900px) {
 		.stats {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
@@ -802,7 +802,7 @@
 			grid-template-columns: 1fr;
 		}
 	}
-	@media (max-width: 720px) {
+	@media (max-width: 760px) {
 		.steps {
 			grid-template-columns: 1fr;
 		}

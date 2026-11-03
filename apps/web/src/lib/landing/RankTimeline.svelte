@@ -4,6 +4,7 @@
 	import type { Tier } from '#lib/courses/progression.ts';
 	import RankBadge from '#lib/courses/RankBadge.svelte';
 	import { BADGE_MATERIALS } from '#lib/progress/rank-art.ts';
+	import { below } from '#lib/site/breakpoints.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import { BADGE, TEXT, buildGraph, nodeLines, type Orient } from './rankTree.ts';
 	import { growTree } from './timeline.ts';
@@ -12,7 +13,7 @@
 	   orientation in use is drawn, on the client, in a stage that holds its size from the first paint. The SVG is
 	   decoration; the list carries the same facts for assistive tech and for pages without scripts. */
 
-	const NARROW = '(max-width: 1100px)';
+	const NARROW = below('wide');
 	const stops = rankJourney();
 	const id = $props.id();
 	let orient = $state<Orient | null>(null);

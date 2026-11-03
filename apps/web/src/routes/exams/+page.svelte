@@ -243,7 +243,7 @@
 		color: var(--ink);
 		transform: translateX(3px);
 	}
-	@media (max-width: 720px) {
+	@media (max-width: 760px) {
 		.game-list a {
 			grid-template-columns: 36px minmax(0, 1fr) 20px;
 			row-gap: 2px;
@@ -527,7 +527,7 @@
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
 	}
-	@media (max-width: 720px) {
+	@media (max-width: 760px) {
 		.cards,
 		.cards.pair {
 			grid-template-columns: 1fr;

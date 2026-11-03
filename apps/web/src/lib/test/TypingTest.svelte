@@ -732,7 +732,7 @@
 		height: 10px;
 		border-radius: 3px;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 560px) {
 		.kb-tools .sep {
 			display: none;
 		}

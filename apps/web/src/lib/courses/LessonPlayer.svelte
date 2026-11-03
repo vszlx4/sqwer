@@ -560,7 +560,7 @@
 		font-family: var(--font-mono);
 		font-size: 12px;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 560px) {
 		.track .label {
 			display: none;
 		}

@@ -173,7 +173,7 @@
 		min-width: 40px;
 		justify-content: center;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 560px) {
 		.sep {
 			display: none;
 		}

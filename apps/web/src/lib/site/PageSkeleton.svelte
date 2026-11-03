@@ -93,7 +93,7 @@
 		flex-direction: column;
 		gap: 8px;
 	}
-	@media (max-width: 720px) {
+	@media (max-width: 760px) {
 		.cards {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
