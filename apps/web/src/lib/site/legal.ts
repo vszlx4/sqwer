@@ -22,7 +22,7 @@ export const LEGAL_DOCUMENTS = {
 		ref: 'SQW-LGL-002',
 		title: 'Privacy Policy',
 		href: '/privacy',
-		version: '2.5',
+		version: '2.6',
 		effectiveIso: '2026-11-03',
 		summary: 'What personal data sqwer processes, why, on what legal basis, for how long, with whom, and your rights.'
 	},
@@ -54,8 +54,8 @@ export const LEGAL_DOCUMENTS = {
 		ref: 'SQW-LGL-006',
 		title: 'Security and Vulnerability Disclosure Policy',
 		href: '/security',
-		version: '1.0',
-		effectiveIso: '2026-10-15',
+		version: '1.1',
+		effectiveIso: '2026-11-03',
 		summary: 'How sqwer protects the service and your data, and how to report a vulnerability.'
 	}
 } as const satisfies Record<string, LegalDocument>;
