@@ -36,5 +36,6 @@ Third-party material:
   duplicates removed, æ written ae and þ or ð written th. Per-list details are in packages/content/src/lists.ts.
 - The Kokoro-82M voice model (https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX), licensed under
   Apache-2.0. It is not included in this repository: the server downloads a pinned revision on first use and
-  renders word clips with it (apps/web/src/lib/server/voice.ts).
+  renders word clips with it (apps/web/src/lib/server/voice.ts). The phoneme clean-up there follows kokoro-js
+  by hexgrad and Xenova (https://github.com/hexgrad/kokoro, Apache-2.0).
 - Dependencies installed by npm are covered by their own licences.
