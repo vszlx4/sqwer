@@ -268,8 +268,6 @@
 	--shadow: 0 1px 0 rgb(20 20 20 / 0.04), 0 8px 24px -12px rgb(20 20 20 / 0.16);
 	--shadow-lg: 0 1px 0 rgb(20 20 20 / 0.04), 0 24px 60px -24px rgb(20 20 20 / 0.3);
 	--lift: 0 1px 0 rgb(20 20 20 / 0.04), 0 14px 32px -18px rgb(20 20 20 / 0.28);
-	--glass-shine: rgb(255 255 255 / 0.7);
-	--glass-shadow: rgb(20 20 20 / 0.24);
 
 	/* ===== 3. Bands: sections set off from the page, one step off --bg in each theme ===== */
 	--band-bg: #efefeb;
@@ -354,8 +352,6 @@
 		--band-ink-4: #5a5a55;
 		--band-dot: rgb(255 255 255 / 0.06);
 		--band-sheen: rgb(255 255 255 / 0.04);
-		--glass-shine: rgb(255 255 255 / 0.07);
-		--glass-shadow: rgb(0 0 0 / 0.9);
 	}
 }
 
@@ -408,8 +404,6 @@
 	--band-ink-4: #5a5a55;
 	--band-dot: rgb(255 255 255 / 0.06);
 	--band-sheen: rgb(255 255 255 / 0.04);
-	--glass-shine: rgb(255 255 255 / 0.07);
-	--glass-shadow: rgb(0 0 0 / 0.9);
 }
 
 @theme inline {
