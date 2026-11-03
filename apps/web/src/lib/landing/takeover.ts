@@ -1,9 +1,12 @@
 import { floatAway } from '#lib/bits/ScrollFloat.svelte';
 import { motion } from '#lib/motion/gsap.ts';
+import { pace } from './pace.ts';
 
-/* Hero takeover: while the hero track scrolls under its sticky stage, the primary button grows into a dark portal
+/* Hero takeover: while the hero track scrolls under its sticky stage, the primary button grows into a band portal
    that fills the screen. The label gives way to the journey line, which swells with the portal; the corners blur
-   and darken first. Scrubbed, so it plays both ways. Call under whenMotion; the timeline dies with its context. */
+   and shade first. Scrubbed, so it plays both ways. Call under whenMotion; the timeline dies with its context.
+   Returns a remeasure for the moment the takeover leaves the hero (the button may have moved since setup), a recolor
+   for theme changes and the wheel speed along the track. */
 
 export interface TakeoverParts {
 	/** Tall section the stage sticks inside. */
@@ -24,14 +27,31 @@ export interface TakeoverParts {
 	onPressure: (p: number) => void;
 }
 
+export interface Takeover {
+	/** Takes the button's rect again; a no-op once the takeover has left the hero. */
+	remeasure: () => void;
+	/** Takes the theme's colors again, keeping the scroll position. */
+	recolor: () => void;
+	/** Wheel speed at a scroll position. */
+	speed: (y: number) => number;
+}
+
 // Longest line of the journey text in characters, and the mono advance per em.
 const LINE_CHARS = 12;
 const ADVANCE = 0.6;
 
-export function heroTakeover(p: TakeoverParts): void {
+export function heroTakeover(p: TakeoverParts): Takeover {
 	const gsap = motion();
 	const box = () => p.portal.getBoundingClientRect();
-	const btn = () => p.button.getBoundingClientRect();
+	// Layout size around the drawn center, so a press or hover transform on the button doesn't skew the start.
+	const btn = () => {
+		const r = p.button.getBoundingClientRect();
+		const w = p.button.offsetWidth;
+		const h = p.button.offsetHeight;
+		const x = r.left + r.width / 2 - w / 2;
+		const y = r.top + r.height / 2 - h / 2;
+		return { left: x, top: y, right: x + w, bottom: y + h, width: w, height: h };
+	};
 	const style = getComputedStyle(p.button);
 	const radius = parseFloat(style.borderTopLeftRadius) || 0;
 
@@ -58,31 +78,32 @@ export function heroTakeover(p: TakeoverParts): void {
 		scrollTrigger: { trigger: p.track, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true }
 	});
 
-	// The portal takes the button's place on the first pixel of scroll.
+	// The portal takes the button's place on the first pixel of scroll and fills the screen by 0.42, before the line
+	// takes its colors (pace.ts holds the wheel back from there).
 	tl.fromTo(p.portal, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.001 }, 0);
 	tl.fromTo(p.button, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.001 }, 0);
-	tl.fromTo(p.portal, { clipPath: inset }, { clipPath: 'inset(0px 0px 0px 0px round 0px)', duration: 0.72, ease: 'in-quick' }, 0);
+	tl.fromTo(p.portal, { clipPath: inset }, { clipPath: 'inset(0px 0px 0px 0px round 0px)', duration: 0.42, ease: 'in-quick' }, 0);
 	tl.fromTo(
 		p.portal,
-		{ backgroundColor: style.backgroundColor, color: style.color },
-		{ backgroundColor: token('--band-bg'), color: token('--band-ink'), duration: 0.5 },
+		{ backgroundColor: () => style.backgroundColor, color: () => style.color },
+		{ backgroundColor: () => token('--band-bg'), color: () => token('--band-ink'), duration: 0.3 },
 		0
 	);
-	tl.fromTo(p.veil, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: 'out-soft' }, 0);
-	tl.fromTo(p.fade, { opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(6px)', duration: 0.35, ease: 'out-soft' }, 0.02);
+	tl.fromTo(p.veil, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: 'out-soft' }, 0);
+	tl.fromTo(p.fade, { opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(6px)', duration: 0.25, ease: 'out-soft' }, 0.02);
 
 	// The label rides with the portal from the button to the centre, on the portal's own curve, and hands over once
-	// the dark covers the middle of the screen.
-	tl.fromTo(p.label, { x: () => offset().x, y: () => offset().y }, { x: 0, y: 0, duration: 0.72, ease: 'in-quick' }, 0);
-	tl.fromTo(p.label, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.1 }, 0.36);
+	// the band covers the middle of the screen.
+	tl.fromTo(p.label, { x: () => offset().x, y: () => offset().y }, { x: 0, y: 0, duration: 0.42, ease: 'in-quick' }, 0);
+	tl.fromTo(p.label, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.08 }, 0.24);
 	// The line never moves: it appears in the centre, grows in place to the width of the screen and thickens from
 	// light to heaviest.
-	tl.fromTo(p.line, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1 }, 0.42);
-	tl.fromTo(p.line, { fontSize: () => startSize * 1.4 }, { fontSize: endSize, duration: 0.42, ease: 'out-soft' }, 0.42);
-	tl.fromTo(pressure, { p: 0 }, { p: 1, duration: 0.42, onUpdate: () => p.onPressure(pressure.p) }, 0.44);
+	tl.fromTo(p.line, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.08 }, 0.3);
+	tl.fromTo(p.line, { fontSize: () => startSize * 1.4 }, { fontSize: endSize, duration: 0.54, ease: 'out-soft' }, 0.3);
+	tl.fromTo(pressure, { p: 0 }, { p: 1, duration: 0.46, onUpdate: () => p.onPressure(pressure.p) }, 0.4);
 
 	// Then the letters float straight up out of each line from its middle outwards (Scroll Float, without the sideways
-	// squeeze), blurring and fading, until only the dark is left for the next section.
+	// squeeze), blurring and fading, until only the band is left for the next section.
 	for (const row of p.line.querySelectorAll('.pressure')) {
 		tl.to(
 			row.querySelectorAll('.char'),
@@ -91,4 +112,22 @@ export function heroTakeover(p: TakeoverParts): void {
 		);
 	}
 	tl.to({}, { duration: 0.04 }, 0.96);
+
+	// Starts are recorded from the button's rect; take them again while the portal still sits on the button.
+	const remeasure = () => {
+		if (tl.progress() > 0) return;
+		tl.invalidate();
+		tl.progress(0);
+	};
+	// Rendering the same progress again is skipped, so step to the start and back.
+	const recolor = () => {
+		const at = tl.progress();
+		tl.invalidate();
+		tl.progress(0, true).progress(at, true);
+	};
+	const speed = (y: number) => {
+		const st = tl.scrollTrigger;
+		return st && st.end > st.start ? pace((y - st.start) / (st.end - st.start)) : 1;
+	};
+	return { remeasure, recolor, speed };
 }

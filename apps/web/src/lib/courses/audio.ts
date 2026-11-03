@@ -1,6 +1,7 @@
-/* Course audio: synthesised tones (Echo) and on-device speech synthesis. No network. */
+/* Course audio: synthesised tones (Echo) and on-device speech: the natural voice, else the device's own voices. */
 
 import { DEFAULT_LOCALE } from '#lib/i18n/locales.ts';
+import { voice } from './voice/voice.svelte.ts';
 
 let context: AudioContext | null = null;
 let output: AudioNode | null = null;
@@ -64,8 +65,8 @@ function localVoices(): SpeechSynthesisVoice[] {
 	return speechSynthesis.getVoices().filter((v) => v.localService && v.lang.toLowerCase().startsWith('en'));
 }
 
-/** On-device speech available. Voices can load late; recheck after `voiceschanged`. */
-export const canSpeak = () => localVoices().length > 0;
+/** On-device speech available. Device voices can load late; recheck after `voiceschanged`. */
+export const canSpeak = () => voice.supported || localVoices().length > 0;
 
 /** Resolves once the browser has listed its voices, or after a short wait. */
 export function voicesReady(): Promise<void> {
@@ -77,20 +78,31 @@ export function voicesReady(): Promise<void> {
 	});
 }
 
-/** Speaks a word with an English voice where one is available. */
-export function speak(text: string, rate = 0.85): Promise<void> {
+/** Speaks a word: its clip from the natural voice, else a device voice. False when nothing could say it. */
+export async function speak(text: string, rate = 0.85): Promise<boolean> {
+	if (await voice.say(text)) return true;
+	return speakDevice(text, rate);
+}
+
+/** Stops whatever is being spoken. */
+export function stopSpeaking() {
+	voice.stop();
+	if (speechAvailable()) speechSynthesis.cancel();
+}
+
+function speakDevice(text: string, rate: number): Promise<boolean> {
 	return new Promise((resolve) => {
-		if (!canSpeak()) return resolve();
+		if (!localVoices().length) return resolve(false);
 		speechSynthesis.cancel();
 		const u = new SpeechSynthesisUtterance(text);
 		// Only voices built into the device: online voices would send the text to the browser's vendor.
 		const voices = localVoices();
 		u.voice = voices.find((v) => v.lang === DEFAULT_LOCALE) ?? voices[0] ?? null;
-		if (!u.voice) return resolve();
+		if (!u.voice) return resolve(false);
 		u.lang = u.voice?.lang ?? DEFAULT_LOCALE;
 		u.rate = rate;
-		u.onend = () => resolve();
-		u.onerror = () => resolve();
+		u.onend = () => resolve(true);
+		u.onerror = () => resolve(false);
 		speechSynthesis.speak(u);
 	});
 }

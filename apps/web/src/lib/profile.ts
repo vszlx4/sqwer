@@ -43,7 +43,7 @@ export const BANNERS = [
 	{ value: 'sunset', label: 'Sunset', css: 'linear-gradient(120deg, var(--orange) 0%, var(--amber) 100%)' },
 	{ value: 'violet', label: 'Violet', css: 'linear-gradient(120deg, var(--violet) 0%, var(--cyan) 100%)' },
 	{ value: 'rose', label: 'Ember', css: 'linear-gradient(120deg, var(--orange) 0%, var(--violet) 100%)' },
-	{ value: 'graphite', label: 'Graphite', css: 'linear-gradient(120deg, var(--band-bg) 0%, var(--band-line-strong) 100%)' },
+	{ value: 'graphite', label: 'Graphite', css: 'linear-gradient(120deg, var(--graphite) 0%, var(--graphite-2) 100%)' },
 	{ value: 'keys', label: 'Keys', css: 'repeating-linear-gradient(90deg, var(--surface) 0 34px, var(--line) 34px 36px), linear-gradient(var(--surface), var(--surface-2))' }
 ] as const;
 

@@ -93,7 +93,7 @@
 	});
 </script>
 
-<div class="brand-band band on-dark" bind:this={band}>
+<div class="brand-band band on-band" bind:this={band}>
 	<p class="word" bind:this={word} role="img" aria-label="sqwer">
 		<span class="letters" bind:this={lettersEl}>
 			{#each LETTERS as l, i (i)}
