@@ -206,7 +206,6 @@
 				<ul class="facts" aria-label="Key facts">
 					<li><Icon name="check" size={16} /> Free</li>
 					<li><Icon name="flag" size={16} /> Starts from zero</li>
-					<li><Icon name="lock" size={16} /> No ads or tracking</li>
 				</ul>
 			</div>
 			{#if takeover}

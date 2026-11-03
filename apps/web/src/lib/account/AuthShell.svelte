@@ -27,7 +27,7 @@
 			? 'sqwer does not send email, so the recovery codes you saved when you signed up are the way back into your account.'
 			: mode === 'done'
 				? 'Recovery codes are the only way to reset your password. Each works once; store them like a spare key.'
-				: 'Free, with no advertising and no email. Your address is used only to sign in.'
+				: 'Free, with no email. Your address is used only to sign in.'
 	);
 </script>
 

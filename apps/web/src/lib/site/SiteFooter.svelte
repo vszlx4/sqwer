@@ -14,7 +14,6 @@
 			<div class="intro">
 				<a href="/" class="logo" aria-label="sqwer home"><LogoWordmark class="footer-wordmark" /></a>
 				<p class="tagline">Learn to touch type, measure every finger and improve with purpose.</p>
-				<p class="free">Free, with no advertising.</p>
 			</div>
 
 			<div class="groups">
@@ -23,7 +22,7 @@
 		</div>
 
 		<div class="bottom">
-			<p class="owner">© {year} <span translate="no">sqwer</span> · A free, non-commercial project by {LEGAL.operatorName}</p>
+			<p class="owner">© {year} <span translate="no">sqwer</span> · A free project by {LEGAL.operatorName}</p>
 			<nav class="legal" aria-label="Legal">
 				{#each FOOTER_LEGAL as link (link.href)}
 					<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
@@ -77,10 +76,6 @@
 		font-size: 15px;
 		line-height: 1.55;
 		color: var(--ink-2);
-	}
-	.free {
-		font-size: 14px;
-		color: var(--ink-3);
 	}
 	/* Three branched columns, each its own nav; they wrap to two, then one, as the footer narrows. */
 	.groups {

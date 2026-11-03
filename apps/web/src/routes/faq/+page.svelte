@@ -6,7 +6,7 @@
 	const FAQS = [
 		{
 			q: 'Is sqwer free to use?',
-			a: 'Yes. sqwer is a free, non-commercial project: the Courses, the Examinations, the Finger map and accounts cost nothing, and sqwer never asks for payment details.'
+			a: 'Yes. sqwer is free: the Courses, the Examinations, the Finger map and accounts cost nothing, and sqwer never asks for payment details.'
 		},
 		{
 			q: 'Do I need an account?',
@@ -54,7 +54,7 @@
 		},
 		{
 			q: 'Does sqwer use cookies or tracking?',
-			a: 'sqwer sets one strictly necessary cookie to keep you signed in, and stores your settings and practice data in your browser. It does not use advertising, cross-site tracking or third-party analytics. With your permission only, its own analytics counts which pages are visited; you can change your choice under Analytics preferences at the foot of every page. The Cookie and Storage Policy lists everything.'
+			a: 'sqwer sets one strictly necessary cookie to keep you signed in, and stores your settings and practice data in your browser. It does not use cross-site tracking or third-party analytics. With your permission only, its own analytics counts which pages are visited; you can change your choice under Analytics preferences at the foot of every page. The Cookie and Storage Policy lists everything.'
 		},
 		{
 			q: 'Where is my data stored?',
