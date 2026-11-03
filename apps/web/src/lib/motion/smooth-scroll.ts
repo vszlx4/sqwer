@@ -1,4 +1,4 @@
-import { motion, whenMotion } from './gsap';
+import { motion, REDUCED, whenMotion } from './gsap';
 
 // Wheel input eases the native window scroll on the GSAP ticker. Native scroll stays the source of truth, so
 // position: sticky, window.scrollY, scrollIntoView and ScrollTrigger work unchanged (ScrollSmoother's transformed
@@ -61,6 +61,41 @@ export function scrollSpeed(speed?: Speed): void {
 /** Drops any wheel glide in progress, e.g. before the router sets the scroll position. */
 export function stopSmoothScroll(): void {
 	stopActive?.();
+}
+
+/** Glide time in seconds for a scroll distance in px: longer jumps take longer, within bounds. */
+export function glideDuration(distance: number): number {
+	return Math.min(1.6, Math.max(0.6, 0.45 + Math.abs(distance) / 3000));
+}
+
+let stopGlide: (() => void) | undefined;
+
+/** Scrolls the window to an element (minus its scroll-margin-top) on an eased glide; instant when motion is reduced.
+ *  Wheel, key, pointer or touch input stops the glide where it is. */
+export function glideTo(el: Element): void {
+	const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+	const max = document.documentElement.scrollHeight - window.innerHeight;
+	const to = Math.min(max, Math.max(0, el.getBoundingClientRect().top + window.scrollY - margin));
+	stopGlide?.();
+	stopActive?.();
+	if (matchMedia(REDUCED).matches) return window.scrollTo(0, to);
+	const from = window.scrollY;
+	const pos = { y: from };
+	const events = ['wheel', 'keydown', 'pointerdown', 'touchstart'] as const;
+	const stop = () => {
+		tween.kill();
+		for (const type of events) window.removeEventListener(type, stop);
+		stopGlide = undefined;
+	};
+	const tween = motion().to(pos, {
+		y: to,
+		duration: glideDuration(to - from),
+		ease: 'in-out',
+		onUpdate: () => window.scrollTo(0, pos.y),
+		onComplete: stop
+	});
+	for (const type of events) window.addEventListener(type, stop, { passive: true });
+	stopGlide = stop;
 }
 
 /** Smooth wheel scrolling for the window while motion is allowed. Returns the teardown. */
