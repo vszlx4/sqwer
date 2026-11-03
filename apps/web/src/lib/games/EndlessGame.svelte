@@ -7,6 +7,8 @@
 	import Race from '#lib/courses/steps/Race.svelte';
 	import type { StepResult } from '#lib/courses/types.ts';
 	import Icon from '#lib/ui/Icon.svelte';
+	import Skeleton from '#lib/ui/Skeleton.svelte';
+	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
 	import { isWordListId, WORD_LISTS } from '@sqwer/content';
 	import {
 		DIFFICULTIES,
@@ -206,7 +208,12 @@
 		</div>
 
 		{#if phase === 'loading'}
-			<p class="loading" role="status">Preparing the round…</p>
+			<div class="loading">
+				<SkeletonRegion label="Preparing the round…">
+					<Skeleton lines={2} />
+					<Skeleton height="clamp(140px, 24vw, 220px)" />
+				</SkeletonRegion>
+			</div>
 		{:else if phase === 'playing'}
 			{#key round}
 				{#if game.id === 'race'}
@@ -547,9 +554,8 @@
 		color: var(--ink);
 	}
 	.loading {
-		padding: 48px 0;
-		text-align: center;
-		color: var(--ink-2);
+		padding: 24px 0;
+		font-size: 20px;
 	}
 	.result {
 		display: flex;

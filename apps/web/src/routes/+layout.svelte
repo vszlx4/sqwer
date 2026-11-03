@@ -2,13 +2,15 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { beforeNavigate, onNavigate } from '$app/navigation';
-	import { page } from '$app/state';
+	import { navigating, page } from '$app/state';
 	import { areaFor } from '#lib/site/areas.ts';
 	import { appMounted } from '#lib/motion/actions.ts';
 	import { smoothScroll, stopSmoothScroll } from '#lib/motion/smooth-scroll.ts';
 	import { installKeyboardGuards } from '#lib/ui/typing-focus.ts';
 	import SiteFooter from '#lib/site/SiteFooter.svelte';
 	import SiteHeader from '#lib/site/SiteHeader.svelte';
+	import PageSkeleton from '#lib/site/PageSkeleton.svelte';
+	import { skeletonKind } from '#lib/site/skeleton.ts';
 	import FingerMapSync from '#lib/fingermap/FingerMapSync.svelte';
 	import ActivityTracker from '#lib/usage/ActivityTracker.svelte';
 	import Analytics from '#lib/analytics/Analytics.svelte';
@@ -36,6 +38,23 @@
 		else delete document.documentElement.dataset.area;
 	});
 
+	// A navigation still loading after 150 ms shows the next page's skeleton; faster ones never flash it.
+	// The old page stays mounted (hidden) so a cancelled or failed navigation finds it intact.
+	let pending = $state<string | null>(null);
+	$effect(() => {
+		const to = navigating.to;
+		if (!to || to.url.pathname === page.url.pathname) {
+			pending = null;
+			return;
+		}
+		const popstate = navigating.type === 'popstate';
+		const timer = setTimeout(() => {
+			pending = to.url.pathname;
+			if (!popstate && !to.url.hash) scrollTo(0, 0);
+		}, 150);
+		return () => clearTimeout(timer);
+	});
+
 	// The router owns the scroll position across navigations.
 	beforeNavigate(() => stopSmoothScroll());
 
@@ -51,7 +70,10 @@
 
 <div class="shell">
 	<main id="content">
-		{@render children()}
+		{#if pending}<PageSkeleton kind={skeletonKind(pending)} />{/if}
+		<div class="page" hidden={!!pending}>
+			{@render children()}
+		</div>
 	</main>
 </div>
 
@@ -74,6 +96,12 @@
 	main {
 		flex: 1;
 		padding: calc(var(--header-h) + var(--main-top)) 0 var(--main-bottom);
+	}
+	.page {
+		display: contents;
+	}
+	.page[hidden] {
+		display: none;
 	}
 	.skip {
 		position: absolute;
