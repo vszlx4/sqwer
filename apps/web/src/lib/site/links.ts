@@ -1,3 +1,4 @@
+import type { Area } from './areas.ts';
 import type { BranchedMenuSection } from '#lib/bits/BranchedMenu.svelte';
 
 export const CONTACT_EMAIL = 'info@mughram.com';
@@ -16,12 +17,13 @@ export const LEGAL = {
 	webHostLocation: 'Europe'
 } as const;
 
-/** Product areas: learning, practice, competition. Finger map and history sit under practice. */
+/** Product areas: learning, practice, competition. Finger map and history sit under practice. area colors the
+ *  current link (lib/site/areas.ts). */
 export const NAV_LINKS = [
-	{ href: '/learn', label: 'Learning path', icon: 'route', description: 'Lessons, games and course ranks' },
-	{ href: '/exams', label: 'Practice', icon: 'gauge', description: 'Tests, finger map and history, with XP' },
-	{ href: '/competitive', label: 'Competitive', icon: 'trophy', description: 'Speed tiers and leaderboards' }
-] as const;
+	{ href: '/learn', label: 'Learning path', icon: 'route', area: 'learn', description: 'Lessons, games and course ranks' },
+	{ href: '/exams', label: 'Practice', icon: 'gauge', area: 'practice', description: 'Tests, finger map and history, with XP' },
+	{ href: '/competitive', label: 'Competitive', icon: 'trophy', area: 'competitive', description: 'Speed tiers and leaderboards' }
+] as const satisfies readonly { href: string; label: string; icon: string; area: Area; description: string }[];
 
 /** Account pages, listed once and shared by the account menu and the account section. */
 export const ACCOUNT_LINKS = [

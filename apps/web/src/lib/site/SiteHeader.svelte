@@ -6,7 +6,6 @@
 	import RankBadge from '#lib/courses/RankBadge.svelte';
 	import { courses } from '#lib/courses/store.svelte.ts';
 	import LogoWordmark from '#lib/brand/LogoWordmark.svelte';
-	import GlassSurface from '#lib/bits/GlassSurface.svelte';
 	import StaggeredMenu from '#lib/bits/StaggeredMenu.svelte';
 	import ThemeToggle from '#lib/ui/ThemeToggle.svelte';
 	import AccountMenu from './AccountMenu.svelte';
@@ -38,55 +37,45 @@
 		return null;
 	});
 	const isCurrent = (href: string) => area === href;
+	const currentArea = $derived(NAV_LINKS.find((l) => isCurrent(l.href))?.area);
 	const menuItems = $derived(
 		NAV_LINKS.map((l) => ({ label: l.label, ariaLabel: `${l.label}: ${l.description}`, link: l.href, current: isCurrent(l.href) }))
 	);
 </script>
 
 <header class="site-header">
-	<GlassSurface
-		class="bar-glass"
-		width="100%"
-		height={56}
-		borderRadius={28}
-		backgroundOpacity={0.45}
-		saturation={1.6}
-		backdropBlur={8}
-		style="--glass-overflow: visible;"
-	>
-		<div class="bar">
-			<a href="/" class="brand" aria-label="sqwer home">
-				<LogoWordmark class="wordmark" />
-				<LogoMark class="mark" />
-			</a>
+	<div class="bar">
+		<a href="/" class="brand" aria-label="sqwer home">
+			<LogoWordmark class="wordmark" />
+			<LogoMark class="mark" />
+		</a>
 
-			<nav class="desktop" aria-label="Main">
-				{#each NAV_LINKS as link (link.href)}
-					<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>
-				{/each}
-			</nav>
+		<nav class="desktop" aria-label="Main">
+			{#each NAV_LINKS as link (link.href)}
+				<a href={link.href} data-area={link.area} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>
+			{/each}
+		</nav>
 
-			<div class="actions">
-				{#if resume}
-					<a class="resume" href={resume.href} title={resume.title}>
-						<RankBadge rank={courses.rank.rank} size={22} />
-						<span>Continue <b>Lesson {resume.lesson!.order}</b></span>
-					</a>
-				{/if}
-				<ThemeToggle />
-				{#if user}
-					<AccountMenu {user} />
-				{:else}
-					<a class="signin" href="/signin">Sign in</a>
-					<a class="cta" href="/signup">Create account</a>
-				{/if}
-				<span class="menu-slot" aria-hidden="true"></span>
-			</div>
+		<div class="actions">
+			{#if resume}
+				<a class="resume" href={resume.href} title={resume.title}>
+					<RankBadge rank={courses.rank.rank} size={22} />
+					<span>Continue <b>Lesson {resume.lesson!.order}</b></span>
+				</a>
+			{/if}
+			<ThemeToggle />
+			{#if user}
+				<AccountMenu {user} />
+			{:else}
+				<a class="signin" href="/signin">Sign in</a>
+				<a class="cta" href="/signup">Create account</a>
+			{/if}
+			<span class="menu-slot" aria-hidden="true"></span>
 		</div>
-	</GlassSurface>
+	</div>
 </header>
 
-<!-- Outside the header: the glass backdrop-filter would trap a fixed descendant. -->
+<!-- Outside the header: its view-transition-name would trap a fixed descendant. -->
 <StaggeredMenu
 	bind:this={menu}
 	class="site-menu"
@@ -95,6 +84,7 @@
 	socialItems={HELP_LINKS}
 	socialsTitle="Help"
 	colors={['var(--violet)', 'var(--cyan)']}
+	accentColor={currentArea ? `var(--area-${currentArea})` : 'var(--ink)'}
 >
 	{#snippet footer()}
 		{#if !user}
@@ -107,42 +97,32 @@
 </StaggeredMenu>
 
 <style>
-	/* Floating glass pill. Takes no room in the flow (negative margin), so pages start under it. */
+	/* Solid bar in the page color. Takes no room in the flow (negative margin), so pages start under it. */
 	.site-header {
-		--bar-gutter: clamp(10px, 3vw, 24px);
-		--bar-pad: clamp(8px, 1.5vw, 12px);
+		--bar-gutter: clamp(16px, 3vw, 24px);
 		position: sticky;
 		top: 0;
 		z-index: 40;
 		height: var(--header-h);
 		margin-bottom: calc(-1 * var(--header-h));
-		padding: 12px var(--bar-gutter) 0;
-		pointer-events: none;
-	}
-	/* The transition name sits on the glass, not the header: a named element is a backdrop root, so on the
-	   header it would hide the page from the glass's backdrop-filter. */
-	.site-header :global(.bar-glass) {
+		background: var(--bg);
+		border-bottom: 1px solid var(--line);
 		view-transition-name: site-header;
-		pointer-events: auto;
-	}
-	.site-header :global(.bar-glass) {
-		max-width: 1180px;
-		margin: 0 auto;
 	}
 	.bar {
-		position: relative;
 		display: flex;
 		align-items: center;
 		gap: 16px;
-		width: 100%;
+		max-width: 1180px;
 		height: 100%;
-		padding: 0 var(--bar-pad);
+		margin: 0 auto;
+		padding: 0 var(--bar-gutter);
 	}
 	.brand {
 		display: inline-flex;
 		color: var(--logo);
 		border-radius: 999px;
-		margin: 0 8px 0 10px;
+		margin-right: 8px;
 	}
 	.brand :global(.wordmark) {
 		height: 28px;
@@ -171,12 +151,12 @@
 	}
 	nav a:hover {
 		color: var(--ink);
-		background: color-mix(in srgb, var(--surface) 70%, transparent);
+		background: var(--surface-2);
 	}
+	/* Current link in its area's color (data-area sets --accent and --on-accent). */
 	nav a[aria-current='page'] {
-		color: var(--ink);
-		background: var(--surface);
-		box-shadow: inset 0 0 0 1px var(--line);
+		color: var(--on-accent);
+		background: var(--accent);
 	}
 
 	.actions {
@@ -248,12 +228,12 @@
 		grid-template-columns: 1fr 1fr;
 		gap: 8px;
 	}
-	/* Toggle lines up with .menu-slot: same top offset, bar height and inner padding. */
+	/* Toggle lines up with .menu-slot: same bar height and gutter. */
 	:global(.site-menu) {
-		--sm-header-top: 12px;
-		--sm-header-height: 56px;
-		--sm-header-padding: 0 calc(clamp(10px, 3vw, 24px) + clamp(8px, 1.5vw, 12px) + 6px);
-		--sm-panel-top: 96px;
+		--sm-header-top: 0;
+		--sm-header-height: var(--header-h);
+		--sm-header-padding: 0 clamp(16px, 3vw, 24px);
+		--sm-panel-top: calc(var(--header-h) + 26px);
 	}
 	@media (max-width: 1080px) {
 		.resume span {

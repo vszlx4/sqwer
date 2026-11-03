@@ -265,8 +265,6 @@
 	--shadow: 0 1px 0 rgb(20 20 20 / 0.04), 0 8px 24px -12px rgb(20 20 20 / 0.16);
 	--shadow-lg: 0 1px 0 rgb(20 20 20 / 0.04), 0 24px 60px -24px rgb(20 20 20 / 0.3);
 	--lift: 0 1px 0 rgb(20 20 20 / 0.04), 0 14px 32px -18px rgb(20 20 20 / 0.28);
-	--glass-shine: rgb(255 255 255 / 0.7);
-	--glass-shadow: rgb(20 20 20 / 0.24);
 
 	/* ===== 3. Bands: fixed dark sections, same in both themes ===== */
 	--band-bg: #0b0b0b;
@@ -336,8 +334,6 @@
 		--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 		--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 		--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
-		--glass-shine: rgb(255 255 255 / 0.07);
-		--glass-shadow: rgb(0 0 0 / 0.9);
 	}
 }
 
@@ -378,8 +374,6 @@
 	--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 	--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 	--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
-	--glass-shine: rgb(255 255 255 / 0.07);
-	--glass-shadow: rgb(0 0 0 / 0.9);
 }
 
 @theme inline {
@@ -433,7 +427,7 @@ dd {
 
 /* Layout: the header floats over the page; main starts below it. */
 :root {
-	--header-h: 70px;
+	--header-h: 64px;
 	--main-top: clamp(20px, 4vh, 44px);
 	--main-bottom: 48px;
 }
