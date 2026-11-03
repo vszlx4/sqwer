@@ -8,7 +8,6 @@ const SRC = fileURLToPath(new URL('../apps/web/src', import.meta.url));
 // Files allowed to hold literal colors, each with its reason in the file.
 const ALLOWED = new Set([
 	'app.css',
-	'lib/bits/GlassSurface.svelte',
 	'lib/progress/rank-art.ts',
 	'lib/site/areas.ts',
 	'lib/site/areas.test.ts'
