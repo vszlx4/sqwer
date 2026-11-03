@@ -297,17 +297,17 @@
 		margin: 0 auto;
 	}
 	h1 {
-		font-size: clamp(32px, 4.5vw, 48px);
-		line-height: 1.08;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	h2 {
-		font-size: 26px;
+		font-size: var(--fs-28);
 	}
 	.lede {
 		margin-top: 12px;
 		max-width: 720px;
-		font-size: 17px;
-		line-height: 1.6;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.card,
@@ -324,8 +324,8 @@
 	.card p,
 	.findings p,
 	.findings li {
-		font-size: 15.5px;
-		line-height: 1.6;
+		font-size: var(--fs-16);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	strong {
@@ -356,7 +356,7 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.num {
 		display: grid;
@@ -365,10 +365,10 @@
 		height: 26px;
 		border-radius: 3px;
 		background: var(--surface-2);
-		font-size: 14px;
+		font-size: var(--fs-14);
 	}
 	.skipped {
-		font-size: 15px;
+		font-size: var(--fs-15);
 	}
 	.notes,
 	.findings ul {
@@ -377,7 +377,7 @@
 		gap: 6px;
 		padding-left: 18px;
 		list-style: disc;
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.stage-hands {
@@ -390,15 +390,15 @@
 		align-items: baseline;
 	}
 	.stage-label {
-		font-size: 16px;
+		font-size: var(--fs-16);
 		color: var(--ink-2);
 	}
 	.stage-label b {
 		color: var(--ink);
 	}
 	.timer {
-		font-size: 34px;
-		font-weight: 800;
+		font-size: var(--fs-32);
+		font-weight: var(--fw-bold);
 		font-variant-numeric: tabular-nums;
 	}
 	.stage-text {
@@ -415,7 +415,7 @@
 	}
 	.muted {
 		color: var(--ink-2);
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 	}
 	.previous {
 		display: flex;
@@ -423,7 +423,7 @@
 		gap: 8px;
 	}
 	.words {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink) !important;
 	}
 	.row {

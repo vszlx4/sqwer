@@ -167,7 +167,7 @@
 		gap: 12px 24px;
 	}
 	h1 {
-		font-size: clamp(30px, 3.6vw, 42px);
+		font-size: var(--fs-display);
 	}
 	.head p {
 		margin-top: 6px;
@@ -188,8 +188,8 @@
 		padding: 5px 10px;
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		text-decoration: none;
 	}
@@ -207,8 +207,8 @@
 		pointer-events: none;
 	}
 	.count {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.scroll {
@@ -220,7 +220,7 @@
 		width: 100%;
 		min-width: 900px;
 		border-collapse: collapse;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 	}
 	th,
 	td {
@@ -233,8 +233,8 @@
 		position: sticky;
 		top: 0;
 		background: var(--surface);
-		font-size: 12.5px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	tbody tr:last-child td {
@@ -245,7 +245,7 @@
 	}
 	td a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 	}
 	td a:hover {
@@ -258,13 +258,13 @@
 	}
 	.path {
 		font-family: var(--font-mono);
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		overflow-wrap: anywhere;
 	}
 	.sub {
 		display: block;
-		font-size: 12px;
-		font-weight: 500;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 	}
 	a.sub {
@@ -272,12 +272,12 @@
 	}
 	.dim {
 		font-family: var(--font-sans);
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.details {
 		max-width: 260px;
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 		overflow-wrap: anywhere;
 	}
@@ -294,6 +294,6 @@
 	}
 	.form-alert a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 </style>

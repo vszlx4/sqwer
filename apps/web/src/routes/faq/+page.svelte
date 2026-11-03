@@ -113,8 +113,8 @@
 	}
 	summary {
 		padding: 16px 18px;
-		font-size: 16.5px;
-		font-weight: 600;
+		font-size: var(--fs-16);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		cursor: pointer;
 		list-style-position: inside;

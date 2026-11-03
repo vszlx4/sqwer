@@ -167,7 +167,7 @@
 		display: flex;
 		align-items: center;
 		gap: 14px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
@@ -205,7 +205,7 @@
 	.status {
 		min-width: 90px;
 		text-align: right;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.stage {
@@ -262,12 +262,12 @@
 	}
 	.title {
 		font-family: var(--font-serif);
-		font-size: 32px;
+		font-size: var(--fs-32);
 		color: var(--ink);
 	}
 	.how {
 		max-width: 52ch;
-		line-height: 1.55;
+		line-height: var(--lh-body);
 		text-wrap: pretty;
 	}
 	.goal {
@@ -278,8 +278,8 @@
 		border-radius: 3px;
 		background: var(--success-soft);
 		color: var(--success);
-		font-weight: 600;
-		font-size: 14px;
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-14);
 	}
 	.prep {
 		gap: 16px;
@@ -298,18 +298,18 @@
 		border-radius: 3px;
 		background: var(--ink);
 		color: var(--bg);
-		font-size: 24px;
-		font-weight: 800;
+		font-size: var(--fs-24);
+		font-weight: var(--fw-bold);
 		font-variant-numeric: tabular-nums;
 	}
 	.prep-text {
 		display: flex;
 		flex-direction: column;
-		line-height: 1.3;
-		font-size: 13px;
+		line-height: var(--lh-base);
+		font-size: var(--fs-13);
 	}
 	.prep-text b {
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink);
 	}
 	.prep-bar {
@@ -336,7 +336,7 @@
 	}
 	.prep .btn {
 		padding: 6px 12px;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 	}
 	.prep kbd {
 		margin-left: 6px;
@@ -344,12 +344,12 @@
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 	}
 	.count span {
 		display: block;
 		font-family: var(--font-serif);
-		font-size: 96px;
+		font-size: 96px; /* off-scale: game glyph */
 		color: var(--ink);
 		animation: pop 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
 	}
@@ -366,7 +366,7 @@
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.overlay,

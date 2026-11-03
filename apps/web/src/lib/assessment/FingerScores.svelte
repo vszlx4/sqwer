@@ -76,7 +76,7 @@
 	figcaption {
 		margin-top: 10px;
 		text-align: center;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.scores {
@@ -87,12 +87,12 @@
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 	}
 	caption {
 		text-align: left;
 		font-family: var(--font-serif);
-		font-size: 22px;
+		font-size: var(--fs-24);
 		padding-bottom: 8px;
 	}
 	th,
@@ -103,12 +103,12 @@
 		vertical-align: middle;
 	}
 	thead th {
-		font-size: 12.5px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	tbody th {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 	}
 	td {
@@ -153,8 +153,8 @@
 		margin-left: 6px;
 		padding: 1px 6px;
 		border-radius: 3px;
-		font-size: 11.5px;
-		font-weight: 600;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
 		border: 1px solid var(--line-strong);
 	}
 	.fastest .tag {
@@ -171,7 +171,7 @@
 	}
 	.note {
 		margin-top: 10px;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	@media (max-width: 760px) {

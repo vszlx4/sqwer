@@ -195,8 +195,8 @@
 	legend {
 		padding: 0;
 		margin-bottom: 6px;
-		font-size: 14.5px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.panel {
@@ -212,7 +212,7 @@
 		border-color: var(--error);
 	}
 	.instruction {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.stage {
@@ -242,14 +242,14 @@
 	}
 	.question {
 		padding: 12px 14px;
-		font-size: 15.5px;
-		font-weight: 600;
-		line-height: 1.45;
+		font-size: var(--fs-16);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-body);
 		text-align: center;
 		user-select: text;
 	}
 	.placeholder {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.tools {
@@ -269,8 +269,8 @@
 		background: var(--bg);
 		color: var(--ink);
 		font: inherit;
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 		cursor: pointer;
 		transition: border-color 120ms ease;
@@ -284,8 +284,8 @@
 		gap: 6px;
 	}
 	.answer label {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.answer input {
@@ -297,11 +297,11 @@
 		background: var(--bg);
 		color: var(--ink);
 		font-family: var(--font-mono);
-		font-size: 18px;
+		font-size: var(--fs-18);
 	}
 	/* Characters are entered as they appear; case does not matter. */
 	.answer.characters input {
-		letter-spacing: 0.12em;
+		letter-spacing: var(--tr-caps);
 		text-transform: uppercase;
 	}
 	.answer input:focus-visible {
@@ -314,7 +314,7 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.dot {
@@ -341,12 +341,12 @@
 		}
 	}
 	.about {
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.error {
-		font-size: 13.5px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--error);
 	}
 	@media (max-width: 420px) {

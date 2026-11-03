@@ -221,16 +221,16 @@
 		color: var(--on-accent);
 	}
 	.game-title {
-		font-weight: 700;
+		font-weight: var(--fw-bold);
 	}
 	.game-summary {
-		font-size: 14px;
-		line-height: 1.45;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.game-best {
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
@@ -282,14 +282,14 @@
 		gap: clamp(44px, 6vw, 64px);
 	}
 	h1 {
-		font-size: clamp(38px, 5vw, 60px);
-		line-height: 1.05;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	.lede {
 		margin-top: 14px;
 		max-width: 640px;
-		font-size: 18px;
-		line-height: 1.6;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.cat-head {
@@ -301,10 +301,10 @@
 		margin-bottom: 16px;
 	}
 	h2 {
-		font-size: clamp(26px, 3vw, 34px);
+		font-size: var(--fs-title);
 	}
 	.cat-head p {
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 
@@ -377,8 +377,8 @@
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
-		font-size: 12px;
-		font-weight: 700;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-bold);
 	}
 	.badge.muted {
 		background: var(--surface-2);
@@ -392,9 +392,9 @@
 		padding: 18px 20px 20px;
 	}
 	h3 {
-		font-size: 19px;
-		font-weight: 600;
-		line-height: 1.25;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-base);
 	}
 	h3 a {
 		color: inherit;
@@ -418,15 +418,15 @@
 		border-radius: 3px;
 	}
 	.purpose {
-		font-size: 15px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.meta {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 4px 14px;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.meta span {
@@ -435,7 +435,7 @@
 		gap: 5px;
 	}
 	.measures {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.facts {
@@ -446,19 +446,19 @@
 		border-top: 1px solid var(--line);
 	}
 	dt {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	dd {
-		font-size: 15px;
-		font-weight: 700;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-bold);
 		font-variant-numeric: tabular-nums;
 	}
 	.unlock {
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.unlock b {
@@ -481,8 +481,8 @@
 		gap: 6px;
 		margin-top: auto;
 		padding-top: 6px;
-		font-size: 15px;
-		font-weight: 700;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-bold);
 	}
 	.go :global(svg) {
 		transition: transform 200ms ease;
@@ -515,8 +515,8 @@
 	}
 	.single h3 {
 		font-family: var(--font-serif);
-		font-weight: 400;
-		font-size: clamp(26px, 3vw, 34px);
+		font-weight: var(--fw-regular);
+		font-size: var(--fs-title);
 	}
 	.pair .art {
 		height: 180px;
@@ -564,8 +564,8 @@
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		color: var(--ink);
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 		transition: border-color 140ms ease;
 	}

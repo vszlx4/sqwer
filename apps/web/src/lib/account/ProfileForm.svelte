@@ -297,7 +297,7 @@
 	}
 	legend {
 		font-family: var(--font-serif);
-		font-size: 22px;
+		font-size: var(--fs-24);
 		margin-bottom: 14px;
 		color: var(--ink);
 	}
@@ -313,7 +313,7 @@
 		float: left;
 		width: 100%;
 		margin-bottom: 4px;
-		font-size: 19px;
+		font-size: var(--fs-20);
 	}
 	.stepper {
 		display: grid;
@@ -327,13 +327,13 @@
 		padding: 10px;
 		border-radius: 3px;
 		border: 1px solid var(--line);
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.stepper li.current {
 		border-color: var(--ink);
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.stepper li.done {
 		background: var(--surface);
@@ -346,7 +346,7 @@
 		height: 24px;
 		border-radius: 3px;
 		background: var(--surface-2);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		flex-shrink: 0;
 	}
 	.current .num,
@@ -355,8 +355,8 @@
 		color: var(--on-accent);
 	}
 	.group-label {
-		font-size: 14.5px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.options {
@@ -388,12 +388,12 @@
 		box-shadow: inset 0 0 0 1px var(--ink);
 	}
 	.option-title {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.option-hint {
-		font-size: 13.5px;
-		line-height: 1.45;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.swatches {
@@ -431,12 +431,12 @@
 		outline-offset: 2px;
 	}
 	.note {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.error {
-		font-size: 13.5px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--error);
 	}
 	.buttons {
@@ -463,9 +463,9 @@
 		gap: 8px;
 	}
 	.preview-label {
-		font-size: 12.5px;
-		font-weight: 600;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
@@ -476,12 +476,12 @@
 		margin-top: 10px;
 	}
 	.facts dt {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	.facts dd {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.visibility {
@@ -490,8 +490,8 @@
 		padding: 2px 8px;
 		border-radius: 3px;
 		background: var(--surface-2);
-		font-size: 12.5px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.visibility.on {
@@ -524,8 +524,8 @@
 		border-radius: 3px;
 	}
 	.banner-name {
-		font-size: 12.5px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.banner-option.selected {

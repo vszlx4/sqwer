@@ -264,12 +264,12 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 12px;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
 	.hud b {
-		font-size: 20px;
+		font-size: var(--fs-20);
 		color: var(--ink);
 	}
 	.lives {
@@ -295,8 +295,8 @@
 		border-radius: 3px;
 		background: var(--success-soft);
 		color: var(--success);
-		font-weight: 600;
-		font-size: 14px;
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-14);
 	}
 	.life {
 		width: 16px;
@@ -344,8 +344,8 @@
 		border-bottom-width: 3px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 22px;
-		font-weight: 600;
+		font-size: var(--fs-24);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		will-change: transform;
 	}
@@ -355,12 +355,12 @@
 	}
 	.drop.word {
 		height: 40px;
-		font-size: 19px;
-		font-weight: 500;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-regular);
 	}
 	/* The typed part of a word is shown by weight; the rest is dimmed. */
 	.drop b {
-		font-weight: 800;
+		font-weight: var(--fw-bold);
 		color: var(--ink);
 	}
 	.drop .rest {
@@ -413,12 +413,12 @@
 	}
 	.overlay .title {
 		font-family: var(--font-serif);
-		font-size: 34px;
+		font-size: var(--fs-32);
 		color: var(--ink);
 	}
 	.overlay.count {
 		font-family: var(--font-serif);
-		font-size: 96px;
+		font-size: 96px; /* off-scale: game glyph */
 		color: var(--ink);
 		animation: pulse-in 650ms ease;
 	}
@@ -434,6 +434,6 @@
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 	}
 </style>

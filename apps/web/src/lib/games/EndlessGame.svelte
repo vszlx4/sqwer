@@ -286,7 +286,7 @@
 		align-items: start;
 	}
 	h2 {
-		font-size: 22px;
+		font-size: var(--fs-24);
 	}
 	.rules {
 		padding-top: 4px;
@@ -303,8 +303,8 @@
 	.rules li {
 		position: relative;
 		padding-left: 36px;
-		font-size: 15px;
-		line-height: 1.5;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 		counter-increment: rule;
 	}
@@ -320,8 +320,8 @@
 		border-radius: 3px;
 		background: var(--surface-2);
 		color: var(--ink);
-		font-size: 13px;
-		font-weight: 700;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
 	}
 	.rules b {
 		color: var(--ink);
@@ -330,7 +330,7 @@
 		margin-top: 22px;
 		padding-top: 16px;
 		border-top: 1px solid var(--line);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.record b {
@@ -406,25 +406,25 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		font-weight: 700;
+		font-weight: var(--fw-bold);
 	}
 	.tag {
 		padding: 1px 7px;
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
-		font-size: 11.5px;
-		font-weight: 700;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-bold);
 	}
 	.adaptive-note {
-		font-size: 14px;
-		line-height: 1.5;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.or {
 		margin-top: 6px;
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-3);
 	}
 	.levels {
@@ -441,11 +441,11 @@
 		text-align: center;
 	}
 	.level-name {
-		font-size: 14px;
-		font-weight: 700;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-bold);
 	}
 	.level-num {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-3);
 		font-variant-numeric: tabular-nums;
 	}
@@ -459,11 +459,11 @@
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 10px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 	}
 	.source-label {
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-3);
 	}
 	.source select {
@@ -472,10 +472,10 @@
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		color: var(--ink);
-		font-size: 14px;
+		font-size: var(--fs-14);
 	}
 	.source-note {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-3);
 	}
 	.source-note a {
@@ -485,7 +485,7 @@
 	}
 	.chosen {
 		min-height: 1.5em;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.start {
@@ -518,7 +518,7 @@
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
@@ -528,11 +528,11 @@
 		gap: 6px;
 	}
 	.hud small {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-3);
 	}
 	.hud b {
-		font-size: 18px;
+		font-size: var(--fs-18);
 		color: var(--ink);
 	}
 	.strikes {
@@ -550,12 +550,12 @@
 	}
 	.mode {
 		margin-left: auto;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.loading {
 		padding: 24px 0;
-		font-size: 20px;
+		font-size: var(--fs-20);
 	}
 	.result {
 		display: flex;
@@ -582,13 +582,13 @@
 		color: var(--on-accent);
 	}
 	.result h2 {
-		font-size: 32px;
+		font-size: var(--fs-32);
 		text-wrap: balance;
 	}
 	.result p {
 		max-width: 52ch;
 		color: var(--ink-2);
-		line-height: 1.55;
+		line-height: var(--lh-body);
 		text-wrap: pretty;
 	}
 	.totals {
@@ -601,16 +601,16 @@
 		flex-direction: column;
 	}
 	.totals dt {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.totals dd {
-		font-size: 30px;
-		font-weight: 800;
+		font-size: var(--fs-32);
+		font-weight: var(--fw-bold);
 		font-variant-numeric: tabular-nums;
 	}
 	.best {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink) !important;
 	}
 	.row {
@@ -626,6 +626,6 @@
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 	}
 </style>

@@ -65,7 +65,7 @@
 		flex: 1;
 		min-height: 1.2em;
 		font-family: var(--font-mono);
-		font-size: 20px;
+		font-size: var(--fs-20);
 		color: color-mix(in srgb, var(--lime-ink) calc(var(--ok) * 100%), var(--band-ink));
 	}
 	.caret {

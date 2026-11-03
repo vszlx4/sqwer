@@ -32,9 +32,9 @@
 	}
 	.labels {
 		display: grid;
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: 0.06em;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--band-ink-3);
 	}
@@ -62,8 +62,8 @@
 		);
 		color: color-mix(in srgb, var(--label) calc(var(--lit) * 100%), var(--band-ink));
 		font-family: var(--font-mono);
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		text-transform: uppercase;
 	}
 </style>

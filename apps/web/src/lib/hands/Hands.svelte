@@ -184,12 +184,12 @@
 	}
 	.value {
 		font-family: var(--font-sans);
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 		font-variant-numeric: tabular-nums;
 		fill: var(--ink-2);
 	}
 	.value.strong {
-		font-weight: 800;
+		font-weight: var(--fw-bold);
 		fill: var(--ink);
 	}
 	.value.dim {
@@ -205,7 +205,7 @@
 	/* A pressed key's label lifts and turns to full ink. */
 	.value.lit {
 		fill: var(--ink);
-		font-weight: 800;
+		font-weight: var(--fw-bold);
 		transform: translateY(-3px) scale(1.3);
 	}
 	/* Entrance: fingers fill from left to right, then each value's line draws up to its label. */

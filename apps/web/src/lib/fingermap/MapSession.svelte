@@ -286,8 +286,8 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
-		font-size: 14px;
-		font-weight: 500;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 		text-decoration: none;
 	}
@@ -305,8 +305,8 @@
 		min-width: 240px;
 	}
 	.pct {
-		font-size: 22px;
-		font-weight: 600;
+		font-size: var(--fs-24);
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
 	.bar {
@@ -325,7 +325,7 @@
 		transition: width 300ms ease;
 	}
 	.meta {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-3);
 	}
 	.finish {
@@ -334,8 +334,8 @@
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
-		font-weight: 600;
-		font-size: 14px;
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-14);
 		cursor: pointer;
 	}
 	.finish:hover {
@@ -343,11 +343,11 @@
 	}
 	.prompt {
 		font-family: var(--font-mono);
-		font-size: clamp(26px, 3.2vw, 40px);
-		line-height: 1.5;
+		font-size: var(--fs-title);
+		line-height: var(--lh-body);
 		text-align: center;
 		min-height: 1.5em;
-		letter-spacing: 0.02em;
+		letter-spacing: normal;
 	}
 	.ch {
 		display: inline-block;
@@ -379,9 +379,9 @@
 		min-height: 92px;
 	}
 	h2 {
-		font-size: 28px;
-		font-weight: 400;
-		letter-spacing: -0.01em;
+		font-size: var(--fs-28);
+		font-weight: var(--fw-regular);
+		letter-spacing: normal;
 	}
 	.keycap {
 		display: inline-grid;
@@ -395,17 +395,17 @@
 		border-bottom-width: 3px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 20px;
+		font-size: var(--fs-20);
 		vertical-align: middle;
 	}
 	.hint {
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.notice {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--error);
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 		text-align: center;
 	}
 	.picker {
@@ -420,7 +420,7 @@
 	.keys,
 	.touch-note {
 		text-align: center;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-3);
 	}
 	.touch-note {
@@ -433,7 +433,7 @@
 	}
 	kbd {
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 		padding: 1px 6px;
 		border-radius: 3px;
 		background: var(--surface);

@@ -47,12 +47,12 @@
 		margin: 0 auto;
 	}
 	h1 {
-		font-size: clamp(32px, 4.5vw, 48px);
-		line-height: 1.08;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	header p {
 		margin-top: 10px;
-		font-size: 16px;
+		font-size: var(--fs-16);
 		color: var(--ink-2);
 	}
 </style>

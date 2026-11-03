@@ -102,7 +102,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 16px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 	}
 	figcaption span {
 		display: inline-flex;

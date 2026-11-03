@@ -128,7 +128,7 @@
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(28px, 3.2vw, 36px);
+		font-size: var(--fs-title);
 	}
 	.form {
 		max-width: 440px;
@@ -137,8 +137,8 @@
 		align-self: flex-start;
 	}
 	.text {
-		font-size: 14.5px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.text strong {
@@ -196,18 +196,18 @@
 		align-items: center;
 		flex-wrap: wrap;
 		gap: 8px;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.tag {
 		padding: 2px 8px;
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
-		font-size: 12px;
-		font-weight: 600;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
 	}
 	.when {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.timeline {

@@ -318,8 +318,8 @@
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		font: inherit;
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		cursor: pointer;
 	}
@@ -328,15 +328,15 @@
 		border-color: var(--ink-3);
 	}
 	.where {
-		font-size: 13px;
-		font-weight: 600;
-		letter-spacing: 0.06em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(28px, 3.4vw, 40px);
-		line-height: 1.1;
+		font-size: var(--fs-title);
+		line-height: var(--lh-snug);
 	}
 	.track {
 		grid-column: 1 / -1;
@@ -351,7 +351,7 @@
 		padding: 6px 12px 6px 6px;
 		border-radius: 3px;
 		border: 1px solid var(--line);
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 		transition:
 			border-color 200ms ease,
@@ -368,7 +368,7 @@
 	.track li.current {
 		border-color: var(--ink);
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.track li.current .dot {
 		background: var(--accent);
@@ -403,8 +403,8 @@
 		border-radius: 3px;
 		background: var(--info-soft);
 		color: var(--info);
-		font-size: 12.5px;
-		font-weight: 700;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
 		white-space: nowrap;
 	}
 	.weak-note {
@@ -416,7 +416,7 @@
 		border-radius: 3px;
 		background: var(--streak-soft);
 		color: var(--ink);
-		font-size: 14px;
+		font-size: var(--fs-14);
 	}
 	.weak-note :global(svg) {
 		flex-shrink: 0;
@@ -434,7 +434,7 @@
 		background: var(--info-soft);
 		color: var(--ink);
 		text-align: left;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 	}
 	.help-actions {
 		display: flex;
@@ -442,12 +442,12 @@
 		gap: 8px;
 	}
 	.help-note {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.lesson-count {
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
@@ -470,11 +470,11 @@
 	.restart-hint {
 		margin-top: 22px;
 		text-align: center;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.step-title {
-		font-size: 26px;
+		font-size: var(--fs-28);
 	}
 	.outcome {
 		display: flex;
@@ -510,13 +510,13 @@
 		}
 	}
 	.outcome h2 {
-		font-size: 32px;
+		font-size: var(--fs-32);
 		text-wrap: balance;
 	}
 	.outcome p {
 		max-width: 52ch;
 		color: var(--ink-2);
-		line-height: 1.55;
+		line-height: var(--lh-body);
 		text-wrap: pretty;
 	}
 	.outcome .btn {
@@ -528,7 +528,7 @@
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.outcome.passed .badge {
@@ -536,7 +536,7 @@
 		}
 	}
 	.advice {
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 	}
 	.skip-game {
 		padding: 6px 10px;
@@ -545,8 +545,8 @@
 		background: none;
 		color: var(--ink);
 		font: inherit;
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		cursor: pointer;
 	}
 	.skip-game:hover {
@@ -558,7 +558,7 @@
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 	}
 	@media (max-width: 560px) {
 		.track .label {

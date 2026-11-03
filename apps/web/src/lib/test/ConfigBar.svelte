@@ -131,8 +131,8 @@
 		gap: 6px;
 		padding: 6px 11px;
 		border-radius: 3px;
-		font-size: 14px;
-		font-weight: 500;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-regular);
 		color: var(--ink-3);
 		cursor: pointer;
 		transition:
@@ -163,13 +163,13 @@
 		border-radius: 3px;
 		background: transparent;
 		color: inherit;
-		font-size: 14px;
-		font-weight: 500;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-regular);
 		cursor: pointer;
 	}
 	.num {
 		font-family: var(--font-mono);
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		min-width: 40px;
 		justify-content: center;
 	}

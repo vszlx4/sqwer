@@ -218,7 +218,7 @@
 		flex-wrap: wrap;
 		gap: 6px 16px;
 		margin-bottom: 10px;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.legend li,
@@ -265,12 +265,12 @@
 	.tick,
 	.axis-label {
 		font-family: var(--font-sans);
-		font-size: 11px;
+		font-size: var(--fs-11);
 		fill: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
 	.axis-label {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.series {
 		fill: none;
@@ -336,14 +336,14 @@
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		box-shadow: var(--shadow);
-		font-size: 13px;
+		font-size: var(--fs-13);
 		display: flex;
 		flex-direction: column;
 		gap: 3px;
 		pointer-events: none;
 	}
 	.tip-title {
-		font-weight: 700;
+		font-weight: var(--fw-bold);
 	}
 	.tip b {
 		margin-left: auto;
@@ -352,7 +352,7 @@
 	}
 	.data-table {
 		margin-top: 8px;
-		font-size: 13px;
+		font-size: var(--fs-13);
 	}
 	.data-table summary {
 		cursor: pointer;

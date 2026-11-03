@@ -195,17 +195,17 @@
 		gap: 32px;
 	}
 	h1 {
-		font-size: clamp(28px, 3.2vw, 36px);
+		font-size: var(--fs-title);
 	}
 	.lede {
 		margin-top: 8px;
 		max-width: 680px;
-		font-size: 15.5px;
-		line-height: 1.6;
+		font-size: var(--fs-16);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	h2 {
-		font-size: 20px;
+		font-size: var(--fs-20);
 		margin-bottom: 12px;
 	}
 	/* Figures sit in one panel divided by hairlines; column counts match each group, so no cell is empty. */
@@ -229,9 +229,9 @@
 		background: var(--surface);
 	}
 	.highlights dd {
-		font-size: 28px;
-		font-weight: 800;
-		letter-spacing: -0.02em;
+		font-size: var(--fs-28);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-tight);
 		font-variant-numeric: tabular-nums;
 	}
 	.empty {
@@ -242,27 +242,27 @@
 	}
 	.empty a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	dt {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	dd {
 		margin-top: 4px;
-		font-size: 18px;
-		font-weight: 700;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-bold);
 		overflow-wrap: anywhere;
 	}
 	table {
 		width: 100%;
 		margin-top: 14px;
 		border-collapse: collapse;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 	}
 	caption {
 		text-align: left;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		padding-bottom: 6px;
 	}
 	th,
@@ -272,7 +272,7 @@
 		border-bottom: 1px solid var(--line);
 	}
 	thead th {
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.num {
@@ -298,7 +298,7 @@
 	.note,
 	.manage p {
 		margin-top: 10px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.manage .btn {
@@ -306,7 +306,7 @@
 	}
 	@media (max-width: 760px) {
 		table {
-			font-size: 13px;
+			font-size: var(--fs-13);
 		}
 		.highlights,
 		.tiles,

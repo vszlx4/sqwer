@@ -25,8 +25,8 @@
 		place-items: center;
 		flex-shrink: 0;
 		border-radius: 3px;
-		font-weight: 600;
-		letter-spacing: 0.02em;
+		font-weight: var(--fw-semibold);
+		letter-spacing: normal;
 	}
 	.photo {
 		object-fit: cover;

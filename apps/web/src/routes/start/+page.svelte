@@ -153,23 +153,23 @@
 		align-items: center;
 	}
 	.kicker {
-		font-size: 13px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	h1 {
 		margin-top: 10px;
-		font-size: clamp(36px, 5.2vw, 64px);
-		line-height: 1.04;
+		font-size: var(--fs-hero);
+		line-height: var(--lh-snug);
 		max-width: 20ch;
 	}
 	.lede {
 		margin-top: 18px;
 		max-width: 600px;
-		font-size: 18px;
-		line-height: 1.6;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.steps {
@@ -184,7 +184,7 @@
 		padding: 6px 14px 6px 6px;
 		border-radius: 3px;
 		border: 1px solid var(--line);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.steps span {
@@ -194,12 +194,12 @@
 		height: 24px;
 		border-radius: 3px;
 		background: var(--surface-2);
-		font-weight: 700;
+		font-weight: var(--fw-bold);
 	}
 	.steps li.on {
 		border-color: var(--ink);
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.steps li.on span,
 	.steps li.done span {
@@ -207,8 +207,8 @@
 		color: var(--on-accent);
 	}
 	h2 {
-		font-size: clamp(26px, 3.2vw, 36px);
-		line-height: 1.15;
+		font-size: var(--fs-title);
+		line-height: var(--lh-snug);
 		text-align: center;
 		text-wrap: balance;
 	}
@@ -269,12 +269,12 @@
 		gap: 6px;
 	}
 	.option-title {
-		font-size: 18px;
-		font-weight: 700;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-bold);
 	}
 	.option-body {
-		font-size: 14.5px;
-		line-height: 1.5;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.option :global(.go) {
@@ -308,8 +308,8 @@
 		border-radius: 3px;
 		background: var(--bg);
 		border: 1px solid var(--line);
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 	}
 	.change {
 		padding: 4px 8px;
@@ -317,7 +317,7 @@
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		font: inherit;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink);
 		cursor: pointer;
 		transition:
@@ -335,8 +335,8 @@
 	.body {
 		max-width: 600px;
 		text-wrap: pretty;
-		font-size: 17px;
-		line-height: 1.6;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.body b {
@@ -362,13 +362,13 @@
 		border-bottom-width: 4px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 24px;
-		font-weight: 600;
+		font-size: var(--fs-24);
+		font-weight: var(--fw-semibold);
 	}
 	.preview p {
 		margin-left: 8px;
-		font-size: 14.5px;
-		line-height: 1.5;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.preview b {
@@ -382,12 +382,12 @@
 		margin-top: 6px;
 	}
 	.note {
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.note a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 		transition: color 140ms ease;
 	}

@@ -58,7 +58,7 @@
 		max-width: 560px;
 	}
 	h1 {
-		font-size: clamp(28px, 3.2vw, 36px);
+		font-size: var(--fs-title);
 	}
 	p {
 		color: var(--ink-2);
@@ -67,8 +67,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
-		font-weight: 600;
-		font-size: 14.5px;
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-15);
 	}
 	.field input {
 		min-height: 46px;

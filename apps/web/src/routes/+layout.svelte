@@ -112,7 +112,7 @@
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 	}
 	.skip:focus {

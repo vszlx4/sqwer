@@ -37,11 +37,11 @@
 		justify-content: space-between;
 		gap: 12px;
 		flex-wrap: wrap;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.callout {
-		line-height: 1.8;
+		line-height: var(--lh-body);
 	}
 	.callout .mini {
 		margin-right: 6px;
@@ -56,8 +56,8 @@
 		border-bottom-width: 3px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.note {

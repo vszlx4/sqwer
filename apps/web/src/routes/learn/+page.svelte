@@ -272,21 +272,21 @@
 	}
 	.kicker,
 	.label {
-		font-size: 12.5px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	h1 {
 		margin-top: 6px;
-		font-size: clamp(30px, 3.6vw, 44px);
-		line-height: 1.05;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	.lede {
 		margin-top: 8px;
-		font-size: 16px;
-		line-height: 1.55;
+		font-size: var(--fs-16);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.rank {
@@ -313,21 +313,21 @@
 	}
 	.rank h2 {
 		font-family: var(--font-sans);
-		font-size: 20px;
-		font-weight: 700;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-bold);
 	}
 	.rank-meta {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
 	.amber {
 		color: var(--reward);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.orange {
 		color: var(--streak);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.rank-bar {
 		height: 10px;
@@ -343,7 +343,7 @@
 		transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
 	.rank-next {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.rank-next b {
@@ -363,13 +363,13 @@
 		border-left: 1px solid var(--line);
 	}
 	.facts dt {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	.facts dd {
 		font-family: var(--font-serif);
-		font-size: 28px;
-		line-height: 1.1;
+		font-size: var(--fs-28);
+		line-height: var(--lh-snug);
 	}
 
 	/* Up next: one slim band row. */
@@ -391,11 +391,11 @@
 		color: var(--accent-ink);
 	}
 	.next h2 {
-		font-size: 22px;
-		line-height: 1.2;
+		font-size: var(--fs-24);
+		line-height: var(--lh-base);
 	}
 	.next .meta {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--band-ink-2);
 	}
 
@@ -448,12 +448,12 @@
 	}
 	.way-title {
 		display: block;
-		font-size: 14.5px;
-		font-weight: 700;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-bold);
 	}
 	.way-body {
 		display: block;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 
@@ -473,9 +473,9 @@
 		margin-bottom: 6px;
 		padding-left: 8px;
 		border-left: 3px solid var(--part);
-		font-size: 12.5px;
-		font-weight: 700;
-		letter-spacing: 0.04em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
@@ -515,8 +515,8 @@
 		flex-shrink: 0;
 		width: 26px;
 		font-family: var(--font-serif);
-		font-size: 22px;
-		line-height: 1;
+		font-size: var(--fs-24);
+		line-height: var(--lh-tight);
 		color: var(--part);
 		text-align: center;
 	}
@@ -528,9 +528,9 @@
 		gap: 6px;
 	}
 	.card-title {
-		font-size: 14px;
-		font-weight: 650;
-		line-height: 1.25;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-base);
 	}
 	.card-foot {
 		display: flex;
@@ -554,7 +554,7 @@
 		transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
 	.card-count {
-		font-size: 11.5px;
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
@@ -566,8 +566,8 @@
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
-		font-size: 10.5px;
-		font-weight: 800;
+		font-size: var(--fs-11);
+		font-weight: var(--fw-bold);
 	}
 
 	.detail {
@@ -590,21 +590,21 @@
 		align-items: end;
 	}
 	.part-tag {
-		font-size: 12.5px;
-		font-weight: 700;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
 		color: var(--part);
 	}
 	h3 {
 		font-family: var(--font-serif);
-		font-weight: 400;
+		font-weight: var(--fw-regular);
 	}
 	#chapter-title {
-		font-size: clamp(26px, 2.6vw, 34px);
-		line-height: 1.1;
+		font-size: var(--fs-title);
+		line-height: var(--lh-snug);
 	}
 	.ch-summary {
 		margin-top: 4px;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.ready b {
@@ -615,17 +615,17 @@
 		gap: 20px;
 	}
 	.ch-stats dt {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	.ch-stats dd {
-		font-size: 22px;
-		font-weight: 600;
+		font-size: var(--fs-24);
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
 	.ch-stats small {
-		font-size: 13px;
-		font-weight: 500;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 	}
 	.ch-stats .amber {
@@ -668,8 +668,8 @@
 		height: 36px;
 		border-radius: 3px;
 		background: var(--surface-2);
-		font-size: 13px;
-		font-weight: 700;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
 		font-variant-numeric: tabular-nums;
 	}
 	.lesson.done .tile {
@@ -702,12 +702,12 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		font-size: 15px;
-		font-weight: 650;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 	}
 	.l-summary {
-		font-size: 13px;
-		line-height: 1.45;
+		font-size: var(--fs-13);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.l-meta {
@@ -724,8 +724,8 @@
 		padding: 2px 6px;
 		border-radius: 3px;
 		background: var(--surface-2);
-		font-size: 11.5px;
-		font-weight: 600;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.chip.game {
@@ -733,13 +733,13 @@
 		color: var(--part);
 	}
 	.dur {
-		font-size: 11.5px;
+		font-size: var(--fs-12);
 		color: var(--ink-3);
 	}
 	.l-best {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--success);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.l-end {
 		align-self: center;
@@ -750,8 +750,8 @@
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
-		font-size: 11px;
-		font-weight: 800;
+		font-size: var(--fs-11);
+		font-weight: var(--fw-bold);
 	}
 
 	@media (max-width: 900px) {

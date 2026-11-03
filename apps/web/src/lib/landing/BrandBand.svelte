@@ -123,10 +123,10 @@
 		display: flex;
 		font-family: var(--font-sans);
 		/* Sized for the stretched name, about four em wide at the logo's proportions, to fit with room for the star. */
-		font-size: clamp(76px, 19vw, 300px);
-		font-weight: 600;
-		line-height: 0.9;
-		letter-spacing: -0.05em;
+		font-size: clamp(76px, 19vw, 300px); /* off-scale: wordmark art */
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--tr-tight);
 	}
 	.letters {
 		display: flex;

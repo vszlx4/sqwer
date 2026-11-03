@@ -181,8 +181,8 @@
 		gap: 12px;
 	}
 	.name {
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.road {
@@ -243,13 +243,13 @@
 	}
 	.name small {
 		display: block;
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 		color: var(--ink-3);
 	}
 	.passage {
 		font-family: var(--font-mono);
-		font-size: 22px;
-		line-height: 1.7;
+		font-size: var(--fs-24);
+		line-height: var(--lh-body);
 		word-break: break-word;
 	}
 	.done {
@@ -257,7 +257,7 @@
 	}
 	.current {
 		color: var(--ink);
-		font-weight: 700;
+		font-weight: var(--fw-bold);
 	}
 	.todo {
 		color: var(--untyped);

@@ -42,7 +42,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 6px;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	li {
@@ -58,7 +58,7 @@
 	}
 	[aria-current='page'] {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.sep {
 		color: var(--ink-3);

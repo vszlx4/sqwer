@@ -385,16 +385,16 @@
 		flex-wrap: wrap;
 	}
 	h1 {
-		font-size: clamp(34px, 4.8vw, 52px);
-		font-weight: 400;
-		letter-spacing: -0.02em;
-		line-height: 1.05;
+		font-size: var(--fs-display);
+		font-weight: var(--fw-regular);
+		letter-spacing: var(--tr-tight);
+		line-height: var(--lh-snug);
 	}
 	.lede {
 		margin-top: 10px;
 		max-width: 560px;
-		font-size: 17px;
-		line-height: 1.5;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.intro-actions {
@@ -413,8 +413,8 @@
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		color: var(--ink);
-		font-weight: 600;
-		font-size: 14.5px;
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-15);
 		text-decoration: none;
 		cursor: pointer;
 	}
@@ -427,7 +427,7 @@
 		background: var(--accent);
 		color: var(--on-accent);
 		border-color: transparent;
-		font-size: 15.5px;
+		font-size: var(--fs-16);
 	}
 	.btn.primary:hover {
 		filter: brightness(0.96);
@@ -444,7 +444,7 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 8px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 		cursor: pointer;
 	}
@@ -463,15 +463,15 @@
 		background: var(--surface);
 		border: 1px solid var(--line-strong);
 		border-left: 4px solid var(--accent);
-		font-size: 14.5px;
-		font-weight: 500;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-regular);
 	}
 	.message.error {
 		border-left-color: var(--error);
 	}
 	.message button {
-		font-size: 20px;
-		line-height: 1;
+		font-size: var(--fs-20);
+		line-height: var(--lh-tight);
 		color: var(--ink-3);
 		cursor: pointer;
 		padding: 0 4px;
@@ -498,24 +498,24 @@
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
-		font-weight: 700;
+		font-weight: var(--fw-bold);
 	}
 	.step h3 {
-		font-size: 18px;
-		font-weight: 600;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-semibold);
 	}
 	.step p {
 		color: var(--ink-2);
-		line-height: 1.5;
-		font-size: 15px;
+		line-height: var(--lh-body);
+		font-size: var(--fs-15);
 	}
 	.import-line {
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.link {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 		cursor: pointer;
 	}
@@ -534,27 +534,27 @@
 		gap: 4px;
 	}
 	dt {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-3);
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 	}
 	dd {
-		font-size: 28px;
-		font-weight: 600;
-		letter-spacing: -0.02em;
+		font-size: var(--fs-28);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-tight);
 		font-variant-numeric: tabular-nums;
 	}
 	dd small {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-3);
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 	}
 	dd.small {
-		font-size: 17px;
+		font-size: var(--fs-18);
 		padding-top: 6px;
 	}
 	.sub {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.stat .bar {
@@ -589,8 +589,8 @@
 	}
 	.speed-cta p {
 		max-width: 560px;
-		font-size: 15px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.map-card {
@@ -606,18 +606,18 @@
 		flex-wrap: wrap;
 	}
 	h2 {
-		font-size: 24px;
-		font-weight: 400;
+		font-size: var(--fs-24);
+		font-weight: var(--fw-regular);
 	}
 	.map-head p {
 		color: var(--ink-3);
-		font-size: 14px;
+		font-size: var(--fs-14);
 	}
 	.legend {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 16px;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.legend li {
@@ -649,12 +649,12 @@
 		gap: 10px;
 	}
 	.card h3 {
-		font-size: 17px;
-		font-weight: 600;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-semibold);
 	}
 	.card h4 {
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-3);
 		margin-top: 8px;
 	}
@@ -662,7 +662,7 @@
 		color: var(--ink-3);
 	}
 	.small-p {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		margin-top: -6px;
 	}
 	.detail-head {
@@ -671,7 +671,7 @@
 		gap: 14px;
 	}
 	.detail-head p {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.keycap {
@@ -685,11 +685,11 @@
 		border-bottom-width: 4px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 22px;
-		font-weight: 600;
+		font-size: var(--fs-24);
+		font-weight: var(--fw-semibold);
 	}
 	.standard {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.tag {
@@ -698,8 +698,8 @@
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
-		font-size: 12px;
-		font-weight: 600;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
 	}
 	.load-hands {
 		margin-top: 14px;
@@ -714,7 +714,7 @@
 		grid-template-columns: 96px 1fr 28px;
 		align-items: center;
 		gap: 10px;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 	}
 	.bar-label {
 		color: var(--ink-2);
@@ -735,13 +735,13 @@
 	.bar-value {
 		text-align: right;
 		font-variant-numeric: tabular-nums;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.rules {
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 	}
 	.mini {
 		display: inline-grid;
@@ -753,8 +753,8 @@
 		border: 1px solid var(--key-edge);
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 	}
 	.as-button {
 		cursor: pointer;
@@ -780,12 +780,12 @@
 		flex-wrap: wrap;
 	}
 	.privacy {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-3);
 	}
 	kbd {
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 		padding: 1px 6px;
 		border-radius: 3px;
 		background: var(--bg);

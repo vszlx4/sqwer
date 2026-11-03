@@ -114,14 +114,14 @@
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
-		font-size: 14px;
-		line-height: 1.4;
+		font-size: var(--fs-14);
+		line-height: var(--lh-base);
 	}
 	.doc-toc-title {
 		margin-bottom: 10px;
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
@@ -169,15 +169,15 @@
 		background: var(--surface);
 	}
 	.doc-meta dt {
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: 0.06em;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	.doc-meta dd {
-		font-size: 15px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		font-variant-numeric: tabular-nums;
 	}
@@ -193,11 +193,11 @@
 		margin-top: 40px;
 		padding-top: 28px;
 		border-top: 1px solid var(--line);
-		font-size: 15px;
+		font-size: var(--fs-15);
 	}
 	.prose .related-title {
 		margin-top: 8px;
-		font-size: 22px;
+		font-size: var(--fs-24);
 	}
 	.prose .related {
 		display: grid;
@@ -223,12 +223,12 @@
 	}
 	.ref {
 		font-family: var(--font-mono);
-		font-size: 12px;
-		font-weight: 500;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 	}
 	.name {
-		font-size: 15px;
+		font-size: var(--fs-15);
 	}
 	@media print {
 		.doc-actions,
@@ -253,58 +253,58 @@
 		border-bottom: 1px solid var(--line);
 	}
 	.kicker {
-		font-size: 13px;
-		font-weight: 600;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(36px, 5.5vw, 60px);
-		font-weight: 400;
-		line-height: 1.05;
-		letter-spacing: -0.02em;
+		font-size: var(--fs-display);
+		font-weight: var(--fw-regular);
+		line-height: var(--lh-snug);
+		letter-spacing: var(--tr-tight);
 	}
 	.lede {
-		font-size: 19px;
-		line-height: 1.55;
+		font-size: var(--fs-20);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.updated {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.prose {
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
-		font-size: 16.5px;
-		line-height: 1.7;
+		font-size: var(--fs-16);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.prose :global(h2) {
 		margin-top: 28px;
-		font-size: 28px;
-		font-weight: 400;
-		line-height: 1.2;
-		letter-spacing: -0.01em;
+		font-size: var(--fs-28);
+		font-weight: var(--fw-regular);
+		line-height: var(--lh-base);
+		letter-spacing: normal;
 		color: var(--ink);
 		scroll-margin-top: 24px;
 	}
 	.prose :global(h3) {
 		margin-top: 12px;
-		font-size: 18px;
-		font-weight: 600;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.prose :global(strong) {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	/* Links are carried by weight alone, without a block behind the text. */
 	.prose :global(a) {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 		overflow-wrap: anywhere;
 	}
@@ -330,8 +330,8 @@
 	.prose :global(table) {
 		width: 100%;
 		border-collapse: collapse;
-		font-size: 15px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 	}
 	.prose :global(th),
 	.prose :global(td) {
@@ -342,13 +342,13 @@
 	}
 	.prose :global(thead th) {
 		background: var(--surface);
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		white-space: nowrap;
 	}
 	.prose :global(tbody th) {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.prose :global(tr:last-child td),
@@ -361,7 +361,7 @@
 	}
 	.prose :global(code) {
 		font-family: var(--font-mono);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink);
 	}
 	.prose :global(.summary) {
@@ -372,7 +372,7 @@
 	}
 	.prose :global(.summary h2) {
 		margin-top: 0;
-		font-size: 22px;
+		font-size: var(--fs-24);
 	}
 	.prose :global(ul) {
 		display: flex;
@@ -394,12 +394,12 @@
 		border: 1px solid var(--line);
 	}
 	.prose :global(dt) {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.prose :global(kbd) {
 		font-family: var(--font-mono);
-		font-size: 13px;
+		font-size: var(--fs-13);
 		padding: 1px 6px;
 		border-radius: 3px;
 		background: var(--surface);

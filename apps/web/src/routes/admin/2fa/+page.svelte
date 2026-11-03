@@ -31,7 +31,7 @@
 		max-width: 460px;
 	}
 	h1 {
-		font-size: clamp(28px, 3.2vw, 36px);
+		font-size: var(--fs-title);
 	}
 	p {
 		color: var(--ink-2);
@@ -40,8 +40,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
-		font-weight: 600;
-		font-size: 14.5px;
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-15);
 	}
 	.code input {
 		min-height: 48px;
@@ -52,14 +52,14 @@
 		background: var(--bg);
 		color: var(--ink);
 		font-family: var(--font-mono);
-		font-size: 22px;
-		letter-spacing: 0.2em;
+		font-size: var(--fs-24);
+		letter-spacing: var(--tr-caps);
 	}
 	.form .btn {
 		align-self: flex-start;
 	}
 	.note {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 	}
 	.note code {
 		font-family: var(--font-mono);

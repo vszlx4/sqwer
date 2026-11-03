@@ -64,7 +64,7 @@
 		flex-wrap: wrap;
 		gap: 6px;
 		font-family: var(--font-mono);
-		font-size: 15px;
+		font-size: var(--fs-15);
 	}
 	li {
 		padding: 4px 8px;
@@ -89,7 +89,7 @@
 		margin-top: 12px;
 	}
 	.detail {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 		min-height: 1.4em;
 	}
@@ -103,7 +103,7 @@
 		display: flex;
 		align-items: center;
 		gap: 4px;
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.scale i {

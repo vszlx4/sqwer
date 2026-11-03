@@ -45,13 +45,13 @@
 		gap: 8px;
 	}
 	h2 {
-		font-size: 20px;
-		line-height: 1.2;
+		font-size: var(--fs-20);
+		line-height: var(--lh-base);
 	}
 	.about p {
 		max-width: 40ch;
-		font-size: 14px;
-		line-height: 1.55;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 		text-wrap: pretty;
 	}

@@ -86,7 +86,7 @@
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(28px, 3.2vw, 36px);
+		font-size: var(--fs-title);
 	}
 	.page > :global(.form-alert) {
 		margin: 8px 0;
@@ -99,16 +99,16 @@
 	}
 	.personal dt {
 		min-width: 120px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.personal dd {
 		margin: 0;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		overflow-wrap: anywhere;
 	}
 	.note {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.details-head {
@@ -116,6 +116,6 @@
 		border-top: 1px solid var(--line);
 	}
 	.details-head h2 {
-		font-size: 20px;
+		font-size: var(--fs-20);
 	}
 </style>

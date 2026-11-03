@@ -72,20 +72,20 @@
 		}
 	}
 	h2 {
-		font-size: 19px;
+		font-size: var(--fs-20);
 	}
 	p {
-		font-size: 14px;
-		line-height: 1.55;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.note {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.actions {
 		display: flex;

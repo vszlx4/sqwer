@@ -147,8 +147,8 @@
 	nav a {
 		padding: 8px 14px;
 		border-radius: 999px;
-		font-size: 14.5px;
-		font-weight: 500;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 		text-decoration: none;
 		white-space: nowrap;
@@ -181,7 +181,7 @@
 		border-radius: 999px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 		text-decoration: none;
 		white-space: nowrap;
@@ -195,8 +195,8 @@
 	}
 	.signin {
 		padding: 8px 12px;
-		font-size: 14.5px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		text-decoration: none;
 		white-space: nowrap;
@@ -212,8 +212,8 @@
 		border-radius: 999px;
 		border: 1px solid var(--ink);
 		color: var(--ink);
-		font-size: 14.5px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 		white-space: nowrap;
 		transition:

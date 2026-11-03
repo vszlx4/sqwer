@@ -144,19 +144,19 @@
 	.rights {
 		flex-basis: 100%;
 		max-width: 520px;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 	}
 	label.btn:has(+ input:focus-visible) {
 		outline: 2px solid var(--ink);
 		outline-offset: 2px;
 	}
 	.hint {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.error {
-		font-size: 13.5px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--error);
 	}
 </style>
