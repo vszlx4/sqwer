@@ -394,7 +394,7 @@
 	.note a:hover {
 		color: var(--rank);
 	}
-	@media (max-width: 820px) {
+	@media (max-width: 760px) {
 		.options {
 			grid-template-columns: 1fr;
 		}

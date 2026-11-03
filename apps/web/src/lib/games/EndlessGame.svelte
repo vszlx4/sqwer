@@ -491,7 +491,7 @@
 	.start {
 		align-self: flex-start;
 	}
-	@media (max-width: 820px) {
+	@media (max-width: 760px) {
 		.setup {
 			grid-template-columns: 1fr;
 		}
@@ -500,7 +500,7 @@
 			order: -1;
 		}
 	}
-	@media (max-width: 520px) {
+	@media (max-width: 560px) {
 		.levels {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}

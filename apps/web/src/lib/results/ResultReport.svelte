@@ -407,7 +407,7 @@
 		font-size: 13px;
 		color: var(--ink-2);
 	}
-	@media (max-width: 960px) {
+	@media (max-width: 900px) {
 		.top,
 		.guidance {
 			grid-template-columns: 1fr;

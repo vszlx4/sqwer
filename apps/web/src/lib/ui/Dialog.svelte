@@ -104,7 +104,7 @@
 		flex-wrap: wrap;
 		margin-top: 8px;
 	}
-	@media (max-width: 480px) {
+	@media (max-width: 420px) {
 		.actions {
 			flex-direction: column-reverse;
 		}

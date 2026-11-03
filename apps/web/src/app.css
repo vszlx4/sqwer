@@ -462,6 +462,75 @@ dd {
 	--main-bottom: 48px;
 }
 
+/* Scales: every size in component styles comes from here. Breakpoints: lib/site/breakpoints.ts. */
+:root {
+	/* Spacing: margin, padding, gap, inset. */
+	--space-2: 2px;
+	--space-4: 4px;
+	--space-6: 6px;
+	--space-8: 8px;
+	--space-10: 10px;
+	--space-12: 12px;
+	--space-16: 16px;
+	--space-20: 20px;
+	--space-24: 24px;
+	--space-32: 32px;
+	--space-40: 40px;
+	--space-48: 48px;
+	--space-64: 64px;
+	--space-96: 96px;
+
+	/* Widths: page, wide content, text column, narrow column, form. */
+	--w-page: 1180px;
+	--w-wide: 900px;
+	--w-text: 720px;
+	--w-narrow: 560px;
+	--w-form: 440px;
+
+	/* Type. */
+	--fs-11: 11px;
+	--fs-12: 12px;
+	--fs-13: 13px;
+	--fs-14: 14px;
+	--fs-15: 15px;
+	--fs-16: 16px;
+	--fs-18: 18px;
+	--fs-20: 20px;
+	--fs-24: 24px;
+	--fs-28: 28px;
+	--fs-title: clamp(28px, 3.2vw, 36px);
+	--fs-display: clamp(32px, 4vw, 44px);
+	--fs-hero: clamp(56px, 7vw, 88px);
+	--lh-tight: 1;
+	--lh-snug: 1.1;
+	--lh-base: 1.3;
+	--lh-body: 1.55;
+	--tr-tight: -0.02em;
+	--tr-wide: 0.06em;
+	--tr-caps: 0.12em;
+	--fw-regular: 400;
+	--fw-medium: 500;
+	--fw-semibold: 600;
+	--fw-bold: 700;
+
+	/* Shape. */
+	--radius: 3px;
+	--radius-pill: 999px;
+
+	/* CSS transitions; same steps as lib/motion DURATIONS and the out-expo ease. */
+	--dur-fast: 140ms;
+	--dur-base: 220ms;
+	--dur-slow: 400ms;
+	--ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+	/* Stacking layers. */
+	--z-raised: 1;
+	--z-sticky: 10;
+	--z-header: 40;
+	--z-overlay: 50;
+	--z-toast: 60;
+}
+
 /* Anchored sections stay clear of the sticky header. */
 [id] {
 	scroll-margin-top: calc(var(--header-h) + 26px);

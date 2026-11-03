@@ -957,7 +957,7 @@
 		padding: clamp(18px, 2.4vw, 28px);
 	}
 
-	@media (max-width: 1000px) {
+	@media (max-width: 1100px) {
 		.game-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}

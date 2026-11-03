@@ -551,7 +551,7 @@
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
-	@media (max-width: 860px) {
+	@media (max-width: 900px) {
 		.builder {
 			grid-template-columns: 1fr;
 		}
@@ -566,7 +566,7 @@
 			display: none;
 		}
 	}
-	@media (max-width: 520px) {
+	@media (max-width: 560px) {
 		.options {
 			grid-template-columns: 1fr;
 		}

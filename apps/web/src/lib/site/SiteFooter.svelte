@@ -124,7 +124,7 @@
 			grid-template-columns: minmax(0, 1fr);
 		}
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 560px) {
 		.bottom {
 			grid-template-columns: 1fr;
 		}

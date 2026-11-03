@@ -725,7 +725,7 @@
 		font-size: 13.5px;
 		color: var(--ink-2);
 	}
-	@media (max-width: 960px) {
+	@media (max-width: 900px) {
 		.arena-grid {
 			grid-template-columns: 1fr;
 		}
@@ -741,7 +741,7 @@
 			display: none;
 		}
 	}
-	@media (max-width: 600px) {
+	@media (max-width: 560px) {
 		.podium {
 			grid-template-columns: 1fr;
 		}

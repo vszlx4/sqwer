@@ -584,7 +584,7 @@
 		user-select: none;
 		opacity: var(--sm-num-opacity, 0);
 	}
-	@media (max-width: 1024px) {
+	@media (max-width: 1100px) {
 		:global(.staggered-menu-panel) { width: 100%; left: 0; right: 0; }
 		:global(.sm-prelayers) { width: 100%; }
 	}

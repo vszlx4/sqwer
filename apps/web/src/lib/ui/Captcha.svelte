@@ -349,7 +349,7 @@
 		font-weight: 600;
 		color: var(--error);
 	}
-	@media (max-width: 480px) {
+	@media (max-width: 420px) {
 		.stage {
 			grid-template-columns: 1fr;
 		}
