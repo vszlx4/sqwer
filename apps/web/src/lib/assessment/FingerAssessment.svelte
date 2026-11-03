@@ -8,6 +8,8 @@
 	import { fingerScores, STAGE_SECONDS, STAGES, stagesFor, stageWords, standouts, type Stage } from '#lib/assessment.ts';
 	import { ASSESSMENT_COVERAGE } from '#lib/exams.ts';
 	import { fingerMap } from '#lib/fingermap/store.svelte.ts';
+	import Skeleton from '#lib/ui/Skeleton.svelte';
+	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
 	import { results } from '#lib/results/store.svelte.ts';
 	import { usage } from '#lib/usage/store.svelte.ts';
 	import type { ResultRecord } from '#lib/results/types.ts';
@@ -156,7 +158,11 @@
 
 <div class="assessment">
 	{#if !fingerMap.loaded}
-		<p class="muted">Loading your finger map…</p>
+		<SkeletonRegion label="Loading your finger map…">
+			<Skeleton width="min(420px, 80%)" height="34px" />
+			<Skeleton lines={3} />
+			<Skeleton height="clamp(160px, 28vw, 260px)" />
+		</SkeletonRegion>
 	{:else if phase === 'intro'}
 		<header class="intro">
 			<h1>Finger speed assessment</h1>

@@ -7,6 +7,8 @@
 	import { results } from '#lib/results/store.svelte.ts';
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
 	import Seo from '#lib/site/Seo.svelte';
+	import Skeleton from '#lib/ui/Skeleton.svelte';
+	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
 	import { formatDateTime } from '#lib/i18n/format.ts';
 
 	onMount(() => results.load());
@@ -19,7 +21,12 @@
 <Breadcrumbs items={[{ href: '/history', label: 'History' }, { href: page.url.pathname, label: title }]} />
 
 {#if !results.loaded}
-	<p class="muted">Loading…</p>
+	<SkeletonRegion label="Loading the result…">
+		<Skeleton width="min(360px, 80%)" height="34px" />
+		<Skeleton width="240px" height="14px" />
+		<Skeleton height="120px" />
+		<Skeleton height="clamp(160px, 28vw, 260px)" />
+	</SkeletonRegion>
 {:else if !record}
 	<section class="missing">
 		<h1>Result not found</h1>
