@@ -4,6 +4,8 @@
 	import { results } from '#lib/results/store.svelte.ts';
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
 	import Seo from '#lib/site/Seo.svelte';
+	import Skeleton from '#lib/ui/Skeleton.svelte';
+	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
 	import { formatDateTime } from '#lib/i18n/format.ts';
 
 	onMount(() => results.load());
@@ -40,7 +42,12 @@
 	</header>
 
 	{#if !results.loaded}
-		<p class="muted">Loading your results…</p>
+		<SkeletonRegion label="Loading your results…" gap="24px">
+			<div class="summary">
+				{#each Array.from({ length: 5 }) as _, i (i)}<div><Skeleton width="70%" height="12px" /><span class="bone-gap"></span><Skeleton width="45%" height="19px" /></div>{/each}
+			</div>
+			<div class="bone-rows">{#each Array.from({ length: 6 }) as _, i (i)}<Skeleton height="40px" />{/each}</div>
+		</SkeletonRegion>
 	{:else if !all.length}
 		<section class="empty">
 			<h2>No results yet</h2>
@@ -133,6 +140,15 @@
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
+	.bone-gap {
+		display: block;
+		height: 8px;
+	}
+	.bone-rows {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
 	dt {
 		font-size: 13px;
 		color: var(--ink-2);
@@ -215,7 +231,6 @@
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
-	.muted,
 	.empty p {
 		color: var(--ink-2);
 	}

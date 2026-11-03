@@ -12,6 +12,8 @@
 	import { results } from '#lib/results/store.svelte.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
+	import Skeleton from '#lib/ui/Skeleton.svelte';
+	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
 
 	let ready = $state(false);
 	onMount(() => {
@@ -87,6 +89,13 @@
 					{/if}
 				</div>
 			</section>
+		{:else if signedIn}
+			<SkeletonRegion label="Loading your progress…">
+				<div class="rank">
+					<Skeleton circle width="56px" height="56px" />
+					<div class="rank-body"><Skeleton lines={2} /></div>
+				</div>
+			</SkeletonRegion>
 		{:else}
 			<dl class="facts" aria-label="The course in numbers">
 				<div><dt>Lessons</dt><dd>{LESSONS.length}</dd></div>
@@ -139,6 +148,8 @@
 				{/if}
 			</section>
 		{/if}
+	{:else if signedIn}
+		<Skeleton height="76px" />
 	{/if}
 
 	<section class="explorer" aria-labelledby="explorer-title">

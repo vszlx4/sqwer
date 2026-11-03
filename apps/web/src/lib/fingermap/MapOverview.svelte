@@ -15,6 +15,8 @@
 	import Keyboard from '#lib/keyboard/Keyboard.svelte';
 	import type { ZoneInfo } from '#lib/keyboard/types.ts';
 	import Dialog from '#lib/ui/Dialog.svelte';
+	import Skeleton from '#lib/ui/Skeleton.svelte';
+	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
 	import FingerScores from '#lib/assessment/FingerScores.svelte';
 	import Hands from '#lib/hands/Hands.svelte';
 	import { ASSESSMENT_COVERAGE } from '#lib/exams.ts';
@@ -341,6 +343,13 @@
 			</div>
 		</section>
 		<p class="privacy">{fingerMap.synced ? 'Your finger map is stored in this browser and synchronized to your account.' : 'Your finger map is stored only in this browser. Sign in to save it to an account, or export it to keep a copy.'}</p>
+	{:else}
+		<SkeletonRegion label="Loading your finger map…" gap="20px">
+			<div class="stats">
+				{#each Array.from({ length: 5 }) as _, i (i)}<div class="stat"><Skeleton width="70%" height="12px" /><Skeleton width="40%" height="22px" /></div>{/each}
+			</div>
+			<Skeleton height="clamp(180px, 30vw, 300px)" />
+		</SkeletonRegion>
 	{/if}
 </div>
 
