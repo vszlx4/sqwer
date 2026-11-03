@@ -103,7 +103,8 @@
  *      --<hue>-ink   text and strokes on --bg/--surface (AA); dark themes use the bright hue
  *      --<hue>-soft  tinted background, mixed into --bg
  * 2. Roles: what a color means (area, success, info, reward, streak, rank, life, charts, fingers).
- * 3. Bands (--band-*): fixed dark sections (footer, games, arena), identical in both themes.
+ * 3. Bands (--band-*): full-width sections set off from the page (road, games, arena); light in the light theme,
+ *    dark in the dark theme.
  * 4. Art (--medal-*, --art-*): podium medals and emblem shadows; gem ramps live in lib/progress/rank-art.ts.
  * Outside app.css only rank-art.ts, areas.ts, theme-color metas and favicon.svg hold literal colors
  * (scripts/colors.test.ts enforces it).
@@ -179,6 +180,8 @@
 	--on-area: var(--on-hue);
 	/* Current area's hue, set by [data-area]; neutral pages use ink. */
 	--accent: var(--ink);
+	/* The accent as text or a thin stroke on --bg, --surface or a band (AA). */
+	--accent-ink: var(--ink);
 	--on-accent: var(--bg);
 	/* Primary actions are ink; color belongs to the area. */
 	--primary: var(--ink);
@@ -268,20 +271,23 @@
 	--glass-shine: rgb(255 255 255 / 0.7);
 	--glass-shadow: rgb(20 20 20 / 0.24);
 
-	/* ===== 3. Bands: fixed dark sections, same in both themes ===== */
-	--band-bg: #0b0b0b;
-	--band-bg-deep: #070707;
-	--band-surface: #121212;
-	--band-surface-2: #181818;
-	--band-line: #242424;
-	--band-line-strong: #363636;
-	--band-ink: #f2f2ee;
-	--band-ink-2: #b9b9b3;
-	--band-ink-3: #8e8e88;
-	--band-ink-4: #5a5a55;
+	/* ===== 3. Bands: sections set off from the page, one step off --bg in each theme ===== */
+	--band-bg: #efefeb;
+	--band-bg-deep: #e8e8e3;
+	--band-surface: #f8f8f6;
+	--band-surface-2: #ffffff;
+	--band-line: #dcdcd7;
+	--band-line-strong: #c4c4be;
+	--band-ink: #141414;
+	--band-ink-2: #52524d;
+	--band-ink-3: #67675f;
+	--band-ink-4: #8c8c85;
 	/* Dot grid and faint sheen over band backgrounds. */
-	--band-dot: rgb(255 255 255 / 0.06);
-	--band-sheen: rgb(255 255 255 / 0.04);
+	--band-dot: rgb(0 0 0 / 0.07);
+	--band-sheen: rgb(0 0 0 / 0.03);
+	/* Graphite: a dark swatch that stays dark in both themes (profile banner). */
+	--graphite: #0b0b0b;
+	--graphite-2: #363636;
 
 	/* ===== 4. Art: podium medals and emblem drop shadows (gem ramps: lib/progress/rank-art.ts) ===== */
 	--medal-gold-hi: #ffe58a;
@@ -336,6 +342,18 @@
 		--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 		--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 		--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
+		--band-bg: #0b0b0b;
+		--band-bg-deep: #070707;
+		--band-surface: #121212;
+		--band-surface-2: #181818;
+		--band-line: #242424;
+		--band-line-strong: #363636;
+		--band-ink: #f2f2ee;
+		--band-ink-2: #b9b9b3;
+		--band-ink-3: #8e8e88;
+		--band-ink-4: #5a5a55;
+		--band-dot: rgb(255 255 255 / 0.06);
+		--band-sheen: rgb(255 255 255 / 0.04);
 		--glass-shine: rgb(255 255 255 / 0.07);
 		--glass-shadow: rgb(0 0 0 / 0.9);
 	}
@@ -378,6 +396,18 @@
 	--shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.9);
 	--shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04), 0 28px 70px -24px rgb(0 0 0 / 1);
 	--lift: 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 36px -18px rgb(0 0 0 / 1);
+	--band-bg: #0b0b0b;
+	--band-bg-deep: #070707;
+	--band-surface: #121212;
+	--band-surface-2: #181818;
+	--band-line: #242424;
+	--band-line-strong: #363636;
+	--band-ink: #f2f2ee;
+	--band-ink-2: #b9b9b3;
+	--band-ink-3: #8e8e88;
+	--band-ink-4: #5a5a55;
+	--band-dot: rgb(255 255 255 / 0.06);
+	--band-sheen: rgb(255 255 255 / 0.04);
 	--glass-shine: rgb(255 255 255 / 0.07);
 	--glass-shadow: rgb(0 0 0 / 0.9);
 }
@@ -475,26 +505,31 @@ body {
 
 [data-area='learn'] {
 	--accent: var(--area-learn);
+	--accent-ink: var(--lime-ink);
 	--on-accent: var(--on-area);
 }
 [data-area='practice'] {
 	--accent: var(--area-practice);
+	--accent-ink: var(--cyan-ink);
 	--on-accent: var(--on-area);
 }
 [data-area='competitive'] {
 	--accent: var(--area-competitive);
+	--accent-ink: var(--orange-ink);
 	--on-accent: var(--on-area);
 }
 [data-area='map'] {
 	--accent: var(--area-map);
+	--accent-ink: var(--violet-ink);
 	--on-accent: var(--on-area);
 }
 [data-area='games'] {
 	--accent: var(--area-games);
+	--accent-ink: var(--amber-ink);
 	--on-accent: var(--on-area);
 }
-/* Fixed dark bands keep a light primary in both themes. */
-.on-dark {
+/* Bands take their own ink as the primary. */
+.on-band {
 	--primary: var(--band-ink);
 	--on-primary: var(--band-bg);
 }

@@ -38,7 +38,7 @@
 		border-radius: 3px;
 		border: 1px solid color-mix(in srgb, var(--accent) calc(25% + var(--voice) * 45%), transparent);
 		background: color-mix(in srgb, var(--accent) calc(6% + var(--voice) * 8%), transparent);
-		color: color-mix(in srgb, var(--accent) calc(var(--voice) * 100%), var(--band-ink-3));
+		color: color-mix(in srgb, var(--accent-ink) calc(var(--voice) * 100%), var(--band-ink-3));
 	}
 	.wave {
 		display: flex;
@@ -66,7 +66,7 @@
 		min-height: 1.2em;
 		font-family: var(--font-mono);
 		font-size: 20px;
-		color: color-mix(in srgb, var(--lime) calc(var(--ok) * 100%), var(--band-ink));
+		color: color-mix(in srgb, var(--lime-ink) calc(var(--ok) * 100%), var(--band-ink));
 	}
 	.caret {
 		display: inline-block;

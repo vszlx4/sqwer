@@ -55,7 +55,7 @@
 			const entrance = enterHero(heroCopy);
 			// The track has to be tall before the timeline measures it.
 			flushSync(() => (takeover = true));
-			const { remeasure, speed } = heroTakeover({
+			const { remeasure, recolor, speed } = heroTakeover({
 				track: hero,
 				button: heroButton,
 				portal,
@@ -80,7 +80,14 @@
 			};
 			const opts = { capture: true, passive: true } as const;
 			for (const type of ['wheel', 'touchstart', 'keydown'] as const) window.addEventListener(type, leave, opts);
+			// The portal blends resolved colors: take them again when the theme changes.
+			const themed = new MutationObserver(recolor);
+			themed.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+			const scheme = matchMedia('(prefers-color-scheme: dark)');
+			scheme.addEventListener('change', recolor);
 			return () => {
+				themed.disconnect();
+				scheme.removeEventListener('change', recolor);
 				scrollSpeed();
 				for (const type of ['wheel', 'touchstart', 'keydown'] as const) window.removeEventListener(type, leave, opts);
 				takeover = false;
@@ -126,7 +133,8 @@
 	] as const;
 
 	// Site colors that pass over a few letters of the journey line.
-	const ACCENTS = ['var(--lime)', 'var(--cyan)', 'var(--orange)', 'var(--violet)', 'var(--amber)'];
+	// Ink variants: the line sits on the band, light or dark.
+	const ACCENTS = ['var(--lime-ink)', 'var(--cyan-ink)', 'var(--orange-ink)', 'var(--violet-ink)', 'var(--amber-ink)'];
 
 	// Phrases on the curve, each led by a star with wide gaps either side (the loop trims trailing space).
 	const GAP = '\u00a0'.repeat(4);
@@ -173,7 +181,7 @@
 />
 
 <div class="landing">
-	<!-- Hero: centered copy over the dither field. With motion, scrolling grows the button into the dark (takeover.ts). -->
+	<!-- Hero: centered copy over the dither field. With motion, scrolling grows the button into the road band (takeover.ts). -->
 	<section class="hero" bind:this={hero} data-takeover={takeover || undefined} aria-labelledby="hero-title">
 		<div class="hero-stage band">
 			<div class="hero-field">
@@ -217,7 +225,7 @@
 	</section>
 
 	<!-- The course road: one window per course part; idle windows take turns at the front. -->
-	<section id="road" class="road band on-dark" data-area="learn" aria-labelledby="road-title">
+	<section id="road" class="road band on-band" data-area="learn" aria-labelledby="road-title">
 		<div class="road-stage">
 			<header class="section-head" use:stagger>
 				<p class="kicker">The course</p>
@@ -252,7 +260,7 @@
 						label="Course parts"
 					>
 						{#snippet card(q, i)}
-							<div class="window" style:--part="var(--{q.colour})">
+							<div class="window" style:--part="var(--{q.colour})" style:--part-ink="var(--{q.colour}-ink)">
 								<div class="window-bar">
 									<span class="shapes" aria-hidden="true">
 										{#each PARTS as _, j (j)}
@@ -292,12 +300,12 @@
 	</section>
 
 	<!-- Between the road and the games: a curved line of encouragement, drifting on its own. -->
-	<div class="drift band on-dark">
+	<div class="drift band on-band">
 		<CurvedLoop text={DRIFT} speed={45} curveAmount={-48} interactive={false} />
 	</div>
 
-	<!-- Games: a dark band with live previews. -->
-	<section class="games band on-dark" data-area="games" aria-labelledby="games-title">
+	<!-- Games: a band with live previews. -->
+	<section class="games band on-band" data-area="games" aria-labelledby="games-title">
 		<header class="section-head" use:reveal>
 			<p class="kicker">Learn by playing</p>
 			<h2 id="games-title">Practice that feels like a game.</h2>
@@ -424,7 +432,7 @@
 		backdrop-filter: blur(14px);
 		mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 32%, #000 92%);
 	}
-	/* The dark that grows out of the button; GSAP clips it to the button first. */
+	/* The band that grows out of the button; GSAP clips it to the button first. */
 	.portal {
 		position: absolute;
 		inset: 0 calc(50% - 50vw);
@@ -461,7 +469,7 @@
 		inset: 0 calc(50% - 50vw);
 		z-index: -2;
 		overflow: hidden;
-		/* Fades out at the bottom so the dark road below meets no hard edge. */
+		/* Fades out at the bottom so the road band below meets no hard edge. */
 		mask-image: linear-gradient(to bottom, #000 72%, transparent);
 		animation: field-in 1200ms ease-out both;
 	}
@@ -561,7 +569,7 @@
 	}
 
 	/* ---------- The road ---------- */
-	/* A fixed dark band. Its top padding fades in from the page, so the light hero runs into it without a seam. */
+	/* A band. Its top padding fades in from the page, so the hero runs into it without a seam. */
 	.road {
 		padding-top: 28svh;
 		color: var(--band-ink);
@@ -576,12 +584,12 @@
 		);
 	}
 	.road .kicker {
-		color: var(--accent);
+		color: var(--accent-ink);
 	}
 	.road .link-arrow {
 		color: var(--band-ink);
 	}
-	/* After the takeover the page is already dark: the road starts solid, without the fade from the light hero. */
+	/* After the takeover the page is already the band: the road starts solid, without the fade from the hero. */
 	.landing:has(.hero[data-takeover]) .road {
 		padding-top: clamp(64px, 9vw, 112px);
 	}
@@ -672,7 +680,7 @@
 		border-color: color-mix(in srgb, var(--band-ink) 16%, transparent);
 		background: var(--band-bg);
 	}
-	/* A window: title bar in the part's colour with the four part marks, dark body tinted by the part. */
+	/* A window: title bar in the part's colour with the four part marks, body tinted by the part. */
 	.window {
 		display: flex;
 		flex-direction: column;
@@ -687,7 +695,7 @@
 		flex: none;
 		padding: 0 24px;
 		background: var(--part);
-		color: var(--band-bg);
+		color: var(--on-hue);
 	}
 	.shapes {
 		display: flex;
@@ -696,11 +704,11 @@
 	.shape {
 		width: 13px;
 		height: 13px;
-		fill: color-mix(in srgb, var(--band-bg) 28%, transparent);
+		fill: color-mix(in srgb, var(--on-hue) 28%, transparent);
 	}
 	.shape.lit {
-		fill: var(--band-ink);
-		filter: drop-shadow(0 1px 1.5px color-mix(in srgb, var(--band-bg) 45%, transparent));
+		fill: var(--white);
+		filter: drop-shadow(0 1px 1.5px color-mix(in srgb, var(--on-hue) 45%, transparent));
 	}
 	.window-bar h3 {
 		overflow: hidden;
@@ -733,7 +741,7 @@
 		font-size: clamp(36px, 3.4vw, 52px);
 		font-weight: 300;
 		line-height: 1;
-		color: var(--part);
+		color: var(--part-ink);
 	}
 	/* A line as the learner types it by the end of the part, the caret where the hands are. */
 	.w-type {
@@ -792,7 +800,7 @@
 	.w-key.new {
 		border-color: var(--part);
 		background: var(--part);
-		color: var(--band-bg);
+		color: var(--on-hue);
 		font-weight: 600;
 	}
 	.w-stats {
@@ -845,7 +853,7 @@
 			var(--band-bg);
 	}
 	.games .kicker {
-		color: var(--accent);
+		color: var(--accent-ink);
 	}
 	.games .section-head > p:last-child {
 		color: var(--band-ink-2);

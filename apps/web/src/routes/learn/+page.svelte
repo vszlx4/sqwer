@@ -99,7 +99,7 @@
 
 	{#if loaded}
 		{#if next && next.stage !== 'welcome' && (signedIn || next.stage !== 'course' || next.lesson?.id === FIRST_LESSON.id)}
-			<section class="next on-dark" aria-labelledby="next-title">
+			<section class="next on-band" aria-labelledby="next-title">
 				<div class="next-copy">
 					<p class="label">{next.stage === 'course' ? 'Up next' : next.stage === 'complete' ? 'Complete' : 'Before the course'}</p>
 					<h2 id="next-title">{next.title}</h2>
@@ -360,7 +360,7 @@
 		line-height: 1.1;
 	}
 
-	/* Up next: one slim dark row. */
+	/* Up next: one slim band row. */
 	.next {
 		display: flex;
 		align-items: center;
@@ -376,7 +376,7 @@
 		box-shadow: inset 4px 0 0 var(--accent);
 	}
 	.next .label {
-		color: var(--accent);
+		color: var(--accent-ink);
 	}
 	.next h2 {
 		font-size: 22px;
