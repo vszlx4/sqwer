@@ -130,14 +130,15 @@
 		border-radius: 999px;
 		margin: 0 8px 0 10px;
 	}
+	/* Sized to the nav links' visual weight. */
 	.brand :global(.wordmark) {
-		height: 28px;
+		height: 22px;
 		width: auto;
 	}
 	.brand :global(.mark) {
 		display: none;
-		height: 24px;
-		width: 24px;
+		height: 20px;
+		width: 20px;
 	}
 	.desktop {
 		display: flex;
