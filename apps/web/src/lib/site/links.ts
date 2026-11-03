@@ -5,7 +5,7 @@ export const CONTACT_EMAIL = 'info@mughram.com';
 
 /** Operator legal details for the legal pages. Empty values are omitted. */
 export const LEGAL = {
-	/** The individual who runs sqwer as a free, non-commercial project. */
+	/** The individual who runs sqwer. */
 	operatorName: 'Ahmed Mughram',
 	operatorCountry: 'the Kingdom of Saudi Arabia',
 	/** Representative in the EU under Article 27 GDPR: name, address and email, once appointed. */
