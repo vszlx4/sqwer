@@ -157,16 +157,16 @@
 	.account-menu {
 		position: relative;
 	}
-	/* Picture and level in one pill chip, sized and rounded like the other header controls. */
+	/* Picture and level in one pill chip in the level color, sized and rounded like the other header controls. */
 	.trigger {
 		display: flex;
 		align-items: center;
 		gap: 3px;
 		height: 38px;
 		padding: 3px;
-		border: 1px solid var(--line-strong);
+		border: 1px solid var(--violet);
 		border-radius: 999px;
-		background: var(--surface);
+		background: var(--violet);
 		cursor: pointer;
 		outline-offset: 3px;
 		transition:
@@ -188,18 +188,11 @@
 		place-items: center;
 		min-width: 30px;
 		height: 30px;
-		padding: 0 8px;
-		border-radius: 999px;
-		background: var(--violet);
+		padding: 0 6px 0 4px;
 		color: var(--on-hue);
 		font-size: 13px;
 		font-weight: 700;
 		font-variant-numeric: tabular-nums;
-		transition: filter 140ms ease;
-	}
-	.trigger:hover .lvl,
-	.trigger[aria-expanded='true'] .lvl {
-		filter: brightness(1.12);
 	}
 	.card,
 	.panel {
