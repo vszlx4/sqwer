@@ -3,7 +3,7 @@
 	import BranchedMenu from '#lib/bits/BranchedMenu.svelte';
 	import { page } from '$app/state';
 	import { consent } from '#lib/analytics/consent.svelte.ts';
-	import { FOOTER_LEGAL, FOOTER_SECTIONS, LEGAL } from './links.ts';
+	import { FOOTER_SECTIONS, LEGAL } from './links.ts';
 
 	const year = new Date().getFullYear();
 </script>
@@ -24,14 +24,9 @@
 
 		<div class="bottom">
 			<p class="owner">© {year} <span translate="no">sqwer</span> · A free, non-commercial project by {LEGAL.operatorName}</p>
-			<nav class="legal" aria-label="Legal">
-				{#each FOOTER_LEGAL as link (link.href)}
-					<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
-				{/each}
-				{#if page.data.analytics !== false}
-					<button type="button" class="prefs" onclick={() => ((consent.ready || consent.load()), (consent.open = true))}>Analytics preferences</button>
-				{/if}
-			</nav>
+			{#if page.data.analytics !== false}
+				<button type="button" class="prefs" onclick={() => ((consent.ready || consent.load()), (consent.open = true))}>Analytics preferences</button>
+			{/if}
 			<span class="build" translate="no">v{__APP_VERSION__}{__APP_COMMIT__ ? ` · ${__APP_COMMIT__}` : ''}</span>
 		</div>
 	</div>
@@ -82,16 +77,16 @@
 		font-size: 14px;
 		color: var(--ink-3);
 	}
-	/* Three branched columns, each its own nav; they wrap to two, then one, as the footer narrows. */
+	/* Four branched columns, each its own nav; two, then one, as the footer narrows. */
 	.groups {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+		grid-template-columns: repeat(4, minmax(0, 1fr));
 		gap: 32px 28px;
 		align-items: start;
 	}
 	.bottom {
 		display: grid;
-		grid-template-columns: 1fr auto;
+		grid-template-columns: 1fr auto auto;
 		align-items: center;
 		gap: 12px 24px;
 		padding-top: 20px;
@@ -99,55 +94,44 @@
 		font-size: 13px;
 		color: var(--ink-2);
 	}
-	.legal {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 6px 18px;
-		grid-column: 1 / -1;
-		grid-row: 1;
-	}
-	.owner {
-		grid-row: 2;
-	}
 	.build {
-		grid-row: 2;
 		font-family: var(--font-mono);
 		font-size: 12px;
 		color: var(--ink-3);
 	}
-	.legal a,
 	.prefs {
+		justify-self: start;
 		color: var(--ink-2);
-		text-decoration: none;
-	}
-	.legal a[aria-current='page'] {
-		color: var(--ink);
-	}
-	.prefs {
 		padding: 0;
 		border: 0;
 		background: none;
 		font: inherit;
 		cursor: pointer;
 	}
-	.legal a:hover,
 	.prefs:hover {
 		color: var(--ink);
 	}
 	.site-footer :global(:focus-visible) {
 		outline-color: var(--ink);
 	}
-	@media (max-width: 960px) {
+	@media (max-width: 1100px) {
 		.top {
 			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 760px) {
+		.groups {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	@media (max-width: 420px) {
+		.groups {
+			grid-template-columns: minmax(0, 1fr);
 		}
 	}
 	@media (max-width: 640px) {
 		.bottom {
 			grid-template-columns: 1fr;
-		}
-		.build {
-			grid-row: 3;
 		}
 	}
 </style>
