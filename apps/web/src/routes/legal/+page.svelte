@@ -83,7 +83,7 @@
 		<dt>Operator</dt>
 		<dd>{LEGAL.operatorName}</dd>
 		<dt>Status</dt>
-		<dd>Private individual operating a free, non-commercial educational project. sqwer is not a company and sells nothing.</dd>
+		<dd>Private individual operating a free educational project. sqwer is not a company.</dd>
 		<dt>Country</dt>
 		<dd>{LEGAL.operatorCountry}</dd>
 		<dt>Contact</dt>

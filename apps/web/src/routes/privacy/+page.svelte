@@ -48,7 +48,7 @@
 		<ul>
 			<li>You can practice without an account. Without one, your settings and practice data stay in your browser and are not sent to us.</li>
 			<li>With an account, we store only what the registration and profile forms ask for, and the results and progress your practice produces.</li>
-			<li>sqwer is free and non-commercial. We never ask for payment details, show advertising, use third-party analytics or tracking tools, sell data or share it for marketing.</li>
+			<li>sqwer is free. We never ask for payment details, use third-party analytics or tracking tools, sell data or share it for marketing.</li>
 			<li>We count page visits with our own first-party analytics <strong>only if you allow it</strong> in the banner shown on your first visit. You can change your choice at any time under <strong>Analytics preferences</strong> at the foot of every page.</li>
 			<li>Account data is stored in the European Union (Ireland). Only the providers that host sqwer receive it, and only to run the service.</li>
 			<li>You can download or delete all of your data at any time from <strong>Account → Your data</strong>, and you may object to processing based on legitimate interests.</li>
@@ -618,7 +618,8 @@
 				<tr><th scope="col">Version</th><th scope="col">Effective</th><th scope="col">Changes</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>2.5</td><td>{formatDay(doc.effectiveIso)}</td><td>Listening exercises play recordings of each word made on sqwer's own server.</td></tr>
+				<tr><td>2.6</td><td>{formatDay(doc.effectiveIso)}</td><td>Summary wording updated.</td></tr>
+				<tr><td>2.5</td><td>{formatDay('2026-11-03')}</td><td>Listening exercises play recordings of each word made on sqwer's own server.</td></tr>
 				<tr><td>2.4</td><td>{formatDay('2026-10-18')}</td><td>Signed-in devices end at most 90 days after signing in; downloads of your data appear in your security activity.</td></tr>
 				<tr><td>2.3</td><td>{formatDay('2026-10-18')}</td><td>First-party usage analytics: visit statistics with consent, account and product events, administrator access, 13-month retention and the consent banner.</td></tr>
 				<tr><td>2.2</td><td>{formatDay('2026-10-16')}</td><td>Experience and levels, competitive results and their checks, leaderboards, and the adaptive pace of the Courses.</td></tr>

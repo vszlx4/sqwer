@@ -176,7 +176,7 @@
 
 	<h2 id="recognition">11. Recognition</h2>
 	<p>
-		11.1. sqwer is a free, non-commercial project and does not offer monetary rewards. With your permission, we will
+		11.1. sqwer does not offer monetary rewards. With your permission, we will
 		gladly acknowledge your contribution publicly once the issue is resolved.
 	</p>
 </Prose>
