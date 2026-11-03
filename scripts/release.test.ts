@@ -1,6 +1,7 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error plain ESM script without types
-import { next } from './release.mjs';
+import { next, releaseBranch } from './release.mjs';
 
 describe('release versions', () => {
 	it('continues and advances pre-release stages', () => {
@@ -33,5 +34,17 @@ describe('release versions', () => {
 		expect(() => next('1.0.0', 'stable')).toThrow();
 		expect(() => next('1.0.0-beta.1', 'patch')).toThrow();
 		expect(() => next('1.0', 'patch')).toThrow();
+	});
+
+	it('names version branches so the naming check accepts them', () => {
+		// Same pattern as .github/workflows/pr-hygiene.yml.
+		const allowed = /^(feat|fix|docs|chore|refactor|test|design|security)\/[a-z0-9][a-z0-9-]*$/;
+		expect(releaseBranch('1.0.0-beta.32')).toBe('chore/release-1-0-0-beta-32');
+		for (const v of ['1.0.0-alpha.1', '1.0.0-rc.12', '1.0.0', '2.10.3']) expect(releaseBranch(v)).toMatch(allowed);
+	});
+
+	it('matches the pattern the naming check uses', () => {
+		const workflow = readFileSync(new URL('../.github/workflows/pr-hygiene.yml', import.meta.url), 'utf8');
+		expect(workflow).toContain('^(feat|fix|docs|chore|refactor|test|design|security)/[a-z0-9][a-z0-9-]*$');
 	});
 });
