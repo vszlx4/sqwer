@@ -35,7 +35,7 @@
 <Seo title="Competitive" description="Ranked typing: a 60-second test, eleven ranks from Silver to Zenith, and leaderboards by speed and by level." />
 
 <div class="competitive">
-	<section class="arena band on-dark" aria-labelledby="arena-title">
+	<section class="arena band on-band" aria-labelledby="arena-title">
 		<div class="arena-grid">
 			<div class="intro">
 				<p class="kicker"><span class="live-dot" aria-hidden="true"></span> Ranked</p>
@@ -202,7 +202,7 @@
 		/* The page opens straight into the arena, under the floating header. */
 		margin-top: calc(-1 * (var(--header-h) + var(--main-top)));
 	}
-	/* Arena: the competitive area is dark in both themes. */
+	/* Arena: a band, light or dark with the theme. */
 	.arena {
 		padding: calc(var(--header-h) + clamp(40px, 6vw, 72px)) 0 clamp(40px, 6vw, 64px);
 		color: var(--band-ink);
@@ -211,7 +211,7 @@
 		background:
 			radial-gradient(60% 80% at 80% 20%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
 			radial-gradient(50% 70% at 0% 100%, color-mix(in srgb, var(--violet) 18%, transparent), transparent 60%),
-			repeating-linear-gradient(115deg, transparent 0 22px, color-mix(in srgb, var(--white) 2%, transparent) 22px 23px),
+			repeating-linear-gradient(115deg, transparent 0 22px, color-mix(in srgb, var(--band-ink) 2%, transparent) 22px 23px),
 			var(--band-bg-deep);
 	}
 	.arena-grid {
@@ -228,7 +228,7 @@
 		font-weight: 700;
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
-		color: var(--accent);
+		color: var(--accent-ink);
 	}
 	.live-dot {
 		width: 8px;
@@ -284,7 +284,7 @@
 		padding: 26px 24px 22px;
 		border-radius: 3px;
 		border: 1px solid var(--band-line);
-		background: linear-gradient(to bottom, var(--band-sheen), color-mix(in srgb, var(--white) 1%, transparent));
+		background: linear-gradient(to bottom, var(--band-sheen), color-mix(in srgb, var(--band-ink) 1%, transparent));
 	}
 	.me-emblem {
 		margin-top: -6px;
@@ -339,7 +339,7 @@
 		color: var(--band-ink-3);
 	}
 	.violet {
-		color: var(--violet);
+		color: var(--violet-ink);
 	}
 	.next {
 		width: 100%;

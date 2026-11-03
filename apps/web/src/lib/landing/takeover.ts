@@ -2,11 +2,11 @@ import { floatAway } from '#lib/bits/ScrollFloat.svelte';
 import { motion } from '#lib/motion/gsap.ts';
 import { pace } from './pace.ts';
 
-/* Hero takeover: while the hero track scrolls under its sticky stage, the primary button grows into a dark portal
+/* Hero takeover: while the hero track scrolls under its sticky stage, the primary button grows into a band portal
    that fills the screen. The label gives way to the journey line, which swells with the portal; the corners blur
-   and darken first. Scrubbed, so it plays both ways. Call under whenMotion; the timeline dies with its context.
-   Returns a remeasure for the moment the takeover leaves the hero (the button may have moved since setup) and the
-   wheel speed along the track. */
+   and shade first. Scrubbed, so it plays both ways. Call under whenMotion; the timeline dies with its context.
+   Returns a remeasure for the moment the takeover leaves the hero (the button may have moved since setup), a recolor
+   for theme changes and the wheel speed along the track. */
 
 export interface TakeoverParts {
 	/** Tall section the stage sticks inside. */
@@ -30,6 +30,8 @@ export interface TakeoverParts {
 export interface Takeover {
 	/** Takes the button's rect again; a no-op once the takeover has left the hero. */
 	remeasure: () => void;
+	/** Takes the theme's colors again, keeping the scroll position. */
+	recolor: () => void;
 	/** Wheel speed at a scroll position. */
 	speed: (y: number) => number;
 }
@@ -83,15 +85,15 @@ export function heroTakeover(p: TakeoverParts): Takeover {
 	tl.fromTo(p.portal, { clipPath: inset }, { clipPath: 'inset(0px 0px 0px 0px round 0px)', duration: 0.42, ease: 'in-quick' }, 0);
 	tl.fromTo(
 		p.portal,
-		{ backgroundColor: style.backgroundColor, color: style.color },
-		{ backgroundColor: token('--band-bg'), color: token('--band-ink'), duration: 0.3 },
+		{ backgroundColor: () => style.backgroundColor, color: () => style.color },
+		{ backgroundColor: () => token('--band-bg'), color: () => token('--band-ink'), duration: 0.3 },
 		0
 	);
 	tl.fromTo(p.veil, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: 'out-soft' }, 0);
 	tl.fromTo(p.fade, { opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(6px)', duration: 0.25, ease: 'out-soft' }, 0.02);
 
 	// The label rides with the portal from the button to the centre, on the portal's own curve, and hands over once
-	// the dark covers the middle of the screen.
+	// the band covers the middle of the screen.
 	tl.fromTo(p.label, { x: () => offset().x, y: () => offset().y }, { x: 0, y: 0, duration: 0.42, ease: 'in-quick' }, 0);
 	tl.fromTo(p.label, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.08 }, 0.24);
 	// The line never moves: it appears in the centre, grows in place to the width of the screen and thickens from
@@ -101,7 +103,7 @@ export function heroTakeover(p: TakeoverParts): Takeover {
 	tl.fromTo(pressure, { p: 0 }, { p: 1, duration: 0.46, onUpdate: () => p.onPressure(pressure.p) }, 0.4);
 
 	// Then the letters float straight up out of each line from its middle outwards (Scroll Float, without the sideways
-	// squeeze), blurring and fading, until only the dark is left for the next section.
+	// squeeze), blurring and fading, until only the band is left for the next section.
 	for (const row of p.line.querySelectorAll('.pressure')) {
 		tl.to(
 			row.querySelectorAll('.char'),
@@ -117,9 +119,15 @@ export function heroTakeover(p: TakeoverParts): Takeover {
 		tl.invalidate();
 		tl.progress(0);
 	};
+	// Rendering the same progress again is skipped, so step to the start and back.
+	const recolor = () => {
+		const at = tl.progress();
+		tl.invalidate();
+		tl.progress(0, true).progress(at, true);
+	};
 	const speed = (y: number) => {
 		const st = tl.scrollTrigger;
 		return st && st.end > st.start ? pace((y - st.start) / (st.end - st.start)) : 1;
 	};
-	return { remeasure, speed };
+	return { remeasure, recolor, speed };
 }
