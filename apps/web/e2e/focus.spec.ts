@@ -55,8 +55,7 @@ test('in the typing test, typing reaches the test after a click anywhere', async
 	await page.goto('/test');
 	const input = page.getByTestId('typing-input');
 	await expect(input).toBeFocused();
-	// Below the header, which covers main's top.
-	await page.locator('main').click({ position: { x: 5, y: 80 } });
+	await page.locator('main').click({ position: { x: 5, y: 5 } });
 	await expect(input).toBeFocused();
 	const first = (await page.locator('[data-word]').first().textContent())!;
 	const before = await scrollY(page);

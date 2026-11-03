@@ -427,7 +427,7 @@ dd {
 
 /* Layout: the header floats over the page; main starts below it. */
 :root {
-	--header-h: 64px;
+	--header-h: 70px;
 	--main-top: clamp(20px, 4vh, 44px);
 	--main-bottom: 48px;
 }

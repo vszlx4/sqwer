@@ -97,32 +97,38 @@
 </StaggeredMenu>
 
 <style>
-	/* Solid bar in the page color. Takes no room in the flow (negative margin), so pages start under it. */
+	/* Floating solid pill in the theme surface. Takes no room in the flow (negative margin), so pages start under it. */
 	.site-header {
-		--bar-gutter: clamp(16px, 3vw, 24px);
+		--bar-gutter: clamp(10px, 3vw, 24px);
+		--bar-pad: clamp(8px, 1.5vw, 12px);
 		position: sticky;
 		top: 0;
 		z-index: 40;
 		height: var(--header-h);
 		margin-bottom: calc(-1 * var(--header-h));
-		background: var(--bg);
-		border-bottom: 1px solid var(--line);
-		view-transition-name: site-header;
+		padding: 12px var(--bar-gutter) 0;
+		pointer-events: none;
 	}
 	.bar {
 		display: flex;
 		align-items: center;
 		gap: 16px;
 		max-width: 1180px;
-		height: 100%;
+		height: 56px;
 		margin: 0 auto;
-		padding: 0 var(--bar-gutter);
+		padding: 0 var(--bar-pad);
+		border: 1px solid var(--line);
+		border-radius: 28px;
+		background: var(--surface);
+		box-shadow: var(--shadow);
+		pointer-events: auto;
+		view-transition-name: site-header;
 	}
 	.brand {
 		display: inline-flex;
 		color: var(--logo);
 		border-radius: 999px;
-		margin-right: 8px;
+		margin: 0 8px 0 10px;
 	}
 	.brand :global(.wordmark) {
 		height: 28px;
@@ -228,12 +234,12 @@
 		grid-template-columns: 1fr 1fr;
 		gap: 8px;
 	}
-	/* Toggle lines up with .menu-slot: same bar height and gutter. */
+	/* Toggle lines up with .menu-slot: same top offset, bar height and inner padding. */
 	:global(.site-menu) {
-		--sm-header-top: 0;
-		--sm-header-height: var(--header-h);
-		--sm-header-padding: 0 clamp(16px, 3vw, 24px);
-		--sm-panel-top: calc(var(--header-h) + 26px);
+		--sm-header-top: 12px;
+		--sm-header-height: 56px;
+		--sm-header-padding: 0 calc(clamp(10px, 3vw, 24px) + clamp(8px, 1.5vw, 12px) + 6px);
+		--sm-panel-top: 96px;
 	}
 	@media (max-width: 1080px) {
 		.resume span {
