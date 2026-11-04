@@ -106,7 +106,7 @@
 	.controls {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	fieldset {
 		margin: 0;
@@ -118,20 +118,20 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 10px 16px;
+		gap: var(--space-10) var(--space-16);
 	}
 	.seg {
 		display: inline-flex;
 		flex-wrap: wrap;
-		padding: 3px;
-		gap: 2px;
+		padding: var(--space-4);
+		gap: var(--space-2);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
 	.seg label {
 		position: relative;
-		padding: 7px 12px;
+		padding: var(--space-8) var(--space-12);
 		border-radius: 3px;
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
@@ -162,12 +162,12 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.dates label {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
@@ -178,13 +178,13 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: end;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	/* Global within the filters, so fields passed in by the page (the extra snippet) match. */
 	.filters :global(label) {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: var(--space-4);
 		min-width: 0;
 	}
 	.filters :global(label > span) {
@@ -196,7 +196,7 @@
 	input[type='date'] {
 		min-height: 38px;
 		max-width: 220px;
-		padding: 0 10px;
+		padding: 0 var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -206,7 +206,7 @@
 	}
 	.clear {
 		align-self: center;
-		margin-top: 18px;
+		margin-top: var(--space-20);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
 		color: var(--ink-2);

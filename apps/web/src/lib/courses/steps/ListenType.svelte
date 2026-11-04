@@ -215,15 +215,15 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 16px;
+		gap: var(--space-16);
 		text-align: center;
 	}
 	.intro {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 12px;
-		max-width: 520px;
+		gap: var(--space-12);
+		max-width: var(--w-narrow);
 		color: var(--ink-2);
 		line-height: var(--lh-body);
 	}
@@ -242,7 +242,7 @@
 		color: var(--ink);
 	}
 	kbd {
-		padding: 1px 6px;
+		padding: 1px var(--space-6);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
@@ -257,7 +257,7 @@
 	.card {
 		display: grid;
 		place-items: center;
-		width: min(100%, 460px);
+		width: min(100%, var(--w-form));
 		height: 150px;
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
@@ -303,7 +303,7 @@
 	.result {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		font-size: var(--fs-20);
 		font-weight: var(--fw-semibold);
 	}
@@ -316,9 +316,9 @@
 		color: var(--ink-2);
 	}
 	.answer input {
-		width: min(460px, 86vw);
+		width: min(var(--w-form), 86vw);
 		height: 56px;
-		padding: 0 16px;
+		padding: 0 var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);

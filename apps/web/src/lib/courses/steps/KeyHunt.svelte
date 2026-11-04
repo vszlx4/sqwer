@@ -148,14 +148,14 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 14px;
-		padding: 22px 18px 18px;
+		gap: var(--space-16);
+		padding: var(--space-24) var(--space-20) var(--space-20);
 	}
 	.prompt {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		min-height: 118px;
 	}
 	.cap {
@@ -211,7 +211,7 @@
 	}
 	.board {
 		width: 100%;
-		max-width: 760px;
+		max-width: var(--w-text);
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.cap {

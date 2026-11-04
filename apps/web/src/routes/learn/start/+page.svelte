@@ -90,7 +90,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 10px;
+		gap: var(--space-10);
 		max-width: 360px;
 	}
 	.retake {
@@ -99,40 +99,40 @@
 	.choose {
 		display: flex;
 		flex-direction: column;
-		gap: 36px;
-		max-width: 920px;
+		gap: var(--space-40);
+		max-width: var(--w-wide);
 	}
 	h1 {
 		font-size: var(--fs-display);
 		line-height: var(--lh-snug);
 	}
 	.lede {
-		margin-top: 12px;
+		margin-top: var(--space-12);
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	h2 {
 		font-size: var(--fs-28);
-		margin-bottom: 14px;
+		margin-bottom: var(--space-16);
 	}
 	.level {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 20px;
+		gap: var(--space-20);
 		flex-wrap: wrap;
-		padding: 22px 24px;
+		padding: var(--space-24) var(--space-24);
 		border-radius: 3px;
 		border: 1px solid var(--ink);
 		background: var(--surface);
 		box-shadow: inset 4px 0 0 var(--accent);
 	}
 	.level h2 {
-		margin-bottom: 6px;
+		margin-bottom: var(--space-6);
 	}
 	.level p {
-		max-width: 560px;
+		max-width: var(--w-narrow);
 		color: var(--ink-2);
 		line-height: var(--lh-body);
 	}
@@ -142,14 +142,14 @@
 	.list {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.list li {
 		display: grid;
 		grid-template-columns: 44px minmax(0, 1fr) auto;
 		align-items: center;
-		gap: 16px;
-		padding: 16px 18px;
+		gap: var(--space-16);
+		padding: var(--space-16) var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -178,8 +178,8 @@
 		font-weight: var(--fw-bold);
 	}
 	.tag {
-		margin-left: 6px;
-		padding: 2px 6px;
+		margin-left: var(--space-6);
+		padding: var(--space-2) var(--space-6);
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
@@ -194,19 +194,19 @@
 	.ready {
 		display: flex;
 		align-items: flex-start;
-		gap: 6px;
-		margin-top: 6px;
+		gap: var(--space-6);
+		margin-top: var(--space-6);
 		font-size: var(--fs-14);
 		color: var(--ink);
 	}
 	.ready :global(svg) {
 		flex-shrink: 0;
-		margin-top: 2px;
+		margin-top: var(--space-2);
 	}
 	.side {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.count {
 		font-size: var(--fs-13);

@@ -141,10 +141,10 @@
 	.start {
 		display: flex;
 		flex-direction: column;
-		gap: 40px;
-		max-width: 920px;
+		gap: var(--space-40);
+		max-width: var(--w-wide);
 		margin: 0 auto;
-		padding-top: clamp(8px, 3vh, 32px);
+		padding-top: clamp(var(--space-8), 3vh, var(--space-32));
 	}
 	.intro {
 		text-align: center;
@@ -160,28 +160,28 @@
 		color: var(--ink-2);
 	}
 	h1 {
-		margin-top: 10px;
+		margin-top: var(--space-10);
 		font-size: var(--fs-hero);
 		line-height: var(--lh-snug);
 		max-width: 20ch;
 	}
 	.lede {
-		margin-top: 18px;
-		max-width: 600px;
+		margin-top: var(--space-20);
+		max-width: var(--w-narrow);
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.steps {
 		display: flex;
-		gap: 8px;
-		margin-top: 28px;
+		gap: var(--space-8);
+		margin-top: var(--space-32);
 	}
 	.steps li {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
-		padding: 6px 14px 6px 6px;
+		gap: var(--space-8);
+		padding: var(--space-6) var(--space-16) var(--space-6) var(--space-6);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		font-size: var(--fs-14);
@@ -215,8 +215,8 @@
 	.options {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 14px;
-		margin-top: 24px;
+		gap: var(--space-16);
+		margin-top: var(--space-24);
 	}
 	.options li {
 		display: flex;
@@ -226,8 +226,8 @@
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
-		padding: 20px;
+		gap: var(--space-16);
+		padding: var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -259,14 +259,14 @@
 	}
 	.art {
 		display: block;
-		padding: 10px 12px 0;
+		padding: var(--space-10) var(--space-12) 0;
 		border-radius: 3px;
 		background: var(--bg);
 	}
 	.text {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.option-title {
 		font-size: var(--fs-18);
@@ -292,8 +292,8 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 16px;
-		padding: clamp(28px, 4vw, 44px);
+		gap: var(--space-16);
+		padding: clamp(var(--space-32), 4vw, var(--space-48));
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
@@ -303,8 +303,8 @@
 	.answer {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
-		padding: 6px 8px 6px 12px;
+		gap: var(--space-8);
+		padding: var(--space-6) var(--space-8) var(--space-6) var(--space-12);
 		border-radius: 3px;
 		background: var(--bg);
 		border: 1px solid var(--line);
@@ -312,7 +312,7 @@
 		font-weight: var(--fw-semibold);
 	}
 	.change {
-		padding: 4px 8px;
+		padding: var(--space-4) var(--space-8);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
@@ -333,7 +333,7 @@
 		outline-offset: 2px;
 	}
 	.body {
-		max-width: 600px;
+		max-width: var(--w-narrow);
 		text-wrap: pretty;
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
@@ -345,8 +345,8 @@
 	.preview {
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		padding: 14px 18px;
+		gap: var(--space-10);
+		padding: var(--space-16) var(--space-20);
 		border-radius: 3px;
 		background: var(--bg);
 		border: 1px solid var(--line);
@@ -366,7 +366,7 @@
 		font-weight: var(--fw-semibold);
 	}
 	.preview p {
-		margin-left: 8px;
+		margin-left: var(--space-8);
 		font-size: var(--fs-15);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
@@ -376,10 +376,10 @@
 	}
 	.actions {
 		display: flex;
-		gap: 10px;
+		gap: var(--space-10);
 		flex-wrap: wrap;
 		justify-content: center;
-		margin-top: 6px;
+		margin-top: var(--space-6);
 	}
 	.note {
 		font-size: var(--fs-15);
@@ -404,7 +404,7 @@
 			align-items: center;
 		}
 		.art {
-			padding: 6px;
+			padding: var(--space-6);
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {

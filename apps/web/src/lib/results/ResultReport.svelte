@@ -190,30 +190,30 @@
 	.report {
 		display: flex;
 		flex-direction: column;
-		gap: 28px;
+		gap: var(--space-32);
 	}
 	.head h2 {
 		font-size: var(--fs-title);
 		line-height: var(--lh-snug);
 	}
 	.meta {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		font-size: var(--fs-15);
 		color: var(--ink-2);
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 	}
 	.earned {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 8px;
-		margin-top: 10px;
+		gap: var(--space-8);
+		margin-top: var(--space-10);
 	}
 	.xp {
-		padding: 4px 10px;
+		padding: var(--space-4) var(--space-10);
 		border-radius: 3px;
 		background: var(--rank-soft);
 		color: var(--rank);
@@ -233,7 +233,7 @@
 		}
 	}
 	.tier {
-		padding: 4px 10px;
+		padding: var(--space-4) var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--league);
 		color: var(--ink);
@@ -245,7 +245,7 @@
 		color: var(--ink-2);
 	}
 	.badge {
-		padding: 2px 8px;
+		padding: var(--space-2) var(--space-8);
 		border-radius: 3px;
 		border: 1px solid var(--error);
 		color: var(--error);
@@ -255,13 +255,13 @@
 	.top {
 		display: grid;
 		grid-template-columns: minmax(220px, 0.32fr) minmax(0, 1fr);
-		gap: 28px;
+		gap: var(--space-32);
 		align-items: start;
 	}
 	.numbers {
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
+		gap: var(--space-20);
 	}
 	.big {
 		display: flex;
@@ -285,21 +285,21 @@
 		color: var(--ink-2);
 	}
 	.delta {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.mini {
 		display: grid;
 		grid-template-columns: 1fr;
-		gap: 10px;
-		padding-top: 14px;
+		gap: var(--space-10);
+		padding-top: var(--space-16);
 		border-top: 1px solid var(--line);
 	}
 	.mini div {
 		display: flex;
 		justify-content: space-between;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	dt {
 		font-size: var(--fs-14);
@@ -310,7 +310,7 @@
 		font-variant-numeric: tabular-nums;
 	}
 	.chart-panel {
-		padding: 18px;
+		padding: var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -319,16 +319,16 @@
 	.details {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.details > div {
-		padding: 14px 16px;
+		padding: var(--space-16) var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: var(--space-4);
 	}
 	.details dd {
 		font-size: var(--fs-15);
@@ -340,7 +340,7 @@
 	kbd {
 		font-family: var(--font-mono);
 		font-size: var(--fs-13);
-		padding: 0 5px;
+		padding: 0 var(--space-6);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -348,7 +348,7 @@
 	.block {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	h3 {
 		font-family: var(--font-serif);
@@ -358,17 +358,17 @@
 	.guidance {
 		display: grid;
 		grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.insights,
 	.next {
-		padding: 20px;
+		padding: var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.next {
 		border-left: 4px solid var(--accent);
@@ -377,8 +377,8 @@
 	.insights ul {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		padding-left: 18px;
+		gap: var(--space-8);
+		padding-left: var(--space-20);
 		list-style: disc;
 	}
 	.insights li,
@@ -396,12 +396,12 @@
 	.actions {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 	}
 	.actions .all {
 		margin-left: auto;
-		padding: 8px 0;
+		padding: var(--space-8) 0;
 	}
 	.muted {
 		font-size: var(--fs-13);

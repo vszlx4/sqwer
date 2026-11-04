@@ -30,12 +30,12 @@
 	.preview {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	figcaption {
 		display: flex;
 		justify-content: space-between;
-		gap: 12px;
+		gap: var(--space-12);
 		flex-wrap: wrap;
 		font-size: var(--fs-14);
 		color: var(--ink-2);
@@ -44,7 +44,7 @@
 		line-height: var(--lh-body);
 	}
 	.callout .mini {
-		margin-right: 6px;
+		margin-right: var(--space-6);
 	}
 	.mini {
 		display: inline-grid;

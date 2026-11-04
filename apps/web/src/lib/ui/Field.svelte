@@ -101,7 +101,7 @@
 	.field {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	label {
 		font-size: var(--fs-15);
@@ -112,7 +112,7 @@
 	textarea {
 		width: 100%;
 		min-height: 46px;
-		padding: 10px 12px;
+		padding: var(--space-10) var(--space-12);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -129,7 +129,7 @@
 		position: relative;
 	}
 	.with-toggle input {
-		padding-right: 74px;
+		padding-right: var(--space-64);
 	}
 	.reveal {
 		position: absolute;
@@ -137,7 +137,7 @@
 		right: 6px;
 		transform: translateY(-50%);
 		min-width: 58px;
-		padding: 6px 10px;
+		padding: var(--space-6) var(--space-10);
 		border-radius: 3px;
 		border: 1px solid transparent;
 		background: none;
@@ -161,12 +161,12 @@
 	.strength {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.bars {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
-		gap: 4px;
+		gap: var(--space-4);
 	}
 	.bars span {
 		height: 4px;

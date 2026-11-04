@@ -26,8 +26,8 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		gap: 12px;
-		padding: 0 18px;
+		gap: var(--space-12);
+		padding: 0 var(--space-20);
 	}
 	.lane {
 		--hue: var(--accent);
@@ -45,7 +45,7 @@
 		top: 50%;
 		width: calc((100% - 30px) * var(--at));
 		height: 3px;
-		margin-top: -1.5px;
+		margin-top: calc(var(--space-2) * -1);
 		border-radius: 3px;
 		background: linear-gradient(90deg, transparent, var(--hue));
 	}
@@ -69,7 +69,7 @@
 		border-radius: 0 3px 3px 0;
 	}
 	.passage {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-family: var(--font-mono);
 		font-size: var(--fs-16);
 		white-space: pre;
@@ -82,7 +82,7 @@
 		display: inline-block;
 		width: 2px;
 		height: 1em;
-		margin-right: -2px;
+		margin-right: calc(var(--space-2) * -1);
 		vertical-align: -0.12em;
 		background: var(--accent);
 	}

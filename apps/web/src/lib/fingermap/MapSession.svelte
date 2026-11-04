@@ -265,7 +265,7 @@
 <style>
 	.hands {
 		width: min(100%, 400px);
-		margin: 0 auto -6px;
+		margin: 0 auto calc(var(--space-6) * -1);
 		transition: opacity 160ms ease;
 	}
 	.hands.waiting {
@@ -274,18 +274,18 @@
 	.session {
 		display: flex;
 		flex-direction: column;
-		gap: 22px;
+		gap: var(--space-24);
 	}
 	.top {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-20);
 		flex-wrap: wrap;
 	}
 	.back {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-regular);
 		color: var(--ink-2);
@@ -301,7 +301,7 @@
 		flex: 1;
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-12);
 		min-width: 240px;
 	}
 	.pct {
@@ -330,7 +330,7 @@
 	}
 	.finish {
 		height: 38px;
-		padding: 0 16px;
+		padding: 0 var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
@@ -375,7 +375,7 @@
 		text-align: center;
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 		min-height: 92px;
 	}
 	h2 {
@@ -388,8 +388,8 @@
 		place-items: center;
 		min-width: 40px;
 		height: 40px;
-		padding: 0 10px;
-		margin: 0 4px;
+		padding: 0 var(--space-10);
+		margin: 0 var(--space-4);
 		border-radius: 3px;
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 3px;
@@ -409,7 +409,7 @@
 		text-align: center;
 	}
 	.picker {
-		max-width: 820px;
+		max-width: var(--w-wide);
 		width: 100%;
 		margin: 0 auto;
 		transition: opacity 150ms ease;
@@ -434,7 +434,7 @@
 	kbd {
 		font-family: var(--font-mono);
 		font-size: var(--fs-12);
-		padding: 1px 6px;
+		padding: 1px var(--space-6);
 		border-radius: 3px;
 		background: var(--surface);
 		border: 1px solid var(--line);

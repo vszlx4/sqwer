@@ -62,12 +62,12 @@
 	.words {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
+		gap: var(--space-6);
 		font-family: var(--font-mono);
 		font-size: var(--fs-15);
 	}
 	li {
-		padding: 4px 8px;
+		padding: var(--space-4) var(--space-8);
 		border-radius: 3px;
 		border: 2px solid transparent;
 		cursor: default;
@@ -84,9 +84,9 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-12);
 		flex-wrap: wrap;
-		margin-top: 12px;
+		margin-top: var(--space-12);
 	}
 	.detail {
 		font-size: var(--fs-14);
@@ -102,7 +102,7 @@
 	.scale {
 		display: flex;
 		align-items: center;
-		gap: 4px;
+		gap: var(--space-4);
 		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
@@ -113,10 +113,10 @@
 		border: 1px solid var(--line);
 	}
 	.scale span {
-		margin: 0 4px;
+		margin: 0 var(--space-4);
 	}
 	.scale .wrong-swatch {
-		margin-left: 10px;
+		margin-left: var(--space-10);
 		background: var(--error-soft);
 		border: 2px solid var(--error);
 	}

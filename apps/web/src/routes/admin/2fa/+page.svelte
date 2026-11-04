@@ -27,8 +27,8 @@
 	.mfa {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
-		max-width: 460px;
+		gap: var(--space-16);
+		max-width: var(--w-form);
 	}
 	h1 {
 		font-size: var(--fs-title);
@@ -39,14 +39,14 @@
 	.code {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 		font-weight: var(--fw-semibold);
 		font-size: var(--fs-15);
 	}
 	.code input {
 		min-height: 48px;
 		max-width: 200px;
-		padding: 0 14px;
+		padding: 0 var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);

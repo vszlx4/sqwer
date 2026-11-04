@@ -47,10 +47,10 @@
 	.codes-box {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	.warning {
-		padding: 12px 14px;
+		padding: var(--space-12) var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		border-left: 4px solid var(--accent);
@@ -62,10 +62,10 @@
 	.codes {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.codes li {
-		padding: 10px 12px;
+		padding: var(--space-10) var(--space-12);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--bg);
@@ -81,7 +81,7 @@
 	}
 	.actions {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 	}
 	.status {

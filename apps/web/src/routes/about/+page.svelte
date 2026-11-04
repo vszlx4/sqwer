@@ -95,19 +95,19 @@
 	.zones {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
-		margin: 8px 0;
+		gap: var(--space-12);
+		margin: var(--space-8) 0;
 	}
 	figcaption {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 16px;
+		gap: var(--space-16);
 		font-size: var(--fs-14);
 	}
 	figcaption span {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	figcaption i {
 		width: 11px;

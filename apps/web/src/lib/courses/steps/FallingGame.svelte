@@ -257,13 +257,13 @@
 	.game {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.hud {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
+		gap: var(--space-12);
 		font-size: var(--fs-15);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
@@ -274,7 +274,7 @@
 	}
 	.lives {
 		display: inline-flex;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.progress {
 		flex: 1;
@@ -291,7 +291,7 @@
 		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
 	.goal {
-		padding: 6px 12px;
+		padding: var(--space-6) var(--space-12);
 		border-radius: 3px;
 		background: var(--success-soft);
 		color: var(--success);
@@ -338,7 +338,7 @@
 		place-items: center;
 		min-width: 46px;
 		height: 46px;
-		padding: 0 10px;
+		padding: 0 var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 3px;
@@ -370,7 +370,7 @@
 		position: absolute;
 		width: 56px;
 		height: 56px;
-		margin: -28px 0 0 -28px;
+		margin: calc(var(--space-32) * -1) 0 0 calc(var(--space-32) * -1);
 		border-radius: 3px;
 		border: 3px solid var(--accent);
 		animation: burst 480ms ease-out forwards;
@@ -403,8 +403,8 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 10px;
-		padding: 24px;
+		gap: var(--space-10);
+		padding: var(--space-24);
 		text-align: center;
 		background: color-mix(in srgb, var(--bg) 82%, transparent);
 		-webkit-backdrop-filter: blur(3px);
@@ -429,8 +429,8 @@
 		}
 	}
 	.overlay kbd {
-		margin-left: 6px;
-		padding: 1px 6px;
+		margin-left: var(--space-6);
+		padding: 1px var(--space-6);
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);

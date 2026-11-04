@@ -36,18 +36,18 @@
 
 <style>
 	.crumbs {
-		margin-bottom: 20px;
+		margin-bottom: var(--space-20);
 	}
 	ol {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
+		gap: var(--space-6);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	li {
 		display: inline-flex;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	a {
 		color: var(--ink-2);

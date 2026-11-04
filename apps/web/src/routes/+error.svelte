@@ -50,8 +50,8 @@
 		flex-direction: column;
 		align-items: center;
 		text-align: center;
-		gap: 16px;
-		padding: clamp(32px, 10vh, 96px) 0;
+		gap: var(--space-16);
+		padding: clamp(var(--space-32), 10vh, var(--space-96)) 0;
 	}
 	.code {
 		font-size: var(--fs-15);
@@ -66,16 +66,16 @@
 		max-width: 16ch;
 	}
 	.text {
-		max-width: 520px;
+		max-width: var(--w-narrow);
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.links {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 		justify-content: center;
-		margin-top: 8px;
+		margin-top: var(--space-8);
 	}
 </style>

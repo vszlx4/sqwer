@@ -34,7 +34,7 @@
 		position: absolute;
 		top: 0;
 		display: flex;
-		padding: 5px 9px 5px 11px;
+		padding: var(--space-6) var(--space-10) var(--space-6) var(--space-12);
 		border-radius: 3px;
 		font-family: var(--font-mono);
 		font-size: var(--fs-13);

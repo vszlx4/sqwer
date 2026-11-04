@@ -131,7 +131,7 @@
 	.timed {
 		display: flex;
 		align-items: center;
-		gap: 22px;
+		gap: var(--space-24);
 	}
 	.timer-ring {
 		width: 92px;
@@ -164,10 +164,10 @@
 	.chips {
 		display: grid;
 		grid-template-columns: repeat(2, 44px);
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.chips li {
-		padding: 4px 0;
+		padding: var(--space-4) 0;
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		font-family: var(--font-mono);
@@ -185,8 +185,8 @@
 	.words {
 		display: flex;
 		align-items: flex-end;
-		gap: 16px;
-		padding: 0 20px;
+		gap: var(--space-16);
+		padding: 0 var(--space-20);
 	}
 	.words p {
 		font-family: var(--font-mono);
@@ -200,7 +200,7 @@
 	.words .current {
 		color: var(--ink);
 		box-shadow: inset 2px 0 0 var(--accent);
-		padding-left: 3px;
+		padding-left: var(--space-4);
 	}
 	.count {
 		font-family: var(--font-serif);
@@ -215,7 +215,7 @@
 	/* Punctuation and numbers: the keys that need Shift and longer reaches. */
 	.keys {
 		display: flex;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.key {
 		display: grid;
@@ -242,9 +242,9 @@
 	.bars {
 		display: flex;
 		align-items: flex-end;
-		gap: 4px;
+		gap: var(--space-4);
 		height: 84px;
-		padding: 0 20px;
+		padding: 0 var(--space-20);
 	}
 	.bars span:not(.time) {
 		width: 7px;
@@ -264,7 +264,7 @@
 	}
 	.time {
 		align-self: center;
-		margin-left: 12px;
+		margin-left: var(--space-12);
 		font-family: var(--font-mono);
 		font-size: var(--fs-24);
 		font-weight: var(--fw-semibold);
@@ -274,11 +274,11 @@
 	.kbd {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: var(--space-4);
 	}
 	.kbd-row {
 		display: flex;
-		gap: 4px;
+		gap: var(--space-4);
 	}
 	.k {
 		width: 20px;

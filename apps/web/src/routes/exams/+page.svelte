@@ -189,8 +189,8 @@
 		display: grid;
 		grid-template-columns: 36px 150px minmax(0, 1fr) auto 20px;
 		align-items: center;
-		gap: 16px;
-		padding: 14px 18px;
+		gap: var(--space-16);
+		padding: var(--space-16) var(--space-20);
 		color: var(--ink);
 		text-decoration: none;
 		transition: background-color 140ms ease;
@@ -246,7 +246,7 @@
 	@media (max-width: 760px) {
 		.game-list a {
 			grid-template-columns: 36px minmax(0, 1fr) 20px;
-			row-gap: 2px;
+			row-gap: var(--space-2);
 		}
 		.game-title {
 			grid-column: 2;
@@ -279,15 +279,15 @@
 	.exams {
 		display: flex;
 		flex-direction: column;
-		gap: clamp(44px, 6vw, 64px);
+		gap: clamp(var(--space-48), 6vw, var(--space-64));
 	}
 	h1 {
 		font-size: var(--fs-display);
 		line-height: var(--lh-snug);
 	}
 	.lede {
-		margin-top: 14px;
-		max-width: 640px;
+		margin-top: var(--space-16);
+		max-width: var(--w-text);
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
@@ -296,9 +296,9 @@
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: 8px 20px;
+		gap: var(--space-8) var(--space-20);
 		flex-wrap: wrap;
-		margin-bottom: 16px;
+		margin-bottom: var(--space-16);
 	}
 	h2 {
 		font-size: var(--fs-title);
@@ -312,7 +312,7 @@
 	.cards {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	.cards.pair {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -372,8 +372,8 @@
 		left: 12px;
 		display: inline-flex;
 		align-items: center;
-		gap: 5px;
-		padding: 3px 8px;
+		gap: var(--space-6);
+		padding: var(--space-4) var(--space-8);
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
@@ -387,9 +387,9 @@
 	.body {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: var(--space-10);
 		flex: 1;
-		padding: 18px 20px 20px;
+		padding: var(--space-20) var(--space-20) var(--space-20);
 	}
 	h3 {
 		font-size: var(--fs-20);
@@ -425,14 +425,14 @@
 	.meta {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 4px 14px;
+		gap: var(--space-4) var(--space-16);
 		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.meta span {
 		display: inline-flex;
 		align-items: center;
-		gap: 5px;
+		gap: var(--space-6);
 	}
 	.measures {
 		font-weight: var(--fw-semibold);
@@ -441,8 +441,8 @@
 	.facts {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px 18px;
-		padding-top: 12px;
+		gap: var(--space-8) var(--space-20);
+		padding-top: var(--space-12);
 		border-top: 1px solid var(--line);
 	}
 	dt {
@@ -457,7 +457,7 @@
 	.unlock {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
@@ -478,9 +478,9 @@
 	.go {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 		margin-top: auto;
-		padding-top: 6px;
+		padding-top: var(--space-6);
 		font-size: var(--fs-15);
 		font-weight: var(--fw-bold);
 	}
@@ -492,7 +492,7 @@
 	}
 	.exam-card.next .go {
 		align-self: flex-start;
-		padding: 9px 14px;
+		padding: var(--space-10) var(--space-16);
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
@@ -510,7 +510,7 @@
 		border-right: 1px solid var(--line);
 	}
 	.single .body {
-		padding: 28px 32px;
+		padding: var(--space-32) var(--space-32);
 		justify-content: center;
 	}
 	.single h3 {
@@ -541,7 +541,7 @@
 			border-bottom: 1px solid var(--line);
 		}
 		.single .body {
-			padding: 20px;
+			padding: var(--space-20);
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {
@@ -552,14 +552,14 @@
 	.shortcuts {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
-		margin-top: 16px;
+		gap: var(--space-8);
+		margin-top: var(--space-16);
 	}
 	.shortcuts a {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
-		padding: 8px 14px;
+		gap: var(--space-8);
+		padding: var(--space-8) var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);

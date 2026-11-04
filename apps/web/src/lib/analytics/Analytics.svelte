@@ -56,9 +56,9 @@
 		z-index: 60;
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
-		width: min(440px, calc(100vw - 32px));
-		padding: 18px 20px;
+		gap: var(--space-10);
+		width: min(var(--w-form), calc(100vw - 32px));
+		padding: var(--space-20) var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -89,7 +89,7 @@
 	}
 	.actions {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.actions .btn {
 		flex: 1;

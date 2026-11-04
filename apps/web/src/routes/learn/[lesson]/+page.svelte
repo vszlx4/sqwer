@@ -39,9 +39,9 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 14px;
-		max-width: 620px;
-		margin: clamp(16px, 6vh, 64px) auto;
+		gap: var(--space-16);
+		max-width: var(--w-narrow);
+		margin: clamp(var(--space-16), 6vh, var(--space-64)) auto;
 		text-align: center;
 	}
 	.where {
@@ -67,9 +67,9 @@
 	.box {
 		display: flex;
 		align-items: flex-start;
-		gap: 12px;
-		margin-top: 8px;
-		padding: 16px 18px;
+		gap: var(--space-12);
+		margin-top: var(--space-8);
+		padding: var(--space-16) var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
@@ -78,14 +78,14 @@
 	}
 	.box :global(svg) {
 		flex-shrink: 0;
-		margin-top: 2px;
+		margin-top: var(--space-2);
 	}
 	.actions {
 		display: flex;
-		gap: 10px;
+		gap: var(--space-10);
 		flex-wrap: wrap;
 		justify-content: center;
-		margin-top: 6px;
+		margin-top: var(--space-6);
 	}
 	.back {
 		font-size: var(--fs-15);

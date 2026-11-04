@@ -281,13 +281,13 @@
 	.builder {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) 300px;
-		gap: 32px;
+		gap: var(--space-32);
 		align-items: start;
 	}
 	fieldset {
 		display: flex;
 		flex-direction: column;
-		gap: 18px;
+		gap: var(--space-20);
 		border: 0;
 		padding: 0;
 		margin: 0;
@@ -298,13 +298,13 @@
 	legend {
 		font-family: var(--font-serif);
 		font-size: var(--fs-24);
-		margin-bottom: 14px;
+		margin-bottom: var(--space-16);
 		color: var(--ink);
 	}
 	/* When editing, each part of the form is its own panel, and the save button stays in reach. */
 	.builder:not(.setup) fieldset {
-		padding: 20px 22px 24px;
-		margin-bottom: 14px;
+		padding: var(--space-20) var(--space-24) var(--space-24);
+		margin-bottom: var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -312,19 +312,19 @@
 	.builder:not(.setup) legend {
 		float: left;
 		width: 100%;
-		margin-bottom: 4px;
+		margin-bottom: var(--space-4);
 		font-size: var(--fs-20);
 	}
 	.stepper {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.stepper li {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		padding: 10px;
+		gap: var(--space-8);
+		padding: var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		font-size: var(--fs-14);
@@ -362,14 +362,14 @@
 	.options {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.option {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-		padding: 14px 14px 14px 42px;
+		gap: var(--space-4);
+		padding: var(--space-16) var(--space-16) var(--space-16) var(--space-40);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -398,7 +398,7 @@
 	}
 	.swatches {
 		display: flex;
-		gap: 10px;
+		gap: var(--space-10);
 		flex-wrap: wrap;
 	}
 	.swatch {
@@ -442,8 +442,8 @@
 	.buttons {
 		display: flex;
 		justify-content: space-between;
-		gap: 10px;
-		padding-top: 6px;
+		gap: var(--space-10);
+		padding-top: var(--space-6);
 	}
 	.builder:not(.setup) .buttons {
 		position: sticky;
@@ -451,7 +451,7 @@
 		z-index: 5;
 		justify-content: flex-start;
 		margin-top: 0;
-		padding: 12px 0 16px;
+		padding: var(--space-12) 0 var(--space-16);
 		border-top: 1px solid var(--line);
 		background: var(--bg);
 	}
@@ -460,7 +460,7 @@
 		top: 96px;
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.preview-label {
 		font-size: var(--fs-13);
@@ -472,8 +472,8 @@
 	.facts {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 10px;
-		margin-top: 10px;
+		gap: var(--space-10);
+		margin-top: var(--space-10);
 	}
 	.facts dt {
 		font-size: var(--fs-12);
@@ -485,9 +485,9 @@
 		color: var(--ink);
 	}
 	.visibility {
-		margin-top: 8px;
+		margin-top: var(--space-8);
 		align-self: flex-start;
-		padding: 2px 8px;
+		padding: var(--space-2) var(--space-8);
 		border-radius: 3px;
 		background: var(--surface-2);
 		font-size: var(--fs-13);
@@ -501,14 +501,14 @@
 	.banners {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.banner-option {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		padding: 6px;
+		gap: var(--space-6);
+		padding: var(--space-6);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		cursor: pointer;
@@ -542,11 +542,11 @@
 	.toggles {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.check.public {
-		margin-top: 6px;
-		padding: 14px;
+		margin-top: var(--space-6);
+		padding: var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);

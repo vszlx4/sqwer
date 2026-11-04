@@ -43,13 +43,13 @@
 	.chips {
 		display: flex;
 		justify-content: center;
-		gap: 28px;
+		gap: var(--space-32);
 		flex-wrap: wrap;
 	}
 	.hand {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.hand-name {
 		font-size: var(--fs-12);
@@ -60,15 +60,15 @@
 	}
 	.row {
 		display: flex;
-		gap: 6px;
+		gap: var(--space-6);
 		flex-wrap: wrap;
 	}
 	.chip {
 		display: inline-flex;
 		align-items: center;
-		gap: 7px;
+		gap: var(--space-8);
 		height: 38px;
-		padding: 0 12px 0 6px;
+		padding: 0 var(--space-12) 0 var(--space-6);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);

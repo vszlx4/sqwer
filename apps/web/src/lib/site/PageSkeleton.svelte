@@ -52,25 +52,25 @@
 	.page {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
+		gap: var(--space-24);
 	}
 	.head,
 	.who-text {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	.who {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-20);
 	}
 	.who-text {
 		flex: 1;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.text-block {
-		padding: 20px;
+		padding: var(--space-20);
 		border: 1px solid var(--line);
 		border-radius: 3px;
 		font-size: var(--fs-20);
@@ -78,20 +78,20 @@
 	.cards {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.card {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
-		padding: 14px 16px;
+		gap: var(--space-10);
+		padding: var(--space-16) var(--space-16);
 		border: 1px solid var(--line);
 		border-radius: 3px;
 	}
 	.rows {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	@media (max-width: 760px) {
 		.cards {

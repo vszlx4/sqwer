@@ -192,21 +192,21 @@
 	.stack {
 		display: flex;
 		flex-direction: column;
-		gap: 32px;
+		gap: var(--space-32);
 	}
 	h1 {
 		font-size: var(--fs-title);
 	}
 	.lede {
-		margin-top: 8px;
-		max-width: 680px;
+		margin-top: var(--space-8);
+		max-width: var(--w-text);
 		font-size: var(--fs-16);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	h2 {
 		font-size: var(--fs-20);
-		margin-bottom: 12px;
+		margin-bottom: var(--space-12);
 	}
 	/* Figures sit in one panel divided by hairlines; column counts match each group, so no cell is empty. */
 	.highlights,
@@ -225,7 +225,7 @@
 	}
 	.highlights div,
 	.tiles div {
-		padding: 14px 16px;
+		padding: var(--space-16) var(--space-16);
 		background: var(--surface);
 	}
 	.highlights dd {
@@ -235,7 +235,7 @@
 		font-variant-numeric: tabular-nums;
 	}
 	.empty {
-		padding: 18px;
+		padding: var(--space-20);
 		border-radius: 3px;
 		border: 1px dashed var(--line-strong);
 		color: var(--ink-2);
@@ -249,25 +249,25 @@
 		color: var(--ink-2);
 	}
 	dd {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-size: var(--fs-18);
 		font-weight: var(--fw-bold);
 		overflow-wrap: anywhere;
 	}
 	table {
 		width: 100%;
-		margin-top: 14px;
+		margin-top: var(--space-16);
 		border-collapse: collapse;
 		font-size: var(--fs-15);
 	}
 	caption {
 		text-align: left;
 		font-weight: var(--fw-semibold);
-		padding-bottom: 6px;
+		padding-bottom: var(--space-6);
 	}
 	th,
 	td {
-		padding: 9px 8px;
+		padding: var(--space-10) var(--space-8);
 		text-align: left;
 		border-bottom: 1px solid var(--line);
 	}
@@ -297,12 +297,12 @@
 	}
 	.note,
 	.manage p {
-		margin-top: 10px;
+		margin-top: var(--space-10);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.manage .btn {
-		margin-top: 12px;
+		margin-top: var(--space-12);
 	}
 	@media (max-width: 760px) {
 		table {

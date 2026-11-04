@@ -131,15 +131,15 @@
 	.overview {
 		display: flex;
 		flex-direction: column;
-		gap: 36px;
+		gap: var(--space-40);
 	}
 	.section-head {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		flex-wrap: wrap;
-		gap: 10px 16px;
-		margin-bottom: 14px;
+		gap: var(--space-10) var(--space-16);
+		margin-bottom: var(--space-16);
 	}
 	h2 {
 		font-size: var(--fs-24);
@@ -147,7 +147,7 @@
 	.more {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
@@ -159,7 +159,7 @@
 	.links {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.steps,
 	.health {
@@ -178,8 +178,8 @@
 		display: grid;
 		grid-template-columns: 40px minmax(0, 1fr) auto;
 		align-items: center;
-		gap: 16px;
-		padding: 14px 18px;
+		gap: var(--space-16);
+		padding: var(--space-16) var(--space-20);
 		color: var(--ink);
 		text-decoration: none;
 		transition: background-color 140ms ease;
@@ -211,7 +211,7 @@
 	.step-text {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: var(--space-2);
 		min-width: 0;
 	}
 	.step-text span {
@@ -221,7 +221,7 @@
 	.step-go {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
 		white-space: nowrap;
@@ -237,7 +237,7 @@
 	}
 	.figures div,
 	.facts div {
-		padding: 14px 18px;
+		padding: var(--space-16) var(--space-20);
 	}
 	.figures div + div,
 	.facts div + div {
@@ -248,7 +248,7 @@
 		color: var(--ink-2);
 	}
 	dd {
-		margin: 4px 0 0;
+		margin: var(--space-4) 0 0;
 		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
@@ -261,7 +261,7 @@
 		font-size: var(--fs-18);
 	}
 	.about {
-		margin-top: 12px;
+		margin-top: var(--space-12);
 		max-width: 70ch;
 		font-size: var(--fs-15);
 		line-height: var(--lh-body);
@@ -271,8 +271,8 @@
 		display: grid;
 		grid-template-columns: 28px minmax(0, 1fr) auto;
 		align-items: center;
-		gap: 14px;
-		padding: 14px 18px;
+		gap: var(--space-16);
+		padding: var(--space-16) var(--space-20);
 	}
 	.state {
 		display: grid;
@@ -294,7 +294,7 @@
 	.health-text {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: var(--space-2);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}

@@ -116,15 +116,15 @@
 	.history {
 		display: flex;
 		flex-direction: column;
-		gap: 28px;
+		gap: var(--space-32);
 	}
 	h1 {
 		font-size: var(--fs-display);
 		line-height: var(--lh-snug);
 	}
 	.lede {
-		margin-top: 12px;
-		max-width: 680px;
+		margin-top: var(--space-12);
+		max-width: var(--w-text);
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
@@ -132,10 +132,10 @@
 	.summary {
 		display: grid;
 		grid-template-columns: repeat(5, minmax(0, 1fr));
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.summary div {
-		padding: 14px 16px;
+		padding: var(--space-16) var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -147,33 +147,33 @@
 	.bone-rows {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	dt {
 		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	dd {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-size: var(--fs-20);
 		font-weight: var(--fw-bold);
 	}
 	.filters {
 		display: flex;
 		align-items: flex-end;
-		gap: 14px;
+		gap: var(--space-16);
 		flex-wrap: wrap;
 	}
 	.filters label {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
 	}
 	select {
 		height: 40px;
-		padding: 0 10px;
+		padding: 0 var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -193,7 +193,7 @@
 	}
 	th,
 	td {
-		padding: 11px 10px;
+		padding: var(--space-12) var(--space-10);
 		text-align: left;
 		border-bottom: 1px solid var(--line);
 	}
@@ -214,7 +214,7 @@
 		color: var(--ink-2);
 	}
 	.badge {
-		padding: 2px 8px;
+		padding: var(--space-2) var(--space-8);
 		border-radius: 3px;
 		border: 1px solid var(--error);
 		color: var(--error);
@@ -225,8 +225,8 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 10px;
-		padding: 24px;
+		gap: var(--space-10);
+		padding: var(--space-24);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);

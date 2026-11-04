@@ -120,10 +120,10 @@
 
 <style>
 	.page-head {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-8);
 	}
 	.page-head p {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		max-width: 64ch;
 		color: var(--ink-2);
 	}
@@ -131,7 +131,7 @@
 		font-size: var(--fs-title);
 	}
 	.form {
-		max-width: 440px;
+		max-width: var(--w-form);
 	}
 	.form .btn {
 		align-self: flex-start;
@@ -147,12 +147,12 @@
 	.codes-state {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.meter {
 		display: grid;
 		grid-template-columns: repeat(8, 1fr);
-		gap: 4px;
+		gap: var(--space-4);
 		max-width: 320px;
 	}
 	.meter span {
@@ -175,8 +175,8 @@
 		display: grid;
 		grid-template-columns: 36px minmax(0, 1fr) auto;
 		align-items: center;
-		gap: 14px;
-		padding: 12px 16px;
+		gap: var(--space-16);
+		padding: var(--space-12) var(--space-16);
 	}
 	.list li + li {
 		border-top: 1px solid var(--line);
@@ -195,11 +195,11 @@
 		display: flex;
 		align-items: center;
 		flex-wrap: wrap;
-		gap: 8px;
+		gap: var(--space-8);
 		font-weight: var(--fw-semibold);
 	}
 	.tag {
-		padding: 2px 8px;
+		padding: var(--space-2) var(--space-8);
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
@@ -212,13 +212,13 @@
 	}
 	.timeline {
 		margin: 0;
-		padding: 0 0 0 18px;
+		padding: 0 0 0 var(--space-20);
 		list-style: none;
 		border-left: 2px solid var(--line);
 	}
 	.timeline li {
 		position: relative;
-		padding: 0 0 16px 4px;
+		padding: 0 0 var(--space-16) var(--space-4);
 	}
 	.timeline li:last-child {
 		padding-bottom: 0;

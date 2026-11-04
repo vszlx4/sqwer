@@ -74,19 +74,19 @@
 	.auth {
 		display: grid;
 		grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
-		gap: clamp(28px, 5vw, 72px);
+		gap: clamp(var(--space-32), 5vw, var(--space-64));
 		align-items: start;
-		max-width: 1080px;
+		max-width: var(--w-page);
 		margin: 0 auto;
-		padding: clamp(8px, 3vh, 32px) 0 clamp(16px, 4vh, 40px);
+		padding: clamp(var(--space-8), 3vh, var(--space-32)) 0 clamp(var(--space-16), 4vh, var(--space-40));
 	}
 	.panel {
 		position: sticky;
 		top: 96px;
 		display: flex;
 		flex-direction: column;
-		gap: 18px;
-		padding: clamp(24px, 3.4vw, 40px);
+		gap: var(--space-20);
+		padding: clamp(var(--space-24), 3.4vw, var(--space-40));
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background:
@@ -110,15 +110,15 @@
 	.steps {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
-		margin: 6px 0 0;
+		gap: var(--space-16);
+		margin: var(--space-6) 0 0;
 		padding: 0;
 		list-style: none;
 	}
 	.benefits li {
 		display: grid;
 		grid-template-columns: 36px 1fr;
-		gap: 14px;
+		gap: var(--space-16);
 		align-items: start;
 	}
 	.icon {
@@ -133,7 +133,7 @@
 	.benefits b,
 	.steps b {
 		display: block;
-		margin-bottom: 2px;
+		margin-bottom: var(--space-2);
 		font-size: var(--fs-15);
 		color: var(--ink);
 	}
@@ -148,7 +148,7 @@
 	}
 	.steps li {
 		position: relative;
-		padding-left: 44px;
+		padding-left: var(--space-48);
 		counter-increment: step;
 	}
 	.steps li::before {
@@ -169,9 +169,9 @@
 	.panel-foot {
 		display: flex;
 		align-items: flex-start;
-		gap: 8px;
-		margin-top: 6px;
-		padding-top: 16px;
+		gap: var(--space-8);
+		margin-top: var(--space-6);
+		padding-top: var(--space-16);
 		border-top: 1px solid var(--line);
 		font-size: var(--fs-13);
 		line-height: var(--lh-body);
@@ -179,19 +179,19 @@
 	}
 	.panel-foot :global(svg) {
 		flex-shrink: 0;
-		margin-top: 2px;
+		margin-top: var(--space-2);
 	}
 	.main {
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
-		max-width: 460px;
+		gap: var(--space-20);
+		max-width: var(--w-form);
 		width: 100%;
 	}
 	.head {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	h1 {
 		font-size: var(--fs-display);
@@ -206,7 +206,7 @@
 		text-wrap: pretty;
 	}
 	.footer {
-		padding-top: 18px;
+		padding-top: var(--space-20);
 		border-top: 1px solid var(--line);
 		font-size: var(--fs-15);
 		color: var(--ink-2);
@@ -227,7 +227,7 @@
 			display: none;
 		}
 		.main {
-			max-width: 520px;
+			max-width: var(--w-narrow);
 			margin: 0 auto;
 		}
 	}

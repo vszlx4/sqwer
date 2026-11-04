@@ -24,7 +24,7 @@
 	.play {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
+		gap: var(--space-24);
 	}
 	.kicker {
 		font-size: var(--fs-14);
@@ -36,7 +36,7 @@
 		line-height: var(--lh-snug);
 	}
 	.summary {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		max-width: 64ch;
 		color: var(--ink-2);
 	}

@@ -166,19 +166,19 @@
 	.race {
 		display: flex;
 		flex-direction: column;
-		gap: 22px;
-		padding: 24px 22px;
+		gap: var(--space-24);
+		padding: var(--space-24) var(--space-24);
 	}
 	.track {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.lane {
 		display: grid;
 		grid-template-columns: 130px 1fr;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.name {
 		font-size: var(--fs-13);
@@ -209,7 +209,7 @@
 		left: 0;
 		top: 50%;
 		height: 4px;
-		margin-top: -2px;
+		margin-top: calc(var(--space-2) * -1);
 		border-radius: 3px;
 		transition: width 120ms linear;
 	}
@@ -227,7 +227,7 @@
 		place-items: center;
 		width: 30px;
 		height: 30px;
-		margin-left: -15px;
+		margin-left: calc(var(--space-16) * -1);
 		border-radius: 3px;
 		transition: left 120ms linear;
 		box-shadow: var(--shadow);
@@ -267,7 +267,7 @@
 		display: inline-block;
 		width: 2px;
 		height: 1.1em;
-		margin-right: -2px;
+		margin-right: calc(var(--space-2) * -1);
 		vertical-align: -0.18em;
 		background: var(--accent);
 		box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 25%, transparent);
@@ -288,7 +288,7 @@
 	@media (max-width: 560px) {
 		.lane {
 			grid-template-columns: 1fr;
-			gap: 4px;
+			gap: var(--space-4);
 		}
 	}
 </style>

@@ -292,8 +292,8 @@
 	.assessment {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
-		max-width: 980px;
+		gap: var(--space-24);
+		max-width: var(--w-wide);
 		margin: 0 auto;
 	}
 	h1 {
@@ -304,8 +304,8 @@
 		font-size: var(--fs-28);
 	}
 	.lede {
-		margin-top: 12px;
-		max-width: 720px;
+		margin-top: var(--space-12);
+		max-width: var(--w-text);
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
@@ -315,8 +315,8 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 14px;
-		padding: 24px;
+		gap: var(--space-16);
+		padding: var(--space-24);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -336,7 +336,7 @@
 	}
 	.bar {
 		width: 100%;
-		max-width: 420px;
+		max-width: var(--w-form);
 		height: 8px;
 		border-radius: 3px;
 		background: var(--surface-2);
@@ -350,12 +350,12 @@
 	.stages {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.stages li {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-10);
 		font-weight: var(--fw-semibold);
 	}
 	.num {
@@ -374,15 +374,15 @@
 	.findings ul {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		padding-left: 18px;
+		gap: var(--space-6);
+		padding-left: var(--space-20);
 		list-style: disc;
 		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.stage-hands {
 		width: min(100%, 280px);
-		margin: 4px auto 0;
+		margin: var(--space-4) auto 0;
 	}
 	.stage-head {
 		display: flex;
@@ -411,7 +411,7 @@
 	.center-card {
 		align-items: center;
 		text-align: center;
-		padding: 40px 24px;
+		padding: var(--space-40) var(--space-24);
 	}
 	.muted {
 		color: var(--ink-2);
@@ -420,7 +420,7 @@
 	.previous {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.words {
 		font-weight: var(--fw-semibold);
@@ -428,7 +428,7 @@
 	}
 	.row {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 	}
 </style>

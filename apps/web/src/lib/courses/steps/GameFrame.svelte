@@ -161,19 +161,19 @@
 	.game {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.hud {
 		display: flex;
 		align-items: center;
-		gap: 14px;
+		gap: var(--space-16);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
 	.lives {
 		display: inline-flex;
-		gap: 5px;
+		gap: var(--space-6);
 	}
 	.life {
 		width: 16px;
@@ -233,8 +233,8 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 10px;
-		padding: 28px 24px;
+		gap: var(--space-10);
+		padding: var(--space-32) var(--space-24);
 		text-align: center;
 		background: color-mix(in srgb, var(--bg) 84%, transparent);
 		-webkit-backdrop-filter: blur(6px);
@@ -273,8 +273,8 @@
 	.goal {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 6px 12px;
+		gap: var(--space-6);
+		padding: var(--space-6) var(--space-12);
 		border-radius: 3px;
 		background: var(--success-soft);
 		color: var(--success);
@@ -282,9 +282,9 @@
 		font-size: var(--fs-14);
 	}
 	.prep {
-		gap: 16px;
+		gap: var(--space-16);
 		min-height: 56px;
-		padding: 6px 6px 6px 8px;
+		padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8);
 		border-radius: 3px;
 		border: 1px solid var(--ink);
 		background: var(--surface);
@@ -335,12 +335,12 @@
 		}
 	}
 	.prep .btn {
-		padding: 6px 12px;
+		padding: var(--space-6) var(--space-12);
 		font-size: var(--fs-14);
 	}
 	.prep kbd {
-		margin-left: 6px;
-		padding: 1px 6px;
+		margin-left: var(--space-6);
+		padding: 1px var(--space-6);
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);
@@ -361,8 +361,8 @@
 		}
 	}
 	.overlay kbd {
-		margin-left: 6px;
-		padding: 1px 6px;
+		margin-left: var(--space-6);
+		padding: 1px var(--space-6);
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);

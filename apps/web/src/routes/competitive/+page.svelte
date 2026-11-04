@@ -204,7 +204,7 @@
 	}
 	/* Arena: a band, light or dark with the theme. */
 	.arena {
-		padding: calc(var(--header-h) + clamp(40px, 6vw, 72px)) 0 clamp(40px, 6vw, 64px);
+		padding: calc(var(--header-h) + clamp(var(--space-40), 6vw, var(--space-64))) 0 clamp(var(--space-40), 6vw, var(--space-64));
 		color: var(--band-ink);
 	}
 	.arena::before {
@@ -217,13 +217,13 @@
 	.arena-grid {
 		display: grid;
 		grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-		gap: 40px;
+		gap: var(--space-40);
 		align-items: center;
 	}
 	.kicker {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-bold);
 		letter-spacing: var(--tr-caps);
@@ -246,14 +246,14 @@
 		}
 	}
 	h1 {
-		margin-top: 12px;
+		margin-top: var(--space-12);
 		font-size: var(--fs-hero);
 		line-height: var(--lh-tight);
 		letter-spacing: var(--tr-tight);
 	}
 	.lede {
-		margin-top: 18px;
-		max-width: 520px;
+		margin-top: var(--space-20);
+		max-width: var(--w-narrow);
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
 		color: var(--band-ink-2);
@@ -261,8 +261,8 @@
 	.cta {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 10px;
-		margin-top: 28px;
+		gap: var(--space-10);
+		margin-top: var(--space-32);
 	}
 	.play {
 		box-shadow: 0 0 32px -6px color-mix(in srgb, var(--accent) 60%, transparent);
@@ -280,14 +280,14 @@
 		flex-direction: column;
 		align-items: center;
 		text-align: center;
-		gap: 4px;
-		padding: 26px 24px 22px;
+		gap: var(--space-4);
+		padding: var(--space-24) var(--space-24) var(--space-24);
 		border-radius: 3px;
 		border: 1px solid var(--band-line);
 		background: linear-gradient(to bottom, var(--band-sheen), color-mix(in srgb, var(--band-ink) 1%, transparent));
 	}
 	.me-emblem {
-		margin-top: -6px;
+		margin-top: calc(var(--space-6) * -1);
 		animation: float 5s ease-in-out infinite;
 	}
 	@keyframes float {
@@ -314,12 +314,12 @@
 	.me-stats {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 6px;
+		gap: var(--space-6);
 		width: 100%;
-		margin-top: 14px;
+		margin-top: var(--space-16);
 	}
 	.me-stats div {
-		padding: 10px;
+		padding: var(--space-10);
 		border-radius: 3px;
 		background: var(--band-surface);
 		border: 1px solid var(--band-line);
@@ -343,7 +343,7 @@
 	}
 	.next {
 		width: 100%;
-		margin-top: 12px;
+		margin-top: var(--space-12);
 	}
 	.next-bar {
 		height: 8px;
@@ -362,8 +362,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 6px;
-		margin-top: 8px;
+		gap: var(--space-6);
+		margin-top: var(--space-8);
 		font-size: var(--fs-14);
 		color: var(--band-ink-2);
 	}
@@ -372,7 +372,7 @@
 	}
 	/* Ranks: a rail of emblems and the chosen rank in detail. */
 	.ranks {
-		padding: 44px 0 52px;
+		padding: var(--space-48) 0 var(--space-48);
 		color: var(--band-ink);
 	}
 	.ranks::before {
@@ -386,16 +386,16 @@
 		align-items: baseline;
 		justify-content: space-between;
 		flex-wrap: wrap;
-		gap: 8px 20px;
+		gap: var(--space-8) var(--space-20);
 	}
 	.ranks-head h2 {
 		font-size: var(--fs-title);
 	}
 	.rail {
 		display: flex;
-		gap: 6px;
-		margin-top: 20px;
-		padding: 6px 2px 12px;
+		gap: var(--space-6);
+		margin-top: var(--space-20);
+		padding: var(--space-6) var(--space-2) var(--space-12);
 		overflow-x: auto;
 		scrollbar-width: thin;
 		scroll-snap-type: x proximity;
@@ -405,9 +405,9 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 4px;
+		gap: var(--space-4);
 		width: 92px;
-		padding: 10px 4px;
+		padding: var(--space-10) var(--space-4);
 		border-radius: 3px;
 		border: 1px solid transparent;
 		background: none;
@@ -448,10 +448,10 @@
 	.detail {
 		display: grid;
 		grid-template-columns: auto minmax(0, 1fr);
-		gap: 32px;
+		gap: var(--space-32);
 		align-items: center;
-		margin-top: 18px;
-		padding: 24px 28px;
+		margin-top: var(--space-20);
+		padding: var(--space-24) var(--space-32);
 		border-radius: 3px;
 		border: 1px solid var(--band-line);
 		background:
@@ -472,24 +472,24 @@
 		line-height: var(--lh-snug);
 	}
 	.detail-range {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-size: var(--fs-15);
 		color: var(--band-ink-2);
 	}
 	.divisions {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-		gap: 8px;
-		margin-top: 18px;
+		gap: var(--space-8);
+		margin-top: var(--space-20);
 	}
 	.divisions li {
 		position: relative;
 		display: grid;
 		grid-template-columns: auto 1fr;
 		grid-template-rows: auto auto;
-		column-gap: 10px;
+		column-gap: var(--space-10);
 		align-items: center;
-		padding: 10px 12px;
+		padding: var(--space-10) var(--space-12);
 		border-radius: 3px;
 		border: 1px solid var(--band-line);
 		background: var(--band-surface);
@@ -514,7 +514,7 @@
 		position: absolute;
 		top: 8px;
 		right: 8px;
-		padding: 1px 6px;
+		padding: 1px var(--space-6);
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
@@ -524,29 +524,29 @@
 
 	/* Leaderboard. */
 	.board {
-		padding-top: 44px;
+		padding-top: var(--space-48);
 		scroll-margin-top: 80px;
 	}
 	.board-head {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
-		margin-bottom: 18px;
+		gap: var(--space-12);
+		margin-bottom: var(--space-20);
 	}
 	.board-head h2 {
 		font-size: var(--fs-title);
 	}
 	.tabs {
 		display: flex;
-		gap: 4px;
-		padding: 4px;
+		gap: var(--space-4);
+		padding: var(--space-4);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
 	.tabs a {
-		padding: 7px 14px;
+		padding: var(--space-8) var(--space-16);
 		border-radius: 3px;
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
@@ -561,17 +561,17 @@
 	.podium {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 10px;
+		gap: var(--space-10);
 		align-items: end;
-		margin-bottom: 12px;
+		margin-bottom: var(--space-12);
 	}
 	.place {
 		position: relative;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 6px;
-		padding: 22px 14px 18px;
+		gap: var(--space-6);
+		padding: var(--space-24) var(--space-16) var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -579,7 +579,7 @@
 	}
 	.place.p1 {
 		order: 2;
-		padding-top: 30px;
+		padding-top: var(--space-32);
 		border-color: color-mix(in srgb, var(--reward) 60%, var(--line));
 		background: linear-gradient(to bottom, var(--reward-soft), var(--surface) 70%);
 	}
@@ -630,7 +630,7 @@
 	.pod-tier {
 		display: inline-flex;
 		align-items: center;
-		gap: 4px;
+		gap: var(--space-4);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-bold);
 		color: var(--ink-2);
@@ -643,14 +643,14 @@
 	.rows {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.row {
 		display: grid;
 		grid-template-columns: 40px minmax(0, 1fr) auto 170px 110px;
 		align-items: center;
-		gap: 12px;
-		padding: 8px 14px;
+		gap: var(--space-12);
+		padding: var(--space-8) var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -665,7 +665,7 @@
 	.who {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-12);
 		min-width: 0;
 		color: var(--ink);
 		text-decoration: none;
@@ -688,7 +688,7 @@
 		color: var(--ink-2);
 	}
 	.lvl {
-		padding: 3px 8px;
+		padding: var(--space-4) var(--space-8);
 		border-radius: 3px;
 		background: var(--rank-soft);
 		color: var(--rank);
@@ -699,7 +699,7 @@
 	.tier {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-bold);
 		color: var(--ink-2);
@@ -713,15 +713,15 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 12px;
-		padding: 36px 20px;
+		gap: var(--space-12);
+		padding: var(--space-40) var(--space-20);
 		border-radius: 3px;
 		border: 1px dashed var(--line-strong);
 		text-align: center;
 		color: var(--ink-2);
 	}
 	.note {
-		margin-top: 14px;
+		margin-top: var(--space-16);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}

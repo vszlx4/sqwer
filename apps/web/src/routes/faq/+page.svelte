@@ -104,7 +104,7 @@
 	.faqs {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	details {
 		border-radius: 3px;
@@ -112,7 +112,7 @@
 		background: var(--surface);
 	}
 	summary {
-		padding: 16px 18px;
+		padding: var(--space-16) var(--space-20);
 		font-size: var(--fs-16);
 		font-weight: var(--fw-semibold);
 		color: var(--ink);
@@ -120,10 +120,10 @@
 		list-style-position: inside;
 	}
 	details p {
-		padding: 0 18px 18px;
+		padding: 0 var(--space-20) var(--space-20);
 	}
 	details[open] summary {
 		border-bottom: 1px solid var(--line);
-		margin-bottom: 14px;
+		margin-bottom: var(--space-16);
 	}
 </style>

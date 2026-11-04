@@ -517,8 +517,8 @@
 	.ranked-link {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 5px 10px;
+		gap: var(--space-6);
+		padding: var(--space-6) var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		color: var(--ink);
@@ -535,7 +535,7 @@
 		--typing-leading: 1.65;
 		display: flex;
 		flex-direction: column;
-		gap: 22px;
+		gap: var(--space-24);
 	}
 	.chrome {
 		transition: opacity 260ms ease;
@@ -549,18 +549,18 @@
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.ranked-rule {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 		font-size: var(--fs-14);
 		color: var(--ink-3);
 	}
 	.readouts {
 		display: flex;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.list-note {
 		flex-basis: 100%;
@@ -574,8 +574,8 @@
 		text-underline-offset: 2px;
 	}
 	.exam-banner {
-		max-width: 760px;
-		padding: 10px 14px;
+		max-width: var(--w-text);
+		padding: var(--space-10) var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -590,7 +590,7 @@
 	.status {
 		display: flex;
 		align-items: baseline;
-		gap: 18px;
+		gap: var(--space-20);
 		min-height: 36px;
 		font-variant-numeric: tabular-nums;
 	}
@@ -645,9 +645,9 @@
 		transform: rotate(-90deg);
 	}
 	.keyboard-wrap {
-		max-width: 860px;
+		max-width: var(--w-wide);
 		width: 100%;
-		margin: 6px auto 0;
+		margin: var(--space-6) auto 0;
 		transition: opacity 260ms ease;
 	}
 	.kb-tools {
@@ -655,14 +655,14 @@
 		flex-wrap: wrap;
 		justify-content: center;
 		align-items: center;
-		gap: 6px;
-		margin-top: -6px;
+		gap: var(--space-6);
+		margin-top: calc(var(--space-6) * -1);
 	}
 	.pill {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 6px 12px;
+		gap: var(--space-6);
+		padding: var(--space-6) var(--space-12);
 		border-radius: 3px;
 		font-size: var(--fs-14);
 		font-weight: var(--fw-regular);
@@ -690,16 +690,16 @@
 		width: 1px;
 		height: 18px;
 		background: var(--line-strong);
-		margin: 0 4px;
+		margin: 0 var(--space-4);
 	}
 	.seg {
 		display: inline-flex;
-		padding: 3px;
+		padding: var(--space-4);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 	}
 	.seg button {
-		padding: 4px 12px;
+		padding: var(--space-4) var(--space-12);
 		border-radius: 3px;
 		font-size: var(--fs-13);
 		font-weight: var(--fw-regular);
@@ -718,14 +718,14 @@
 		display: flex;
 		justify-content: center;
 		flex-wrap: wrap;
-		gap: 16px;
+		gap: var(--space-16);
 		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.legend li {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.swatch {
 		width: 10px;

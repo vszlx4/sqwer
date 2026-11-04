@@ -39,23 +39,23 @@
 		border-top: 1px solid var(--line);
 	}
 	.inner {
-		max-width: 1180px;
+		max-width: var(--w-page);
 		margin: 0 auto;
-		padding: 64px clamp(16px, 4vw, 40px) calc(28px + env(safe-area-inset-bottom));
+		padding: var(--space-64) clamp(var(--space-16), 4vw, var(--space-40)) calc(var(--space-32) + env(safe-area-inset-bottom));
 		display: flex;
 		flex-direction: column;
-		gap: 48px;
+		gap: var(--space-48);
 	}
 	.top {
 		display: grid;
 		grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
-		gap: 48px;
+		gap: var(--space-48);
 	}
 	.intro {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.logo {
 		display: inline-flex;
@@ -67,7 +67,7 @@
 		width: auto;
 	}
 	.tagline {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-size: var(--fs-15);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
@@ -76,15 +76,15 @@
 	.groups {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 32px 28px;
+		gap: var(--space-32) var(--space-32);
 		align-items: start;
 	}
 	.bottom {
 		display: grid;
 		grid-template-columns: 1fr auto auto;
 		align-items: center;
-		gap: 12px 24px;
-		padding-top: 20px;
+		gap: var(--space-12) var(--space-24);
+		padding-top: var(--space-20);
 		border-top: 1px solid var(--line);
 		font-size: var(--fs-13);
 		color: var(--ink-2);
