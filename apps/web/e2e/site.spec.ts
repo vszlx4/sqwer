@@ -1,5 +1,22 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+
+/** Resolves once the window has held its scroll position for ten frames. */
+const settled = (page: Page) =>
+	page.evaluate(
+		() =>
+			new Promise<void>((done) => {
+				let last = -1;
+				let still = 0;
+				const frame = () => {
+					still = window.scrollY === last ? still + 1 : 0;
+					last = window.scrollY;
+					if (still >= 10) done();
+					else requestAnimationFrame(frame);
+				};
+				requestAnimationFrame(frame);
+			})
+	);
 
 test('home page: one primary action above the fold, leading to getting started', async ({ page }) => {
 	await page.goto('/');
@@ -13,9 +30,13 @@ test('home page: one primary action above the fold, leading to getting started',
 	await main.getByRole('link', { name: 'See the whole course' }).click();
 	await expect(page).toHaveURL(/#road$/);
 	await expect(page.getByRole('heading', { name: /One long road/ })).toBeInViewport();
+	// The heading is in view before the glide ends; a scroll to the top before then gets overwritten.
+	await settled(page);
 
 	// Past the top the takeover stands in for the button; back at the top it is the real link again.
 	await page.evaluate(() => window.scrollTo(0, 0));
+	await settled(page);
+	await expect(cta).toBeInViewport();
 	await cta.click();
 	await expect(page).toHaveURL(/\/start$/);
 	await expect(page.getByRole('heading', { name: 'How would you describe your typing today?' })).toBeVisible();
