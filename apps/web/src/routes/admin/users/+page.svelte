@@ -63,7 +63,7 @@
 
 <style>
 	.head h1 {
-		font-size: clamp(30px, 3.6vw, 42px);
+		font-size: var(--fs-display);
 	}
 	.head p {
 		margin-top: 6px;
@@ -81,8 +81,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
-		font-size: 13.5px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	input {
@@ -94,7 +94,7 @@
 		background: var(--bg);
 		color: var(--ink);
 		font: inherit;
-		font-weight: 400;
+		font-weight: var(--fw-regular);
 	}
 	.account {
 		display: flex;
@@ -116,8 +116,8 @@
 		gap: 10px;
 	}
 	dt {
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	dd {

@@ -123,8 +123,8 @@
 	.tip {
 		max-width: 620px;
 		text-align: center;
-		font-size: 17px;
-		line-height: 1.55;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.prompt {
@@ -144,8 +144,8 @@
 		border-bottom-width: 4px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 30px;
-		font-weight: 600;
+		font-size: var(--fs-32);
+		font-weight: var(--fw-semibold);
 		animation: bob 1.6s ease-in-out infinite;
 	}
 	.cap.done {
@@ -160,8 +160,8 @@
 		}
 	}
 	.instruction {
-		font-size: 19px;
-		font-weight: 600;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-semibold);
 	}
 	.dots {
 		display: flex;
@@ -181,14 +181,14 @@
 	}
 	.which {
 		margin-left: 8px;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.wrong {
 		margin-top: 8px;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--error);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.hands {
 		width: min(100%, 360px);

@@ -415,9 +415,9 @@
 		border: none;
 		cursor: pointer;
 		color: var(--ink);
-		font-size: 15px;
-		font-weight: 600;
-		line-height: 1;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
 		overflow: visible;
 	}
 	:global(.sm-toggle:focus-visible) {
@@ -434,8 +434,8 @@
 		width: var(--sm-toggle-width, auto);
 		min-width: var(--sm-toggle-width, auto);
 	}
-	:global(.sm-toggle-textInner) { display: flex; flex-direction: column; line-height: 1; }
-	:global(.sm-toggle-line) { display: block; height: 1em; line-height: 1; }
+	:global(.sm-toggle-textInner) { display: flex; flex-direction: column; line-height: var(--lh-tight); }
+	:global(.sm-toggle-line) { display: block; height: 1em; line-height: var(--lh-tight); }
 	:global(.sm-icon) {
 		position: relative;
 		width: 14px;
@@ -446,7 +446,7 @@
 		justify-content: center;
 		will-change: transform;
 	}
-	:global(.sm-panel-itemWrap) { position: relative; overflow: hidden; line-height: 1; }
+	:global(.sm-panel-itemWrap) { position: relative; overflow: hidden; line-height: var(--lh-tight); }
 	:global(.sm-icon-line) {
 		position: absolute;
 		left: 50%;
@@ -499,7 +499,7 @@
 		flex-direction: column;
 		gap: 0.75rem;
 	}
-	:global(.sm-socials-title) { margin: 0; font-size: 1rem; font-weight: 500; color: var(--ink-3); }
+	:global(.sm-socials-title) { margin: 0; font-size: var(--fs-16); font-weight: var(--fw-regular); color: var(--ink-3); }
 	:global(.sm-socials-list) {
 		list-style: none;
 		margin: 0;
@@ -515,8 +515,8 @@
 		outline-offset: 3px;
 	}
 	:global(.sm-socials-link) {
-		font-size: 1.2rem;
-		font-weight: 500;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-regular);
 		color: var(--ink);
 		text-decoration: none;
 		position: relative;
@@ -541,11 +541,11 @@
 	:global(.sm-panel-item) {
 		position: relative;
 		color: var(--ink);
-		font-weight: 600;
-		font-size: clamp(2.25rem, 9vw, 4rem);
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-hero);
 		cursor: pointer;
-		line-height: 1;
-		letter-spacing: -0.03em;
+		line-height: var(--lh-tight);
+		letter-spacing: var(--tr-tight);
 		text-transform: uppercase;
 		transition: background 0.25s, color 0.25s;
 		display: inline-block;
@@ -576,8 +576,8 @@
 		position: absolute;
 		top: 0.1em;
 		right: 0;
-		font-size: 14px;
-		font-weight: 400;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-regular);
 		color: var(--ink-3);
 		letter-spacing: 0;
 		pointer-events: none;

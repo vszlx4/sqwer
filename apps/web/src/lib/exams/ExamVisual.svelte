@@ -117,7 +117,7 @@
 	}
 	.label {
 		font-family: var(--font-mono);
-		font-size: 9px;
+		font-size: var(--fs-10);
 		fill: var(--ink-2);
 	}
 	@keyframes pulse {
@@ -157,8 +157,8 @@
 		transform: rotate(90deg);
 		transform-origin: 40px 40px;
 		font-family: var(--font-mono);
-		font-size: 15px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		fill: var(--ink);
 	}
 	.chips {
@@ -171,7 +171,7 @@
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		font-family: var(--font-mono);
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		text-align: center;
 		color: var(--ink-2);
 	}
@@ -190,8 +190,8 @@
 	}
 	.words p {
 		font-family: var(--font-mono);
-		font-size: 17px;
-		line-height: 1.5;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--untyped);
 	}
 	.words .done {
@@ -204,11 +204,11 @@
 	}
 	.count {
 		font-family: var(--font-serif);
-		font-size: 40px;
-		line-height: 1;
+		font-size: var(--fs-40);
+		line-height: var(--lh-tight);
 	}
 	.count small {
-		font-size: 18px;
+		font-size: var(--fs-18);
 		color: var(--ink-2);
 	}
 
@@ -227,7 +227,7 @@
 		border-bottom-width: 3px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 17px;
+		font-size: var(--fs-18);
 		transition: transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1);
 		transition-delay: calc(var(--i) * 40ms);
 	}
@@ -266,8 +266,8 @@
 		align-self: center;
 		margin-left: 12px;
 		font-family: var(--font-mono);
-		font-size: 22px;
-		font-weight: 600;
+		font-size: var(--fs-24);
+		font-weight: var(--fw-semibold);
 	}
 
 	/* Finger mapping: keys coloured by the finger that presses them. */

@@ -110,19 +110,19 @@
 		overflow: hidden;
 	}
 	.kicker {
-		font-size: 13px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	h2 {
-		font-size: clamp(30px, 4vw, 42px);
-		line-height: 1.1;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	.stats {
-		font-size: 16px;
-		font-weight: 600;
+		font-size: var(--fs-16);
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
 	.rank {
@@ -152,17 +152,17 @@
 		}
 	}
 	.new-rank {
-		font-size: 12px;
-		font-weight: 800;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 	}
 	.rank-name {
-		font-size: 20px;
-		font-weight: 700;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-bold);
 	}
 	.points {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.points b {
@@ -184,7 +184,7 @@
 	}
 	.to-next {
 		margin-top: 4px;
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.streak {
@@ -193,8 +193,8 @@
 		align-items: center;
 		gap: 6px;
 		margin-top: 8px;
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--streak);
 	}
 	.guest {
@@ -203,8 +203,8 @@
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--bg);
-		font-size: 15px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.guest b {
@@ -218,7 +218,7 @@
 		margin-top: 12px;
 	}
 	.back {
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 </style>

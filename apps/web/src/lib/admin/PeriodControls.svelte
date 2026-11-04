@@ -133,8 +133,8 @@
 		position: relative;
 		padding: 7px 12px;
 		border-radius: 3px;
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		cursor: pointer;
 		transition:
@@ -168,7 +168,7 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 8px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.dates .btn {
@@ -188,8 +188,8 @@
 		min-width: 0;
 	}
 	.filters :global(label > span) {
-		font-size: 12px;
-		font-weight: 600;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.controls :global(select),
@@ -202,13 +202,13 @@
 		background: var(--bg);
 		color: var(--ink);
 		font: inherit;
-		font-size: 14px;
+		font-size: var(--fs-14);
 	}
 	.clear {
 		align-self: center;
 		margin-top: 18px;
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		text-decoration: none;
 	}

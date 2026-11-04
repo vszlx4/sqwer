@@ -146,15 +146,15 @@
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(28px, 3.2vw, 36px);
+		font-size: var(--fs-title);
 	}
 	.start {
 		align-self: flex-start;
 	}
 	.text {
 		max-width: 640px;
-		font-size: 14.5px;
-		line-height: 1.6;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.form {
@@ -183,20 +183,20 @@
 		gap: 16px;
 	}
 	.about h3 {
-		font-size: 16px;
-		font-weight: 600;
+		font-size: var(--fs-16);
+		font-weight: var(--fw-semibold);
 	}
 	.summary {
 		max-width: 600px;
 		margin-top: 2px;
-		font-size: 14px;
-		line-height: 1.5;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.count {
 		margin-top: 4px;
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-3);
 		font-variant-numeric: tabular-nums;
 	}
@@ -208,8 +208,8 @@
 		gap: 12px;
 	}
 	.effect {
-		font-size: 14px;
-		line-height: 1.5;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.effect b {

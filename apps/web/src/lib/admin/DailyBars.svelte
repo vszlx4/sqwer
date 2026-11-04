@@ -115,12 +115,12 @@
 		gap: 6px 16px;
 	}
 	.title {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.legend {
 		display: flex;
 		gap: 14px;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.legend span,
@@ -154,7 +154,7 @@
 		stroke: var(--chart-grid);
 	}
 	.tick {
-		font-size: 11px;
+		font-size: var(--fs-11);
 		fill: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
@@ -171,7 +171,7 @@
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		box-shadow: var(--shadow);
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 		pointer-events: none;
 		white-space: nowrap;
@@ -182,8 +182,8 @@
 	}
 	.table summary {
 		cursor: pointer;
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.scroll {
@@ -194,7 +194,7 @@
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		font-size: 13px;
+		font-size: var(--fs-13);
 	}
 	th,
 	td {

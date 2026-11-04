@@ -377,17 +377,17 @@
 		margin-bottom: calc(-1 * var(--main-bottom));
 	}
 	.kicker {
-		font-size: 13px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	h2 {
 		margin-top: 10px;
-		font-size: clamp(30px, 4vw, 48px);
-		line-height: 1.08;
-		letter-spacing: -0.015em;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
+		letter-spacing: var(--tr-tight);
 	}
 	.section-head {
 		max-width: 680px;
@@ -398,8 +398,8 @@
 	}
 	.section-head > p:last-child {
 		margin-top: 14px;
-		font-size: 17px;
-		line-height: 1.6;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 
@@ -461,7 +461,7 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 8px;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 	}
 	.portal-line {
@@ -469,8 +469,8 @@
 		flex-direction: column;
 		align-items: center;
 		visibility: hidden;
-		line-height: 0.92;
-		letter-spacing: -0.02em;
+		line-height: var(--lh-tight);
+		letter-spacing: var(--tr-tight);
 	}
 	/* Full-bleed dither field, under the wash. */
 	.hero-field {
@@ -504,20 +504,20 @@
 		max-width: 820px;
 	}
 	h1 {
-		font-size: clamp(42px, 6vw, 84px);
-		line-height: 1;
-		letter-spacing: -0.025em;
+		font-size: var(--fs-hero);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--tr-tight);
 		max-width: 15ch;
 	}
 	/* Emphasis is carried by weight alone. */
 	.mark {
-		font-weight: 800;
+		font-weight: var(--fw-bold);
 	}
 	.lede {
 		margin-top: 22px;
 		max-width: 520px;
-		font-size: clamp(17px, 1.5vw, 19px);
-		line-height: 1.6;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.hero-action {
@@ -531,12 +531,12 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
-		font-size: 14.5px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.quiet {
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.quiet:hover {
@@ -556,7 +556,7 @@
 		margin-top: 34px;
 		padding-top: 18px;
 		border-top: 1px solid var(--line);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.facts li {
@@ -618,8 +618,8 @@
 	}
 	.road-lede {
 		margin-top: 14px;
-		font-size: 17px;
-		line-height: 1.6;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--band-ink-2);
 	}
 	.road-progress {
@@ -630,7 +630,7 @@
 	}
 	.count {
 		font-variant-numeric: tabular-nums;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--band-ink-2);
 	}
 	.ticks {
@@ -721,8 +721,8 @@
 	}
 	.window-bar h3 {
 		overflow: hidden;
-		font-size: 19px;
-		font-weight: 700;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-bold);
 		white-space: nowrap;
 		text-overflow: ellipsis;
 	}
@@ -736,8 +736,8 @@
 	.window-summary {
 		max-width: 22ch;
 		font-family: var(--font-serif);
-		font-size: clamp(26px, 2.6vw, 38px);
-		line-height: 1.15;
+		font-size: var(--fs-title);
+		line-height: var(--lh-snug);
 		color: var(--band-ink);
 	}
 	.w-head {
@@ -747,15 +747,15 @@
 	}
 	.w-num {
 		font-family: var(--font-mono);
-		font-size: clamp(36px, 3.4vw, 52px);
-		font-weight: 300;
-		line-height: 1;
+		font-size: var(--fs-display);
+		font-weight: var(--fw-light);
+		line-height: var(--lh-tight);
 		color: var(--part-ink);
 	}
 	/* A line as the learner types it by the end of the part, the caret where the hands are. */
 	.w-type {
 		font-family: var(--font-mono);
-		font-size: clamp(15px, 1.25vw, 19px);
+		font-size: var(--fs-18);
 		white-space: nowrap;
 		color: var(--band-ink-3);
 	}
@@ -794,12 +794,12 @@
 		border-radius: 4px;
 		border: 1px solid color-mix(in srgb, var(--band-ink) 14%, transparent);
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: color-mix(in srgb, var(--band-ink) 35%, transparent);
 	}
 	.w-key.wide {
 		width: 48px;
-		font-size: 10px;
+		font-size: var(--fs-10);
 	}
 	.w-key.known {
 		border-color: color-mix(in srgb, var(--part) 30%, transparent);
@@ -810,7 +810,7 @@
 		border-color: var(--part);
 		background: var(--part);
 		color: var(--on-hue);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.w-stats {
 		display: flex;
@@ -819,15 +819,15 @@
 		border-top: 1px solid color-mix(in srgb, var(--part) 25%, transparent);
 	}
 	.w-stats dt {
-		font-size: 12px;
-		letter-spacing: 0.06em;
+		font-size: var(--fs-12);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--band-ink-3);
 	}
 	.w-stats dd {
 		margin-top: 4px;
 		font-family: var(--font-mono);
-		font-size: 20px;
+		font-size: var(--fs-20);
 		color: var(--band-ink);
 	}
 	/* Behind the front window only the title bars read; their bodies stay empty. */
@@ -846,8 +846,8 @@
 		width: 100vw;
 		margin-inline: calc(50% - 50vw);
 		font-family: var(--font-serif);
-		font-size: 30px;
-		letter-spacing: 0.01em;
+		font-size: var(--fs-32);
+		letter-spacing: normal;
 		color: var(--band-ink-2);
 	}
 
@@ -884,12 +884,12 @@
 	}
 	.game h3 {
 		margin-top: 8px;
-		font-size: 18px;
-		font-weight: 700;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-bold);
 	}
 	.game p {
-		font-size: 14.5px;
-		line-height: 1.5;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--band-ink-2);
 	}
 	.preview {
@@ -927,8 +927,8 @@
 		gap: 14px;
 	}
 	.copy > p:not(.kicker) {
-		font-size: 17px;
-		line-height: 1.6;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.checks {
@@ -941,8 +941,8 @@
 		display: flex;
 		align-items: flex-start;
 		gap: 10px;
-		font-size: 16px;
-		font-weight: 500;
+		font-size: var(--fs-16);
+		font-weight: var(--fw-regular);
 	}
 	.checks :global(svg) {
 		flex-shrink: 0;
@@ -978,7 +978,7 @@
 			padding-right: 16px;
 		}
 		.road-lede {
-			font-size: 15px;
+			font-size: var(--fs-15);
 		}
 		.road-progress {
 			margin-top: 16px;
@@ -1000,19 +1000,19 @@
 			padding: 0 16px;
 		}
 		.window-bar h3 {
-			font-size: 16px;
+			font-size: var(--fs-16);
 		}
 		.window-body {
 			gap: 18px;
 			padding: 22px 20px;
 		}
 		.window-summary {
-			font-size: 24px;
+			font-size: var(--fs-24);
 		}
 		.w-key {
 			width: 22px;
 			height: 22px;
-			font-size: 10px;
+			font-size: var(--fs-10);
 		}
 		.w-key.wide {
 			width: 36px;
@@ -1031,7 +1031,7 @@
 	@media (max-width: 560px) {
 		/* The curve scales with the screen; on phones its type needs more viewBox units to stay readable. */
 		.drift :global(.curved) {
-			font-size: 64px;
+			font-size: 64px; /* off-scale: SVG viewBox units */
 		}
 		.game-grid {
 			grid-template-columns: 1fr;

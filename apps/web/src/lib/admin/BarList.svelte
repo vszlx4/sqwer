@@ -64,11 +64,11 @@
 	}
 	h2 {
 		font-family: var(--font-sans);
-		font-size: 15px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 	}
 	.measure {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	ol {
@@ -87,7 +87,7 @@
 		gap: 12px;
 		min-height: 32px;
 		padding: 0 10px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 	}
 	.bar {
 		position: absolute;
@@ -120,12 +120,12 @@
 		align-items: baseline;
 		gap: 8px;
 		flex-shrink: 0;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
 	small {
-		font-weight: 500;
-		font-size: 12px;
+		font-weight: var(--fw-regular);
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	.share {
@@ -137,7 +137,7 @@
 		padding: 14px;
 		border-radius: 3px;
 		border: 1px dashed var(--line-strong);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 </style>

@@ -321,7 +321,7 @@
 		gap: 12px 24px;
 	}
 	h1 {
-		font-size: clamp(30px, 3.6vw, 42px);
+		font-size: var(--fs-display);
 	}
 	.head p {
 		margin-top: 6px;
@@ -347,7 +347,7 @@
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.empty {
@@ -356,7 +356,7 @@
 		border: 1px dashed var(--line-strong);
 	}
 	.empty h2 {
-		font-size: 24px;
+		font-size: var(--fs-24);
 	}
 	.empty p {
 		margin-top: 8px;
@@ -368,7 +368,7 @@
 	}
 	.form-alert a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.figures {
 		display: flex;
@@ -378,8 +378,8 @@
 	.group h2 {
 		margin-bottom: 8px;
 		font-family: var(--font-sans);
-		font-size: 15px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.kpis {
@@ -398,26 +398,26 @@
 		min-width: 0;
 	}
 	.label {
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.value {
-		font-size: 28px;
-		font-weight: 700;
-		line-height: 1.15;
+		font-size: var(--fs-28);
+		font-weight: var(--fw-bold);
+		line-height: var(--lh-snug);
 		font-variant-numeric: tabular-nums;
-		letter-spacing: -0.01em;
+		letter-spacing: normal;
 	}
 	.value.muted {
-		font-size: 18px;
-		font-weight: 600;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		padding: 5px 0 2px;
 	}
 	.sub,
 	.hint {
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.hint {
@@ -430,13 +430,13 @@
 		flex-wrap: wrap;
 		align-items: baseline;
 		gap: 4px;
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 		color: var(--ink);
 	}
 	.change [aria-hidden] {
-		font-size: 9px;
+		font-size: var(--fs-10);
 	}
 	.change.up [aria-hidden] {
 		color: var(--chart-acc);
@@ -448,7 +448,7 @@
 		color: var(--ink-2);
 	}
 	.vs {
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 	}
 	.panel {
@@ -482,7 +482,7 @@
 			grid-template-columns: 1fr 1fr;
 		}
 		.value {
-			font-size: 22px;
+			font-size: var(--fs-24);
 		}
 	}
 </style>

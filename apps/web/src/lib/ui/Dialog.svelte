@@ -86,13 +86,13 @@
 		gap: 12px;
 	}
 	h2 {
-		font-size: 26px;
-		line-height: 1.15;
+		font-size: var(--fs-28);
+		line-height: var(--lh-snug);
 	}
 	.content {
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
-		line-height: 1.55;
+		line-height: var(--lh-body);
 	}
 	.content :global(p + p) {
 		margin-top: 8px;

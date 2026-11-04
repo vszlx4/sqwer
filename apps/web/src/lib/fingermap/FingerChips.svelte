@@ -52,9 +52,9 @@
 		gap: 6px;
 	}
 	.hand-name {
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: 0.06em;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-3);
 	}
@@ -73,8 +73,8 @@
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		color: var(--ink);
-		font-size: 14px;
-		font-weight: 500;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-regular);
 		cursor: pointer;
 		transition:
 			background 100ms ease,
@@ -103,8 +103,8 @@
 		background: var(--bg);
 		border: 1px solid var(--line);
 		font-family: var(--font-mono);
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 	}
 	.dot {
 		width: 9px;

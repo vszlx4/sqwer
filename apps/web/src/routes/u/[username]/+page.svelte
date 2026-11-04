@@ -95,7 +95,7 @@
 	}
 	.since {
 		margin-top: 8px;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-3);
 	}
 	.grid {
@@ -116,7 +116,7 @@
 		grid-column: 1 / -1;
 	}
 	h2 {
-		font-size: 24px;
+		font-size: var(--fs-24);
 	}
 	.tiles {
 		display: grid;
@@ -130,22 +130,22 @@
 		border: 1px solid var(--line);
 	}
 	dt {
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	dd {
 		margin-top: 2px;
-		font-size: 18px;
-		font-weight: 600;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-semibold);
 	}
 	.rank-line {
-		font-size: 17px;
+		font-size: var(--fs-18);
 	}
 	.rank-line b {
 		color: var(--rank);
 	}
 	.note {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.bar {

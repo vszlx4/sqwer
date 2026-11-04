@@ -45,20 +45,20 @@
 		text-align: center;
 	}
 	.where {
-		font-size: 13px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(34px, 4.6vw, 52px);
-		line-height: 1.05;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	.summary,
 	.keys {
-		font-size: 17px;
-		line-height: 1.55;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.keys b {
@@ -74,7 +74,7 @@
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		text-align: left;
-		line-height: 1.55;
+		line-height: var(--lh-body);
 	}
 	.box :global(svg) {
 		flex-shrink: 0;
@@ -88,7 +88,7 @@
 		margin-top: 6px;
 	}
 	.back {
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 </style>

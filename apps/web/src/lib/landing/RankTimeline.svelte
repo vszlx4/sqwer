@@ -164,19 +164,19 @@
 	}
 	.name {
 		font-family: var(--font-serif);
-		font-size: 19px;
+		font-size: var(--fs-20);
 		fill: var(--ink);
 	}
 	.meta {
 		font-family: var(--font-mono);
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		font-variant-numeric: tabular-nums;
 		fill: var(--ink-2);
 	}
 	.plain {
 		display: grid;
 		gap: 8px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.note {
@@ -186,8 +186,8 @@
 		margin-top: 32px;
 		padding-top: 16px;
 		border-top: 1px solid var(--line);
-		font-size: 13px;
-		line-height: 1.55;
+		font-size: var(--fs-13);
+		line-height: var(--lh-body);
 		color: var(--ink-3);
 	}
 	.note :global(.icon-info) {

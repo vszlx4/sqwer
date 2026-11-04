@@ -36,8 +36,8 @@
 		background: var(--band-surface-2);
 		color: var(--band-ink);
 		font-family: var(--font-mono);
-		font-size: 15px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		transform-origin: 50% 100%;
 		will-change: transform;
 	}
@@ -62,8 +62,8 @@
 		background: color-mix(in srgb, var(--hue) 22%, var(--band-bg));
 		color: var(--band-ink);
 		font-family: var(--font-mono);
-		font-size: 11px;
-		font-weight: 600;
+		font-size: var(--fs-11);
+		font-weight: var(--fw-semibold);
 		text-transform: uppercase;
 	}
 	/* Solid floor; flashes the life hue when a key lands. */

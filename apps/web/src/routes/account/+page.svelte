@@ -142,14 +142,14 @@
 		margin-bottom: 14px;
 	}
 	h2 {
-		font-size: 22px;
+		font-size: var(--fs-24);
 	}
 	.more {
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		text-decoration: none;
 	}
@@ -215,15 +215,15 @@
 		min-width: 0;
 	}
 	.step-text span {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.step-go {
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 	}
 	.figures,
@@ -244,27 +244,27 @@
 		border-left: 1px solid var(--line);
 	}
 	dt {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	dd {
 		margin: 4px 0 0;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
 	.figures dd {
-		font-size: 26px;
-		font-weight: 800;
-		letter-spacing: -0.02em;
+		font-size: var(--fs-28);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-tight);
 	}
 	.facts dd {
-		font-size: 17px;
+		font-size: var(--fs-18);
 	}
 	.about {
 		margin-top: 12px;
 		max-width: 70ch;
-		font-size: 14.5px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.health li {
@@ -295,19 +295,19 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.health-text b {
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink);
 	}
 	.warn-text {
 		color: var(--error);
 	}
 	.row-link {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		text-decoration: none;
 	}

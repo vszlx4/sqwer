@@ -104,8 +104,8 @@
 		gap: 6px;
 	}
 	label {
-		font-size: 14.5px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	input,
@@ -118,12 +118,12 @@
 		background: var(--bg);
 		color: var(--ink);
 		font: inherit;
-		font-size: 16px;
+		font-size: var(--fs-16);
 		transition: border-color 120ms ease;
 	}
 	textarea {
 		resize: vertical;
-		line-height: 1.5;
+		line-height: var(--lh-body);
 	}
 	.control {
 		position: relative;
@@ -143,8 +143,8 @@
 		background: none;
 		color: var(--ink-2);
 		font: inherit;
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		cursor: pointer;
 		transition:
 			background-color 140ms ease,
@@ -183,19 +183,19 @@
 		background: var(--strength-strong);
 	}
 	.strength-text {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.strength-text b {
 		color: var(--ink);
 	}
 	.match {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.match.ok {
 		color: var(--success);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	input:hover,
 	textarea:hover {
@@ -210,12 +210,12 @@
 		border-color: var(--error);
 	}
 	.hint {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.error {
-		font-size: 13.5px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--error);
 	}
 </style>

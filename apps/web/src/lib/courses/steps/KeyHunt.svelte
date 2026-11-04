@@ -179,8 +179,8 @@
 	}
 	.char {
 		font-family: var(--font-mono);
-		font-size: 40px;
-		font-weight: 600;
+		font-size: var(--fs-40);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	/* The light that runs out: a bar along the bottom of the key. */
@@ -203,8 +203,8 @@
 		}
 	}
 	.finger {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 	}
 	.finger::first-letter {
 		text-transform: uppercase;

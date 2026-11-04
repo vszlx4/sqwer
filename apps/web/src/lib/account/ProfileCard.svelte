@@ -113,43 +113,43 @@
 		border-radius: 3px;
 		background: var(--rank-soft);
 		color: var(--rank);
-		font-size: 13px;
-		font-weight: 700;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
 	}
 	.name {
 		font-family: var(--font-serif);
-		font-weight: 400;
-		font-size: 30px;
-		line-height: 1.1;
+		font-weight: var(--fw-regular);
+		font-size: var(--fs-32);
+		line-height: var(--lh-snug);
 		color: var(--ink);
 		overflow-wrap: anywhere;
 	}
 	.compact .name {
-		font-size: 22px;
+		font-size: var(--fs-24);
 	}
 	.handle {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 8px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.pronouns {
 		padding: 1px 7px;
 		border-radius: 3px;
 		background: var(--surface-2);
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 	}
 	.headline {
 		margin-top: 4px;
-		font-size: 15.5px;
-		font-weight: 600;
+		font-size: var(--fs-16);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.bio {
-		font-size: 14.5px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 		white-space: pre-line;
 		overflow-wrap: anywhere;
@@ -167,12 +167,12 @@
 		border: 1px solid var(--line);
 	}
 	.stats dt {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	.stats dd {
-		font-size: 20px;
-		font-weight: 700;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-bold);
 		font-variant-numeric: tabular-nums;
 		color: var(--ink);
 	}

@@ -73,7 +73,7 @@
 		padding: 20px;
 		border: 1px solid var(--line);
 		border-radius: 3px;
-		font-size: 20px;
+		font-size: var(--fs-20);
 	}
 	.cards {
 		display: grid;

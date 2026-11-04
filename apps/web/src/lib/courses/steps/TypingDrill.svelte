@@ -222,16 +222,16 @@
 		align-items: center;
 		gap: 18px;
 		flex-wrap: wrap;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
 	.time b {
-		font-size: 22px;
+		font-size: var(--fs-24);
 		color: var(--ink);
 	}
 	.goal {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.hint-toggle {
 		display: inline-flex;
@@ -251,7 +251,7 @@
 		position: absolute;
 		inset: 0;
 		opacity: 0;
-		font-size: 16px;
+		font-size: var(--fs-16);
 		cursor: text;
 	}
 	.guide {

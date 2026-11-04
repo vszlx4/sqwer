@@ -225,7 +225,7 @@
 		gap: 12px;
 		max-width: 520px;
 		color: var(--ink-2);
-		line-height: 1.55;
+		line-height: var(--lh-body);
 	}
 	.icon {
 		display: grid;
@@ -238,7 +238,7 @@
 	}
 	.title {
 		font-family: var(--font-serif);
-		font-size: 34px;
+		font-size: var(--fs-32);
 		color: var(--ink);
 	}
 	kbd {
@@ -247,10 +247,10 @@
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 	}
 	.count {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
@@ -293,26 +293,26 @@
 	}
 	.shown {
 		font-family: var(--font-mono);
-		font-size: 34px;
-		font-weight: 600;
+		font-size: var(--fs-32);
+		font-weight: var(--fw-semibold);
 	}
 	.hidden-word {
-		font-size: 28px;
+		font-size: var(--fs-28);
 		color: var(--untyped);
 	}
 	.result {
 		display: inline-flex;
 		align-items: center;
 		gap: 8px;
-		font-size: 20px;
-		font-weight: 600;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-semibold);
 	}
 	.result b {
 		font-family: var(--font-mono);
 	}
 	.also {
-		font-size: 15px;
-		font-weight: 400;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 	}
 	.answer input {
@@ -324,14 +324,14 @@
 		background: var(--bg);
 		color: var(--ink);
 		font-family: var(--font-mono);
-		font-size: 22px;
+		font-size: var(--fs-24);
 		text-align: center;
 	}
 	.answer input:focus-visible {
 		border-color: var(--ink);
 	}
 	.help {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	@media (prefers-reduced-motion: reduce) {

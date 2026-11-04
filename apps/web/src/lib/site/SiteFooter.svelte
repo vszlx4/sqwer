@@ -68,8 +68,8 @@
 	}
 	.tagline {
 		margin-top: 4px;
-		font-size: 15px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	/* Four branched columns, each its own nav; two, then one, as the footer narrows. */
@@ -86,12 +86,12 @@
 		gap: 12px 24px;
 		padding-top: 20px;
 		border-top: 1px solid var(--line);
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.build {
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-3);
 	}
 	.prefs {

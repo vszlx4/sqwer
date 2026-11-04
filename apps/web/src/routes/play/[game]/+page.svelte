@@ -27,13 +27,13 @@
 		gap: 24px;
 	}
 	.kicker {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(32px, 4.4vw, 48px);
-		line-height: 1.05;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	.summary {
 		margin-top: 6px;

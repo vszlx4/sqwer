@@ -95,15 +95,15 @@
 	}
 	.panel-title {
 		font-family: var(--font-serif);
-		font-size: clamp(28px, 3.2vw, 38px);
-		line-height: 1.1;
+		font-size: var(--fs-title);
+		line-height: var(--lh-snug);
 		color: var(--ink);
 		text-wrap: balance;
 	}
 	.panel-intro {
 		max-width: 44ch;
-		font-size: 15px;
-		line-height: 1.6;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.benefits,
@@ -134,13 +134,13 @@
 	.steps b {
 		display: block;
 		margin-bottom: 2px;
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink);
 	}
 	.benefits li > span:last-child,
 	.steps li {
-		font-size: 14px;
-		line-height: 1.5;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.steps {
@@ -163,8 +163,8 @@
 		border-radius: 3px;
 		background: var(--ink);
 		color: var(--bg);
-		font-size: 14px;
-		font-weight: 700;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-bold);
 	}
 	.panel-foot {
 		display: flex;
@@ -173,8 +173,8 @@
 		margin-top: 6px;
 		padding-top: 16px;
 		border-top: 1px solid var(--line);
-		font-size: 13px;
-		line-height: 1.5;
+		font-size: var(--fs-13);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.panel-foot :global(svg) {
@@ -194,26 +194,26 @@
 		gap: 8px;
 	}
 	h1 {
-		font-size: clamp(32px, 4vw, 44px);
-		line-height: 1.05;
-		letter-spacing: -0.01em;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
+		letter-spacing: normal;
 		text-wrap: balance;
 	}
 	.lede {
-		font-size: 15.5px;
-		line-height: 1.55;
+		font-size: var(--fs-16);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 		text-wrap: pretty;
 	}
 	.footer {
 		padding-top: 18px;
 		border-top: 1px solid var(--line);
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.footer :global(a) {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 	}
 	.footer :global(a:hover) {

@@ -71,7 +71,7 @@
 	.passage {
 		margin-top: 4px;
 		font-family: var(--font-mono);
-		font-size: 16px;
+		font-size: var(--fs-16);
 		white-space: pre;
 		color: var(--band-ink-4);
 	}

@@ -190,8 +190,8 @@
 		height: 30px;
 		padding: 0 6px 0 4px;
 		color: var(--on-hue);
-		font-size: 13px;
-		font-weight: 700;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
 		font-variant-numeric: tabular-nums;
 	}
 	.card,
@@ -223,11 +223,11 @@
 		align-items: baseline;
 		justify-content: space-between;
 		gap: 8px;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.card-head b {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--rank);
 	}
 	.card dl {
@@ -235,7 +235,7 @@
 		flex-direction: column;
 		gap: 4px;
 		margin-top: 12px;
-		font-size: 13px;
+		font-size: var(--fs-13);
 	}
 	.card dl div {
 		display: flex;
@@ -246,7 +246,7 @@
 		color: var(--ink-2);
 	}
 	.card dd {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
 	.eta {
@@ -256,7 +256,7 @@
 		margin-top: 10px;
 		padding-top: 10px;
 		border-top: 1px solid var(--line);
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.eta :global(svg) {
@@ -291,12 +291,12 @@
 		min-width: 0;
 	}
 	.name {
-		font-weight: 600;
-		line-height: 1.3;
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-base);
 		overflow-wrap: anywhere;
 	}
 	.handle {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 		overflow-wrap: anywhere;
 	}
@@ -309,9 +309,9 @@
 		max-width: 92px;
 		padding: 4px;
 		border-radius: 3px;
-		font-size: 11.5px;
-		font-weight: 600;
-		line-height: 1.2;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-base);
 		text-align: center;
 		color: var(--ink-2);
 		text-decoration: none;
@@ -329,12 +329,12 @@
 		display: flex;
 		justify-content: space-between;
 		gap: 8px;
-		font-size: 13px;
-		font-weight: 700;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
 		color: var(--rank);
 	}
 	.level .xp {
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
@@ -347,7 +347,7 @@
 		padding: 9px 10px;
 		border-radius: 3px;
 		font: inherit;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink);
 		text-align: left;
 		text-decoration: none;
@@ -361,7 +361,7 @@
 		background: var(--surface);
 	}
 	nav a[aria-current='page'] {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		background: var(--surface);
 	}
 	.end {

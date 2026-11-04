@@ -161,31 +161,31 @@
 		}
 	}
 	.kicker {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	h2 {
 		margin-top: 2px;
-		font-size: clamp(40px, 5.6vw, 64px);
-		font-weight: 800;
-		line-height: 1;
-		letter-spacing: -0.03em;
+		font-size: var(--fs-hero);
+		font-weight: var(--fw-bold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--tr-tight);
 	}
 	.verdict {
 		margin-top: 12px;
 		max-width: 60ch;
-		font-size: 16.5px;
+		font-size: var(--fs-16);
 		color: var(--ink-2);
 		text-wrap: pretty;
 	}
 	.verdict.good {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.range {
 		margin-top: 2px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-3);
 	}
 	.ladder {
@@ -198,8 +198,8 @@
 		display: flex;
 		justify-content: space-between;
 		gap: 12px;
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 	}
 	.ends span {
 		display: inline-flex;
@@ -207,7 +207,7 @@
 		gap: 6px;
 	}
 	.ends small {
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 		color: var(--ink-3);
 		font-variant-numeric: tabular-nums;
 	}
@@ -230,7 +230,7 @@
 		}
 	}
 	.gap {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.gap b {
@@ -250,21 +250,21 @@
 		flex-direction: column;
 	}
 	.label {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.value {
-		font-size: clamp(56px, 7vw, 88px);
-		font-weight: 800;
-		line-height: 1;
-		letter-spacing: -0.03em;
+		font-size: var(--fs-hero);
+		font-weight: var(--fw-bold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--tr-tight);
 		font-variant-numeric: tabular-nums;
 	}
 	.value small {
 		margin-left: 4px;
 		font-size: 0.32em;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		letter-spacing: 0;
 		color: var(--ink-2);
 	}
@@ -284,12 +284,12 @@
 		border-left: 1px solid var(--line);
 	}
 	.mini dt {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.mini dd {
-		font-size: 18px;
-		font-weight: 600;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
 	.mini dd.up {
@@ -302,7 +302,7 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.check.verified {
@@ -338,7 +338,7 @@
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);
-		font-size: 11px;
+		font-size: var(--fs-11);
 	}
 	.full {
 		margin-top: 36px;

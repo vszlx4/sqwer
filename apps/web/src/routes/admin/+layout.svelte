@@ -51,8 +51,8 @@
 		padding: 10px 14px;
 		margin-bottom: -1px;
 		border-bottom: 2px solid transparent;
-		font-size: 14.5px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		text-decoration: none;
 		transition: color 140ms ease;

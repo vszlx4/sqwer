@@ -119,14 +119,14 @@
 	}
 	.name {
 		font-family: var(--font-serif);
-		font-size: clamp(30px, 3.6vw, 42px);
-		line-height: 1.05;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 		color: var(--ink);
 		overflow-wrap: anywhere;
 	}
 	.handle {
 		margin-top: 6px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.standing {
@@ -146,8 +146,8 @@
 		background: var(--surface);
 	}
 	dt {
-		font-size: 12px;
-		font-weight: 600;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-3);
 	}
 	dd {
@@ -170,8 +170,8 @@
 		border-radius: 3px;
 		background: var(--violet);
 		color: var(--on-hue);
-		font-size: 18px;
-		font-weight: 800;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-bold);
 	}
 	.bar {
 		height: 6px;
@@ -187,7 +187,7 @@
 	}
 	.sub {
 		display: block;
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.rank dd {
@@ -198,7 +198,7 @@
 	.rank b,
 	.course b {
 		display: block;
-		font-size: 15px;
+		font-size: var(--fs-15);
 	}
 	.account {
 		display: grid;
@@ -224,8 +224,8 @@
 		gap: 10px;
 		padding: 9px 12px;
 		border-radius: 3px;
-		font-size: 14.5px;
-		font-weight: 500;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 		text-decoration: none;
 		transition:
@@ -243,7 +243,7 @@
 	.side a[aria-current='page'] {
 		background: var(--surface-2);
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		box-shadow: inset 3px 0 0 var(--accent);
 	}
 	.sep {

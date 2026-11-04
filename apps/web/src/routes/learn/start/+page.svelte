@@ -94,7 +94,7 @@
 		max-width: 360px;
 	}
 	.retake {
-		font-size: 14px;
+		font-size: var(--fs-14);
 	}
 	.choose {
 		display: flex;
@@ -103,17 +103,17 @@
 		max-width: 920px;
 	}
 	h1 {
-		font-size: clamp(34px, 4.6vw, 54px);
-		line-height: 1.05;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	.lede {
 		margin-top: 12px;
-		font-size: 18px;
-		line-height: 1.6;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	h2 {
-		font-size: 26px;
+		font-size: var(--fs-28);
 		margin-bottom: 14px;
 	}
 	.level {
@@ -134,7 +134,7 @@
 	.level p {
 		max-width: 560px;
 		color: var(--ink-2);
-		line-height: 1.55;
+		line-height: var(--lh-body);
 	}
 	.level b {
 		color: var(--ink);
@@ -166,7 +166,7 @@
 		background: var(--bg);
 		border: 1px solid var(--line-strong);
 		font-family: var(--font-serif);
-		font-size: 22px;
+		font-size: var(--fs-24);
 	}
 	.recommended .num {
 		background: var(--accent);
@@ -174,8 +174,8 @@
 		border-color: transparent;
 	}
 	.title {
-		font-size: 17px;
-		font-weight: 700;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-bold);
 	}
 	.tag {
 		margin-left: 6px;
@@ -183,12 +183,12 @@
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
-		font-size: 11.5px;
-		font-weight: 800;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-bold);
 		vertical-align: middle;
 	}
 	.summary {
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.ready {
@@ -196,7 +196,7 @@
 		align-items: flex-start;
 		gap: 6px;
 		margin-top: 6px;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink);
 	}
 	.ready :global(svg) {
@@ -209,7 +209,7 @@
 		gap: 12px;
 	}
 	.count {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.foot {
@@ -220,7 +220,7 @@
 		border: 0;
 		background: none;
 		font: inherit;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		cursor: pointer;
 	}

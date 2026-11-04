@@ -487,7 +487,9 @@ dd {
 	--w-narrow: 560px;
 	--w-form: 440px;
 
-	/* Type. */
+	/* Type. 10: key legends and chart ticks; 32 and 40: numerals and game glyphs. Off-scale sizes carry an
+	   off-scale comment with the reason (scripts/type-scale.test.ts). */
+	--fs-10: 10px;
 	--fs-11: 11px;
 	--fs-12: 12px;
 	--fs-13: 13px;
@@ -498,9 +500,11 @@ dd {
 	--fs-20: 20px;
 	--fs-24: 24px;
 	--fs-28: 28px;
+	--fs-32: 32px;
+	--fs-40: 40px;
 	--fs-title: clamp(28px, 3.2vw, 36px);
-	--fs-display: clamp(32px, 4vw, 44px);
-	--fs-hero: clamp(56px, 7vw, 88px);
+	--fs-display: clamp(32px, 4vw, 48px);
+	--fs-hero: clamp(42px, 6vw, 84px);
 	--lh-tight: 1;
 	--lh-snug: 1.1;
 	--lh-base: 1.3;
@@ -508,10 +512,11 @@ dd {
 	--tr-tight: -0.02em;
 	--tr-wide: 0.06em;
 	--tr-caps: 0.12em;
+	/* The sans ships 100/300/400/600/800 only; 500 and 700 would fall back to 400 and 800. */
+	--fw-light: 300;
 	--fw-regular: 400;
-	--fw-medium: 500;
 	--fw-semibold: 600;
-	--fw-bold: 700;
+	--fw-bold: 800;
 
 	/* Shape. */
 	--radius: 3px;

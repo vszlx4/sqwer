@@ -252,7 +252,7 @@
 		background: var(--bg);
 		color: var(--ink-2);
 		font: inherit;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		cursor: pointer;
 		transition: border-color 140ms ease;
 	}
@@ -266,7 +266,7 @@
 	}
 	.message {
 		font-family: var(--font-serif);
-		font-size: 26px;
+		font-size: var(--fs-28);
 		color: var(--ink-2);
 		min-height: 1.3em;
 		transition: color 200ms ease;
@@ -289,8 +289,8 @@
 		border-radius: 3px;
 		border: 1px dashed var(--line-strong);
 		font-family: var(--font-mono);
-		font-size: 20px;
-		font-weight: 600;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-semibold);
 		transition:
 			background-color 160ms ease,
 			transform 160ms ease;

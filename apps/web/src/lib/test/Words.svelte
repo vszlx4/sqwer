@@ -115,8 +115,8 @@
 		height: calc(var(--typing-size) * var(--typing-leading) * 3);
 		overflow: hidden;
 		font-family: var(--font-mono);
-		font-size: var(--typing-size);
-		line-height: var(--typing-leading);
+		font-size: var(--typing-size); /* off-scale: typing text, sized by the host */
+		line-height: var(--typing-leading); /* off-scale: typing text, sized by the host */
 	}
 	.inner {
 		position: relative;

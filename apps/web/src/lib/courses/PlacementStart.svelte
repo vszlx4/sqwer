@@ -92,8 +92,8 @@
 	}
 	.credit {
 		max-width: 60ch;
-		font-size: 14px;
-		line-height: 1.5;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 		text-wrap: pretty;
 	}
@@ -115,7 +115,7 @@
 		}
 	}
 	.error {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--error);
 	}
 </style>
