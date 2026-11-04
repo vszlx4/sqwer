@@ -52,7 +52,7 @@
 		place-items: center;
 		width: 38px;
 		height: 40px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid color-mix(in srgb, var(--lime) calc(var(--ok) * 100%), color-mix(in srgb, var(--hue) calc(var(--lit) * 100%), var(--band-line-strong)));
 		border-bottom-width: 3px;
 		background: color-mix(

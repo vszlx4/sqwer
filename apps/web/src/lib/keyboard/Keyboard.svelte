@@ -180,10 +180,10 @@
 		user-select: none;
 	}
 	.key {
-		transition: transform 60ms ease-out;
+		transition: transform var(--dur-instant) var(--ease-out);
 	}
 	.key rect {
-		transition: fill 70ms ease-out;
+		transition: fill var(--dur-instant) var(--ease-out);
 	}
 	.legend {
 		font-family: var(--font-sans);

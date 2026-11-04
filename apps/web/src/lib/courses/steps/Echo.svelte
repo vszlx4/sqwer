@@ -247,14 +247,14 @@
 		align-items: center;
 		gap: var(--space-6);
 		padding: var(--space-6) var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink-2);
 		font: inherit;
 		font-size: var(--fs-13);
 		cursor: pointer;
-		transition: border-color 140ms ease;
+		transition: border-color var(--dur-fast) var(--ease-out);
 	}
 	.sound:hover {
 		border-color: var(--ink);
@@ -269,7 +269,7 @@
 		font-size: var(--fs-28);
 		color: var(--ink-2);
 		min-height: 1.3em;
-		transition: color 200ms ease;
+		transition: color var(--dur-base) var(--ease-out);
 	}
 	.message.turn {
 		color: var(--ink);
@@ -286,14 +286,14 @@
 		place-items: center;
 		width: 44px;
 		height: 44px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
 		font-family: var(--font-mono);
 		font-size: var(--fs-20);
 		font-weight: var(--fw-semibold);
 		transition:
-			background-color 160ms ease,
-			transform 160ms ease;
+			background-color var(--dur-fast) var(--ease-out),
+			transform var(--dur-fast) var(--ease-out);
 	}
 	.slots li.lit {
 		border-style: solid;
@@ -307,7 +307,7 @@
 		border-color: var(--line-strong);
 		opacity: 0;
 		transform: none;
-		transition: opacity 350ms ease;
+		transition: opacity var(--dur-slow) var(--ease-out);
 	}
 	.slots li.filled {
 		border-style: solid;

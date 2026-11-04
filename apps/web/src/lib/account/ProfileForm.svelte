@@ -305,7 +305,7 @@
 	.builder:not(.setup) fieldset {
 		padding: var(--space-20) var(--space-24) var(--space-24);
 		margin-bottom: var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -325,7 +325,7 @@
 		align-items: center;
 		gap: var(--space-8);
 		padding: var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
@@ -344,7 +344,7 @@
 		place-items: center;
 		width: 24px;
 		height: 24px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		font-weight: var(--fw-semibold);
 		flex-shrink: 0;
@@ -370,7 +370,7 @@
 		flex-direction: column;
 		gap: var(--space-4);
 		padding: var(--space-16) var(--space-16) var(--space-16) var(--space-40);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		cursor: pointer;
@@ -407,7 +407,7 @@
 		place-items: center;
 		width: 44px;
 		height: 44px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		cursor: pointer;
 	}
@@ -420,7 +420,7 @@
 	.swatch span {
 		width: 30px;
 		height: 30px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.swatch.selected {
 		border-color: var(--ink);
@@ -488,7 +488,7 @@
 		margin-top: var(--space-8);
 		align-self: flex-start;
 		padding: var(--space-2) var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-semibold);
@@ -509,7 +509,7 @@
 		flex-direction: column;
 		gap: var(--space-6);
 		padding: var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		cursor: pointer;
 	}
@@ -521,7 +521,7 @@
 	}
 	.banner-swatch {
 		height: 34px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.banner-name {
 		font-size: var(--fs-13);
@@ -547,7 +547,7 @@
 	.check.public {
 		margin-top: var(--space-6);
 		padding: var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}

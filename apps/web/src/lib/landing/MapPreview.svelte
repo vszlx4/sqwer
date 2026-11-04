@@ -51,7 +51,7 @@
 		place-items: center;
 		min-width: 26px;
 		height: 26px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 3px;
 		background: var(--key);

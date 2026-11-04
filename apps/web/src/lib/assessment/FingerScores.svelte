@@ -124,7 +124,7 @@
 		display: inline-block;
 		width: 10px;
 		height: 10px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		margin-right: var(--space-6);
 	}
 	.bar {
@@ -132,7 +132,7 @@
 		width: calc(100% - 80px);
 		height: 10px;
 		margin-right: var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		vertical-align: middle;
 		overflow: hidden;
@@ -152,7 +152,7 @@
 	.tag {
 		margin-left: var(--space-6);
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-size: var(--fs-12);
 		font-weight: var(--fw-semibold);
 		border: 1px solid var(--line-strong);

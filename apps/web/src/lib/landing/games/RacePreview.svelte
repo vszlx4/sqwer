@@ -33,7 +33,7 @@
 		--hue: var(--accent);
 		position: relative;
 		height: 22px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--band-surface-2);
 	}
 	.lane.pace {
@@ -46,7 +46,7 @@
 		width: calc((100% - 30px) * var(--at));
 		height: 3px;
 		margin-top: calc(var(--space-2) * -1);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: linear-gradient(90deg, transparent, var(--hue));
 	}
 	.runner {
@@ -55,7 +55,7 @@
 		left: calc(3px + (100% - 30px) * var(--at));
 		width: 16px;
 		height: 16px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--hue);
 	}
 	/* Checkered finish. */
@@ -66,7 +66,7 @@
 		width: 8px;
 		height: 100%;
 		background: conic-gradient(var(--band-ink) 25%, var(--band-bg) 0 50%, var(--band-ink) 0 75%, var(--band-bg) 0) 0 0 / 4px 4px;
-		border-radius: 0 3px 3px 0;
+		border-radius: 0 var(--radius) var(--radius) 0;
 	}
 	.passage {
 		margin-top: var(--space-4);

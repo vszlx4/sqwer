@@ -643,7 +643,7 @@
 		width: 40px;
 		height: 4px;
 		overflow: hidden;
-		border-radius: 1px;
+		border-radius: var(--radius);
 		background: color-mix(in srgb, var(--band-ink) 15%, transparent);
 	}
 	.ticks span::after {
@@ -682,7 +682,6 @@
 		mask-image: linear-gradient(to bottom, #000 calc(100% - var(--drop) * 0.45), transparent);
 	}
 	.deck-anchor {
-		--card-radius: 18px;
 		margin-bottom: calc(var(--card-h) * -0.04);
 	}
 	.road-deck :global(.deck > ol > li) {
@@ -731,7 +730,7 @@
 		flex-direction: column;
 		gap: var(--space-24);
 		padding: var(--space-32) var(--space-32);
-		transition: opacity 400ms ease;
+		transition: opacity var(--dur-slow) var(--ease-out);
 	}
 	.window-summary {
 		max-width: 22ch;
@@ -791,7 +790,7 @@
 		place-items: center;
 		width: 28px;
 		height: 28px;
-		border-radius: 4px;
+		border-radius: var(--radius);
 		border: 1px solid color-mix(in srgb, var(--band-ink) 14%, transparent);
 		font-family: var(--font-mono);
 		font-size: var(--fs-12);
@@ -878,7 +877,7 @@
 		flex-direction: column;
 		gap: var(--space-8);
 		padding: var(--space-16) var(--space-16) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--band-line);
 		background: var(--band-surface);
 	}
@@ -896,7 +895,7 @@
 		position: relative;
 		height: 170px;
 		overflow: hidden;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background:
 			radial-gradient(circle at 1px 1px, var(--band-dot) 1px, transparent 0) 0 0 / 16px 16px,
 			var(--band-bg);
@@ -948,7 +947,7 @@
 		flex-shrink: 0;
 		margin-top: var(--space-2);
 		padding: var(--space-2);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 	}
@@ -990,9 +989,6 @@
 			--card-w: 100vw;
 			--card-h: min(520px, 62svh);
 			--drop: 120px;
-		}
-		.deck-anchor {
-			--card-radius: 14px;
 		}
 		.window-bar {
 			height: 50px;

@@ -188,7 +188,7 @@
 	.road {
 		position: relative;
 		height: 38px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		overflow: visible;
 		background:
 			repeating-linear-gradient(90deg, transparent 0 26px, color-mix(in srgb, var(--ink) 9%, transparent) 26px 38px) center / calc(100% - 22px) 2px no-repeat,
@@ -202,7 +202,7 @@
 		width: 12px;
 		height: 100%;
 		background: conic-gradient(var(--ink) 25%, var(--bg) 0 50%, var(--ink) 0 75%, var(--bg) 0) 0 0 / 6px 6px;
-		border-radius: 0 3px 3px 0;
+		border-radius: 0 var(--radius) var(--radius) 0;
 	}
 	.trail {
 		position: absolute;
@@ -210,8 +210,8 @@
 		top: 50%;
 		height: 4px;
 		margin-top: calc(var(--space-2) * -1);
-		border-radius: 3px;
-		transition: width 120ms linear;
+		border-radius: var(--radius);
+		transition: width var(--dur-fast) linear;
 	}
 	.trail.you {
 		background: linear-gradient(90deg, transparent, var(--accent));
@@ -228,8 +228,8 @@
 		width: 30px;
 		height: 30px;
 		margin-left: calc(var(--space-16) * -1);
-		border-radius: 3px;
-		transition: left 120ms linear;
+		border-radius: var(--radius);
+		transition: left var(--dur-fast) linear;
 		box-shadow: var(--shadow);
 	}
 	.runner.you {

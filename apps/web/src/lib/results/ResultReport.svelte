@@ -214,7 +214,7 @@
 	}
 	.xp {
 		padding: var(--space-4) var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--rank-soft);
 		color: var(--rank);
 		font-weight: var(--fw-bold);
@@ -234,7 +234,7 @@
 	}
 	.tier {
 		padding: var(--space-4) var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--league);
 		color: var(--ink);
 		font-weight: var(--fw-bold);
@@ -246,7 +246,7 @@
 	}
 	.badge {
 		padding: var(--space-2) var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--error);
 		color: var(--error);
 		font-size: var(--fs-13);
@@ -311,7 +311,7 @@
 	}
 	.chart-panel {
 		padding: var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		min-width: 0;
@@ -323,7 +323,7 @@
 	}
 	.details > div {
 		padding: var(--space-16) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		display: flex;
@@ -341,7 +341,7 @@
 		font-family: var(--font-mono);
 		font-size: var(--fs-13);
 		padding: 0 var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 	}
@@ -363,7 +363,7 @@
 	.insights,
 	.next {
 		padding: var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		display: flex;

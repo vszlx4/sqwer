@@ -314,7 +314,7 @@
 		align-items: center;
 		gap: var(--space-6);
 		padding: var(--space-8) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		font: inherit;
@@ -349,20 +349,20 @@
 		align-items: center;
 		gap: var(--space-8);
 		padding: var(--space-6) var(--space-12) var(--space-6) var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		font-size: var(--fs-13);
 		color: var(--ink-2);
 		transition:
-			border-color 200ms ease,
-			background-color 200ms ease;
+			border-color var(--dur-base) var(--ease-out),
+			background-color var(--dur-base) var(--ease-out);
 	}
 	.dot {
 		display: grid;
 		place-items: center;
 		width: 24px;
 		height: 24px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 	}
 	.track li.current {
@@ -387,7 +387,7 @@
 	.lesson-bar {
 		flex: 1;
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -396,11 +396,11 @@
 		height: 100%;
 		background: linear-gradient(90deg, var(--success), var(--accent));
 		transform-origin: left;
-		transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+		transition: transform var(--dur-reveal) var(--ease-out);
 	}
 	.pace {
 		padding: var(--space-2) var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--info-soft);
 		color: var(--info);
 		font-size: var(--fs-13);
@@ -413,7 +413,7 @@
 		align-items: center;
 		gap: var(--space-8);
 		padding: var(--space-10) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--streak-soft);
 		color: var(--ink);
 		font-size: var(--fs-14);
@@ -429,7 +429,7 @@
 		max-width: var(--w-narrow);
 		margin-top: var(--space-8);
 		padding: var(--space-16) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--info-soft);
 		color: var(--ink);
@@ -485,7 +485,7 @@
 		margin: var(--space-24) auto;
 		padding: var(--space-40) var(--space-32);
 		text-align: center;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		animation: step-in 300ms ease;
@@ -495,7 +495,7 @@
 		place-items: center;
 		width: 56px;
 		height: 56px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		color: var(--ink);
 	}
@@ -525,7 +525,7 @@
 	.outcome kbd {
 		margin-left: var(--space-6);
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: var(--fs-12);
@@ -541,7 +541,7 @@
 	.skip-game {
 		padding: var(--space-6) var(--space-10);
 		border: 0;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: none;
 		color: var(--ink);
 		font: inherit;
@@ -554,7 +554,7 @@
 	}
 	kbd {
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		font-family: var(--font-mono);

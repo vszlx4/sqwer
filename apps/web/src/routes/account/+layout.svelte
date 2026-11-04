@@ -141,7 +141,7 @@
 		gap: var(--space-4);
 		min-width: 150px;
 		padding: var(--space-10) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -167,7 +167,7 @@
 		min-width: 38px;
 		height: 38px;
 		padding: 0 var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--violet);
 		color: var(--on-hue);
 		font-size: var(--fs-18);
@@ -175,7 +175,7 @@
 	}
 	.bar {
 		height: 6px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -223,14 +223,14 @@
 		align-items: center;
 		gap: var(--space-10);
 		padding: var(--space-10) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-size: var(--fs-15);
 		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 		text-decoration: none;
 		transition:
-			background-color 140ms ease,
-			color 140ms ease;
+			background-color var(--dur-fast) var(--ease-out),
+			color var(--dur-fast) var(--ease-out);
 	}
 	.side a:hover {
 		background: var(--surface);

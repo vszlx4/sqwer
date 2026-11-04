@@ -87,7 +87,7 @@
 		flex-direction: column;
 		gap: var(--space-20);
 		padding: clamp(var(--space-24), 3.4vw, var(--space-40));
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background:
 			radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 7%, transparent) 1px, transparent 0) 0 0 / 22px 22px,
@@ -126,7 +126,7 @@
 		place-items: center;
 		width: 36px;
 		height: 36px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 	}
@@ -160,7 +160,7 @@
 		place-items: center;
 		width: 30px;
 		height: 30px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--ink);
 		color: var(--bg);
 		font-size: var(--fs-14);

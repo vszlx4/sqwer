@@ -35,7 +35,7 @@
 		gap: var(--space-12);
 		height: 52px;
 		padding: 0 var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid color-mix(in srgb, var(--accent) calc(25% + var(--voice) * 45%), transparent);
 		background: color-mix(in srgb, var(--accent) calc(6% + var(--voice) * 8%), transparent);
 		color: color-mix(in srgb, var(--accent-ink) calc(var(--voice) * 100%), var(--band-ink-3));
@@ -49,7 +49,7 @@
 	.wave span {
 		width: 4px;
 		height: 100%;
-		border-radius: 2px;
+		border-radius: var(--radius);
 		background: var(--accent);
 	}
 	/* The answer underline turns the success hue once the word is right. */
@@ -81,7 +81,7 @@
 		place-items: center;
 		width: 20px;
 		height: 20px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--lime);
 		color: var(--on-hue);
 	}

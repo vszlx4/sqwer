@@ -78,10 +78,10 @@
 		place-items: center;
 		width: 38px;
 		height: 38px;
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		color: var(--ink);
 		cursor: pointer;
-		transition: background-color 140ms ease;
+		transition: background-color var(--dur-fast) var(--ease-out);
 	}
 	.theme:hover {
 		background: color-mix(in srgb, var(--surface) 80%, transparent);

@@ -8,7 +8,7 @@
 	down and out, the stack steps forward one by one, the old front rises in at the back); no hover pause or card
 	clicks; no loop under reduced motion; gsap through lib/motion with named eases; tilt by rotateX/rotateY instead
 	of skew; offsets from the card size (resize aware); slots in CSS so SSR renders the stack; ordered list markup
-	with aria-current on the front card; tokens for colours and border, `--card-radius` override.
+	with aria-current on the front card; tokens for colours, border and radius.
 -->
 <script lang="ts" generics="T">
 	import type { Snippet } from 'svelte';
@@ -194,7 +194,7 @@
 		overflow: hidden;
 		border: 1px solid var(--line-strong);
 		/* Cards may set their own radius; tokens default otherwise. */
-		border-radius: var(--card-radius, 3px);
+		border-radius: var(--radius);
 		background: var(--bg);
 		transform-style: preserve-3d;
 		backface-visibility: hidden;

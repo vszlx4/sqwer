@@ -68,7 +68,7 @@
 	}
 	li {
 		padding: var(--space-4) var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 2px solid transparent;
 		cursor: default;
 	}
@@ -109,7 +109,7 @@
 	.scale i {
 		width: 16px;
 		height: 12px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 	}
 	.scale span {

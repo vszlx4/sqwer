@@ -164,7 +164,7 @@
 		place-items: center;
 		width: 84px;
 		height: 84px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 2px solid var(--finger);
 		border-bottom-width: 6px;
 		background: var(--key);

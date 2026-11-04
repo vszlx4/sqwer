@@ -372,7 +372,7 @@
 		position: relative;
 		width: 100%;
 		height: 100%;
-		z-index: 40;
+		z-index: var(--z-header);
 		pointer-events: none;
 	}
 	:global(.staggered-menu-wrapper.fixed-wrapper) {
@@ -381,7 +381,7 @@
 		left: 0;
 		width: 100vw;
 		height: 100dvh;
-		z-index: 40;
+		z-index: var(--z-header);
 		overflow: hidden;
 	}
 	/* Placement comes from the host through --sm-header-*, so the toggle can sit inside a nav bar. */
@@ -399,7 +399,7 @@
 		padding: var(--sm-header-padding, 2em);
 		background: transparent;
 		pointer-events: none;
-		z-index: 20;
+		z-index: 3;
 	}
 	:global(.staggered-menu-header > *) { pointer-events: auto; }
 	:global(.sm-logo) { display: flex; align-items: center; user-select: none; }
@@ -423,7 +423,7 @@
 	:global(.sm-toggle:focus-visible) {
 		outline: 2px solid var(--ink);
 		outline-offset: 2px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	:global(.sm-toggle-textWrap) {
 		position: relative;
@@ -454,7 +454,7 @@
 		width: 100%;
 		height: 2px;
 		background: currentColor;
-		border-radius: 2px;
+		border-radius: var(--radius);
 		transform: translate(-50%, -50%);
 		will-change: transform;
 	}
@@ -469,7 +469,7 @@
 		flex-direction: column;
 		padding: var(--sm-panel-top, 6em) 2em 2em 2em;
 		overflow-y: auto;
-		z-index: 10;
+		z-index: 2;
 		pointer-events: auto;
 	}
 	:global([data-position='left'] .staggered-menu-panel) { right: auto; left: 0; }
@@ -480,7 +480,7 @@
 		bottom: 0;
 		width: clamp(260px, 38vw, var(--w-form));
 		pointer-events: none;
-		z-index: 5;
+		z-index: 1;
 	}
 	:global([data-position='left'] .sm-prelayers) { right: auto; left: 0; }
 	:global(.sm-prelayer) {
@@ -522,9 +522,9 @@
 		position: relative;
 		padding: var(--space-2) 0;
 		display: inline-block;
-		transition: color 0.3s ease, opacity 0.3s ease;
+		transition: color var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
 	}
-	:global(.staggered-menu-panel .sm-socials-list .sm-socials-link) { opacity: 1; transition: opacity 0.3s ease; }
+	:global(.staggered-menu-panel .sm-socials-list .sm-socials-link) { opacity: 1; transition: opacity var(--dur-base) var(--ease-out); }
 	:global(.staggered-menu-panel .sm-socials-list:hover .sm-socials-link:not(:hover)) { opacity: 0.35; }
 	:global(.staggered-menu-panel .sm-socials-list:focus-within .sm-socials-link:not(:focus-visible)) { opacity: 0.35; }
 	:global(.staggered-menu-panel .sm-socials-list .sm-socials-link:hover),
@@ -547,7 +547,7 @@
 		line-height: var(--lh-tight);
 		letter-spacing: var(--tr-tight);
 		text-transform: uppercase;
-		transition: background 0.25s, color 0.25s;
+		transition: background var(--dur-base), color var(--dur-base);
 		display: inline-block;
 		text-decoration: none;
 		padding-right: 1.4em;

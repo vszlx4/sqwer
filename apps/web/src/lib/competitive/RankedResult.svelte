@@ -213,7 +213,7 @@
 	}
 	.track {
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -335,7 +335,7 @@
 	.actions kbd {
 		margin-left: var(--space-4);
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: var(--fs-11);

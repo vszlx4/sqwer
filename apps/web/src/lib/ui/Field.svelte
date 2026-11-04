@@ -113,13 +113,13 @@
 		width: 100%;
 		min-height: 46px;
 		padding: var(--space-10) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);
 		font: inherit;
 		font-size: var(--fs-16);
-		transition: border-color 120ms ease;
+		transition: border-color var(--dur-fast) var(--ease-out);
 	}
 	textarea {
 		resize: vertical;
@@ -138,7 +138,7 @@
 		transform: translateY(-50%);
 		min-width: 58px;
 		padding: var(--space-6) var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid transparent;
 		background: none;
 		color: var(--ink-2);
@@ -147,8 +147,8 @@
 		font-weight: var(--fw-semibold);
 		cursor: pointer;
 		transition:
-			background-color 140ms ease,
-			color 140ms ease;
+			background-color var(--dur-fast) var(--ease-out),
+			color var(--dur-fast) var(--ease-out);
 	}
 	.reveal:hover {
 		background: var(--surface-2);
@@ -170,9 +170,9 @@
 	}
 	.bars span {
 		height: 4px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
-		transition: background-color 200ms ease;
+		transition: background-color var(--dur-base) var(--ease-out);
 	}
 	.strength[data-score='1'] .bars .on,
 	.strength[data-score='2'] .bars .on {

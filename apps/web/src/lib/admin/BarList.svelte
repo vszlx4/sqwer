@@ -92,7 +92,7 @@
 	.bar {
 		position: absolute;
 		inset: 0;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: color-mix(in srgb, var(--chart-wpm) 12%, transparent);
 		transform-origin: left;
 	}
@@ -135,7 +135,7 @@
 	}
 	.empty {
 		padding: var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
 		font-size: var(--fs-14);
 		color: var(--ink-2);

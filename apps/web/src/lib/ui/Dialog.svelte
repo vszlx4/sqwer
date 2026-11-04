@@ -47,7 +47,7 @@
 	dialog {
 		margin: auto;
 		border: 1px solid var(--line-strong);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 		color: var(--ink);
 		padding: 0;

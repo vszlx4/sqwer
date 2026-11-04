@@ -112,6 +112,6 @@
 	figcaption i {
 		width: 11px;
 		height: 11px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 </style>

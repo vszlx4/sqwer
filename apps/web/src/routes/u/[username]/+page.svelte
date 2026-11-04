@@ -108,7 +108,7 @@
 		flex-direction: column;
 		gap: var(--space-12);
 		padding: var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -125,7 +125,7 @@
 	}
 	.tiles div {
 		padding: var(--space-12) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 		border: 1px solid var(--line);
 	}
@@ -150,7 +150,7 @@
 	}
 	.bar {
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}

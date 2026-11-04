@@ -282,7 +282,7 @@
 		text-align: center;
 		gap: var(--space-4);
 		padding: var(--space-24) var(--space-24) var(--space-24);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--band-line);
 		background: linear-gradient(to bottom, var(--band-sheen), color-mix(in srgb, var(--band-ink) 1%, transparent));
 	}
@@ -320,7 +320,7 @@
 	}
 	.me-stats div {
 		padding: var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--band-surface);
 		border: 1px solid var(--band-line);
 	}
@@ -347,7 +347,7 @@
 	}
 	.next-bar {
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--band-surface-2);
 		overflow: hidden;
 	}
@@ -356,7 +356,7 @@
 		height: 100%;
 		background: linear-gradient(90deg, var(--violet), var(--accent));
 		transform-origin: left;
-		transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+		transition: transform var(--dur-reveal) var(--ease-out);
 	}
 	.next-text {
 		display: flex;
@@ -408,7 +408,7 @@
 		gap: var(--space-4);
 		width: 92px;
 		padding: var(--space-10) var(--space-4);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid transparent;
 		background: none;
 		color: var(--band-ink-3);
@@ -416,9 +416,9 @@
 		cursor: pointer;
 		scroll-snap-align: start;
 		transition:
-			background-color 180ms ease,
-			border-color 180ms ease,
-			transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+			background-color var(--dur-fast) var(--ease-out),
+			border-color var(--dur-fast) var(--ease-out),
+			transform var(--dur-base) var(--ease-out);
 	}
 	.rank-tab:hover {
 		transform: translateY(-3px);
@@ -452,7 +452,7 @@
 		align-items: center;
 		margin-top: var(--space-20);
 		padding: var(--space-24) var(--space-32);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--band-line);
 		background:
 			radial-gradient(70% 120% at 0% 50%, color-mix(in srgb, var(--league) 18%, transparent), transparent 60%),
@@ -490,7 +490,7 @@
 		column-gap: var(--space-10);
 		align-items: center;
 		padding: var(--space-10) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--band-line);
 		background: var(--band-surface);
 		text-align: left;
@@ -515,7 +515,7 @@
 		top: 8px;
 		right: 8px;
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-size: var(--fs-11);
@@ -541,13 +541,13 @@
 		display: flex;
 		gap: var(--space-4);
 		padding: var(--space-4);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
 	.tabs a {
 		padding: var(--space-8) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
@@ -572,7 +572,7 @@
 		align-items: center;
 		gap: var(--space-6);
 		padding: var(--space-24) var(--space-16) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		text-align: center;
@@ -651,7 +651,7 @@
 		align-items: center;
 		gap: var(--space-12);
 		padding: var(--space-8) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -689,7 +689,7 @@
 	}
 	.lvl {
 		padding: var(--space-4) var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--rank-soft);
 		color: var(--rank);
 		font-size: var(--fs-13);
@@ -715,7 +715,7 @@
 		align-items: center;
 		gap: var(--space-12);
 		padding: var(--space-40) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
 		text-align: center;
 		color: var(--ink-2);

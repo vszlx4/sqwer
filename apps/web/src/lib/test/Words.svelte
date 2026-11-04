@@ -123,7 +123,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		column-gap: 0.42em;
-		transition: transform 160ms ease-out;
+		transition: transform var(--dur-fast) var(--ease-out);
 		will-change: transform;
 	}
 	.inner.instant,
@@ -151,17 +151,17 @@
 	.missed {
 		color: var(--error);
 		background: var(--error-soft);
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.caret {
 		position: absolute;
 		left: -1px;
 		top: 0;
 		width: 3px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		box-shadow: 0 0 0 1px var(--ink);
-		transition: transform 85ms ease-out;
+		transition: transform var(--dur-instant) var(--ease-out);
 		pointer-events: none;
 	}
 	:global([data-theme='dark']) .caret {

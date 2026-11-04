@@ -89,7 +89,7 @@
 		min-height: 42px;
 		min-width: min(320px, 100%);
 		padding: 0 var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);
@@ -101,7 +101,7 @@
 		flex-direction: column;
 		gap: var(--space-16);
 		padding: var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}

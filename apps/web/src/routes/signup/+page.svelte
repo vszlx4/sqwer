@@ -98,7 +98,7 @@
 		flex-direction: column;
 		gap: var(--space-10);
 		padding: var(--space-16) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}

@@ -57,7 +57,7 @@
 		place-items: center;
 		width: 20px;
 		height: 22px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid color-mix(in srgb, var(--hue) calc(var(--lit) * 100%), var(--band-line));
 		border-bottom-width: 2px;
 		background: color-mix(in srgb, var(--hue) calc(var(--lit) * 100%), var(--band-surface));
@@ -72,7 +72,7 @@
 	.fuse {
 		width: 140px;
 		height: 4px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--band-surface-2);
 		overflow: hidden;
 	}

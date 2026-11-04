@@ -133,7 +133,7 @@
 		display: inline-block;
 		width: 10px;
 		height: 10px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.plot {
 		position: relative;
@@ -167,7 +167,7 @@
 		gap: var(--space-4);
 		min-width: 140px;
 		padding: var(--space-8) var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		box-shadow: var(--shadow);

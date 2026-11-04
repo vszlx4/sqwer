@@ -74,6 +74,6 @@
 		width: 100vw;
 		height: 100vh;
 		pointer-events: none;
-		z-index: 60;
+		z-index: var(--z-toast);
 	}
 </style>

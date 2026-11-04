@@ -111,7 +111,7 @@
 	}
 	.doc-toc {
 		padding: var(--space-20) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		font-size: var(--fs-14);
@@ -136,12 +136,12 @@
 		gap: var(--space-8);
 		padding: var(--space-6) var(--space-8);
 		margin: 0 calc(var(--space-8) * -1);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		color: var(--ink-2);
 		text-decoration: none;
 		transition:
-			color 120ms ease,
-			background-color 120ms ease;
+			color var(--dur-fast) var(--ease-out),
+			background-color var(--dur-fast) var(--ease-out);
 	}
 	.doc-toc a:hover {
 		color: var(--ink);
@@ -156,7 +156,7 @@
 		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 		gap: 1px;
 		margin-top: var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--line);
 		overflow: hidden;
@@ -212,10 +212,10 @@
 		gap: var(--space-2);
 		height: 100%;
 		padding: var(--space-12) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
-		transition: border-color 120ms ease;
+		transition: border-color var(--dur-fast) var(--ease-out);
 	}
 	.prose .related a:hover {
 		color: var(--ink);
@@ -324,7 +324,7 @@
 	.prose :global(.table-wrap) {
 		overflow-x: auto;
 		outline-offset: 2px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 	}
 	.prose :global(table) {
@@ -366,7 +366,7 @@
 	}
 	.prose :global(.summary) {
 		padding: var(--space-20) var(--space-24);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--ink);
 		box-shadow: inset 4px 0 0 var(--accent);
 	}
@@ -389,7 +389,7 @@
 		grid-template-columns: minmax(120px, 180px) 1fr;
 		gap: var(--space-16) var(--space-24);
 		padding: var(--space-20) var(--space-24);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 	}
@@ -401,14 +401,14 @@
 		font-family: var(--font-mono);
 		font-size: var(--fs-13);
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 		color: var(--ink);
 	}
 	.prose :global(.callout) {
 		padding: var(--space-16) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 		border-left: 4px solid var(--accent);

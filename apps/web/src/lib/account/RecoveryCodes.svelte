@@ -51,7 +51,7 @@
 	}
 	.warning {
 		padding: var(--space-12) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		border-left: 4px solid var(--accent);
 		background: var(--bg);
@@ -66,7 +66,7 @@
 	}
 	.codes li {
 		padding: var(--space-10) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--bg);
 		text-align: center;

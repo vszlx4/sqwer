@@ -294,7 +294,7 @@
 		align-items: center;
 		gap: var(--space-16);
 		padding: var(--space-16) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -331,7 +331,7 @@
 	}
 	.rank-bar {
 		height: 10px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -340,7 +340,7 @@
 		height: 100%;
 		background: var(--xp-bar);
 		transform-origin: left;
-		transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+		transition: transform var(--dur-reveal) var(--ease-out);
 	}
 	.rank-next {
 		font-size: var(--fs-13);
@@ -352,7 +352,7 @@
 	.facts {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -380,7 +380,7 @@
 		gap: var(--space-16);
 		flex-wrap: wrap;
 		padding: var(--space-16) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background:
 			radial-gradient(120% 160% at 100% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%),
 			var(--band-bg);
@@ -409,14 +409,14 @@
 		align-items: center;
 		gap: var(--space-12);
 		padding: var(--space-12) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		color: var(--ink);
 		text-decoration: none;
 		transition:
-			border-color 180ms ease,
-			transform 180ms ease;
+			border-color var(--dur-fast) var(--ease-out),
+			transform var(--dur-fast) var(--ease-out);
 	}
 	.way:hover {
 		transform: translateY(-2px);
@@ -428,7 +428,7 @@
 		flex-shrink: 0;
 		width: 34px;
 		height: 34px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.way-icon.green {
 		background: var(--success-soft);
@@ -490,7 +490,7 @@
 		gap: var(--space-12);
 		width: 100%;
 		padding: var(--space-10) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		color: var(--ink);
@@ -498,9 +498,9 @@
 		text-align: left;
 		cursor: pointer;
 		transition:
-			transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
-			border-color 180ms ease,
-			background-color 180ms ease;
+			transform var(--dur-fast) var(--ease-out),
+			border-color var(--dur-fast) var(--ease-out),
+			background-color var(--dur-fast) var(--ease-out);
 	}
 	.card:hover {
 		transform: translateX(3px);
@@ -541,7 +541,7 @@
 	.ch-bar {
 		flex: 1;
 		height: 5px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -551,7 +551,7 @@
 		height: 100%;
 		background: var(--part);
 		transform-origin: left;
-		transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+		transition: transform var(--dur-slow) var(--ease-out);
 	}
 	.card-count {
 		font-size: var(--fs-12);
@@ -563,7 +563,7 @@
 	}
 	.here {
 		padding: var(--space-2) var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-size: var(--fs-11);
@@ -575,7 +575,7 @@
 		flex-direction: column;
 		gap: var(--space-16);
 		padding: var(--space-20) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background:
 			linear-gradient(to bottom, var(--part-soft), transparent 160px),
@@ -646,15 +646,15 @@
 		gap: var(--space-12);
 		height: 100%;
 		padding: var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--bg);
 		color: var(--ink);
 		text-decoration: none;
 		transition:
-			transform 180ms ease,
-			border-color 180ms ease,
-			box-shadow 180ms ease;
+			transform var(--dur-fast) var(--ease-out),
+			border-color var(--dur-fast) var(--ease-out),
+			box-shadow var(--dur-fast) var(--ease-out);
 	}
 	.lesson:hover {
 		transform: translateY(-2px);
@@ -666,7 +666,7 @@
 		place-items: center;
 		width: 36px;
 		height: 36px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-bold);
@@ -722,7 +722,7 @@
 		align-items: center;
 		gap: var(--space-4);
 		padding: var(--space-2) var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		font-size: var(--fs-12);
 		font-weight: var(--fw-semibold);
@@ -747,7 +747,7 @@
 	}
 	.next-tag {
 		padding: var(--space-2) var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-size: var(--fs-11);

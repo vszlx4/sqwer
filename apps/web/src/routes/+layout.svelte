@@ -107,9 +107,9 @@
 		position: absolute;
 		left: 12px;
 		top: -60px;
-		z-index: 50;
+		z-index: var(--z-overlay);
 		padding: var(--space-10) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-weight: var(--fw-semibold);

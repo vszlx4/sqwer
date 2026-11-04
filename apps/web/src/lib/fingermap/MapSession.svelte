@@ -266,7 +266,7 @@
 	.hands {
 		width: min(100%, 400px);
 		margin: 0 auto calc(var(--space-6) * -1);
-		transition: opacity 160ms ease;
+		transition: opacity var(--dur-fast) var(--ease-out);
 	}
 	.hands.waiting {
 		opacity: 0.7;
@@ -312,7 +312,7 @@
 	.bar {
 		flex: 1;
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 		max-width: 360px;
@@ -321,8 +321,8 @@
 		display: block;
 		height: 100%;
 		background: var(--accent);
-		border-radius: 3px;
-		transition: width 300ms ease;
+		border-radius: var(--radius);
+		transition: width var(--dur-base) var(--ease-out);
 	}
 	.meta {
 		font-size: var(--fs-13);
@@ -331,7 +331,7 @@
 	.finish {
 		height: 38px;
 		padding: 0 var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		font-weight: var(--fw-semibold);
@@ -353,9 +353,9 @@
 		display: inline-block;
 		min-width: 0.6em;
 		color: var(--untyped);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		padding: 0 1px;
-		transition: color 100ms ease;
+		transition: color var(--dur-fast) var(--ease-out);
 	}
 	.ch.space {
 		color: transparent;
@@ -390,7 +390,7 @@
 		height: 40px;
 		padding: 0 var(--space-10);
 		margin: 0 var(--space-4);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 3px;
 		background: var(--key);
@@ -412,7 +412,7 @@
 		max-width: var(--w-wide);
 		width: 100%;
 		margin: 0 auto;
-		transition: opacity 150ms ease;
+		transition: opacity var(--dur-fast) var(--ease-out);
 	}
 	.picker.waiting {
 		opacity: 0.85;
@@ -435,7 +435,7 @@
 		font-family: var(--font-mono);
 		font-size: var(--fs-12);
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 		color: var(--ink-2);

@@ -123,7 +123,7 @@
 		gap: var(--space-20);
 		flex-wrap: wrap;
 		padding: var(--space-24) var(--space-24);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--ink);
 		background: var(--surface);
 		box-shadow: inset 4px 0 0 var(--accent);
@@ -150,7 +150,7 @@
 		align-items: center;
 		gap: var(--space-16);
 		padding: var(--space-16) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -162,7 +162,7 @@
 		place-items: center;
 		width: 44px;
 		height: 44px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 		border: 1px solid var(--line-strong);
 		font-family: var(--font-serif);
@@ -180,7 +180,7 @@
 	.tag {
 		margin-left: var(--space-6);
 		padding: var(--space-2) var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-size: var(--fs-12);

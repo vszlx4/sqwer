@@ -166,7 +166,7 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -182,7 +182,7 @@
 		padding: var(--space-16) var(--space-20);
 		color: var(--ink);
 		text-decoration: none;
-		transition: background-color 140ms ease;
+		transition: background-color var(--dur-fast) var(--ease-out);
 	}
 	.steps a:hover {
 		background: var(--surface-2);
@@ -196,12 +196,12 @@
 		place-items: center;
 		width: 40px;
 		height: 40px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		transition:
-			background-color 140ms ease,
-			border-color 140ms ease;
+			background-color var(--dur-fast) var(--ease-out),
+			border-color var(--dur-fast) var(--ease-out);
 	}
 	.steps a:hover .step-icon {
 		border-color: var(--ink);
@@ -231,7 +231,7 @@
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 		margin: 0;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -279,7 +279,7 @@
 		place-items: center;
 		width: 28px;
 		height: 28px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		color: var(--ink-2);
 	}

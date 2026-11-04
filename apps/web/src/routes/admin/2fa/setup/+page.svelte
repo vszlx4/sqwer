@@ -74,7 +74,7 @@
 		min-height: 46px;
 		max-width: 320px;
 		padding: 0 var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);
@@ -92,7 +92,7 @@
 	.qr {
 		display: block;
 		margin-top: var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--white);
 	}
 	.manual code {
