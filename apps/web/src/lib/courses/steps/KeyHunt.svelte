@@ -148,14 +148,14 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 14px;
-		padding: 22px 18px 18px;
+		gap: var(--space-16);
+		padding: var(--space-24) var(--space-20) var(--space-20);
 	}
 	.prompt {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		min-height: 118px;
 	}
 	.cap {
@@ -164,7 +164,7 @@
 		place-items: center;
 		width: 84px;
 		height: 84px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 2px solid var(--finger);
 		border-bottom-width: 6px;
 		background: var(--key);
@@ -179,8 +179,8 @@
 	}
 	.char {
 		font-family: var(--font-mono);
-		font-size: 40px;
-		font-weight: 600;
+		font-size: var(--fs-40);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	/* The light that runs out: a bar along the bottom of the key. */
@@ -203,15 +203,15 @@
 		}
 	}
 	.finger {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 	}
 	.finger::first-letter {
 		text-transform: uppercase;
 	}
 	.board {
 		width: 100%;
-		max-width: 760px;
+		max-width: var(--w-text);
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.cap {

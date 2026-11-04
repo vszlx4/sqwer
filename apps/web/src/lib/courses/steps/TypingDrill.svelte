@@ -201,13 +201,13 @@
 	.drill {
 		display: flex;
 		flex-direction: column;
-		gap: 18px;
+		gap: var(--space-20);
 		--typing-size: clamp(22px, 2.6vw, 32px);
 		--typing-leading: 1.6;
 	}
 	.meter {
 		height: 4px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -215,28 +215,28 @@
 		display: block;
 		height: 100%;
 		background: var(--accent);
-		transition: width 200ms linear;
+		transition: width var(--dur-base) linear;
 	}
 	.status {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-20);
 		flex-wrap: wrap;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
 	.time b {
-		font-size: 22px;
+		font-size: var(--fs-24);
 		color: var(--ink);
 	}
 	.goal {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.hint-toggle {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 		margin-left: auto;
 		cursor: pointer;
 	}
@@ -247,19 +247,22 @@
 		position: relative;
 		cursor: text;
 	}
+	/* A strip along the top: the browser scrolls a typed-into input fully into view, so a full-stage input moves
+	   the page whenever the stage's bottom edge sits below the fold. The stage's click focuses it. */
 	.capture {
 		position: absolute;
-		inset: 0;
+		inset: 0 0 auto;
+		height: 1px;
 		opacity: 0;
-		font-size: 16px;
+		font-size: var(--fs-16);
 		cursor: text;
 	}
 	.guide {
 		display: grid;
 		grid-template-columns: minmax(0, 0.42fr) minmax(0, 1fr);
-		gap: 24px;
+		gap: var(--space-24);
 		align-items: center;
-		margin-top: 8px;
+		margin-top: var(--space-8);
 	}
 	@media (max-width: 760px) {
 		.guide {

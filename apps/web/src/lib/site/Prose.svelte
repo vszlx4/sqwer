@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { formatDay } from '#lib/i18n/format.ts';
 	import Icon from '#lib/ui/Icon.svelte';
+	import { stackTable } from '#lib/ui/stack-table.ts';
 	import Breadcrumbs from './Breadcrumbs.svelte';
 	import { LEGAL_DOCUMENTS, type LegalDocument } from './legal.ts';
 	import { CONTACT_EMAIL, LEGAL } from './links.ts';
@@ -27,15 +28,10 @@
 
 	let body: HTMLDivElement | undefined = $state();
 
-	// Wide tables scroll horizontally as labelled, focusable regions (WCAG 2.1.1).
+	// Tables stack into labelled rows on narrow screens; nothing scrolls sideways.
 	onMount(() => {
-		for (const wrap of body?.querySelectorAll<HTMLElement>('.table-wrap') ?? []) {
-			let heading: Element | null = wrap.previousElementSibling;
-			while (heading && !/^H[23]$/.test(heading.tagName)) heading = heading.previousElementSibling;
-			wrap.tabIndex = 0;
-			wrap.setAttribute('role', 'region');
-			wrap.setAttribute('aria-label', heading?.textContent?.replace(/^\d+\.\s*/, '').trim() || 'Table');
-		}
+		const stacked = [...(body?.querySelectorAll('table') ?? [])].map((t) => stackTable(t));
+		return () => stacked.forEach((s) => s?.destroy?.());
 	});
 
 </script>
@@ -100,28 +96,28 @@
 
 <style>
 	.prose-page {
-		max-width: 760px;
+		max-width: var(--w-text);
 		margin: 0 auto;
-		padding-top: clamp(8px, 3vh, 32px);
+		padding-top: clamp(var(--space-8), 3vh, var(--space-32));
 	}
 	.body {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
-		gap: 32px;
+		gap: var(--space-32);
 	}
 	.doc-toc {
-		padding: 18px 20px;
-		border-radius: 3px;
+		padding: var(--space-20) var(--space-20);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
-		font-size: 14px;
-		line-height: 1.4;
+		font-size: var(--fs-14);
+		line-height: var(--lh-base);
 	}
 	.doc-toc-title {
-		margin-bottom: 10px;
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: 0.08em;
+		margin-bottom: var(--space-10);
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
@@ -129,19 +125,19 @@
 	.doc-toc ol {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-		gap: 2px 24px;
+		gap: var(--space-2) var(--space-24);
 	}
 	.doc-toc a {
 		display: flex;
-		gap: 8px;
-		padding: 5px 8px;
-		margin: 0 -8px;
-		border-radius: 3px;
+		gap: var(--space-8);
+		padding: var(--space-6) var(--space-8);
+		margin: 0 calc(var(--space-8) * -1);
+		border-radius: var(--radius);
 		color: var(--ink-2);
 		text-decoration: none;
 		transition:
-			color 120ms ease,
-			background-color 120ms ease;
+			color var(--dur-fast) var(--ease-out),
+			background-color var(--dur-fast) var(--ease-out);
 	}
 	.doc-toc a:hover {
 		color: var(--ink);
@@ -155,8 +151,8 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 		gap: 1px;
-		margin-top: 8px;
-		border-radius: 3px;
+		margin-top: var(--space-8);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--line);
 		overflow: hidden;
@@ -164,58 +160,58 @@
 	.doc-meta div {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
-		padding: 12px 14px;
+		gap: var(--space-2);
+		padding: var(--space-12) var(--space-16);
 		background: var(--surface);
 	}
 	.doc-meta dt {
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: 0.06em;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	.doc-meta dd {
-		font-size: 15px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		font-variant-numeric: tabular-nums;
 	}
 	.doc-actions {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.doc-footer {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
-		margin-top: 40px;
-		padding-top: 28px;
+		gap: var(--space-16);
+		margin-top: var(--space-40);
+		padding-top: var(--space-32);
 		border-top: 1px solid var(--line);
-		font-size: 15px;
+		font-size: var(--fs-15);
 	}
 	.prose .related-title {
-		margin-top: 8px;
-		font-size: 22px;
+		margin-top: var(--space-8);
+		font-size: var(--fs-24);
 	}
 	.prose .related {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 		padding: 0;
 		list-style: none;
 	}
 	.prose .related a {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: var(--space-2);
 		height: 100%;
-		padding: 12px 14px;
-		border-radius: 3px;
+		padding: var(--space-12) var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
-		transition: border-color 120ms ease;
+		transition: border-color var(--dur-fast) var(--ease-out);
 	}
 	.prose .related a:hover {
 		color: var(--ink);
@@ -223,12 +219,12 @@
 	}
 	.ref {
 		font-family: var(--font-mono);
-		font-size: 12px;
-		font-weight: 500;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 	}
 	.name {
-		font-size: 15px;
+		font-size: var(--fs-15);
 	}
 	@media print {
 		.doc-actions,
@@ -247,64 +243,64 @@
 	header {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
-		padding-bottom: 28px;
-		margin-bottom: 32px;
+		gap: var(--space-12);
+		padding-bottom: var(--space-32);
+		margin-bottom: var(--space-32);
 		border-bottom: 1px solid var(--line);
 	}
 	.kicker {
-		font-size: 13px;
-		font-weight: 600;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(36px, 5.5vw, 60px);
-		font-weight: 400;
-		line-height: 1.05;
-		letter-spacing: -0.02em;
+		font-size: var(--fs-display);
+		font-weight: var(--fw-regular);
+		line-height: var(--lh-snug);
+		letter-spacing: var(--tr-tight);
 	}
 	.lede {
-		font-size: 19px;
-		line-height: 1.55;
+		font-size: var(--fs-20);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.updated {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.prose {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
-		font-size: 16.5px;
-		line-height: 1.7;
+		gap: var(--space-16);
+		font-size: var(--fs-16);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.prose :global(h2) {
-		margin-top: 28px;
-		font-size: 28px;
-		font-weight: 400;
-		line-height: 1.2;
-		letter-spacing: -0.01em;
+		margin-top: var(--space-32);
+		font-size: var(--fs-28);
+		font-weight: var(--fw-regular);
+		line-height: var(--lh-base);
+		letter-spacing: normal;
 		color: var(--ink);
 		scroll-margin-top: 24px;
 	}
 	.prose :global(h3) {
-		margin-top: 12px;
-		font-size: 18px;
-		font-weight: 600;
+		margin-top: var(--space-12);
+		font-size: var(--fs-18);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.prose :global(strong) {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	/* Links are carried by weight alone, without a block behind the text. */
 	.prose :global(a) {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 		overflow-wrap: anywhere;
 	}
@@ -314,71 +310,65 @@
 	.prose :global(ol) {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		padding-left: 22px;
+		gap: var(--space-8);
+		padding-left: var(--space-24);
 		list-style: decimal;
 	}
 	.prose :global(ol[type='a']) {
 		list-style: lower-alpha;
 	}
 	.prose :global(.table-wrap) {
-		overflow-x: auto;
-		outline-offset: 2px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 	}
 	.prose :global(table) {
 		width: 100%;
 		border-collapse: collapse;
-		font-size: 15px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 	}
 	.prose :global(th),
 	.prose :global(td) {
-		padding: 10px 14px;
+		padding: var(--space-10) var(--space-16);
 		text-align: left;
 		vertical-align: top;
 		border-bottom: 1px solid var(--line);
+		overflow-wrap: anywhere;
 	}
 	.prose :global(thead th) {
 		background: var(--surface);
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
-		white-space: nowrap;
 	}
 	.prose :global(tbody th) {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.prose :global(tr:last-child td),
 	.prose :global(tr:last-child th) {
 		border-bottom: 0;
 	}
-	.prose :global(td code),
-	.prose :global(td time) {
-		white-space: nowrap;
-	}
 	.prose :global(code) {
 		font-family: var(--font-mono);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink);
 	}
 	.prose :global(.summary) {
-		padding: 18px 22px;
-		border-radius: 3px;
+		padding: var(--space-20) var(--space-24);
+		border-radius: var(--radius);
 		border: 1px solid var(--ink);
 		box-shadow: inset 4px 0 0 var(--accent);
 	}
 	.prose :global(.summary h2) {
 		margin-top: 0;
-		font-size: 22px;
+		font-size: var(--fs-24);
 	}
 	.prose :global(ul) {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		padding-left: 22px;
+		gap: var(--space-8);
+		padding-left: var(--space-24);
 		list-style: disc;
 	}
 	.prose :global(ul li::marker) {
@@ -387,39 +377,70 @@
 	.prose :global(dl) {
 		display: grid;
 		grid-template-columns: minmax(120px, 180px) 1fr;
-		gap: 14px 24px;
-		padding: 20px 22px;
-		border-radius: 3px;
+		gap: var(--space-16) var(--space-24);
+		padding: var(--space-20) var(--space-24);
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 	}
 	.prose :global(dt) {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.prose :global(kbd) {
 		font-family: var(--font-mono);
-		font-size: 13px;
-		padding: 1px 6px;
-		border-radius: 3px;
+		font-size: var(--fs-13);
+		padding: 1px var(--space-6);
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 		color: var(--ink);
 	}
 	.prose :global(.callout) {
-		padding: 16px 20px;
-		border-radius: 3px;
+		padding: var(--space-16) var(--space-20);
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 		border-left: 4px solid var(--accent);
 	}
+	/* Rows stack, each value under its column header (lib/ui/stack-table.ts). */
+	@media (max-width: 760px) {
+		.prose :global(:is(table, tbody, tr, th, td)) {
+			display: block;
+		}
+		.prose :global(thead) {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+		}
+		.prose :global(tbody tr) {
+			padding: var(--space-8) 0;
+			border-bottom: 1px solid var(--line);
+		}
+		.prose :global(tbody tr:last-child) {
+			border-bottom: 0;
+		}
+		.prose :global(tbody :is(th, td)) {
+			padding: var(--space-4) var(--space-16);
+			border-bottom: 0;
+		}
+		.prose :global(td[data-label]::before) {
+			content: attr(data-label);
+			display: block;
+			font-size: var(--fs-12);
+			font-weight: var(--fw-semibold);
+			color: var(--ink-3);
+		}
+	}
 	@media (max-width: 560px) {
 		.prose :global(dl) {
 			grid-template-columns: 1fr;
-			gap: 4px;
+			gap: var(--space-4);
 		}
 		.prose :global(dd) {
-			margin-bottom: 10px;
+			margin-bottom: var(--space-10);
 		}
 	}
 </style>

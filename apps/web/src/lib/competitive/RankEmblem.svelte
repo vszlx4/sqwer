@@ -230,8 +230,8 @@
 	}
 	.q {
 		font-family: var(--font-serif);
-		font-size: 34px;
-		font-weight: 400;
+		font-size: var(--fs-32);
+		font-weight: var(--fw-regular);
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.spark {

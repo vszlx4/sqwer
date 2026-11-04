@@ -47,13 +47,13 @@
 	dialog {
 		margin: auto;
 		border: 1px solid var(--line-strong);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 		color: var(--ink);
 		padding: 0;
-		width: min(460px, calc(100vw - 32px));
+		width: min(var(--w-form), calc(100vw - 32px));
 		max-height: calc(100dvh - 32px);
-		overflow: auto;
+		overflow: hidden auto;
 		overscroll-behavior: contain;
 		box-shadow: var(--shadow-lg);
 	}
@@ -80,31 +80,31 @@
 		}
 	}
 	.body {
-		padding: 24px;
+		padding: var(--space-24);
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	h2 {
-		font-size: 26px;
-		line-height: 1.15;
+		font-size: var(--fs-28);
+		line-height: var(--lh-snug);
 	}
 	.content {
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
-		line-height: 1.55;
+		line-height: var(--lh-body);
 	}
 	.content :global(p + p) {
-		margin-top: 8px;
+		margin-top: var(--space-8);
 	}
 	.actions {
 		display: flex;
 		justify-content: flex-end;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
-		margin-top: 8px;
+		margin-top: var(--space-8);
 	}
-	@media (max-width: 480px) {
+	@media (max-width: 420px) {
 		.actions {
 			flex-direction: column-reverse;
 		}

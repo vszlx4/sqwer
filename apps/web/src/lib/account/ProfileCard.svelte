@@ -56,7 +56,7 @@
 <style>
 	.profile-card {
 		overflow: hidden;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		box-shadow: var(--shadow);
@@ -80,11 +80,11 @@
 	.body {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		padding: 0 22px 22px;
+		gap: var(--space-6);
+		padding: 0 var(--space-24) var(--space-24);
 	}
 	.compact .body {
-		padding: 0 16px 16px;
+		padding: 0 var(--space-16) var(--space-16);
 	}
 	.identity {
 		position: relative;
@@ -92,64 +92,64 @@
 		display: flex;
 		align-items: flex-end;
 		justify-content: space-between;
-		gap: 12px;
-		margin-top: -46px;
-		margin-bottom: 6px;
+		gap: var(--space-12);
+		margin-top: calc(var(--space-48) * -1);
+		margin-bottom: var(--space-6);
 	}
 	.compact .identity {
-		margin-top: -32px;
+		margin-top: calc(var(--space-32) * -1);
 	}
 	.avatar-ring {
 		display: inline-flex;
-		padding: 4px;
-		border-radius: 3px;
+		padding: var(--space-4);
+		border-radius: var(--radius);
 		background: var(--surface);
 	}
 	.rank {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 4px 10px 4px 4px;
-		border-radius: 3px;
+		gap: var(--space-6);
+		padding: var(--space-4) var(--space-10) var(--space-4) var(--space-4);
+		border-radius: var(--radius);
 		background: var(--rank-soft);
 		color: var(--rank);
-		font-size: 13px;
-		font-weight: 700;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
 	}
 	.name {
 		font-family: var(--font-serif);
-		font-weight: 400;
-		font-size: 30px;
-		line-height: 1.1;
+		font-weight: var(--fw-regular);
+		font-size: var(--fs-32);
+		line-height: var(--lh-snug);
 		color: var(--ink);
 		overflow-wrap: anywhere;
 	}
 	.compact .name {
-		font-size: 22px;
+		font-size: var(--fs-24);
 	}
 	.handle {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 8px;
-		font-size: 14px;
+		gap: var(--space-8);
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.pronouns {
-		padding: 1px 7px;
-		border-radius: 3px;
+		padding: 1px var(--space-8);
+		border-radius: var(--radius);
 		background: var(--surface-2);
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 	}
 	.headline {
-		margin-top: 4px;
-		font-size: 15.5px;
-		font-weight: 600;
+		margin-top: var(--space-4);
+		font-size: var(--fs-16);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.bio {
-		font-size: 14.5px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 		white-space: pre-line;
 		overflow-wrap: anywhere;
@@ -157,22 +157,22 @@
 	.stats {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-		gap: 8px;
-		margin-top: 10px;
+		gap: var(--space-8);
+		margin-top: var(--space-10);
 	}
 	.stats div {
-		padding: 10px 12px;
-		border-radius: 3px;
+		padding: var(--space-10) var(--space-12);
+		border-radius: var(--radius);
 		background: var(--bg);
 		border: 1px solid var(--line);
 	}
 	.stats dt {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	.stats dd {
-		font-size: 20px;
-		font-weight: 700;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-bold);
 		font-variant-numeric: tabular-nums;
 		color: var(--ink);
 	}

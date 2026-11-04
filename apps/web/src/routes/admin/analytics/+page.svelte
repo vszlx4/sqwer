@@ -318,21 +318,21 @@
 		flex-wrap: wrap;
 		align-items: flex-end;
 		justify-content: space-between;
-		gap: 12px 24px;
+		gap: var(--space-12) var(--space-24);
 	}
 	h1 {
-		font-size: clamp(30px, 3.6vw, 42px);
+		font-size: var(--fs-display);
 	}
 	.head p {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		max-width: 64ch;
 		color: var(--ink-2);
 	}
 	.body {
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
-		transition: opacity 160ms ease;
+		gap: var(--space-20);
+		transition: opacity var(--dur-fast) var(--ease-out);
 	}
 	.busy {
 		opacity: 0.55;
@@ -341,102 +341,102 @@
 	.notes {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 		margin: 0;
-		padding: 12px 14px 12px 32px;
-		border-radius: 3px;
+		padding: var(--space-12) var(--space-16) var(--space-12) var(--space-32);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.empty {
-		padding: 28px;
-		border-radius: 3px;
+		padding: var(--space-32);
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
 	}
 	.empty h2 {
-		font-size: 24px;
+		font-size: var(--fs-24);
 	}
 	.empty p {
-		margin-top: 8px;
+		margin-top: var(--space-8);
 		max-width: 64ch;
 		color: var(--ink-2);
 	}
 	.form-alert p + p {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 	}
 	.form-alert a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.figures {
 		display: flex;
 		flex-direction: column;
-		gap: 18px;
+		gap: var(--space-20);
 	}
 	.group h2 {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-8);
 		font-family: var(--font-sans);
-		font-size: 15px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.kpis {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.kpi {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-		padding: 14px 16px;
-		border-radius: 3px;
+		gap: var(--space-4);
+		padding: var(--space-16) var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		min-width: 0;
 	}
 	.label {
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.value {
-		font-size: 28px;
-		font-weight: 700;
-		line-height: 1.15;
+		font-size: var(--fs-28);
+		font-weight: var(--fw-bold);
+		line-height: var(--lh-snug);
 		font-variant-numeric: tabular-nums;
-		letter-spacing: -0.01em;
+		letter-spacing: normal;
 	}
 	.value.muted {
-		font-size: 18px;
-		font-weight: 600;
+		font-size: var(--fs-18);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
-		padding: 5px 0 2px;
+		padding: var(--space-6) 0 var(--space-2);
 	}
 	.sub,
 	.hint {
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.hint {
 		margin-top: auto;
-		padding-top: 6px;
+		padding-top: var(--space-6);
 		color: var(--ink-2);
 	}
 	.change {
 		display: inline-flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: 4px;
-		font-size: 13px;
-		font-weight: 600;
+		gap: var(--space-4);
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 		color: var(--ink);
 	}
 	.change [aria-hidden] {
-		font-size: 9px;
+		font-size: var(--fs-10);
 	}
 	.change.up [aria-hidden] {
 		color: var(--chart-acc);
@@ -448,12 +448,12 @@
 		color: var(--ink-2);
 	}
 	.vs {
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 	}
 	.panel {
-		padding: 18px;
-		border-radius: 3px;
+		padding: var(--space-20);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		min-width: 0;
@@ -461,28 +461,28 @@
 	.pair {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 20px;
+		gap: var(--space-20);
 	}
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 20px;
+		gap: var(--space-20);
 	}
-	@media (max-width: 860px) {
+	@media (max-width: 900px) {
 		.pair,
 		.grid {
 			grid-template-columns: 1fr;
 		}
 	}
-	@media (max-width: 480px) {
+	@media (max-width: 420px) {
 		.panel {
-			padding: 14px;
+			padding: var(--space-16);
 		}
 		.kpis {
 			grid-template-columns: 1fr 1fr;
 		}
 		.value {
-			font-size: 22px;
+			font-size: var(--fs-24);
 		}
 	}
 </style>

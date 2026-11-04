@@ -3,6 +3,7 @@
 	import PeriodControls from '#lib/admin/PeriodControls.svelte';
 	import { CHANNEL_LABELS, CLIENT_EVENTS, EVENT_LABELS, SERVER_EVENTS, type Channel } from '#lib/analytics/shared.ts';
 	import Seo from '#lib/site/Seo.svelte';
+	import { stackTable } from '#lib/ui/stack-table.ts';
 	import type { PageProps } from './$types';
 	import { formatDateTime, formatNumber } from '#lib/i18n/format.ts';
 
@@ -114,7 +115,7 @@
 		</p>
 		{#if data.events.length}
 			<div class="scroll">
-				<table>
+				<table use:stackTable>
 					<thead>
 						<tr>
 							<th scope="col">Time (UTC)</th>
@@ -164,32 +165,32 @@
 		flex-wrap: wrap;
 		align-items: flex-end;
 		justify-content: space-between;
-		gap: 12px 24px;
+		gap: var(--space-12) var(--space-24);
 	}
 	h1 {
-		font-size: clamp(30px, 3.6vw, 42px);
+		font-size: var(--fs-display);
 	}
 	.head p {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		max-width: 64ch;
 		color: var(--ink-2);
 	}
 	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
+		gap: var(--space-6);
 		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
 	.chips a {
 		display: inline-flex;
-		gap: 6px;
-		padding: 5px 10px;
-		border-radius: 3px;
+		gap: var(--space-6);
+		padding: var(--space-6) var(--space-10);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		text-decoration: none;
 	}
@@ -199,42 +200,41 @@
 	.results {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
-		transition: opacity 160ms ease;
+		gap: var(--space-12);
+		transition: opacity var(--dur-fast) var(--ease-out);
 	}
 	.busy {
 		opacity: 0.55;
 		pointer-events: none;
 	}
 	.count {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.scroll {
-		overflow-x: auto;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 	}
 	table {
 		width: 100%;
-		min-width: 900px;
 		border-collapse: collapse;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 	}
 	th,
 	td {
-		padding: 9px 12px;
+		padding: var(--space-10) var(--space-12);
 		text-align: left;
 		vertical-align: top;
 		border-bottom: 1px solid var(--line);
+		overflow-wrap: anywhere;
 	}
 	th {
 		position: sticky;
 		top: 0;
 		background: var(--surface);
-		font-size: 12.5px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	tbody tr:last-child td {
@@ -245,7 +245,7 @@
 	}
 	td a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 	}
 	td a:hover {
@@ -258,13 +258,13 @@
 	}
 	.path {
 		font-family: var(--font-mono);
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		overflow-wrap: anywhere;
 	}
 	.sub {
 		display: block;
-		font-size: 12px;
-		font-weight: 500;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 	}
 	a.sub {
@@ -272,28 +272,59 @@
 	}
 	.dim {
 		font-family: var(--font-sans);
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.details {
 		max-width: 260px;
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 		overflow-wrap: anywhere;
 	}
 	.pager {
 		display: flex;
-		gap: 10px;
+		gap: var(--space-10);
 		justify-content: flex-end;
 	}
 	.empty {
-		padding: 24px;
-		border-radius: 3px;
+		padding: var(--space-24);
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
 		color: var(--ink-2);
 	}
 	.form-alert a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
+	}
+	/* Rows stack, each value under its column header (lib/ui/stack-table.ts). */
+	@media (max-width: 760px) {
+		:is(table, tbody, tr, td) {
+			display: block;
+		}
+		thead {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+		}
+		tbody tr {
+			padding: var(--space-8) 0;
+			border-bottom: 1px solid var(--line);
+		}
+		tbody tr:last-child {
+			border-bottom: 0;
+		}
+		td {
+			padding: var(--space-4) var(--space-12);
+			border-bottom: 0;
+		}
+		td:global([data-label])::before {
+			content: attr(data-label);
+			display: block;
+			font-size: var(--fs-12);
+			font-weight: var(--fw-semibold);
+			color: var(--ink-3);
+		}
 	}
 </style>

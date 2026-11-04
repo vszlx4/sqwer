@@ -103,22 +103,22 @@
 		--bar-pad: clamp(8px, 1.5vw, 12px);
 		position: sticky;
 		top: 0;
-		z-index: 40;
+		z-index: var(--z-header);
 		height: var(--header-h);
 		margin-bottom: calc(-1 * var(--header-h));
-		padding: 12px var(--bar-gutter) 0;
+		padding: var(--space-12) var(--bar-gutter) 0;
 		pointer-events: none;
 	}
 	.bar {
 		display: flex;
 		align-items: center;
-		gap: 16px;
-		max-width: 1180px;
+		gap: var(--space-16);
+		max-width: var(--w-page);
 		height: 56px;
 		margin: 0 auto;
 		padding: 0 var(--bar-pad);
 		border: 1px solid var(--line);
-		border-radius: 28px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		box-shadow: var(--shadow);
 		pointer-events: auto;
@@ -127,8 +127,8 @@
 	.brand {
 		display: inline-flex;
 		color: var(--logo);
-		border-radius: 999px;
-		margin: 0 8px 0 10px;
+		border-radius: var(--radius-pill);
+		margin: 0 var(--space-8) 0 var(--space-10);
 	}
 	/* Sized to the nav links' visual weight. */
 	.brand :global(.wordmark) {
@@ -142,19 +142,19 @@
 	}
 	.desktop {
 		display: flex;
-		gap: 2px;
+		gap: var(--space-2);
 	}
 	nav a {
-		padding: 8px 14px;
-		border-radius: 999px;
-		font-size: 14.5px;
-		font-weight: 500;
+		padding: var(--space-8) var(--space-16);
+		border-radius: var(--radius-pill);
+		font-size: var(--fs-15);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 		text-decoration: none;
 		white-space: nowrap;
 		transition:
-			color 140ms ease,
-			background-color 140ms ease;
+			color var(--dur-fast) var(--ease-out),
+			background-color var(--dur-fast) var(--ease-out);
 	}
 	nav a:hover {
 		color: var(--ink);
@@ -169,23 +169,23 @@
 	.actions {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		margin-left: auto;
 	}
 	.resume {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		height: 38px;
-		padding: 0 12px 0 8px;
-		border-radius: 999px;
+		padding: 0 var(--space-12) 0 var(--space-8);
+		border-radius: var(--radius-pill);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 		text-decoration: none;
 		white-space: nowrap;
-		transition: border-color 140ms ease;
+		transition: border-color var(--dur-fast) var(--ease-out);
 	}
 	.resume b {
 		color: var(--ink);
@@ -194,9 +194,9 @@
 		border-color: var(--ink);
 	}
 	.signin {
-		padding: 8px 12px;
-		font-size: 14.5px;
-		font-weight: 600;
+		padding: var(--space-8) var(--space-12);
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		text-decoration: none;
 		white-space: nowrap;
@@ -206,19 +206,19 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		gap: 6px;
+		gap: var(--space-6);
 		height: 38px;
-		padding: 0 16px;
-		border-radius: 999px;
+		padding: 0 var(--space-16);
+		border-radius: var(--radius-pill);
 		border: 1px solid var(--ink);
 		color: var(--ink);
-		font-size: 14.5px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 		white-space: nowrap;
 		transition:
-			background-color 140ms ease,
-			color 140ms ease;
+			background-color var(--dur-fast) var(--ease-out),
+			color var(--dur-fast) var(--ease-out);
 	}
 	.cta:hover {
 		background: var(--ink);
@@ -233,7 +233,7 @@
 	.menu-account {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	/* Toggle lines up with .menu-slot: same top offset, bar height and inner padding. */
 	:global(.site-menu) {
@@ -242,12 +242,12 @@
 		--sm-header-padding: 0 calc(clamp(10px, 3vw, 24px) + clamp(8px, 1.5vw, 12px) + 6px);
 		--sm-panel-top: 96px;
 	}
-	@media (max-width: 1080px) {
+	@media (max-width: 1100px) {
 		.resume span {
 			display: none;
 		}
 		.resume {
-			padding: 0 8px;
+			padding: 0 var(--space-8);
 		}
 	}
 	@media (max-width: 900px) {
@@ -265,7 +265,7 @@
 			display: none;
 		}
 	}
-	@media (max-width: 600px) {
+	@media (max-width: 560px) {
 		.brand :global(.wordmark) {
 			display: none;
 		}

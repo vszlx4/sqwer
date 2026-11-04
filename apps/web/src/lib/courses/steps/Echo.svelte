@@ -236,8 +236,8 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 16px;
-		padding: 22px 18px 18px;
+		gap: var(--space-16);
+		padding: var(--space-24) var(--space-20) var(--space-20);
 	}
 	.sound {
 		position: absolute;
@@ -245,16 +245,16 @@
 		right: 12px;
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 5px 10px;
-		border-radius: 3px;
+		gap: var(--space-6);
+		padding: var(--space-6) var(--space-10);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink-2);
 		font: inherit;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		cursor: pointer;
-		transition: border-color 140ms ease;
+		transition: border-color var(--dur-fast) var(--ease-out);
 	}
 	.sound:hover {
 		border-color: var(--ink);
@@ -266,10 +266,10 @@
 	}
 	.message {
 		font-family: var(--font-serif);
-		font-size: 26px;
+		font-size: var(--fs-28);
 		color: var(--ink-2);
 		min-height: 1.3em;
-		transition: color 200ms ease;
+		transition: color var(--dur-base) var(--ease-out);
 	}
 	.message.turn {
 		color: var(--ink);
@@ -278,7 +278,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: 8px;
+		gap: var(--space-8);
 		min-height: 48px;
 	}
 	.slots li {
@@ -286,14 +286,14 @@
 		place-items: center;
 		width: 44px;
 		height: 44px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
 		font-family: var(--font-mono);
-		font-size: 20px;
-		font-weight: 600;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-semibold);
 		transition:
-			background-color 160ms ease,
-			transform 160ms ease;
+			background-color var(--dur-fast) var(--ease-out),
+			transform var(--dur-fast) var(--ease-out);
 	}
 	.slots li.lit {
 		border-style: solid;
@@ -307,7 +307,7 @@
 		border-color: var(--line-strong);
 		opacity: 0;
 		transform: none;
-		transition: opacity 350ms ease;
+		transition: opacity var(--dur-slow) var(--ease-out);
 	}
 	.slots li.filled {
 		border-style: solid;
@@ -317,6 +317,6 @@
 	}
 	.board {
 		width: 100%;
-		max-width: 760px;
+		max-width: var(--w-text);
 	}
 </style>

@@ -292,22 +292,22 @@
 	.assessment {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
-		max-width: 980px;
+		gap: var(--space-24);
+		max-width: var(--w-wide);
 		margin: 0 auto;
 	}
 	h1 {
-		font-size: clamp(32px, 4.5vw, 48px);
-		line-height: 1.08;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	h2 {
-		font-size: 26px;
+		font-size: var(--fs-28);
 	}
 	.lede {
-		margin-top: 12px;
-		max-width: 720px;
-		font-size: 17px;
-		line-height: 1.6;
+		margin-top: var(--space-12);
+		max-width: var(--w-text);
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.card,
@@ -315,17 +315,17 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 14px;
-		padding: 24px;
-		border-radius: 3px;
+		gap: var(--space-16);
+		padding: var(--space-24);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
 	.card p,
 	.findings p,
 	.findings li {
-		font-size: 15.5px;
-		line-height: 1.6;
+		font-size: var(--fs-16);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	strong {
@@ -336,9 +336,9 @@
 	}
 	.bar {
 		width: 100%;
-		max-width: 420px;
+		max-width: var(--w-form);
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -350,39 +350,39 @@
 	.stages {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.stages li {
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		font-weight: 600;
+		gap: var(--space-10);
+		font-weight: var(--fw-semibold);
 	}
 	.num {
 		display: grid;
 		place-items: center;
 		width: 26px;
 		height: 26px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
-		font-size: 14px;
+		font-size: var(--fs-14);
 	}
 	.skipped {
-		font-size: 15px;
+		font-size: var(--fs-15);
 	}
 	.notes,
 	.findings ul {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		padding-left: 18px;
+		gap: var(--space-6);
+		padding-left: var(--space-20);
 		list-style: disc;
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.stage-hands {
 		width: min(100%, 280px);
-		margin: 4px auto 0;
+		margin: var(--space-4) auto 0;
 	}
 	.stage-head {
 		display: flex;
@@ -390,15 +390,15 @@
 		align-items: baseline;
 	}
 	.stage-label {
-		font-size: 16px;
+		font-size: var(--fs-16);
 		color: var(--ink-2);
 	}
 	.stage-label b {
 		color: var(--ink);
 	}
 	.timer {
-		font-size: 34px;
-		font-weight: 800;
+		font-size: var(--fs-32);
+		font-weight: var(--fw-bold);
 		font-variant-numeric: tabular-nums;
 	}
 	.stage-text {
@@ -411,24 +411,24 @@
 	.center-card {
 		align-items: center;
 		text-align: center;
-		padding: 40px 24px;
+		padding: var(--space-40) var(--space-24);
 	}
 	.muted {
 		color: var(--ink-2);
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 	}
 	.previous {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.words {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink) !important;
 	}
 	.row {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 	}
 </style>

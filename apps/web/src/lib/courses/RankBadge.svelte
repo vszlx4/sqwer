@@ -61,7 +61,7 @@
 	}
 	.level {
 		font-family: var(--font-serif);
-		font-size: 21px;
-		font-weight: 400;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-regular);
 	}
 </style>

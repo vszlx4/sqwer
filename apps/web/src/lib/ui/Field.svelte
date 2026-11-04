@@ -101,35 +101,35 @@
 	.field {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	label {
-		font-size: 14.5px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	input,
 	textarea {
 		width: 100%;
 		min-height: 46px;
-		padding: 10px 12px;
-		border-radius: 3px;
+		padding: var(--space-10) var(--space-12);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);
 		font: inherit;
-		font-size: 16px;
-		transition: border-color 120ms ease;
+		font-size: var(--fs-16);
+		transition: border-color var(--dur-fast) var(--ease-out);
 	}
 	textarea {
 		resize: vertical;
-		line-height: 1.5;
+		line-height: var(--lh-body);
 	}
 	.control {
 		position: relative;
 	}
 	.with-toggle input {
-		padding-right: 74px;
+		padding-right: var(--space-64);
 	}
 	.reveal {
 		position: absolute;
@@ -137,18 +137,18 @@
 		right: 6px;
 		transform: translateY(-50%);
 		min-width: 58px;
-		padding: 6px 10px;
-		border-radius: 3px;
+		padding: var(--space-6) var(--space-10);
+		border-radius: var(--radius);
 		border: 1px solid transparent;
 		background: none;
 		color: var(--ink-2);
 		font: inherit;
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		cursor: pointer;
 		transition:
-			background-color 140ms ease,
-			color 140ms ease;
+			background-color var(--dur-fast) var(--ease-out),
+			color var(--dur-fast) var(--ease-out);
 	}
 	.reveal:hover {
 		background: var(--surface-2);
@@ -161,18 +161,18 @@
 	.strength {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.bars {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
-		gap: 4px;
+		gap: var(--space-4);
 	}
 	.bars span {
 		height: 4px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
-		transition: background-color 200ms ease;
+		transition: background-color var(--dur-base) var(--ease-out);
 	}
 	.strength[data-score='1'] .bars .on,
 	.strength[data-score='2'] .bars .on {
@@ -183,19 +183,19 @@
 		background: var(--strength-strong);
 	}
 	.strength-text {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.strength-text b {
 		color: var(--ink);
 	}
 	.match {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.match.ok {
 		color: var(--success);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	input:hover,
 	textarea:hover {
@@ -210,12 +210,12 @@
 		border-color: var(--error);
 	}
 	.hint {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.error {
-		font-size: 13.5px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--error);
 	}
 </style>

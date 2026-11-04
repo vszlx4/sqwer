@@ -74,20 +74,20 @@
 	.auth {
 		display: grid;
 		grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
-		gap: clamp(28px, 5vw, 72px);
+		gap: clamp(var(--space-32), 5vw, var(--space-64));
 		align-items: start;
-		max-width: 1080px;
+		max-width: var(--w-page);
 		margin: 0 auto;
-		padding: clamp(8px, 3vh, 32px) 0 clamp(16px, 4vh, 40px);
+		padding: clamp(var(--space-8), 3vh, var(--space-32)) 0 clamp(var(--space-16), 4vh, var(--space-40));
 	}
 	.panel {
 		position: sticky;
 		top: 96px;
 		display: flex;
 		flex-direction: column;
-		gap: 18px;
-		padding: clamp(24px, 3.4vw, 40px);
-		border-radius: 3px;
+		gap: var(--space-20);
+		padding: clamp(var(--space-24), 3.4vw, var(--space-40));
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background:
 			radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 7%, transparent) 1px, transparent 0) 0 0 / 22px 22px,
@@ -95,30 +95,30 @@
 	}
 	.panel-title {
 		font-family: var(--font-serif);
-		font-size: clamp(28px, 3.2vw, 38px);
-		line-height: 1.1;
+		font-size: var(--fs-title);
+		line-height: var(--lh-snug);
 		color: var(--ink);
 		text-wrap: balance;
 	}
 	.panel-intro {
 		max-width: 44ch;
-		font-size: 15px;
-		line-height: 1.6;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.benefits,
 	.steps {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
-		margin: 6px 0 0;
+		gap: var(--space-16);
+		margin: var(--space-6) 0 0;
 		padding: 0;
 		list-style: none;
 	}
 	.benefits li {
 		display: grid;
 		grid-template-columns: 36px 1fr;
-		gap: 14px;
+		gap: var(--space-16);
 		align-items: start;
 	}
 	.icon {
@@ -126,21 +126,21 @@
 		place-items: center;
 		width: 36px;
 		height: 36px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 	}
 	.benefits b,
 	.steps b {
 		display: block;
-		margin-bottom: 2px;
-		font-size: 15px;
+		margin-bottom: var(--space-2);
+		font-size: var(--fs-15);
 		color: var(--ink);
 	}
 	.benefits li > span:last-child,
 	.steps li {
-		font-size: 14px;
-		line-height: 1.5;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.steps {
@@ -148,7 +148,7 @@
 	}
 	.steps li {
 		position: relative;
-		padding-left: 44px;
+		padding-left: var(--space-48);
 		counter-increment: step;
 	}
 	.steps li::before {
@@ -160,66 +160,66 @@
 		place-items: center;
 		width: 30px;
 		height: 30px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--ink);
 		color: var(--bg);
-		font-size: 14px;
-		font-weight: 700;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-bold);
 	}
 	.panel-foot {
 		display: flex;
 		align-items: flex-start;
-		gap: 8px;
-		margin-top: 6px;
-		padding-top: 16px;
+		gap: var(--space-8);
+		margin-top: var(--space-6);
+		padding-top: var(--space-16);
 		border-top: 1px solid var(--line);
-		font-size: 13px;
-		line-height: 1.5;
+		font-size: var(--fs-13);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.panel-foot :global(svg) {
 		flex-shrink: 0;
-		margin-top: 2px;
+		margin-top: var(--space-2);
 	}
 	.main {
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
-		max-width: 460px;
+		gap: var(--space-20);
+		max-width: var(--w-form);
 		width: 100%;
 	}
 	.head {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	h1 {
-		font-size: clamp(32px, 4vw, 44px);
-		line-height: 1.05;
-		letter-spacing: -0.01em;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
+		letter-spacing: normal;
 		text-wrap: balance;
 	}
 	.lede {
-		font-size: 15.5px;
-		line-height: 1.55;
+		font-size: var(--fs-16);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 		text-wrap: pretty;
 	}
 	.footer {
-		padding-top: 18px;
+		padding-top: var(--space-20);
 		border-top: 1px solid var(--line);
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.footer :global(a) {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 	}
 	.footer :global(a:hover) {
 		color: var(--rank);
 	}
-	@media (max-width: 860px) {
+	@media (max-width: 900px) {
 		.auth {
 			grid-template-columns: 1fr;
 		}
@@ -227,7 +227,7 @@
 			display: none;
 		}
 		.main {
-			max-width: 520px;
+			max-width: var(--w-narrow);
 			margin: 0 auto;
 		}
 	}

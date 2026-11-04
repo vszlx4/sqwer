@@ -108,36 +108,36 @@
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
-		gap: 4px;
-		padding: 5px;
-		border-radius: 3px;
+		gap: var(--space-4);
+		padding: var(--space-6);
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 	}
 	.group {
 		display: flex;
 		align-items: center;
-		gap: 2px;
+		gap: var(--space-2);
 	}
 	.sep {
 		width: 1px;
 		height: 20px;
 		background: var(--line-strong);
-		margin: 0 6px;
+		margin: 0 var(--space-6);
 	}
 	.opt {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 6px 11px;
-		border-radius: 3px;
-		font-size: 14px;
-		font-weight: 500;
+		gap: var(--space-6);
+		padding: var(--space-6) var(--space-12);
+		border-radius: var(--radius);
+		font-size: var(--fs-14);
+		font-weight: var(--fw-regular);
 		color: var(--ink-3);
 		cursor: pointer;
 		transition:
-			color 120ms ease,
-			background 120ms ease;
+			color var(--dur-fast) var(--ease-out),
+			background var(--dur-fast) var(--ease-out);
 	}
 	.opt:hover {
 		color: var(--ink);
@@ -150,8 +150,8 @@
 	.list {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 0 4px 0 11px;
+		gap: var(--space-6);
+		padding: 0 var(--space-4) 0 var(--space-12);
 		color: var(--ink-3);
 	}
 	.list:hover,
@@ -159,26 +159,26 @@
 		color: var(--ink);
 	}
 	.list select {
-		padding: 6px 4px;
-		border-radius: 3px;
+		padding: var(--space-6) var(--space-4);
+		border-radius: var(--radius);
 		background: transparent;
 		color: inherit;
-		font-size: 14px;
-		font-weight: 500;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-regular);
 		cursor: pointer;
 	}
 	.num {
 		font-family: var(--font-mono);
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		min-width: 40px;
 		justify-content: center;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 560px) {
 		.sep {
 			display: none;
 		}
 		.opt {
-			padding: 6px 9px;
+			padding: var(--space-6) var(--space-10);
 		}
 	}
 </style>

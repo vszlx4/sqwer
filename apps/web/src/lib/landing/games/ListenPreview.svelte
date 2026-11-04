@@ -26,16 +26,16 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 16px;
+		gap: var(--space-16);
 	}
 	/* The speaker lights while the word plays. */
 	.speaker {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-12);
 		height: 52px;
-		padding: 0 16px;
-		border-radius: 3px;
+		padding: 0 var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid color-mix(in srgb, var(--accent) calc(25% + var(--voice) * 45%), transparent);
 		background: color-mix(in srgb, var(--accent) calc(6% + var(--voice) * 8%), transparent);
 		color: color-mix(in srgb, var(--accent-ink) calc(var(--voice) * 100%), var(--band-ink-3));
@@ -43,36 +43,36 @@
 	.wave {
 		display: flex;
 		align-items: center;
-		gap: 4px;
+		gap: var(--space-4);
 		height: 32px;
 	}
 	.wave span {
 		width: 4px;
 		height: 100%;
-		border-radius: 2px;
+		border-radius: var(--radius);
 		background: var(--accent);
 	}
 	/* The answer underline turns the success hue once the word is right. */
 	.answer {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-10);
 		min-width: 132px;
-		padding: 0 4px 6px;
+		padding: 0 var(--space-4) var(--space-6);
 		border-bottom: 2px solid color-mix(in srgb, var(--lime) calc(var(--ok) * 100%), var(--band-line-strong));
 	}
 	.typed {
 		flex: 1;
 		min-height: 1.2em;
 		font-family: var(--font-mono);
-		font-size: 20px;
+		font-size: var(--fs-20);
 		color: color-mix(in srgb, var(--lime-ink) calc(var(--ok) * 100%), var(--band-ink));
 	}
 	.caret {
 		display: inline-block;
 		width: 2px;
 		height: 1em;
-		margin-left: 2px;
+		margin-left: var(--space-2);
 		vertical-align: -0.12em;
 		background: var(--accent);
 	}
@@ -81,7 +81,7 @@
 		place-items: center;
 		width: 20px;
 		height: 20px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--lime);
 		color: var(--on-hue);
 	}

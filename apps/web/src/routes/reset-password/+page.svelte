@@ -54,8 +54,8 @@
 
 <style>
 	.note {
-		font-size: 13.5px;
-		line-height: 1.55;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 </style>

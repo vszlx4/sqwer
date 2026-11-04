@@ -52,10 +52,10 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	h1 {
-		font-size: clamp(32px, 4.5vw, 48px);
+		font-size: var(--fs-display);
 	}
 	.muted {
 		color: var(--ink-2);

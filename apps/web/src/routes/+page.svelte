@@ -377,29 +377,29 @@
 		margin-bottom: calc(-1 * var(--main-bottom));
 	}
 	.kicker {
-		font-size: 13px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	h2 {
-		margin-top: 10px;
-		font-size: clamp(30px, 4vw, 48px);
-		line-height: 1.08;
-		letter-spacing: -0.015em;
+		margin-top: var(--space-10);
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
+		letter-spacing: var(--tr-tight);
 	}
 	.section-head {
-		max-width: 680px;
+		max-width: var(--w-text);
 	}
 	.section-head.center {
 		margin: 0 auto;
 		text-align: center;
 	}
 	.section-head > p:last-child {
-		margin-top: 14px;
-		font-size: 17px;
-		line-height: 1.6;
+		margin-top: var(--space-16);
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 
@@ -421,7 +421,7 @@
 		/* Fills the first screen; svh keeps it steady while mobile toolbars move. */
 		min-height: 100vh;
 		min-height: 100svh;
-		padding: calc(var(--header-h) + clamp(48px, 10vh, 112px)) 0 clamp(48px, 10vh, 112px);
+		padding: calc(var(--header-h) + clamp(var(--space-48), 10vh, var(--space-96))) 0 clamp(var(--space-48), 10vh, var(--space-96));
 	}
 	.hero[data-takeover] .hero-stage {
 		position: sticky;
@@ -460,8 +460,8 @@
 	.portal-label {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
-		font-weight: 600;
+		gap: var(--space-8);
+		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 	}
 	.portal-line {
@@ -469,8 +469,8 @@
 		flex-direction: column;
 		align-items: center;
 		visibility: hidden;
-		line-height: 0.92;
-		letter-spacing: -0.02em;
+		line-height: var(--lh-tight);
+		letter-spacing: var(--tr-tight);
 	}
 	/* Full-bleed dither field, under the wash. */
 	.hero-field {
@@ -501,42 +501,42 @@
 		flex-direction: column;
 		align-items: center;
 		text-align: center;
-		max-width: 820px;
+		max-width: var(--w-wide);
 	}
 	h1 {
-		font-size: clamp(42px, 6vw, 84px);
-		line-height: 1;
-		letter-spacing: -0.025em;
+		font-size: var(--fs-hero);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--tr-tight);
 		max-width: 15ch;
 	}
 	/* Emphasis is carried by weight alone. */
 	.mark {
-		font-weight: 800;
+		font-weight: var(--fw-bold);
 	}
 	.lede {
-		margin-top: 22px;
-		max-width: 520px;
-		font-size: clamp(17px, 1.5vw, 19px);
-		line-height: 1.6;
+		margin-top: var(--space-24);
+		max-width: var(--w-narrow);
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.hero-action {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 14px;
-		margin-top: 30px;
+		gap: var(--space-16);
+		margin-top: var(--space-32);
 	}
 	.resume {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		font-size: 14.5px;
-		font-weight: 600;
+		gap: var(--space-6);
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.quiet {
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.quiet:hover {
@@ -551,18 +551,18 @@
 	.facts {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px 20px;
+		gap: var(--space-8) var(--space-20);
 		justify-content: center;
-		margin-top: 34px;
-		padding-top: 18px;
+		margin-top: var(--space-32);
+		padding-top: var(--space-20);
 		border-top: 1px solid var(--line);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.facts li {
 		display: inline-flex;
 		align-items: center;
-		gap: 7px;
+		gap: var(--space-8);
 	}
 	/* Held until enterHero runs; shown anyway after 2s if scripts never do. */
 	@media (prefers-reduced-motion: no-preference) {
@@ -600,7 +600,7 @@
 	}
 	/* After the takeover the page is already the band: the road starts solid, without the fade from the hero. */
 	.landing:has(.hero[data-takeover]) .road {
-		padding-top: clamp(64px, 9vw, 112px);
+		padding-top: clamp(var(--space-64), 9vw, var(--space-96));
 	}
 	.landing:has(.hero[data-takeover]) .road::before {
 		background: var(--band-bg);
@@ -609,7 +609,7 @@
 		display: grid;
 		grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
 		align-items: center;
-		gap: 48px;
+		gap: var(--space-48);
 		margin-right: calc(50% - 50vw);
 	}
 	.road-stage .section-head {
@@ -617,25 +617,25 @@
 		text-align: left;
 	}
 	.road-lede {
-		margin-top: 14px;
-		font-size: 17px;
-		line-height: 1.6;
+		margin-top: var(--space-16);
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--band-ink-2);
 	}
 	.road-progress {
 		display: flex;
 		align-items: center;
-		gap: 14px;
-		margin-top: 28px;
+		gap: var(--space-16);
+		margin-top: var(--space-32);
 	}
 	.count {
 		font-variant-numeric: tabular-nums;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--band-ink-2);
 	}
 	.ticks {
 		display: flex;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	/* One bar per part: parts behind are filled, the one in front fills up until the next card comes forward. */
 	.ticks span {
@@ -643,7 +643,7 @@
 		width: 40px;
 		height: 4px;
 		overflow: hidden;
-		border-radius: 1px;
+		border-radius: var(--radius);
 		background: color-mix(in srgb, var(--band-ink) 15%, transparent);
 	}
 	.ticks span::after {
@@ -665,7 +665,7 @@
 		}
 	}
 	.road-end {
-		margin-top: 24px;
+		margin-top: var(--space-24);
 	}
 	/* Deck column runs to the screen edge; windows bleed off its right and bottom. The blur covers the bottom strip. */
 	.road-deck {
@@ -682,7 +682,6 @@
 		mask-image: linear-gradient(to bottom, #000 calc(100% - var(--drop) * 0.45), transparent);
 	}
 	.deck-anchor {
-		--card-radius: 18px;
 		margin-bottom: calc(var(--card-h) * -0.04);
 	}
 	.road-deck :global(.deck > ol > li) {
@@ -699,16 +698,16 @@
 	.window-bar {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-20);
 		height: 64px;
 		flex: none;
-		padding: 0 24px;
+		padding: 0 var(--space-24);
 		background: var(--part);
 		color: var(--on-hue);
 	}
 	.shapes {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.shape {
 		width: 13px;
@@ -721,41 +720,41 @@
 	}
 	.window-bar h3 {
 		overflow: hidden;
-		font-size: 19px;
-		font-weight: 700;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-bold);
 		white-space: nowrap;
 		text-overflow: ellipsis;
 	}
 	.window-body {
 		display: flex;
 		flex-direction: column;
-		gap: 22px;
-		padding: 30px 34px;
-		transition: opacity 400ms ease;
+		gap: var(--space-24);
+		padding: var(--space-32) var(--space-32);
+		transition: opacity var(--dur-slow) var(--ease-out);
 	}
 	.window-summary {
 		max-width: 22ch;
 		font-family: var(--font-serif);
-		font-size: clamp(26px, 2.6vw, 38px);
-		line-height: 1.15;
+		font-size: var(--fs-title);
+		line-height: var(--lh-snug);
 		color: var(--band-ink);
 	}
 	.w-head {
 		display: flex;
 		align-items: baseline;
-		gap: 22px;
+		gap: var(--space-24);
 	}
 	.w-num {
 		font-family: var(--font-mono);
-		font-size: clamp(36px, 3.4vw, 52px);
-		font-weight: 300;
-		line-height: 1;
+		font-size: var(--fs-display);
+		font-weight: var(--fw-light);
+		line-height: var(--lh-tight);
 		color: var(--part-ink);
 	}
 	/* A line as the learner types it by the end of the part, the caret where the hands are. */
 	.w-type {
 		font-family: var(--font-mono);
-		font-size: clamp(15px, 1.25vw, 19px);
+		font-size: var(--fs-18);
 		white-space: nowrap;
 		color: var(--band-ink-3);
 	}
@@ -779,27 +778,27 @@
 	.w-board {
 		display: flex;
 		flex-direction: column;
-		gap: 5px;
+		gap: var(--space-6);
 	}
 	.w-row {
 		display: flex;
-		gap: 5px;
-		padding-left: calc(var(--indent) * 14px);
+		gap: var(--space-6);
+		padding-left: calc(var(--indent) * var(--space-16));
 	}
 	.w-key {
 		display: grid;
 		place-items: center;
 		width: 28px;
 		height: 28px;
-		border-radius: 4px;
+		border-radius: var(--radius);
 		border: 1px solid color-mix(in srgb, var(--band-ink) 14%, transparent);
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: color-mix(in srgb, var(--band-ink) 35%, transparent);
 	}
 	.w-key.wide {
 		width: 48px;
-		font-size: 10px;
+		font-size: var(--fs-10);
 	}
 	.w-key.known {
 		border-color: color-mix(in srgb, var(--part) 30%, transparent);
@@ -810,24 +809,24 @@
 		border-color: var(--part);
 		background: var(--part);
 		color: var(--on-hue);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.w-stats {
 		display: flex;
-		gap: 36px;
-		padding-top: 18px;
+		gap: var(--space-40);
+		padding-top: var(--space-20);
 		border-top: 1px solid color-mix(in srgb, var(--part) 25%, transparent);
 	}
 	.w-stats dt {
-		font-size: 12px;
-		letter-spacing: 0.06em;
+		font-size: var(--fs-12);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--band-ink-3);
 	}
 	.w-stats dd {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-family: var(--font-mono);
-		font-size: 20px;
+		font-size: var(--fs-20);
 		color: var(--band-ink);
 	}
 	/* Behind the front window only the title bars read; their bodies stay empty. */
@@ -839,21 +838,21 @@
 	/* Clear air above and below the curve, so the road and the games each get their own room. */
 	.drift {
 		--band: var(--band-bg);
-		padding: clamp(140px, 18vw, 280px) 0 clamp(120px, 15vw, 240px);
+		padding: clamp(140px, 18vw, 280px) 0 clamp(120px, 15vw, 240px); /* off-scale: air around the curve */
 		color: var(--band-ink);
 	}
 	.drift :global(.curved) {
 		width: 100vw;
 		margin-inline: calc(50% - 50vw);
 		font-family: var(--font-serif);
-		font-size: 30px;
-		letter-spacing: 0.01em;
+		font-size: var(--fs-32);
+		letter-spacing: normal;
 		color: var(--band-ink-2);
 	}
 
 	/* ---------- Games ---------- */
 	.games {
-		padding: clamp(64px, 9vw, 112px) 0;
+		padding: clamp(var(--space-64), 9vw, var(--space-96)) 0;
 		color: var(--band-ink);
 	}
 	.games::before {
@@ -870,33 +869,33 @@
 	.game-grid {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 14px;
-		margin-top: 40px;
+		gap: var(--space-16);
+		margin-top: var(--space-40);
 	}
 	.game {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		padding: 14px 14px 20px;
-		border-radius: 3px;
+		gap: var(--space-8);
+		padding: var(--space-16) var(--space-16) var(--space-20);
+		border-radius: var(--radius);
 		border: 1px solid var(--band-line);
 		background: var(--band-surface);
 	}
 	.game h3 {
-		margin-top: 8px;
-		font-size: 18px;
-		font-weight: 700;
+		margin-top: var(--space-8);
+		font-size: var(--fs-18);
+		font-weight: var(--fw-bold);
 	}
 	.game p {
-		font-size: 14.5px;
-		line-height: 1.5;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--band-ink-2);
 	}
 	.preview {
 		position: relative;
 		height: 170px;
 		overflow: hidden;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background:
 			radial-gradient(circle at 1px 1px, var(--band-dot) 1px, transparent 0) 0 0 / 16px 16px,
 			var(--band-bg);
@@ -904,19 +903,19 @@
 	}
 	/* ---------- Ranks ---------- */
 	.ranks {
-		padding: clamp(64px, 9vw, 112px) 0;
+		padding: clamp(var(--space-64), 9vw, var(--space-96)) 0;
 	}
 
 	/* ---------- Technique ---------- */
 	.split {
 		display: grid;
 		grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-		gap: clamp(28px, 5vw, 64px);
+		gap: clamp(var(--space-32), 5vw, var(--space-64));
 		align-items: center;
 	}
 	.technique {
 		--band: var(--surface);
-		padding: clamp(64px, 9vw, 112px) 0;
+		padding: clamp(var(--space-64), 9vw, var(--space-96)) 0;
 	}
 	.technique::before {
 		border-top: 1px solid var(--line);
@@ -924,40 +923,40 @@
 	.copy {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	.copy > p:not(.kicker) {
-		font-size: 17px;
-		line-height: 1.6;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.checks {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
-		margin-top: 4px;
+		gap: var(--space-10);
+		margin-top: var(--space-4);
 	}
 	.checks li {
 		display: flex;
 		align-items: flex-start;
-		gap: 10px;
-		font-size: 16px;
-		font-weight: 500;
+		gap: var(--space-10);
+		font-size: var(--fs-16);
+		font-weight: var(--fw-regular);
 	}
 	.checks :global(svg) {
 		flex-shrink: 0;
-		margin-top: 2px;
-		padding: 2px;
-		border-radius: 3px;
+		margin-top: var(--space-2);
+		padding: var(--space-2);
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 	}
 	.visual .card {
 		background: var(--bg);
-		padding: clamp(18px, 2.4vw, 28px);
+		padding: clamp(var(--space-20), 2.4vw, var(--space-32));
 	}
 
-	@media (max-width: 1000px) {
+	@media (max-width: 1100px) {
 		.game-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
@@ -972,66 +971,63 @@
 		/* The road stacks: copy over the deck. */
 		.road-stage {
 			grid-template-columns: minmax(0, 1fr);
-			gap: 28px;
+			gap: var(--space-32);
 		}
 		.road-stage .section-head {
-			padding-right: 16px;
+			padding-right: var(--space-16);
 		}
 		.road-lede {
-			font-size: 15px;
+			font-size: var(--fs-15);
 		}
 		.road-progress {
-			margin-top: 16px;
+			margin-top: var(--space-16);
 		}
 		.road-end {
-			margin-top: 12px;
+			margin-top: var(--space-12);
 		}
 		.road-deck {
 			--card-w: 100vw;
 			--card-h: min(520px, 62svh);
 			--drop: 120px;
 		}
-		.deck-anchor {
-			--card-radius: 14px;
-		}
 		.window-bar {
 			height: 50px;
-			gap: 12px;
-			padding: 0 16px;
+			gap: var(--space-12);
+			padding: 0 var(--space-16);
 		}
 		.window-bar h3 {
-			font-size: 16px;
+			font-size: var(--fs-16);
 		}
 		.window-body {
-			gap: 18px;
-			padding: 22px 20px;
+			gap: var(--space-20);
+			padding: var(--space-24) var(--space-20);
 		}
 		.window-summary {
-			font-size: 24px;
+			font-size: var(--fs-24);
 		}
 		.w-key {
 			width: 22px;
 			height: 22px;
-			font-size: 10px;
+			font-size: var(--fs-10);
 		}
 		.w-key.wide {
 			width: 36px;
 		}
 		.w-row {
-			gap: 3px;
-			padding-left: calc(var(--indent) * 8px);
+			gap: var(--space-4);
+			padding-left: calc(var(--indent) * var(--space-8));
 		}
 		.w-board {
-			gap: 3px;
+			gap: var(--space-4);
 		}
 		.w-stats {
-			gap: 22px;
+			gap: var(--space-24);
 		}
 	}
 	@media (max-width: 560px) {
 		/* The curve scales with the screen; on phones its type needs more viewBox units to stay readable. */
 		.drift :global(.curved) {
-			font-size: 64px;
+			font-size: 64px; /* off-scale: SVG viewBox units */
 		}
 		.game-grid {
 			grid-template-columns: 1fr;

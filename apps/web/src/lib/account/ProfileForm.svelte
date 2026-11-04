@@ -281,13 +281,13 @@
 	.builder {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) 300px;
-		gap: 32px;
+		gap: var(--space-32);
 		align-items: start;
 	}
 	fieldset {
 		display: flex;
 		flex-direction: column;
-		gap: 18px;
+		gap: var(--space-20);
 		border: 0;
 		padding: 0;
 		margin: 0;
@@ -297,43 +297,43 @@
 	}
 	legend {
 		font-family: var(--font-serif);
-		font-size: 22px;
-		margin-bottom: 14px;
+		font-size: var(--fs-24);
+		margin-bottom: var(--space-16);
 		color: var(--ink);
 	}
 	/* When editing, each part of the form is its own panel, and the save button stays in reach. */
 	.builder:not(.setup) fieldset {
-		padding: 20px 22px 24px;
-		margin-bottom: 14px;
-		border-radius: 3px;
+		padding: var(--space-20) var(--space-24) var(--space-24);
+		margin-bottom: var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
 	.builder:not(.setup) legend {
 		float: left;
 		width: 100%;
-		margin-bottom: 4px;
-		font-size: 19px;
+		margin-bottom: var(--space-4);
+		font-size: var(--fs-20);
 	}
 	.stepper {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.stepper li {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		padding: 10px;
-		border-radius: 3px;
+		gap: var(--space-8);
+		padding: var(--space-10);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.stepper li.current {
 		border-color: var(--ink);
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.stepper li.done {
 		background: var(--surface);
@@ -344,9 +344,9 @@
 		place-items: center;
 		width: 24px;
 		height: 24px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		flex-shrink: 0;
 	}
 	.current .num,
@@ -355,22 +355,22 @@
 		color: var(--on-accent);
 	}
 	.group-label {
-		font-size: 14.5px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.options {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.option {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-		padding: 14px 14px 14px 42px;
-		border-radius: 3px;
+		gap: var(--space-4);
+		padding: var(--space-16) var(--space-16) var(--space-16) var(--space-40);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		cursor: pointer;
@@ -388,17 +388,17 @@
 		box-shadow: inset 0 0 0 1px var(--ink);
 	}
 	.option-title {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.option-hint {
-		font-size: 13.5px;
-		line-height: 1.45;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.swatches {
 		display: flex;
-		gap: 10px;
+		gap: var(--space-10);
 		flex-wrap: wrap;
 	}
 	.swatch {
@@ -407,7 +407,7 @@
 		place-items: center;
 		width: 44px;
 		height: 44px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		cursor: pointer;
 	}
@@ -420,7 +420,7 @@
 	.swatch span {
 		width: 30px;
 		height: 30px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.swatch.selected {
 		border-color: var(--ink);
@@ -431,19 +431,19 @@
 		outline-offset: 2px;
 	}
 	.note {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.error {
-		font-size: 13.5px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--error);
 	}
 	.buttons {
 		display: flex;
 		justify-content: space-between;
-		gap: 10px;
-		padding-top: 6px;
+		gap: var(--space-10);
+		padding-top: var(--space-6);
 	}
 	.builder:not(.setup) .buttons {
 		position: sticky;
@@ -451,7 +451,7 @@
 		z-index: 5;
 		justify-content: flex-start;
 		margin-top: 0;
-		padding: 12px 0 16px;
+		padding: var(--space-12) 0 var(--space-16);
 		border-top: 1px solid var(--line);
 		background: var(--bg);
 	}
@@ -460,38 +460,38 @@
 		top: 96px;
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.preview-label {
-		font-size: 12.5px;
-		font-weight: 600;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	.facts {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 10px;
-		margin-top: 10px;
+		gap: var(--space-10);
+		margin-top: var(--space-10);
 	}
 	.facts dt {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	.facts dd {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.visibility {
-		margin-top: 8px;
+		margin-top: var(--space-8);
 		align-self: flex-start;
-		padding: 2px 8px;
-		border-radius: 3px;
+		padding: var(--space-2) var(--space-8);
+		border-radius: var(--radius);
 		background: var(--surface-2);
-		font-size: 12.5px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.visibility.on {
@@ -501,15 +501,15 @@
 	.banners {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.banner-option {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		padding: 6px;
-		border-radius: 3px;
+		gap: var(--space-6);
+		padding: var(--space-6);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		cursor: pointer;
 	}
@@ -521,11 +521,11 @@
 	}
 	.banner-swatch {
 		height: 34px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.banner-name {
-		font-size: 12.5px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.banner-option.selected {
@@ -542,16 +542,16 @@
 	.toggles {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.check.public {
-		margin-top: 6px;
-		padding: 14px;
-		border-radius: 3px;
+		margin-top: var(--space-6);
+		padding: var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
-	@media (max-width: 860px) {
+	@media (max-width: 900px) {
 		.builder {
 			grid-template-columns: 1fr;
 		}
@@ -566,7 +566,7 @@
 			display: none;
 		}
 	}
-	@media (max-width: 520px) {
+	@media (max-width: 560px) {
 		.options {
 			grid-template-columns: 1fr;
 		}

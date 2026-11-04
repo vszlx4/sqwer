@@ -30,34 +30,34 @@
 	.preview {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	figcaption {
 		display: flex;
 		justify-content: space-between;
-		gap: 12px;
+		gap: var(--space-12);
 		flex-wrap: wrap;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.callout {
-		line-height: 1.8;
+		line-height: var(--lh-body);
 	}
 	.callout .mini {
-		margin-right: 6px;
+		margin-right: var(--space-6);
 	}
 	.mini {
 		display: inline-grid;
 		place-items: center;
 		min-width: 26px;
 		height: 26px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 3px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.note {

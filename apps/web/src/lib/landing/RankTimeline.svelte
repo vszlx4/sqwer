@@ -4,6 +4,7 @@
 	import type { Tier } from '#lib/courses/progression.ts';
 	import RankBadge from '#lib/courses/RankBadge.svelte';
 	import { BADGE_MATERIALS } from '#lib/progress/rank-art.ts';
+	import { below } from '#lib/site/breakpoints.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import { BADGE, TEXT, buildGraph, nodeLines, type Orient } from './rankTree.ts';
 	import { growTree } from './timeline.ts';
@@ -12,7 +13,7 @@
 	   orientation in use is drawn, on the client, in a stage that holds its size from the first paint. The SVG is
 	   decoration; the list carries the same facts for assistive tech and for pages without scripts. */
 
-	const NARROW = '(max-width: 1100px)';
+	const NARROW = below('wide');
 	const stops = rankJourney();
 	const id = $props.id();
 	let orient = $state<Orient | null>(null);
@@ -111,7 +112,7 @@
 		--gold: var(--gold-on-light);
 		--emerald: var(--emerald-on-light);
 		--diamond: var(--diamond-on-light);
-		margin-top: 48px;
+		margin-top: var(--space-48);
 	}
 	:global(:root[data-theme='dark']) .ranks-graph {
 		--bronze: var(--bronze-on-dark);
@@ -163,35 +164,35 @@
 	}
 	.name {
 		font-family: var(--font-serif);
-		font-size: 19px;
+		font-size: var(--fs-20);
 		fill: var(--ink);
 	}
 	.meta {
 		font-family: var(--font-mono);
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		font-variant-numeric: tabular-nums;
 		fill: var(--ink-2);
 	}
 	.plain {
 		display: grid;
-		gap: 8px;
-		font-size: 14px;
+		gap: var(--space-8);
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.note {
 		display: flex;
 		align-items: flex-start;
-		gap: 10px;
-		margin-top: 32px;
-		padding-top: 16px;
+		gap: var(--space-10);
+		margin-top: var(--space-32);
+		padding-top: var(--space-16);
 		border-top: 1px solid var(--line);
-		font-size: 13px;
-		line-height: 1.55;
+		font-size: var(--fs-13);
+		line-height: var(--lh-body);
 		color: var(--ink-3);
 	}
 	.note :global(.icon-info) {
 		flex: none;
-		margin-top: 2px;
+		margin-top: var(--space-2);
 		color: var(--ink-2);
 	}
 	.note span {
@@ -202,7 +203,7 @@
 	@media (max-width: 1100px) {
 		.rank-stage {
 			aspect-ratio: 360 / 860;
-			max-width: 440px;
+			max-width: var(--w-form);
 			margin: 0 auto;
 		}
 	}

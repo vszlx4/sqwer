@@ -47,46 +47,46 @@
 	.codes-box {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	.warning {
-		padding: 12px 14px;
-		border-radius: 3px;
+		padding: var(--space-12) var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		border-left: 4px solid var(--accent);
 		background: var(--bg);
-		font-size: 14.5px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink);
 	}
 	.codes {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.codes li {
-		padding: 10px 12px;
-		border-radius: 3px;
+		padding: var(--space-10) var(--space-12);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--bg);
 		text-align: center;
 	}
 	code {
 		font-family: var(--font-sans);
-		font-size: 15px;
-		font-weight: 600;
-		letter-spacing: 0.06em;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		color: var(--ink);
 		font-variant-numeric: tabular-nums;
 	}
 	.actions {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 	}
 	.status {
 		min-height: 1px;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	@media (max-width: 420px) {

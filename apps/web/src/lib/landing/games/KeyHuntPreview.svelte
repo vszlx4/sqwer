@@ -34,17 +34,17 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 16px;
+		gap: var(--space-16);
 	}
 	.mini-kb {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: var(--space-4);
 	}
 	.kb-row {
 		display: flex;
-		gap: 4px;
-		margin-left: calc(var(--r) * 9px);
+		gap: var(--space-4);
+		margin-left: calc(var(--r) * var(--space-10));
 	}
 	/* A lit key takes its finger's hue; a ring shows the hit (success) or the timeout (error). */
 	.mk {
@@ -57,22 +57,22 @@
 		place-items: center;
 		width: 20px;
 		height: 22px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid color-mix(in srgb, var(--hue) calc(var(--lit) * 100%), var(--band-line));
 		border-bottom-width: 2px;
 		background: color-mix(in srgb, var(--hue) calc(var(--lit) * 100%), var(--band-surface));
 		color: color-mix(in srgb, var(--label) calc(var(--lit) * 100%), var(--band-ink-3));
 		box-shadow: 0 0 0 calc((var(--ok) + var(--miss)) * 3px) color-mix(in srgb, var(--error) calc(var(--miss) * 100%), var(--lime));
 		font-family: var(--font-mono);
-		font-size: 10px;
-		font-weight: 600;
+		font-size: var(--fs-10);
+		font-weight: var(--fw-semibold);
 		text-transform: uppercase;
 	}
 	/* The time left to find it. */
 	.fuse {
 		width: 140px;
 		height: 4px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--band-surface-2);
 		overflow: hidden;
 	}

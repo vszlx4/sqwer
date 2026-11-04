@@ -30,14 +30,14 @@
 		place-items: center;
 		width: 30px;
 		height: 30px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--band-line-strong);
 		border-bottom: 4px solid var(--hue);
 		background: var(--band-surface-2);
 		color: var(--band-ink);
 		font-family: var(--font-mono);
-		font-size: 15px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		transform-origin: 50% 100%;
 		will-change: transform;
 	}
@@ -45,7 +45,7 @@
 		position: absolute;
 		width: 40px;
 		height: 40px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 3px solid var(--hue);
 	}
 	/* The key just pressed, top right. */
@@ -57,13 +57,13 @@
 		place-items: center;
 		min-width: 22px;
 		height: 22px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--hue);
 		background: color-mix(in srgb, var(--hue) 22%, var(--band-bg));
 		color: var(--band-ink);
 		font-family: var(--font-mono);
-		font-size: 11px;
-		font-weight: 600;
+		font-size: var(--fs-11);
+		font-weight: var(--fw-semibold);
 		text-transform: uppercase;
 	}
 	/* Solid floor; flashes the life hue when a key lands. */

@@ -89,9 +89,9 @@
 		width: 100%;
 		display: flex;
 		flex-direction: column;
-		max-width: 1180px;
+		max-width: var(--w-page);
 		margin: 0 auto;
-		padding: 0 clamp(16px, 4vw, 40px);
+		padding: 0 clamp(var(--space-16), 4vw, var(--space-40));
 	}
 	main {
 		flex: 1;
@@ -107,12 +107,12 @@
 		position: absolute;
 		left: 12px;
 		top: -60px;
-		z-index: 50;
-		padding: 10px 16px;
-		border-radius: 3px;
+		z-index: var(--z-overlay);
+		padding: var(--space-10) var(--space-16);
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 	}
 	.skip:focus {

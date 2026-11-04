@@ -131,25 +131,25 @@
 	.overview {
 		display: flex;
 		flex-direction: column;
-		gap: 36px;
+		gap: var(--space-40);
 	}
 	.section-head {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		flex-wrap: wrap;
-		gap: 10px 16px;
-		margin-bottom: 14px;
+		gap: var(--space-10) var(--space-16);
+		margin-bottom: var(--space-16);
 	}
 	h2 {
-		font-size: 22px;
+		font-size: var(--fs-24);
 	}
 	.more {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		font-size: 14px;
-		font-weight: 600;
+		gap: var(--space-6);
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		text-decoration: none;
 	}
@@ -159,14 +159,14 @@
 	.links {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.steps,
 	.health {
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -178,11 +178,11 @@
 		display: grid;
 		grid-template-columns: 40px minmax(0, 1fr) auto;
 		align-items: center;
-		gap: 16px;
-		padding: 14px 18px;
+		gap: var(--space-16);
+		padding: var(--space-16) var(--space-20);
 		color: var(--ink);
 		text-decoration: none;
-		transition: background-color 140ms ease;
+		transition: background-color var(--dur-fast) var(--ease-out);
 	}
 	.steps a:hover {
 		background: var(--surface-2);
@@ -196,12 +196,12 @@
 		place-items: center;
 		width: 40px;
 		height: 40px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		transition:
-			background-color 140ms ease,
-			border-color 140ms ease;
+			background-color var(--dur-fast) var(--ease-out),
+			border-color var(--dur-fast) var(--ease-out);
 	}
 	.steps a:hover .step-icon {
 		border-color: var(--ink);
@@ -211,19 +211,19 @@
 	.step-text {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: var(--space-2);
 		min-width: 0;
 	}
 	.step-text span {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.step-go {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		font-size: 14px;
-		font-weight: 600;
+		gap: var(--space-6);
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 	}
 	.figures,
@@ -231,55 +231,55 @@
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 		margin: 0;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
 	.figures div,
 	.facts div {
-		padding: 14px 18px;
+		padding: var(--space-16) var(--space-20);
 	}
 	.figures div + div,
 	.facts div + div {
 		border-left: 1px solid var(--line);
 	}
 	dt {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	dd {
-		margin: 4px 0 0;
-		font-weight: 600;
+		margin: var(--space-4) 0 0;
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
 	.figures dd {
-		font-size: 26px;
-		font-weight: 800;
-		letter-spacing: -0.02em;
+		font-size: var(--fs-28);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-tight);
 	}
 	.facts dd {
-		font-size: 17px;
+		font-size: var(--fs-18);
 	}
 	.about {
-		margin-top: 12px;
+		margin-top: var(--space-12);
 		max-width: 70ch;
-		font-size: 14.5px;
-		line-height: 1.55;
+		font-size: var(--fs-15);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.health li {
 		display: grid;
 		grid-template-columns: 28px minmax(0, 1fr) auto;
 		align-items: center;
-		gap: 14px;
-		padding: 14px 18px;
+		gap: var(--space-16);
+		padding: var(--space-16) var(--space-20);
 	}
 	.state {
 		display: grid;
 		place-items: center;
 		width: 28px;
 		height: 28px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		color: var(--ink-2);
 	}
@@ -294,20 +294,20 @@
 	.health-text {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
-		font-size: 14px;
+		gap: var(--space-2);
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.health-text b {
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink);
 	}
 	.warn-text {
 		color: var(--error);
 	}
 	.row-link {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		text-decoration: none;
 	}

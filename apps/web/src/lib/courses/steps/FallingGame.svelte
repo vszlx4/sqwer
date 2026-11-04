@@ -257,29 +257,29 @@
 	.game {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.hud {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
-		font-size: 14.5px;
+		gap: var(--space-12);
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
 	.hud b {
-		font-size: 20px;
+		font-size: var(--fs-20);
 		color: var(--ink);
 	}
 	.lives {
 		display: inline-flex;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.progress {
 		flex: 1;
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -288,15 +288,15 @@
 		height: 100%;
 		background: linear-gradient(90deg, var(--success), var(--accent));
 		transform-origin: left;
-		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+		transition: transform var(--dur-slow) var(--ease-out);
 	}
 	.goal {
-		padding: 6px 12px;
-		border-radius: 3px;
+		padding: var(--space-6) var(--space-12);
+		border-radius: var(--radius);
 		background: var(--success-soft);
 		color: var(--success);
-		font-weight: 600;
-		font-size: 14px;
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-14);
 	}
 	.life {
 		width: 16px;
@@ -304,8 +304,8 @@
 		background: var(--life);
 		clip-path: polygon(50% 100%, 0 38%, 12% 8%, 34% 4%, 50% 20%, 66% 4%, 88% 8%, 100% 38%);
 		transition:
-			opacity 200ms ease,
-			transform 200ms ease;
+			opacity var(--dur-base) var(--ease-out),
+			transform var(--dur-base) var(--ease-out);
 	}
 	.life.lost {
 		opacity: 0.18;
@@ -314,7 +314,7 @@
 	.field {
 		position: relative;
 		overflow: hidden;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background:
 			radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 0) 0 0 / 22px 22px,
@@ -338,14 +338,14 @@
 		place-items: center;
 		min-width: 46px;
 		height: 46px;
-		padding: 0 10px;
-		border-radius: 3px;
+		padding: 0 var(--space-10);
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 3px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 22px;
-		font-weight: 600;
+		font-size: var(--fs-24);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		will-change: transform;
 	}
@@ -355,12 +355,12 @@
 	}
 	.drop.word {
 		height: 40px;
-		font-size: 19px;
-		font-weight: 500;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-regular);
 	}
 	/* The typed part of a word is shown by weight; the rest is dimmed. */
 	.drop b {
-		font-weight: 800;
+		font-weight: var(--fw-bold);
 		color: var(--ink);
 	}
 	.drop .rest {
@@ -370,8 +370,8 @@
 		position: absolute;
 		width: 56px;
 		height: 56px;
-		margin: -28px 0 0 -28px;
-		border-radius: 3px;
+		margin: calc(var(--space-32) * -1) 0 0 calc(var(--space-32) * -1);
+		border-radius: var(--radius);
 		border: 3px solid var(--accent);
 		animation: burst 480ms ease-out forwards;
 		pointer-events: none;
@@ -403,8 +403,8 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 10px;
-		padding: 24px;
+		gap: var(--space-10);
+		padding: var(--space-24);
 		text-align: center;
 		background: color-mix(in srgb, var(--bg) 82%, transparent);
 		-webkit-backdrop-filter: blur(3px);
@@ -413,12 +413,12 @@
 	}
 	.overlay .title {
 		font-family: var(--font-serif);
-		font-size: 34px;
+		font-size: var(--fs-32);
 		color: var(--ink);
 	}
 	.overlay.count {
 		font-family: var(--font-serif);
-		font-size: 96px;
+		font-size: 96px; /* off-scale: game glyph */
 		color: var(--ink);
 		animation: pulse-in 650ms ease;
 	}
@@ -429,11 +429,11 @@
 		}
 	}
 	.overlay kbd {
-		margin-left: 6px;
-		padding: 1px 6px;
-		border-radius: 3px;
+		margin-left: var(--space-6);
+		padding: 1px var(--space-6);
+		border-radius: var(--radius);
 		background: var(--track);
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: var(--fs-12);
 	}
 </style>

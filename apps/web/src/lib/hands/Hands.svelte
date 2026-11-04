@@ -168,7 +168,7 @@
 		fill: var(--ink);
 	}
 	.finger {
-		transition: fill-opacity 160ms ease;
+		transition: fill-opacity var(--dur-fast) var(--ease-out);
 	}
 	.interactive .finger {
 		cursor: pointer;
@@ -184,12 +184,12 @@
 	}
 	.value {
 		font-family: var(--font-sans);
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 		font-variant-numeric: tabular-nums;
 		fill: var(--ink-2);
 	}
 	.value.strong {
-		font-weight: 800;
+		font-weight: var(--fw-bold);
 		fill: var(--ink);
 	}
 	.value.dim {
@@ -199,13 +199,13 @@
 		transform-box: fill-box;
 		transform-origin: center bottom;
 		transition:
-			transform 180ms cubic-bezier(0.3, 1.6, 0.5, 1),
-			fill 180ms ease;
+			transform var(--dur-fast) var(--ease-spring),
+			fill var(--dur-fast) var(--ease-out);
 	}
 	/* A pressed key's label lifts and turns to full ink. */
 	.value.lit {
 		fill: var(--ink);
-		font-weight: 800;
+		font-weight: var(--fw-bold);
 		transform: translateY(-3px) scale(1.3);
 	}
 	/* Entrance: fingers fill from left to right, then each value's line draws up to its label. */

@@ -192,21 +192,21 @@
 	.stack {
 		display: flex;
 		flex-direction: column;
-		gap: 32px;
+		gap: var(--space-32);
 	}
 	h1 {
-		font-size: clamp(28px, 3.2vw, 36px);
+		font-size: var(--fs-title);
 	}
 	.lede {
-		margin-top: 8px;
-		max-width: 680px;
-		font-size: 15.5px;
-		line-height: 1.6;
+		margin-top: var(--space-8);
+		max-width: var(--w-text);
+		font-size: var(--fs-16);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	h2 {
-		font-size: 20px;
-		margin-bottom: 12px;
+		font-size: var(--fs-20);
+		margin-bottom: var(--space-12);
 	}
 	/* Figures sit in one panel divided by hairlines; column counts match each group, so no cell is empty. */
 	.highlights,
@@ -216,7 +216,7 @@
 		gap: 1px;
 		margin: 0;
 		overflow: hidden;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--line);
 	}
@@ -225,54 +225,54 @@
 	}
 	.highlights div,
 	.tiles div {
-		padding: 14px 16px;
+		padding: var(--space-16) var(--space-16);
 		background: var(--surface);
 	}
 	.highlights dd {
-		font-size: 28px;
-		font-weight: 800;
-		letter-spacing: -0.02em;
+		font-size: var(--fs-28);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-tight);
 		font-variant-numeric: tabular-nums;
 	}
 	.empty {
-		padding: 18px;
-		border-radius: 3px;
+		padding: var(--space-20);
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
 		color: var(--ink-2);
 	}
 	.empty a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	dt {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	dd {
-		margin-top: 4px;
-		font-size: 18px;
-		font-weight: 700;
+		margin-top: var(--space-4);
+		font-size: var(--fs-18);
+		font-weight: var(--fw-bold);
 		overflow-wrap: anywhere;
 	}
 	table {
 		width: 100%;
-		margin-top: 14px;
+		margin-top: var(--space-16);
 		border-collapse: collapse;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 	}
 	caption {
 		text-align: left;
-		font-weight: 600;
-		padding-bottom: 6px;
+		font-weight: var(--fw-semibold);
+		padding-bottom: var(--space-6);
 	}
 	th,
 	td {
-		padding: 9px 8px;
+		padding: var(--space-10) var(--space-8);
 		text-align: left;
 		border-bottom: 1px solid var(--line);
 	}
 	thead th {
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.num {
@@ -286,7 +286,7 @@
 	.bar {
 		display: block;
 		height: 10px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -297,16 +297,16 @@
 	}
 	.note,
 	.manage p {
-		margin-top: 10px;
-		font-size: 14px;
+		margin-top: var(--space-10);
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.manage .btn {
-		margin-top: 12px;
+		margin-top: var(--space-12);
 	}
 	@media (max-width: 760px) {
 		table {
-			font-size: 13px;
+			font-size: var(--fs-13);
 		}
 		.highlights,
 		.tiles,

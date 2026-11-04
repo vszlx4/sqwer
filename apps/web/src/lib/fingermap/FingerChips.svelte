@@ -43,42 +43,42 @@
 	.chips {
 		display: flex;
 		justify-content: center;
-		gap: 28px;
+		gap: var(--space-32);
 		flex-wrap: wrap;
 	}
 	.hand {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.hand-name {
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: 0.06em;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-3);
 	}
 	.row {
 		display: flex;
-		gap: 6px;
+		gap: var(--space-6);
 		flex-wrap: wrap;
 	}
 	.chip {
 		display: inline-flex;
 		align-items: center;
-		gap: 7px;
+		gap: var(--space-8);
 		height: 38px;
-		padding: 0 12px 0 6px;
-		border-radius: 3px;
+		padding: 0 var(--space-12) 0 var(--space-6);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		color: var(--ink);
-		font-size: 14px;
-		font-weight: 500;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-regular);
 		cursor: pointer;
 		transition:
-			background 100ms ease,
-			transform 100ms ease;
+			background var(--dur-fast) var(--ease-out),
+			transform var(--dur-fast) var(--ease-out);
 	}
 	.chip:hover:not(:disabled) {
 		background: var(--surface-2);
@@ -99,16 +99,16 @@
 		place-items: center;
 		width: 26px;
 		height: 26px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 		border: 1px solid var(--line);
 		font-family: var(--font-mono);
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 	}
 	.dot {
 		width: 9px;
 		height: 9px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 </style>

@@ -70,45 +70,45 @@
 
 <style>
 	.figure {
-		max-width: 540px;
-		margin: 0 auto 24px;
+		max-width: var(--w-narrow);
+		margin: 0 auto var(--space-24);
 	}
 	figcaption {
-		margin-top: 10px;
+		margin-top: var(--space-10);
 		text-align: center;
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.scores {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 16px;
+		gap: var(--space-16);
 	}
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 	}
 	caption {
 		text-align: left;
 		font-family: var(--font-serif);
-		font-size: 22px;
-		padding-bottom: 8px;
+		font-size: var(--fs-24);
+		padding-bottom: var(--space-8);
 	}
 	th,
 	td {
-		padding: 9px 8px;
+		padding: var(--space-10) var(--space-8);
 		text-align: left;
 		border-bottom: 1px solid var(--line);
 		vertical-align: middle;
 	}
 	thead th {
-		font-size: 12.5px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	tbody th {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 	}
 	td {
@@ -124,15 +124,15 @@
 		display: inline-block;
 		width: 10px;
 		height: 10px;
-		border-radius: 3px;
-		margin-right: 6px;
+		border-radius: var(--radius);
+		margin-right: var(--space-6);
 	}
 	.bar {
 		display: inline-block;
 		width: calc(100% - 80px);
 		height: 10px;
-		margin-right: 8px;
-		border-radius: 3px;
+		margin-right: var(--space-8);
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		vertical-align: middle;
 		overflow: hidden;
@@ -150,11 +150,11 @@
 		background: var(--error);
 	}
 	.tag {
-		margin-left: 6px;
-		padding: 1px 6px;
-		border-radius: 3px;
-		font-size: 11.5px;
-		font-weight: 600;
+		margin-left: var(--space-6);
+		padding: 1px var(--space-6);
+		border-radius: var(--radius);
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
 		border: 1px solid var(--line-strong);
 	}
 	.fastest .tag {
@@ -170,8 +170,8 @@
 		color: var(--ink-2);
 	}
 	.note {
-		margin-top: 10px;
-		font-size: 13.5px;
+		margin-top: var(--space-10);
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	@media (max-width: 760px) {

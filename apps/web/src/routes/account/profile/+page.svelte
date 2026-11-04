@@ -77,45 +77,45 @@
 		flex-direction: column;
 	}
 	.page-head {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-8);
 	}
 	.page-head p,
 	.details-head p {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		max-width: 64ch;
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(28px, 3.2vw, 36px);
+		font-size: var(--fs-title);
 	}
 	.page > :global(.form-alert) {
-		margin: 8px 0;
+		margin: var(--space-8) 0;
 	}
 	.personal div {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 4px 16px;
+		gap: var(--space-4) var(--space-16);
 		align-items: baseline;
 	}
 	.personal dt {
 		min-width: 120px;
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.personal dd {
 		margin: 0;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		overflow-wrap: anywhere;
 	}
 	.note {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.details-head {
-		padding: 28px 0 18px;
+		padding: var(--space-32) 0 var(--space-20);
 		border-top: 1px solid var(--line);
 	}
 	.details-head h2 {
-		font-size: 20px;
+		font-size: var(--fs-20);
 	}
 </style>

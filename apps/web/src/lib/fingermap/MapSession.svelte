@@ -265,8 +265,8 @@
 <style>
 	.hands {
 		width: min(100%, 400px);
-		margin: 0 auto -6px;
-		transition: opacity 160ms ease;
+		margin: 0 auto calc(var(--space-6) * -1);
+		transition: opacity var(--dur-fast) var(--ease-out);
 	}
 	.hands.waiting {
 		opacity: 0.7;
@@ -274,20 +274,20 @@
 	.session {
 		display: flex;
 		flex-direction: column;
-		gap: 22px;
+		gap: var(--space-24);
 	}
 	.top {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-20);
 		flex-wrap: wrap;
 	}
 	.back {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		font-size: 14px;
-		font-weight: 500;
+		gap: var(--space-6);
+		font-size: var(--fs-14);
+		font-weight: var(--fw-regular);
 		color: var(--ink-2);
 		text-decoration: none;
 	}
@@ -301,18 +301,18 @@
 		flex: 1;
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-12);
 		min-width: 240px;
 	}
 	.pct {
-		font-size: 22px;
-		font-weight: 600;
+		font-size: var(--fs-24);
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
 	.bar {
 		flex: 1;
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 		max-width: 360px;
@@ -321,21 +321,21 @@
 		display: block;
 		height: 100%;
 		background: var(--accent);
-		border-radius: 3px;
-		transition: width 300ms ease;
+		border-radius: var(--radius);
+		transition: width var(--dur-base) var(--ease-out);
 	}
 	.meta {
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-3);
 	}
 	.finish {
 		height: 38px;
-		padding: 0 16px;
-		border-radius: 3px;
+		padding: 0 var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
-		font-weight: 600;
-		font-size: 14px;
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-14);
 		cursor: pointer;
 	}
 	.finish:hover {
@@ -343,19 +343,19 @@
 	}
 	.prompt {
 		font-family: var(--font-mono);
-		font-size: clamp(26px, 3.2vw, 40px);
-		line-height: 1.5;
+		font-size: var(--fs-title);
+		line-height: var(--lh-body);
 		text-align: center;
 		min-height: 1.5em;
-		letter-spacing: 0.02em;
+		letter-spacing: normal;
 	}
 	.ch {
 		display: inline-block;
 		min-width: 0.6em;
 		color: var(--untyped);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		padding: 0 1px;
-		transition: color 100ms ease;
+		transition: color var(--dur-fast) var(--ease-out);
 	}
 	.ch.space {
 		color: transparent;
@@ -375,44 +375,44 @@
 		text-align: center;
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 		min-height: 92px;
 	}
 	h2 {
-		font-size: 28px;
-		font-weight: 400;
-		letter-spacing: -0.01em;
+		font-size: var(--fs-28);
+		font-weight: var(--fw-regular);
+		letter-spacing: normal;
 	}
 	.keycap {
 		display: inline-grid;
 		place-items: center;
 		min-width: 40px;
 		height: 40px;
-		padding: 0 10px;
-		margin: 0 4px;
-		border-radius: 3px;
+		padding: 0 var(--space-10);
+		margin: 0 var(--space-4);
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 3px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 20px;
+		font-size: var(--fs-20);
 		vertical-align: middle;
 	}
 	.hint {
-		font-size: 15px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 	.notice {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--error);
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 		text-align: center;
 	}
 	.picker {
-		max-width: 820px;
+		max-width: var(--w-wide);
 		width: 100%;
 		margin: 0 auto;
-		transition: opacity 150ms ease;
+		transition: opacity var(--dur-fast) var(--ease-out);
 	}
 	.picker.waiting {
 		opacity: 0.85;
@@ -420,7 +420,7 @@
 	.keys,
 	.touch-note {
 		text-align: center;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-3);
 	}
 	.touch-note {
@@ -433,9 +433,9 @@
 	}
 	kbd {
 		font-family: var(--font-mono);
-		font-size: 12px;
-		padding: 1px 6px;
-		border-radius: 3px;
+		font-size: var(--fs-12);
+		padding: 1px var(--space-6);
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 		color: var(--ink-2);

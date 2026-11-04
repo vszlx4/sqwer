@@ -104,7 +104,7 @@
 	.chart {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: var(--space-10);
 		margin: 0;
 	}
 	figcaption {
@@ -112,28 +112,28 @@
 		flex-wrap: wrap;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: 6px 16px;
+		gap: var(--space-6) var(--space-16);
 	}
 	.title {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.legend {
 		display: flex;
-		gap: 14px;
-		font-size: 13px;
+		gap: var(--space-16);
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.legend span,
 	.tip span {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	i {
 		display: inline-block;
 		width: 10px;
 		height: 10px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.plot {
 		position: relative;
@@ -154,7 +154,7 @@
 		stroke: var(--chart-grid);
 	}
 	.tick {
-		font-size: 11px;
+		font-size: var(--fs-11);
 		fill: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
@@ -164,14 +164,14 @@
 		transform: translateX(-50%);
 		display: flex;
 		flex-direction: column;
-		gap: 3px;
+		gap: var(--space-4);
 		min-width: 140px;
-		padding: 8px 10px;
-		border-radius: 3px;
+		padding: var(--space-8) var(--space-10);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		box-shadow: var(--shadow);
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 		pointer-events: none;
 		white-space: nowrap;
@@ -182,23 +182,23 @@
 	}
 	.table summary {
 		cursor: pointer;
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.scroll {
 		max-height: 260px;
-		overflow: auto;
-		margin-top: 8px;
+		overflow: hidden auto;
+		margin-top: var(--space-8);
 	}
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		font-size: 13px;
+		font-size: var(--fs-13);
 	}
 	th,
 	td {
-		padding: 6px 8px;
+		padding: var(--space-6) var(--space-8);
 		text-align: left;
 		border-bottom: 1px solid var(--line);
 	}

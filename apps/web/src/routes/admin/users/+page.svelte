@@ -63,10 +63,10 @@
 
 <style>
 	.head h1 {
-		font-size: clamp(30px, 3.6vw, 42px);
+		font-size: var(--fs-display);
 	}
 	.head p {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		max-width: 70ch;
 		color: var(--ink-2);
 	}
@@ -75,49 +75,49 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: end;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	label {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-		font-size: 13.5px;
-		font-weight: 600;
+		gap: var(--space-4);
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	input {
 		min-height: 42px;
 		min-width: min(320px, 100%);
-		padding: 0 12px;
-		border-radius: 3px;
+		padding: 0 var(--space-12);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);
 		font: inherit;
-		font-weight: 400;
+		font-weight: var(--fw-regular);
 	}
 	.account {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
-		padding: 18px;
-		border-radius: 3px;
+		gap: var(--space-16);
+		padding: var(--space-20);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
 	dl {
 		display: grid;
-		gap: 8px;
+		gap: var(--space-8);
 		margin: 0;
 	}
 	dl div {
 		display: grid;
 		grid-template-columns: 140px 1fr;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	dt {
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	dd {

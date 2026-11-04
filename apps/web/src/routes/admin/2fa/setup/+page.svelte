@@ -54,11 +54,11 @@
 	.setup {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
-		max-width: 560px;
+		gap: var(--space-16);
+		max-width: var(--w-narrow);
 	}
 	h1 {
-		font-size: clamp(28px, 3.2vw, 36px);
+		font-size: var(--fs-title);
 	}
 	p {
 		color: var(--ink-2);
@@ -66,15 +66,15 @@
 	.field {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		font-weight: 600;
-		font-size: 14.5px;
+		gap: var(--space-6);
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-15);
 	}
 	.field input {
 		min-height: 46px;
 		max-width: 320px;
-		padding: 0 14px;
-		border-radius: 3px;
+		padding: 0 var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);
@@ -86,13 +86,13 @@
 	.steps {
 		display: flex;
 		flex-direction: column;
-		gap: 22px;
-		padding-left: 20px;
+		gap: var(--space-24);
+		padding-left: var(--space-20);
 	}
 	.qr {
 		display: block;
-		margin-top: 10px;
-		border-radius: 3px;
+		margin-top: var(--space-10);
+		border-radius: var(--radius);
 		background: var(--white);
 	}
 	.manual code {

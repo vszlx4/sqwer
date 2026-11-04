@@ -115,15 +115,15 @@
 		height: calc(var(--typing-size) * var(--typing-leading) * 3);
 		overflow: hidden;
 		font-family: var(--font-mono);
-		font-size: var(--typing-size);
-		line-height: var(--typing-leading);
+		font-size: var(--typing-size); /* off-scale: typing text, sized by the host */
+		line-height: var(--typing-leading); /* off-scale: typing text, sized by the host */
 	}
 	.inner {
 		position: relative;
 		display: flex;
 		flex-wrap: wrap;
 		column-gap: 0.42em;
-		transition: transform 160ms ease-out;
+		transition: transform var(--dur-fast) var(--ease-out);
 		will-change: transform;
 	}
 	.inner.instant,
@@ -151,17 +151,17 @@
 	.missed {
 		color: var(--error);
 		background: var(--error-soft);
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.caret {
 		position: absolute;
 		left: -1px;
 		top: 0;
 		width: 3px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		box-shadow: 0 0 0 1px var(--ink);
-		transition: transform 85ms ease-out;
+		transition: transform var(--dur-instant) var(--ease-out);
 		pointer-events: none;
 	}
 	:global([data-theme='dark']) .caret {

@@ -38,7 +38,7 @@
 
 <style>
 	.ref {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.ref code {
@@ -50,32 +50,32 @@
 		flex-direction: column;
 		align-items: center;
 		text-align: center;
-		gap: 16px;
-		padding: clamp(32px, 10vh, 96px) 0;
+		gap: var(--space-16);
+		padding: clamp(var(--space-32), 10vh, var(--space-96)) 0;
 	}
 	.code {
-		font-size: 15px;
-		font-weight: 800;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-wide);
 		color: var(--ink-2);
 		font-variant-numeric: tabular-nums;
 	}
 	h1 {
-		font-size: clamp(32px, 5vw, 56px);
-		line-height: 1.08;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 		max-width: 16ch;
 	}
 	.text {
-		max-width: 520px;
-		font-size: 17px;
-		line-height: 1.55;
+		max-width: var(--w-narrow);
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.links {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 		justify-content: center;
-		margin-top: 8px;
+		margin-top: var(--space-8);
 	}
 </style>

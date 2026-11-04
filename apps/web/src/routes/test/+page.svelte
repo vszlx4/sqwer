@@ -24,16 +24,16 @@
 
 <style>
 	.keys {
-		margin-top: 28px;
+		margin-top: var(--space-32);
 		text-align: center;
-		font-size: 13px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	kbd {
 		font-family: var(--font-mono);
-		font-size: 11.5px;
-		padding: 1px 6px;
-		border-radius: 3px;
+		font-size: var(--fs-12);
+		padding: 1px var(--space-6);
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 		color: var(--ink-2);

@@ -89,26 +89,26 @@
 	.profile {
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
-		max-width: 900px;
+		gap: var(--space-20);
+		max-width: var(--w-wide);
 		margin: 0 auto;
 	}
 	.since {
-		margin-top: 8px;
-		font-size: 13px;
+		margin-top: var(--space-8);
+		font-size: var(--fs-13);
 		color: var(--ink-3);
 	}
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 16px;
+		gap: var(--space-16);
 	}
 	.panel {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
-		padding: 20px;
-		border-radius: 3px;
+		gap: var(--space-12);
+		padding: var(--space-20);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -116,41 +116,41 @@
 		grid-column: 1 / -1;
 	}
 	h2 {
-		font-size: 24px;
+		font-size: var(--fs-24);
 	}
 	.tiles {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.tiles div {
-		padding: 12px 14px;
-		border-radius: 3px;
+		padding: var(--space-12) var(--space-16);
+		border-radius: var(--radius);
 		background: var(--bg);
 		border: 1px solid var(--line);
 	}
 	dt {
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	dd {
-		margin-top: 2px;
-		font-size: 18px;
-		font-weight: 600;
+		margin-top: var(--space-2);
+		font-size: var(--fs-18);
+		font-weight: var(--fw-semibold);
 	}
 	.rank-line {
-		font-size: 17px;
+		font-size: var(--fs-18);
 	}
 	.rank-line b {
 		color: var(--rank);
 	}
 	.note {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.bar {
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}

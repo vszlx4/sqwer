@@ -86,8 +86,8 @@
 		flex-direction: column;
 		width: fit-content;
 		max-width: 100%;
-		padding-left: 14px;
-		line-height: 1.2;
+		padding-left: var(--space-16);
+		line-height: var(--lh-base);
 	}
 	.branched::before {
 		content: '';
@@ -96,7 +96,7 @@
 		bottom: 0;
 		left: 0;
 		width: 2px;
-		border-radius: 1px;
+		border-radius: var(--radius);
 		background: linear-gradient(to bottom, var(--line) 0%, var(--line) 55%, transparent 100%);
 	}
 	.marker {
@@ -106,10 +106,10 @@
 		z-index: 1;
 		width: 2px;
 		height: 16px;
-		border-radius: 1px;
+		border-radius: var(--radius);
 		background: var(--ink);
 		opacity: 0;
-		transition: opacity 150ms ease;
+		transition: opacity var(--dur-fast) var(--ease-out);
 	}
 	.marker.on {
 		opacity: 1;
@@ -119,14 +119,14 @@
 		align-items: center;
 		height: var(--bm-head);
 		font-family: var(--font-sans);
-		font-size: 15px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.body {
 		position: relative;
 		box-sizing: border-box;
-		padding: 4px 0;
+		padding: var(--space-4) 0;
 	}
 	svg {
 		position: absolute;
@@ -146,27 +146,27 @@
 	}
 	.accent {
 		stroke: var(--ink);
-		transition: stroke-dashoffset 400ms cubic-bezier(0.23, 1, 0.32, 1);
+		transition: stroke-dashoffset var(--dur-slow) var(--ease-out);
 	}
 	a {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		height: var(--bm-row);
 		padding-left: var(--bm-indent);
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 		text-decoration: none;
 		white-space: nowrap;
-		border-radius: 3px;
-		transition: color 140ms ease;
+		border-radius: var(--radius);
+		transition: color var(--dur-fast) var(--ease-out);
 	}
 	a:hover,
 	a[aria-current='page'] {
 		color: var(--ink);
 	}
 	a[aria-current='page'] {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.accent,

@@ -24,19 +24,19 @@
 	.play {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
+		gap: var(--space-24);
 	}
 	.kicker {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(32px, 4.4vw, 48px);
-		line-height: 1.05;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	.summary {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		max-width: 64ch;
 		color: var(--ink-2);
 	}

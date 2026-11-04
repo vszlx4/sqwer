@@ -39,26 +39,26 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 14px;
-		max-width: 620px;
-		margin: clamp(16px, 6vh, 64px) auto;
+		gap: var(--space-16);
+		max-width: var(--w-narrow);
+		margin: clamp(var(--space-16), 6vh, var(--space-64)) auto;
 		text-align: center;
 	}
 	.where {
-		font-size: 13px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--ink-2);
 	}
 	h1 {
-		font-size: clamp(34px, 4.6vw, 52px);
-		line-height: 1.05;
+		font-size: var(--fs-display);
+		line-height: var(--lh-snug);
 	}
 	.summary,
 	.keys {
-		font-size: 17px;
-		line-height: 1.55;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.keys b {
@@ -67,28 +67,28 @@
 	.box {
 		display: flex;
 		align-items: flex-start;
-		gap: 12px;
-		margin-top: 8px;
-		padding: 16px 18px;
-		border-radius: 3px;
+		gap: var(--space-12);
+		margin-top: var(--space-8);
+		padding: var(--space-16) var(--space-20);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		text-align: left;
-		line-height: 1.55;
+		line-height: var(--lh-body);
 	}
 	.box :global(svg) {
 		flex-shrink: 0;
-		margin-top: 2px;
+		margin-top: var(--space-2);
 	}
 	.actions {
 		display: flex;
-		gap: 10px;
+		gap: var(--space-10);
 		flex-wrap: wrap;
 		justify-content: center;
-		margin-top: 6px;
+		margin-top: var(--space-6);
 	}
 	.back {
-		font-size: 14.5px;
+		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
 </style>

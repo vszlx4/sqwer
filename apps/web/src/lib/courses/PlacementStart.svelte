@@ -75,7 +75,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.placement-start.centred {
 		align-items: center;
@@ -85,15 +85,15 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.centred .buttons {
 		justify-content: center;
 	}
 	.credit {
 		max-width: 60ch;
-		font-size: 14px;
-		line-height: 1.5;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 		text-wrap: pretty;
 	}
@@ -101,7 +101,7 @@
 		color: var(--rank);
 		font-variant-numeric: tabular-nums;
 	}
-	@media (max-width: 480px) {
+	@media (max-width: 420px) {
 		.centred,
 		.centred .buttons {
 			align-self: stretch;
@@ -115,7 +115,7 @@
 		}
 	}
 	.error {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--error);
 	}
 </style>

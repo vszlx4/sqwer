@@ -166,29 +166,29 @@
 	.race {
 		display: flex;
 		flex-direction: column;
-		gap: 22px;
-		padding: 24px 22px;
+		gap: var(--space-24);
+		padding: var(--space-24) var(--space-24);
 	}
 	.track {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.lane {
 		display: grid;
 		grid-template-columns: 130px 1fr;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.name {
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 	}
 	.road {
 		position: relative;
 		height: 38px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		overflow: visible;
 		background:
 			repeating-linear-gradient(90deg, transparent 0 26px, color-mix(in srgb, var(--ink) 9%, transparent) 26px 38px) center / calc(100% - 22px) 2px no-repeat,
@@ -202,16 +202,16 @@
 		width: 12px;
 		height: 100%;
 		background: conic-gradient(var(--ink) 25%, var(--bg) 0 50%, var(--ink) 0 75%, var(--bg) 0) 0 0 / 6px 6px;
-		border-radius: 0 3px 3px 0;
+		border-radius: 0 var(--radius) var(--radius) 0;
 	}
 	.trail {
 		position: absolute;
 		left: 0;
 		top: 50%;
 		height: 4px;
-		margin-top: -2px;
-		border-radius: 3px;
-		transition: width 120ms linear;
+		margin-top: calc(var(--space-2) * -1);
+		border-radius: var(--radius);
+		transition: width var(--dur-fast) linear;
 	}
 	.trail.you {
 		background: linear-gradient(90deg, transparent, var(--accent));
@@ -227,9 +227,9 @@
 		place-items: center;
 		width: 30px;
 		height: 30px;
-		margin-left: -15px;
-		border-radius: 3px;
-		transition: left 120ms linear;
+		margin-left: calc(var(--space-16) * -1);
+		border-radius: var(--radius);
+		transition: left var(--dur-fast) linear;
 		box-shadow: var(--shadow);
 	}
 	.runner.you {
@@ -243,13 +243,13 @@
 	}
 	.name small {
 		display: block;
-		font-weight: 500;
+		font-weight: var(--fw-regular);
 		color: var(--ink-3);
 	}
 	.passage {
 		font-family: var(--font-mono);
-		font-size: 22px;
-		line-height: 1.7;
+		font-size: var(--fs-24);
+		line-height: var(--lh-body);
 		word-break: break-word;
 	}
 	.done {
@@ -257,7 +257,7 @@
 	}
 	.current {
 		color: var(--ink);
-		font-weight: 700;
+		font-weight: var(--fw-bold);
 	}
 	.todo {
 		color: var(--untyped);
@@ -267,7 +267,7 @@
 		display: inline-block;
 		width: 2px;
 		height: 1.1em;
-		margin-right: -2px;
+		margin-right: calc(var(--space-2) * -1);
 		vertical-align: -0.18em;
 		background: var(--accent);
 		box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 25%, transparent);
@@ -288,7 +288,7 @@
 	@media (max-width: 560px) {
 		.lane {
 			grid-template-columns: 1fr;
-			gap: 4px;
+			gap: var(--space-4);
 		}
 	}
 </style>

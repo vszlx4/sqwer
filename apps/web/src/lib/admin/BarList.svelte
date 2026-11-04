@@ -53,28 +53,28 @@
 	.list {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: var(--space-10);
 		min-width: 0;
 	}
 	header {
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	h2 {
 		font-family: var(--font-sans);
-		font-size: 15px;
-		font-weight: 600;
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 	}
 	.measure {
-		font-size: 12px;
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	ol {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: var(--space-4);
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -84,15 +84,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
+		gap: var(--space-12);
 		min-height: 32px;
-		padding: 0 10px;
-		font-size: 14px;
+		padding: 0 var(--space-10);
+		font-size: var(--fs-14);
 	}
 	.bar {
 		position: absolute;
 		inset: 0;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: color-mix(in srgb, var(--chart-wpm) 12%, transparent);
 		transform-origin: left;
 	}
@@ -118,14 +118,14 @@
 	.value {
 		display: inline-flex;
 		align-items: baseline;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-shrink: 0;
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 	}
 	small {
-		font-weight: 500;
-		font-size: 12px;
+		font-weight: var(--fw-regular);
+		font-size: var(--fs-12);
 		color: var(--ink-2);
 	}
 	.share {
@@ -134,10 +134,10 @@
 		color: var(--ink-2);
 	}
 	.empty {
-		padding: 14px;
-		border-radius: 3px;
+		padding: var(--space-16);
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 </style>

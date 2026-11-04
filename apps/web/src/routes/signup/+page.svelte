@@ -96,9 +96,9 @@
 	.consents {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
-		padding: 14px 16px;
-		border-radius: 3px;
+		gap: var(--space-10);
+		padding: var(--space-16) var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}

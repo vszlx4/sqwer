@@ -27,11 +27,11 @@
 	.mfa {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
-		max-width: 460px;
+		gap: var(--space-16);
+		max-width: var(--w-form);
 	}
 	h1 {
-		font-size: clamp(28px, 3.2vw, 36px);
+		font-size: var(--fs-title);
 	}
 	p {
 		color: var(--ink-2);
@@ -39,27 +39,27 @@
 	.code {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		font-weight: 600;
-		font-size: 14.5px;
+		gap: var(--space-6);
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-15);
 	}
 	.code input {
 		min-height: 48px;
 		max-width: 200px;
-		padding: 0 14px;
-		border-radius: 3px;
+		padding: 0 var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);
 		font-family: var(--font-mono);
-		font-size: 22px;
-		letter-spacing: 0.2em;
+		font-size: var(--fs-24);
+		letter-spacing: var(--tr-caps);
 	}
 	.form .btn {
 		align-self: flex-start;
 	}
 	.note {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 	}
 	.note code {
 		font-family: var(--font-mono);

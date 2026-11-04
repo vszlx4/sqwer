@@ -34,11 +34,11 @@
 		position: absolute;
 		top: 0;
 		display: flex;
-		padding: 5px 9px 5px 11px;
-		border-radius: 3px;
+		padding: var(--space-6) var(--space-10) var(--space-6) var(--space-12);
+		border-radius: var(--radius);
 		font-family: var(--font-mono);
-		font-size: 13px;
-		line-height: 1;
+		font-size: var(--fs-13);
+		line-height: var(--lh-tight);
 		white-space: nowrap;
 		will-change: transform;
 	}
@@ -59,7 +59,7 @@
 	}
 	.ch.typed {
 		color: var(--band-ink);
-		font-weight: 700;
+		font-weight: var(--fw-bold);
 	}
 	/* Landing zone: a dashed line, not a solid floor. */
 	.zone {

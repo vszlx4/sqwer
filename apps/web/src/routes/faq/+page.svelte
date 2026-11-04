@@ -104,26 +104,26 @@
 	.faqs {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	details {
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
 	summary {
-		padding: 16px 18px;
-		font-size: 16.5px;
-		font-weight: 600;
+		padding: var(--space-16) var(--space-20);
+		font-size: var(--fs-16);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 		cursor: pointer;
 		list-style-position: inside;
 	}
 	details p {
-		padding: 0 18px 18px;
+		padding: 0 var(--space-20) var(--space-20);
 	}
 	details[open] summary {
 		border-bottom: 1px solid var(--line);
-		margin-bottom: 14px;
+		margin-bottom: var(--space-16);
 	}
 </style>

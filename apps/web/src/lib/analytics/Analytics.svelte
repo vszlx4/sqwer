@@ -53,13 +53,13 @@
 		position: fixed;
 		left: 16px;
 		bottom: 16px;
-		z-index: 60;
+		z-index: var(--z-toast);
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
-		width: min(440px, calc(100vw - 32px));
-		padding: 18px 20px;
-		border-radius: 3px;
+		gap: var(--space-10);
+		width: min(var(--w-form), calc(100vw - 32px));
+		padding: var(--space-20) var(--space-20);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		box-shadow: var(--shadow-lg);
@@ -72,24 +72,24 @@
 		}
 	}
 	h2 {
-		font-size: 19px;
+		font-size: var(--fs-20);
 	}
 	p {
-		font-size: 14px;
-		line-height: 1.55;
+		font-size: var(--fs-14);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	a {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.note {
 		color: var(--ink);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.actions {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.actions .btn {
 		flex: 1;

@@ -118,19 +118,19 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 22px;
+		gap: var(--space-24);
 	}
 	.tip {
-		max-width: 620px;
+		max-width: var(--w-narrow);
 		text-align: center;
-		font-size: 17px;
-		line-height: 1.55;
+		font-size: var(--fs-18);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.prompt {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-20);
 		min-height: 88px;
 	}
 	.cap {
@@ -138,14 +138,14 @@
 		place-items: center;
 		min-width: 72px;
 		height: 72px;
-		padding: 0 14px;
-		border-radius: 3px;
+		padding: 0 var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 4px;
 		background: var(--key);
 		font-family: var(--font-mono);
-		font-size: 30px;
-		font-weight: 600;
+		font-size: var(--fs-32);
+		font-weight: var(--fw-semibold);
 		animation: bob 1.6s ease-in-out infinite;
 	}
 	.cap.done {
@@ -160,41 +160,41 @@
 		}
 	}
 	.instruction {
-		font-size: 19px;
-		font-weight: 600;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-semibold);
 	}
 	.dots {
 		display: flex;
 		align-items: center;
-		gap: 6px;
-		margin-top: 8px;
+		gap: var(--space-6);
+		margin-top: var(--space-8);
 	}
 	.dots span:not(.which) {
 		width: 22px;
 		height: 6px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
-		transition: background-color 160ms ease;
+		transition: background-color var(--dur-fast) var(--ease-out);
 	}
 	.dots span.on {
 		background: var(--accent);
 	}
 	.which {
-		margin-left: 8px;
-		font-size: 13px;
+		margin-left: var(--space-8);
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.wrong {
-		margin-top: 8px;
-		font-size: 14.5px;
+		margin-top: var(--space-8);
+		font-size: var(--fs-15);
 		color: var(--error);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.hands {
 		width: min(100%, 360px);
 	}
 	.kb {
-		width: min(100%, 760px);
+		width: min(100%, var(--w-text));
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.cap {

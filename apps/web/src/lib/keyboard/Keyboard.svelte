@@ -180,27 +180,27 @@
 		user-select: none;
 	}
 	.key {
-		transition: transform 60ms ease-out;
+		transition: transform var(--dur-instant) var(--ease-out);
 	}
 	.key rect {
-		transition: fill 70ms ease-out;
+		transition: fill var(--dur-instant) var(--ease-out);
 	}
 	.legend {
 		font-family: var(--font-sans);
 		pointer-events: none;
 	}
 	.letter {
-		font-size: 19px;
-		font-weight: 500;
+		font-size: var(--fs-20);
+		font-weight: var(--fw-regular);
 	}
 	.sym {
-		font-size: 14px;
-		font-weight: 500;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-regular);
 	}
 	.mod {
-		font-size: 11.5px;
-		font-weight: 500;
-		letter-spacing: 0.01em;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-regular);
+		letter-spacing: normal;
 	}
 	.hit {
 		fill: transparent;

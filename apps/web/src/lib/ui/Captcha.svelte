@@ -186,7 +186,7 @@
 	.captcha {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 		min-width: 0;
 		margin: 0;
 		padding: 0;
@@ -194,17 +194,17 @@
 	}
 	legend {
 		padding: 0;
-		margin-bottom: 6px;
-		font-size: 14.5px;
-		font-weight: 600;
+		margin-bottom: var(--space-6);
+		font-size: var(--fs-15);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.panel {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
-		padding: 14px;
-		border-radius: 3px;
+		gap: var(--space-12);
+		padding: var(--space-16);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 	}
@@ -212,13 +212,13 @@
 		border-color: var(--error);
 	}
 	.instruction {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.stage {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto;
-		gap: 10px;
+		gap: var(--space-10);
 		align-items: stretch;
 	}
 	.image,
@@ -226,7 +226,7 @@
 		display: grid;
 		place-items: center;
 		min-height: 84px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background:
 			repeating-linear-gradient(135deg, transparent 0 7px, color-mix(in srgb, var(--ink) 4%, transparent) 7px 8px),
@@ -241,39 +241,39 @@
 		display: block;
 	}
 	.question {
-		padding: 12px 14px;
-		font-size: 15.5px;
-		font-weight: 600;
-		line-height: 1.45;
+		padding: var(--space-12) var(--space-16);
+		font-size: var(--fs-16);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-body);
 		text-align: center;
 		user-select: text;
 	}
 	.placeholder {
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.tools {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 		justify-content: center;
 	}
 	.tool {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 		min-height: 36px;
-		padding: 0 10px;
-		border-radius: 3px;
+		padding: 0 var(--space-10);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);
 		font: inherit;
-		font-size: 13px;
-		font-weight: 600;
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 		cursor: pointer;
-		transition: border-color 120ms ease;
+		transition: border-color var(--dur-fast) var(--ease-out);
 	}
 	.tool:hover {
 		border-color: var(--ink);
@@ -281,27 +281,27 @@
 	.answer {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.answer label {
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
 	.answer input {
 		width: 100%;
 		min-height: 46px;
-		padding: 10px 12px;
-		border-radius: 3px;
+		padding: var(--space-10) var(--space-12);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);
 		font-family: var(--font-mono);
-		font-size: 18px;
+		font-size: var(--fs-18);
 	}
 	/* Characters are entered as they appear; case does not matter. */
 	.answer.characters input {
-		letter-spacing: 0.12em;
+		letter-spacing: var(--tr-caps);
 		text-transform: uppercase;
 	}
 	.answer input:focus-visible {
@@ -313,8 +313,8 @@
 	.status {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		font-size: 12.5px;
+		gap: var(--space-8);
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.dot {
@@ -341,15 +341,15 @@
 		}
 	}
 	.about {
-		font-size: 12.5px;
+		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.error {
-		font-size: 13.5px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		color: var(--error);
 	}
-	@media (max-width: 480px) {
+	@media (max-width: 420px) {
 		.stage {
 			grid-template-columns: 1fr;
 		}

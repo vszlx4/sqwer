@@ -28,13 +28,13 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 16px;
+		gap: var(--space-16);
 	}
 	.labels {
 		display: grid;
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: 0.06em;
+		font-size: var(--fs-12);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--tr-wide);
 		text-transform: uppercase;
 		color: var(--band-ink-3);
 	}
@@ -44,7 +44,7 @@
 	}
 	.row {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	/* Shown in the finger's hue, then blank; typed back, it turns the success hue. */
 	.ek {
@@ -52,7 +52,7 @@
 		place-items: center;
 		width: 38px;
 		height: 40px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid color-mix(in srgb, var(--lime) calc(var(--ok) * 100%), color-mix(in srgb, var(--hue) calc(var(--lit) * 100%), var(--band-line-strong)));
 		border-bottom-width: 3px;
 		background: color-mix(
@@ -62,8 +62,8 @@
 		);
 		color: color-mix(in srgb, var(--label) calc(var(--lit) * 100%), var(--band-ink));
 		font-family: var(--font-mono);
-		font-size: 14px;
-		font-weight: 600;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
 		text-transform: uppercase;
 	}
 </style>

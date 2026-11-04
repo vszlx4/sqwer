@@ -176,13 +176,13 @@
 
 <style>
 	.muted {
-		font-size: 14px;
+		font-size: var(--fs-14);
 		color: var(--ink-2);
-		font-weight: 400;
+		font-weight: var(--fw-regular);
 	}
 	.std {
 		white-space: nowrap;
 		font-family: var(--font-mono);
-		font-size: 13.5px;
+		font-size: var(--fs-14);
 	}
 </style>
