@@ -207,7 +207,7 @@
 	}
 	.meter {
 		height: 4px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -215,7 +215,7 @@
 		display: block;
 		height: 100%;
 		background: var(--accent);
-		transition: width 200ms linear;
+		transition: width var(--dur-base) linear;
 	}
 	.status {
 		display: flex;

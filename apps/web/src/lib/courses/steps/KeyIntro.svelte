@@ -139,7 +139,7 @@
 		min-width: 72px;
 		height: 72px;
 		padding: 0 var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 4px;
 		background: var(--key);
@@ -172,9 +172,9 @@
 	.dots span:not(.which) {
 		width: 22px;
 		height: 6px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
-		transition: background-color 160ms ease;
+		transition: background-color var(--dur-fast) var(--ease-out);
 	}
 	.dots span.on {
 		background: var(--accent);

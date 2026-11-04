@@ -56,7 +56,7 @@
 		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		text-decoration: none;
-		transition: color 140ms ease;
+		transition: color var(--dur-fast) var(--ease-out);
 	}
 	.forgot:hover {
 		color: var(--ink);

@@ -178,7 +178,7 @@
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -193,7 +193,7 @@
 		padding: var(--space-16) var(--space-20);
 		color: var(--ink);
 		text-decoration: none;
-		transition: background-color 140ms ease;
+		transition: background-color var(--dur-fast) var(--ease-out);
 	}
 	.game-list a:hover {
 		background: var(--surface-2);
@@ -207,13 +207,13 @@
 		place-items: center;
 		width: 36px;
 		height: 36px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);
 		transition:
-			background-color 140ms ease,
-			border-color 140ms ease;
+			background-color var(--dur-fast) var(--ease-out),
+			border-color var(--dur-fast) var(--ease-out);
 	}
 	.game-list a:hover .game-icon {
 		border-color: var(--ink);
@@ -237,7 +237,7 @@
 	}
 	.game-go {
 		color: var(--ink-3);
-		transition: transform 160ms ease;
+		transition: transform var(--dur-fast) var(--ease-out);
 	}
 	.game-list a:hover .game-go {
 		color: var(--ink);
@@ -326,14 +326,14 @@
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		overflow: hidden;
 		transition:
-			transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1),
-			box-shadow 240ms ease,
-			border-color 240ms ease;
+			transform var(--dur-base) var(--ease-out),
+			box-shadow var(--dur-base) var(--ease-out),
+			border-color var(--dur-base) var(--ease-out);
 	}
 	.exam-card:hover {
 		transform: translateY(-3px);
@@ -374,7 +374,7 @@
 		align-items: center;
 		gap: var(--space-6);
 		padding: var(--space-4) var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-size: var(--fs-12);
@@ -415,7 +415,7 @@
 		outline: 2px solid var(--ink);
 		outline-offset: -2px;
 		box-shadow: inset 0 0 0 5px var(--accent);
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.purpose {
 		font-size: var(--fs-15);
@@ -466,7 +466,7 @@
 	}
 	.meter {
 		height: 6px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -485,7 +485,7 @@
 		font-weight: var(--fw-bold);
 	}
 	.go :global(svg) {
-		transition: transform 200ms ease;
+		transition: transform var(--dur-base) var(--ease-out);
 	}
 	.exam-card:hover .go :global(svg) {
 		transform: translateX(4px);
@@ -493,7 +493,7 @@
 	.exam-card.next .go {
 		align-self: flex-start;
 		padding: var(--space-10) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 	}
@@ -560,14 +560,14 @@
 		align-items: center;
 		gap: var(--space-8);
 		padding: var(--space-8) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		color: var(--ink);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
 		text-decoration: none;
-		transition: border-color 140ms ease;
+		transition: border-color var(--dur-fast) var(--ease-out);
 	}
 	.shortcuts a:hover {
 		border-color: var(--ink);

@@ -53,13 +53,13 @@
 		position: fixed;
 		left: 16px;
 		bottom: 16px;
-		z-index: 60;
+		z-index: var(--z-toast);
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-10);
 		width: min(var(--w-form), calc(100vw - 32px));
 		padding: var(--space-20) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		box-shadow: var(--shadow-lg);

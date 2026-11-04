@@ -522,15 +522,16 @@ dd {
 	--radius: 3px;
 	--radius-pill: 999px;
 
-	/* CSS transitions; same steps as lib/motion DURATIONS and the out-expo ease. */
+	/* CSS transitions: lib/motion DURATIONS and the out-expo and spring-soft eases (scripts/shape-motion.test.ts). */
+	--dur-instant: 70ms;
 	--dur-fast: 140ms;
 	--dur-base: 220ms;
 	--dur-slow: 400ms;
+	--dur-reveal: 700ms;
 	--ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+	--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-	/* Stacking layers. */
-	--z-raised: 1;
-	--z-sticky: 10;
+	/* Page-level stacking layers; small integers order siblings inside one component. */
 	--z-header: 40;
 	--z-overlay: 50;
 	--z-toast: 60;

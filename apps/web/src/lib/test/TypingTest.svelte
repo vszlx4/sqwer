@@ -519,13 +519,13 @@
 		align-items: center;
 		gap: var(--space-6);
 		padding: var(--space-6) var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		color: var(--ink);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-semibold);
 		text-decoration: none;
-		transition: border-color 140ms ease;
+		transition: border-color var(--dur-fast) var(--ease-out);
 	}
 	.ranked-link:hover {
 		border-color: var(--ink);
@@ -538,7 +538,7 @@
 		gap: var(--space-24);
 	}
 	.chrome {
-		transition: opacity 260ms ease;
+		transition: opacity var(--dur-base) var(--ease-out);
 	}
 	.fade .chrome {
 		opacity: 0;
@@ -576,7 +576,7 @@
 	.exam-banner {
 		max-width: var(--w-text);
 		padding: var(--space-10) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		font-size: var(--fs-15);
@@ -631,13 +631,13 @@
 		height: 42px;
 		display: grid;
 		place-items: center;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		color: var(--ink-3);
 		cursor: pointer;
 		transition:
-			color 120ms ease,
-			background 120ms ease,
-			transform 300ms ease;
+			color var(--dur-fast) var(--ease-out),
+			background var(--dur-fast) var(--ease-out),
+			transform var(--dur-base) var(--ease-out);
 	}
 	.restart:hover {
 		color: var(--ink);
@@ -648,7 +648,7 @@
 		max-width: var(--w-wide);
 		width: 100%;
 		margin: var(--space-6) auto 0;
-		transition: opacity 260ms ease;
+		transition: opacity var(--dur-base) var(--ease-out);
 	}
 	.kb-tools {
 		display: flex;
@@ -663,7 +663,7 @@
 		align-items: center;
 		gap: var(--space-6);
 		padding: var(--space-6) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-regular);
 		color: var(--ink-3);
@@ -695,12 +695,12 @@
 	.seg {
 		display: inline-flex;
 		padding: var(--space-4);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 	}
 	.seg button {
 		padding: var(--space-4) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-regular);
 		color: var(--ink-3);
@@ -730,7 +730,7 @@
 	.swatch {
 		width: 10px;
 		height: 10px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	@media (max-width: 560px) {
 		.kb-tools .sep {

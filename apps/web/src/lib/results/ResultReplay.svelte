@@ -123,12 +123,12 @@
 		display: inline-flex;
 		padding: var(--space-4);
 		gap: var(--space-2);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 	}
 	.speed button {
 		padding: var(--space-6) var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
 		color: var(--ink-2);

@@ -70,7 +70,7 @@
 		gap: var(--space-12);
 		margin-top: var(--space-8);
 		padding: var(--space-16) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		text-align: left;

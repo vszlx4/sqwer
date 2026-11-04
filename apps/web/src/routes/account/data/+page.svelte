@@ -166,7 +166,7 @@
 		list-style: none;
 		padding: 0;
 		margin: 0;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}

@@ -157,7 +157,7 @@
 	}
 	.meter span {
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 	}
 	.meter .on {
@@ -167,7 +167,7 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -186,7 +186,7 @@
 		place-items: center;
 		width: 36px;
 		height: 36px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink-2);
@@ -200,7 +200,7 @@
 	}
 	.tag {
 		padding: var(--space-2) var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-size: var(--fs-12);
@@ -230,7 +230,7 @@
 		top: 6px;
 		width: 10px;
 		height: 10px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 2px solid var(--bg);
 		background: var(--ink);
 	}

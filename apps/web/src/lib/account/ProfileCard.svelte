@@ -56,7 +56,7 @@
 <style>
 	.profile-card {
 		overflow: hidden;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		box-shadow: var(--shadow);
@@ -102,7 +102,7 @@
 	.avatar-ring {
 		display: inline-flex;
 		padding: var(--space-4);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface);
 	}
 	.rank {
@@ -110,7 +110,7 @@
 		align-items: center;
 		gap: var(--space-6);
 		padding: var(--space-4) var(--space-10) var(--space-4) var(--space-4);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--rank-soft);
 		color: var(--rank);
 		font-size: var(--fs-13);
@@ -137,7 +137,7 @@
 	}
 	.pronouns {
 		padding: 1px var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		font-size: var(--fs-13);
 	}
@@ -162,7 +162,7 @@
 	}
 	.stats div {
 		padding: var(--space-10) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 		border: 1px solid var(--line);
 	}

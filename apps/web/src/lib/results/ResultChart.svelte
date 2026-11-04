@@ -332,7 +332,7 @@
 		top: 40px;
 		min-width: 168px;
 		padding: var(--space-10) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		box-shadow: var(--shadow);

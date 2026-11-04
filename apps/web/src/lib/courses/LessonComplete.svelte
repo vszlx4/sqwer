@@ -104,7 +104,7 @@
 		margin: 0 auto;
 		padding: var(--space-40) var(--space-32) var(--space-32);
 		text-align: center;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		overflow: hidden;
@@ -133,7 +133,7 @@
 		width: 100%;
 		margin-top: var(--space-10);
 		padding: var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--bg);
 		text-align: left;
@@ -172,7 +172,7 @@
 		display: block;
 		height: 8px;
 		margin-top: var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -180,7 +180,7 @@
 		display: block;
 		height: 100%;
 		background: var(--accent);
-		transition: width 1100ms cubic-bezier(0.2, 0.7, 0.2, 1);
+		transition: width var(--dur-reveal) var(--ease-out);
 	}
 	.to-next {
 		margin-top: var(--space-4);
@@ -200,7 +200,7 @@
 	.guest {
 		margin-top: var(--space-8);
 		padding: var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--bg);
 		font-size: var(--fs-15);

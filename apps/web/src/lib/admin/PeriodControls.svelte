@@ -125,21 +125,21 @@
 		flex-wrap: wrap;
 		padding: var(--space-4);
 		gap: var(--space-2);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
 	.seg label {
 		position: relative;
 		padding: var(--space-8) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
 		cursor: pointer;
 		transition:
-			background-color 140ms ease,
-			color 140ms ease;
+			background-color var(--dur-fast) var(--ease-out),
+			color var(--dur-fast) var(--ease-out);
 	}
 	.seg label:hover {
 		color: var(--ink);
@@ -197,7 +197,7 @@
 		min-height: 38px;
 		max-width: 220px;
 		padding: 0 var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);

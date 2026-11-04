@@ -24,7 +24,7 @@
 		display: inline-grid;
 		place-items: center;
 		flex-shrink: 0;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-weight: var(--fw-semibold);
 		letter-spacing: normal;
 	}

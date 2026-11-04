@@ -96,7 +96,7 @@
 		bottom: 0;
 		left: 0;
 		width: 2px;
-		border-radius: 1px;
+		border-radius: var(--radius);
 		background: linear-gradient(to bottom, var(--line) 0%, var(--line) 55%, transparent 100%);
 	}
 	.marker {
@@ -106,10 +106,10 @@
 		z-index: 1;
 		width: 2px;
 		height: 16px;
-		border-radius: 1px;
+		border-radius: var(--radius);
 		background: var(--ink);
 		opacity: 0;
-		transition: opacity 150ms ease;
+		transition: opacity var(--dur-fast) var(--ease-out);
 	}
 	.marker.on {
 		opacity: 1;
@@ -146,7 +146,7 @@
 	}
 	.accent {
 		stroke: var(--ink);
-		transition: stroke-dashoffset 400ms cubic-bezier(0.23, 1, 0.32, 1);
+		transition: stroke-dashoffset var(--dur-slow) var(--ease-out);
 	}
 	a {
 		display: flex;
@@ -158,8 +158,8 @@
 		color: var(--ink-2);
 		text-decoration: none;
 		white-space: nowrap;
-		border-radius: 3px;
-		transition: color 140ms ease;
+		border-radius: var(--radius);
+		transition: color var(--dur-fast) var(--ease-out);
 	}
 	a:hover,
 	a[aria-current='page'] {

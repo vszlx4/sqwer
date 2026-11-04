@@ -27,7 +27,7 @@
 	.bone {
 		display: block;
 		max-width: 100%;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface) 50%, var(--surface-2) 100%) 0 0 / 200% 100%;
 		animation: shimmer 1.4s ease-in-out infinite;
 	}

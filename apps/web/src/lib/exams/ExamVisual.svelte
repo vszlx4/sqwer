@@ -95,7 +95,7 @@
 		stroke: var(--ink-3);
 		stroke-width: 2;
 		stroke-dasharray: 4 6;
-		transition: stroke-dashoffset 900ms ease;
+		transition: stroke-dashoffset var(--dur-reveal) var(--ease-out);
 	}
 	:global(.exam-card:hover) .future {
 		stroke-dashoffset: -40;
@@ -148,7 +148,7 @@
 		stroke: var(--accent);
 		stroke-width: 6;
 		stroke-linecap: round;
-		transition: stroke-dashoffset 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+		transition: stroke-dashoffset var(--dur-reveal) var(--ease-out);
 	}
 	:global(.exam-card:hover) .arc {
 		stroke-dashoffset: 0;
@@ -168,7 +168,7 @@
 	}
 	.chips li {
 		padding: var(--space-4) 0;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		font-family: var(--font-mono);
 		font-size: var(--fs-13);
@@ -222,13 +222,13 @@
 		place-items: center;
 		width: 40px;
 		height: 40px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 3px;
 		background: var(--key);
 		font-family: var(--font-mono);
 		font-size: var(--fs-18);
-		transition: transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1);
+		transition: transform var(--dur-base) var(--ease-out);
 		transition-delay: calc(var(--i) * 40ms);
 	}
 	.key.wide {
@@ -248,11 +248,11 @@
 	}
 	.bars span:not(.time) {
 		width: 7px;
-		border-radius: 2px;
+		border-radius: var(--radius);
 		background: var(--ink-3);
 		opacity: 0.55;
 		transform-origin: bottom;
-		transition: transform 400ms ease;
+		transition: transform var(--dur-slow) var(--ease-out);
 		transition-delay: calc(var(--i) * 18ms);
 	}
 	.bars span:nth-last-child(2) {
@@ -283,10 +283,10 @@
 	.k {
 		width: 20px;
 		height: 20px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: color-mix(in srgb, var(--c) 55%, var(--key));
 		border: 1px solid color-mix(in srgb, var(--c) 60%, var(--key-edge));
-		transition: background-color 300ms ease;
+		transition: background-color var(--dur-base) var(--ease-out);
 	}
 	.k.pending {
 		background: repeating-linear-gradient(135deg, var(--key), var(--key) 3px, var(--surface-2) 3px, var(--surface-2) 6px);

@@ -409,7 +409,7 @@
 		gap: var(--space-8);
 		height: 42px;
 		padding: 0 var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		color: var(--ink);
@@ -459,7 +459,7 @@
 		align-items: center;
 		gap: var(--space-12);
 		padding: var(--space-12) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line-strong);
 		border-left: 4px solid var(--accent);
@@ -484,7 +484,7 @@
 	.step {
 		background: var(--surface);
 		border: 1px solid var(--line);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		padding: var(--space-24);
 		display: flex;
 		flex-direction: column;
@@ -495,7 +495,7 @@
 		place-items: center;
 		width: 34px;
 		height: 34px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-weight: var(--fw-bold);
@@ -527,7 +527,7 @@
 	.stat {
 		background: var(--surface);
 		border: 1px solid var(--line);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		padding: var(--space-16) var(--space-16);
 		display: flex;
 		flex-direction: column;
@@ -559,7 +559,7 @@
 	}
 	.stat .bar {
 		height: 6px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 		margin-top: var(--space-4);
@@ -568,7 +568,7 @@
 		display: block;
 		height: 100%;
 		background: var(--accent);
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.speed {
 		display: flex;
@@ -582,7 +582,7 @@
 		gap: var(--space-16);
 		flex-wrap: wrap;
 		padding: var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		border-left: 4px solid var(--accent);
 		background: var(--surface);
@@ -628,7 +628,7 @@
 	.swatch {
 		width: 11px;
 		height: 11px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.swatch.striped {
 		background: repeating-linear-gradient(45deg, var(--key) 0 3px, var(--line-strong) 3px 5px);
@@ -642,7 +642,7 @@
 	.card {
 		background: var(--surface);
 		border: 1px solid var(--line);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		padding: var(--space-20);
 		display: flex;
 		flex-direction: column;
@@ -680,7 +680,7 @@
 		min-width: 54px;
 		height: 54px;
 		padding: 0 var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 4px;
 		background: var(--key);
@@ -695,7 +695,7 @@
 	.tag {
 		margin-left: var(--space-8);
 		padding: var(--space-2) var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-size: var(--fs-12);
@@ -722,14 +722,14 @@
 	}
 	.bar-track {
 		height: 10px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
 	.bar-track span {
 		display: block;
 		height: 100%;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		min-width: 2px;
 	}
 	.bar-value {
@@ -749,7 +749,7 @@
 		min-width: 24px;
 		height: 24px;
 		padding: 0 var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		background: var(--key);
 		font-family: var(--font-mono);
@@ -787,7 +787,7 @@
 		font-family: var(--font-mono);
 		font-size: var(--fs-12);
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 		border: 1px solid var(--line);
 	}

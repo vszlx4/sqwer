@@ -30,7 +30,7 @@
 		place-items: center;
 		width: 30px;
 		height: 30px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--band-line-strong);
 		border-bottom: 4px solid var(--hue);
 		background: var(--band-surface-2);
@@ -45,7 +45,7 @@
 		position: absolute;
 		width: 40px;
 		height: 40px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 3px solid var(--hue);
 	}
 	/* The key just pressed, top right. */
@@ -57,7 +57,7 @@
 		place-items: center;
 		min-width: 22px;
 		height: 22px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--hue);
 		background: color-mix(in srgb, var(--hue) 22%, var(--band-bg));
 		color: var(--band-ink);

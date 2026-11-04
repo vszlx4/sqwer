@@ -69,7 +69,7 @@
 		gap: var(--space-8);
 		height: 38px;
 		padding: 0 var(--space-12) 0 var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		color: var(--ink);
@@ -77,8 +77,8 @@
 		font-weight: var(--fw-regular);
 		cursor: pointer;
 		transition:
-			background 100ms ease,
-			transform 100ms ease;
+			background var(--dur-fast) var(--ease-out),
+			transform var(--dur-fast) var(--ease-out);
 	}
 	.chip:hover:not(:disabled) {
 		background: var(--surface-2);
@@ -99,7 +99,7 @@
 		place-items: center;
 		width: 26px;
 		height: 26px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 		border: 1px solid var(--line);
 		font-family: var(--font-mono);
@@ -109,6 +109,6 @@
 	.dot {
 		width: 9px;
 		height: 9px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 </style>

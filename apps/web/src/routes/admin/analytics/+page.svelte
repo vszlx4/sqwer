@@ -332,7 +332,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-20);
-		transition: opacity 160ms ease;
+		transition: opacity var(--dur-fast) var(--ease-out);
 	}
 	.busy {
 		opacity: 0.55;
@@ -344,7 +344,7 @@
 		gap: var(--space-6);
 		margin: 0;
 		padding: var(--space-12) var(--space-16) var(--space-12) var(--space-32);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		font-size: var(--fs-14);
@@ -352,7 +352,7 @@
 	}
 	.empty {
 		padding: var(--space-32);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
 	}
 	.empty h2 {
@@ -392,7 +392,7 @@
 		flex-direction: column;
 		gap: var(--space-4);
 		padding: var(--space-16) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		min-width: 0;
@@ -453,7 +453,7 @@
 	}
 	.panel {
 		padding: var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		min-width: 0;

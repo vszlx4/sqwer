@@ -72,7 +72,7 @@
 	.text-block {
 		padding: var(--space-20);
 		border: 1px solid var(--line);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-size: var(--fs-20);
 	}
 	.cards {
@@ -86,7 +86,7 @@
 		gap: var(--space-10);
 		padding: var(--space-16) var(--space-16);
 		border: 1px solid var(--line);
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.rows {
 		display: flex;

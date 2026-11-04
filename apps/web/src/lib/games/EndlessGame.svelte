@@ -317,7 +317,7 @@
 		place-items: center;
 		width: 24px;
 		height: 24px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		color: var(--ink);
 		font-size: var(--fs-13);
@@ -342,7 +342,7 @@
 		flex-direction: column;
 		gap: var(--space-16);
 		padding: clamp(var(--space-20), 3vw, var(--space-32));
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -363,13 +363,13 @@
 	.adaptive,
 	.level {
 		position: relative;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		cursor: pointer;
 		transition:
-			border-color 140ms ease,
-			background-color 140ms ease;
+			border-color var(--dur-fast) var(--ease-out),
+			background-color var(--dur-fast) var(--ease-out);
 	}
 	.adaptive:hover,
 	.level:hover {
@@ -410,7 +410,7 @@
 	}
 	.tag {
 		padding: 1px var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-size: var(--fs-12);
@@ -468,7 +468,7 @@
 	}
 	.source select {
 		padding: var(--space-8) var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		color: var(--ink);
@@ -515,7 +515,7 @@
 		align-items: center;
 		gap: var(--space-8) var(--space-24);
 		padding: var(--space-10) var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		font-size: var(--fs-14);
@@ -541,9 +541,9 @@
 	.strike {
 		width: 12px;
 		height: 12px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--ink);
-		transition: opacity 200ms ease;
+		transition: opacity var(--dur-base) var(--ease-out);
 	}
 	.strike.used {
 		opacity: 0.15;
@@ -564,7 +564,7 @@
 		gap: var(--space-12);
 		padding: var(--space-40) var(--space-24);
 		text-align: center;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 	}
@@ -573,7 +573,7 @@
 		place-items: center;
 		width: 56px;
 		height: 56px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		color: var(--ink);
 	}
@@ -623,7 +623,7 @@
 	.row kbd {
 		margin-left: var(--space-6);
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: var(--fs-12);

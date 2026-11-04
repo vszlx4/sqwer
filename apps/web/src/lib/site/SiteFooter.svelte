@@ -60,7 +60,7 @@
 	.logo {
 		display: inline-flex;
 		color: var(--ink);
-		border-radius: 3px;
+		border-radius: var(--radius);
 	}
 	.logo :global(.footer-wordmark) {
 		height: 22px;

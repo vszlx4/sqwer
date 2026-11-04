@@ -35,7 +35,7 @@
 		top: 0;
 		display: flex;
 		padding: var(--space-6) var(--space-10) var(--space-6) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-family: var(--font-mono);
 		font-size: var(--fs-13);
 		line-height: var(--lh-tight);

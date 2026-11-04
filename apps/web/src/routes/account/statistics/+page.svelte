@@ -216,7 +216,7 @@
 		gap: 1px;
 		margin: 0;
 		overflow: hidden;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--line);
 	}
@@ -236,7 +236,7 @@
 	}
 	.empty {
 		padding: var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
 		color: var(--ink-2);
 	}
@@ -286,7 +286,7 @@
 	.bar {
 		display: block;
 		height: 10px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}

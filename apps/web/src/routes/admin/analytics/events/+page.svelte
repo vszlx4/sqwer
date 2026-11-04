@@ -186,7 +186,7 @@
 		display: inline-flex;
 		gap: var(--space-6);
 		padding: var(--space-6) var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-semibold);
@@ -200,7 +200,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-12);
-		transition: opacity 160ms ease;
+		transition: opacity var(--dur-fast) var(--ease-out);
 	}
 	.busy {
 		opacity: 0.55;
@@ -213,7 +213,7 @@
 	}
 	.scroll {
 		overflow-x: auto;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 	}
 	table {
@@ -288,7 +288,7 @@
 	}
 	.empty {
 		padding: var(--space-24);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px dashed var(--line-strong);
 		color: var(--ink-2);
 	}

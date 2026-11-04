@@ -110,7 +110,7 @@
 		justify-content: center;
 		gap: var(--space-4);
 		padding: var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--line);
 	}
@@ -130,14 +130,14 @@
 		align-items: center;
 		gap: var(--space-6);
 		padding: var(--space-6) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-regular);
 		color: var(--ink-3);
 		cursor: pointer;
 		transition:
-			color 120ms ease,
-			background 120ms ease;
+			color var(--dur-fast) var(--ease-out),
+			background var(--dur-fast) var(--ease-out);
 	}
 	.opt:hover {
 		color: var(--ink);
@@ -160,7 +160,7 @@
 	}
 	.list select {
 		padding: var(--space-6) var(--space-4);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: transparent;
 		color: inherit;
 		font-size: var(--fs-14);

@@ -317,7 +317,7 @@
 		align-items: flex-start;
 		gap: var(--space-16);
 		padding: var(--space-24);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}
@@ -338,7 +338,7 @@
 		width: 100%;
 		max-width: var(--w-form);
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -363,7 +363,7 @@
 		place-items: center;
 		width: 26px;
 		height: 26px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		font-size: var(--fs-14);
 	}

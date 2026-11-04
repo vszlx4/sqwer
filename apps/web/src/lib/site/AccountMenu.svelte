@@ -165,16 +165,16 @@
 		height: 38px;
 		padding: var(--space-4);
 		border: 1px solid var(--violet);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--violet);
 		cursor: pointer;
 		outline-offset: 3px;
 		transition:
-			border-color 140ms ease,
-			transform 140ms ease;
+			border-color var(--dur-fast) var(--ease-out),
+			transform var(--dur-fast) var(--ease-out);
 	}
 	.account-menu .trigger :global(.avatar) {
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 	}
 	.trigger:hover,
 	.trigger[aria-expanded='true'] {
@@ -199,8 +199,8 @@
 		position: absolute;
 		right: 0;
 		top: calc(100% + 8px);
-		z-index: 50;
-		border-radius: 3px;
+		z-index: var(--z-overlay);
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		box-shadow: var(--shadow-lg);
@@ -266,7 +266,7 @@
 	.bar {
 		height: 6px;
 		margin-top: var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -308,7 +308,7 @@
 		flex-shrink: 0;
 		max-width: 92px;
 		padding: var(--space-4);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font-size: var(--fs-12);
 		font-weight: var(--fw-semibold);
 		line-height: var(--lh-base);
@@ -345,7 +345,7 @@
 		gap: var(--space-8);
 		width: 100%;
 		padding: var(--space-10) var(--space-10);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		font: inherit;
 		font-size: var(--fs-15);
 		color: var(--ink);
@@ -354,7 +354,7 @@
 		background: none;
 		border: 0;
 		cursor: pointer;
-		transition: background-color 120ms ease;
+		transition: background-color var(--dur-fast) var(--ease-out);
 	}
 	nav a:hover,
 	.signout:hover {

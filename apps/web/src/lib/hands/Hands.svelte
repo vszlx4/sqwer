@@ -168,7 +168,7 @@
 		fill: var(--ink);
 	}
 	.finger {
-		transition: fill-opacity 160ms ease;
+		transition: fill-opacity var(--dur-fast) var(--ease-out);
 	}
 	.interactive .finger {
 		cursor: pointer;
@@ -199,8 +199,8 @@
 		transform-box: fill-box;
 		transform-origin: center bottom;
 		transition:
-			transform 180ms cubic-bezier(0.3, 1.6, 0.5, 1),
-			fill 180ms ease;
+			transform var(--dur-fast) var(--ease-spring),
+			fill var(--dur-fast) var(--ease-out);
 	}
 	/* A pressed key's label lifts and turns to full ink. */
 	.value.lit {

@@ -107,7 +107,7 @@
 		gap: var(--space-8);
 	}
 	details {
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 	}

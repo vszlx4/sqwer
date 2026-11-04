@@ -182,7 +182,7 @@
 		align-items: center;
 		gap: var(--space-8);
 		padding: var(--space-6) var(--space-16) var(--space-6) var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
@@ -192,7 +192,7 @@
 		place-items: center;
 		width: 24px;
 		height: 24px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		font-weight: var(--fw-bold);
 	}
@@ -228,7 +228,7 @@
 		flex-direction: column;
 		gap: var(--space-16);
 		padding: var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		background: var(--surface);
 		font: inherit;
@@ -238,9 +238,9 @@
 		animation: rise 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 		animation-delay: calc(var(--i) * 90ms);
 		transition:
-			transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
-			border-color 220ms ease,
-			box-shadow 220ms ease;
+			transform var(--dur-base) var(--ease-out),
+			border-color var(--dur-base) var(--ease-out),
+			box-shadow var(--dur-base) var(--ease-out);
 	}
 	.option:hover {
 		transform: translateY(-3px);
@@ -260,7 +260,7 @@
 	.art {
 		display: block;
 		padding: var(--space-10) var(--space-12) 0;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 	}
 	.text {
@@ -282,7 +282,7 @@
 		right: 18px;
 		bottom: 20px;
 		color: var(--ink-3);
-		transition: transform 200ms ease;
+		transition: transform var(--dur-base) var(--ease-out);
 	}
 	.option:hover :global(.go) {
 		transform: translateX(4px);
@@ -294,7 +294,7 @@
 		align-items: center;
 		gap: var(--space-16);
 		padding: clamp(var(--space-32), 4vw, var(--space-48));
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		text-align: center;
@@ -305,7 +305,7 @@
 		align-items: center;
 		gap: var(--space-8);
 		padding: var(--space-6) var(--space-8) var(--space-6) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 		border: 1px solid var(--line);
 		font-size: var(--fs-14);
@@ -313,7 +313,7 @@
 	}
 	.change {
 		padding: var(--space-4) var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		font: inherit;
@@ -321,8 +321,8 @@
 		color: var(--ink);
 		cursor: pointer;
 		transition:
-			border-color 140ms ease,
-			background-color 140ms ease;
+			border-color var(--dur-fast) var(--ease-out),
+			background-color var(--dur-fast) var(--ease-out);
 	}
 	.change:hover {
 		border-color: var(--ink);
@@ -347,7 +347,7 @@
 		align-items: center;
 		gap: var(--space-10);
 		padding: var(--space-16) var(--space-20);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--bg);
 		border: 1px solid var(--line);
 		text-align: left;
@@ -357,7 +357,7 @@
 		place-items: center;
 		width: 52px;
 		height: 52px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 4px;
 		background: var(--key);
@@ -389,7 +389,7 @@
 		color: var(--ink);
 		font-weight: var(--fw-semibold);
 		text-decoration: none;
-		transition: color 140ms ease;
+		transition: color var(--dur-fast) var(--ease-out);
 	}
 	.note a:hover {
 		color: var(--rank);

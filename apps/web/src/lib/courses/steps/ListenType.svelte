@@ -232,7 +232,7 @@
 		place-items: center;
 		width: 72px;
 		height: 72px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
 	}
@@ -243,7 +243,7 @@
 	}
 	kbd {
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		font-family: var(--font-mono);
@@ -259,12 +259,12 @@
 		place-items: center;
 		width: min(100%, var(--w-form));
 		height: 150px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
 		transition:
-			background-color 200ms ease,
-			border-color 200ms ease;
+			background-color var(--dur-base) var(--ease-out),
+			border-color var(--dur-base) var(--ease-out);
 	}
 	.card.ok {
 		border-color: var(--ink);
@@ -279,7 +279,7 @@
 		place-items: center;
 		width: 76px;
 		height: 76px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 0;
 		background: var(--ink);
 		color: var(--bg);
@@ -319,7 +319,7 @@
 		width: min(var(--w-form), 86vw);
 		height: 56px;
 		padding: 0 var(--space-16);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
 		color: var(--ink);

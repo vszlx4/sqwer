@@ -181,8 +181,8 @@
 		background: var(--life);
 		clip-path: polygon(50% 100%, 0 38%, 12% 8%, 34% 4%, 50% 20%, 66% 4%, 88% 8%, 100% 38%);
 		transition:
-			opacity 200ms ease,
-			transform 200ms ease;
+			opacity var(--dur-base) var(--ease-out),
+			transform var(--dur-base) var(--ease-out);
 	}
 	.life.lost {
 		opacity: 0.18;
@@ -191,7 +191,7 @@
 	.bar {
 		flex: 1;
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -200,7 +200,7 @@
 		height: 100%;
 		background: linear-gradient(90deg, var(--success), var(--accent));
 		transform-origin: left;
-		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+		transition: transform var(--dur-slow) var(--ease-out);
 	}
 	.status {
 		min-width: 90px;
@@ -212,7 +212,7 @@
 		position: relative;
 		display: grid;
 		overflow: hidden;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background:
 			radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 8%, transparent) 1px, transparent 0) 0 0 / 22px 22px,
@@ -252,7 +252,7 @@
 		place-items: center;
 		width: 56px;
 		height: 56px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--ink);
 		color: var(--bg);
 	}
@@ -275,7 +275,7 @@
 		align-items: center;
 		gap: var(--space-6);
 		padding: var(--space-6) var(--space-12);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--success-soft);
 		color: var(--success);
 		font-weight: var(--fw-semibold);
@@ -285,7 +285,7 @@
 		gap: var(--space-16);
 		min-height: 56px;
 		padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		border: 1px solid var(--ink);
 		background: var(--surface);
 		color: var(--ink-2);
@@ -295,7 +295,7 @@
 		place-items: center;
 		min-width: 44px;
 		height: 44px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--ink);
 		color: var(--bg);
 		font-size: var(--fs-24);
@@ -315,7 +315,7 @@
 	.prep-bar {
 		flex: 1;
 		height: 8px;
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--surface-2);
 		overflow: hidden;
 	}
@@ -341,7 +341,7 @@
 	.prep kbd {
 		margin-left: var(--space-6);
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: var(--fs-12);
@@ -363,7 +363,7 @@
 	.overlay kbd {
 		margin-left: var(--space-6);
 		padding: 1px var(--space-6);
-		border-radius: 3px;
+		border-radius: var(--radius);
 		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: var(--fs-12);
