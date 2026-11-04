@@ -261,15 +261,11 @@
 		}
 		.side {
 			position: static;
-			margin: 0 calc(var(--space-16) * -1);
-			padding: 0 var(--space-16);
-			overflow-x: auto;
-			scrollbar-width: none;
 		}
 		.side ul {
 			flex-direction: row;
+			flex-wrap: wrap;
 			gap: var(--space-4);
-			width: max-content;
 		}
 		.side a {
 			white-space: nowrap;
