@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { formatDay } from '#lib/i18n/format.ts';
 	import Icon from '#lib/ui/Icon.svelte';
+	import { stackTable } from '#lib/ui/stack-table.ts';
 	import Breadcrumbs from './Breadcrumbs.svelte';
 	import { LEGAL_DOCUMENTS, type LegalDocument } from './legal.ts';
 	import { CONTACT_EMAIL, LEGAL } from './links.ts';
@@ -27,15 +28,10 @@
 
 	let body: HTMLDivElement | undefined = $state();
 
-	// Wide tables scroll horizontally as labelled, focusable regions (WCAG 2.1.1).
+	// Tables stack into labelled rows on narrow screens; nothing scrolls sideways.
 	onMount(() => {
-		for (const wrap of body?.querySelectorAll<HTMLElement>('.table-wrap') ?? []) {
-			let heading: Element | null = wrap.previousElementSibling;
-			while (heading && !/^H[23]$/.test(heading.tagName)) heading = heading.previousElementSibling;
-			wrap.tabIndex = 0;
-			wrap.setAttribute('role', 'region');
-			wrap.setAttribute('aria-label', heading?.textContent?.replace(/^\d+\.\s*/, '').trim() || 'Table');
-		}
+		const stacked = [...(body?.querySelectorAll('table') ?? [])].map((t) => stackTable(t));
+		return () => stacked.forEach((s) => s?.destroy?.());
 	});
 
 </script>
@@ -322,8 +318,6 @@
 		list-style: lower-alpha;
 	}
 	.prose :global(.table-wrap) {
-		overflow-x: auto;
-		outline-offset: 2px;
 		border-radius: var(--radius);
 		border: 1px solid var(--line);
 	}
@@ -339,13 +333,13 @@
 		text-align: left;
 		vertical-align: top;
 		border-bottom: 1px solid var(--line);
+		overflow-wrap: anywhere;
 	}
 	.prose :global(thead th) {
 		background: var(--surface);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-semibold);
 		color: var(--ink);
-		white-space: nowrap;
 	}
 	.prose :global(tbody th) {
 		font-weight: var(--fw-semibold);
@@ -354,10 +348,6 @@
 	.prose :global(tr:last-child td),
 	.prose :global(tr:last-child th) {
 		border-bottom: 0;
-	}
-	.prose :global(td code),
-	.prose :global(td time) {
-		white-space: nowrap;
 	}
 	.prose :global(code) {
 		font-family: var(--font-mono);
@@ -412,6 +402,37 @@
 		background: var(--surface);
 		border: 1px solid var(--line);
 		border-left: 4px solid var(--accent);
+	}
+	/* Rows stack, each value under its column header (lib/ui/stack-table.ts). */
+	@media (max-width: 760px) {
+		.prose :global(:is(table, tbody, tr, th, td)) {
+			display: block;
+		}
+		.prose :global(thead) {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+		}
+		.prose :global(tbody tr) {
+			padding: var(--space-8) 0;
+			border-bottom: 1px solid var(--line);
+		}
+		.prose :global(tbody tr:last-child) {
+			border-bottom: 0;
+		}
+		.prose :global(tbody :is(th, td)) {
+			padding: var(--space-4) var(--space-16);
+			border-bottom: 0;
+		}
+		.prose :global(td[data-label]::before) {
+			content: attr(data-label);
+			display: block;
+			font-size: var(--fs-12);
+			font-weight: var(--fw-semibold);
+			color: var(--ink-3);
+		}
 	}
 	@media (max-width: 560px) {
 		.prose :global(dl) {

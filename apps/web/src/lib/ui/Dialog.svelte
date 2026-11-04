@@ -53,7 +53,7 @@
 		padding: 0;
 		width: min(var(--w-form), calc(100vw - 32px));
 		max-height: calc(100dvh - 32px);
-		overflow: auto;
+		overflow: hidden auto;
 		overscroll-behavior: contain;
 		box-shadow: var(--shadow-lg);
 	}

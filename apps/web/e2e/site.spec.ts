@@ -116,6 +116,30 @@ test('mobile: menu navigates and nothing fixed covers the content', async ({ pag
 	await expect(page).toHaveURL(/\/competitive$/);
 });
 
+test('nothing scrolls sideways, from wide screens down to phones', async ({ page }) => {
+	test.setTimeout(300_000);
+	const wide: string[] = [];
+	for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/exams', '/test', '/map', '/history', '/about', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup']) {
+		await page.setViewportSize({ width: 1440, height: 900 });
+		await page.goto(path);
+		for (const width of [1440, 1024, 768, 390]) {
+			await page.setViewportSize({ width, height: 900 });
+			await page.waitForTimeout(150);
+			// The page and every element inside it: a box that scrolls on its own counts too.
+			const over = await page.evaluate(() => {
+				if (document.documentElement.scrollWidth > innerWidth) return 'page';
+				const el = [...document.querySelectorAll('main *')].find((e) => {
+					const s = getComputedStyle(e);
+					return /auto|scroll/.test(s.overflowX) && e.scrollWidth > e.clientWidth + 1;
+				});
+				return el ? `${el.tagName.toLowerCase()}.${[...el.classList].join('.')}` : '';
+			});
+			if (over) wide.push(`${path} @${width}: ${over}`);
+		}
+	}
+	expect(wide).toEqual([]);
+});
+
 for (const scheme of ['light', 'dark'] as const) {
 	test(`accessibility audit passes in the ${scheme} theme`, async ({ browser }) => {
 		const context = await browser.newContext({ colorScheme: scheme });

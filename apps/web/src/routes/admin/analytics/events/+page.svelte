@@ -3,6 +3,7 @@
 	import PeriodControls from '#lib/admin/PeriodControls.svelte';
 	import { CHANNEL_LABELS, CLIENT_EVENTS, EVENT_LABELS, SERVER_EVENTS, type Channel } from '#lib/analytics/shared.ts';
 	import Seo from '#lib/site/Seo.svelte';
+	import { stackTable } from '#lib/ui/stack-table.ts';
 	import type { PageProps } from './$types';
 	import { formatDateTime, formatNumber } from '#lib/i18n/format.ts';
 
@@ -114,7 +115,7 @@
 		</p>
 		{#if data.events.length}
 			<div class="scroll">
-				<table>
+				<table use:stackTable>
 					<thead>
 						<tr>
 							<th scope="col">Time (UTC)</th>
@@ -212,13 +213,11 @@
 		color: var(--ink-2);
 	}
 	.scroll {
-		overflow-x: auto;
 		border-radius: var(--radius);
 		border: 1px solid var(--line);
 	}
 	table {
 		width: 100%;
-		min-width: 900px;
 		border-collapse: collapse;
 		font-size: var(--fs-14);
 	}
@@ -228,6 +227,7 @@
 		text-align: left;
 		vertical-align: top;
 		border-bottom: 1px solid var(--line);
+		overflow-wrap: anywhere;
 	}
 	th {
 		position: sticky;
@@ -295,5 +295,36 @@
 	.form-alert a {
 		color: var(--ink);
 		font-weight: var(--fw-semibold);
+	}
+	/* Rows stack, each value under its column header (lib/ui/stack-table.ts). */
+	@media (max-width: 760px) {
+		:is(table, tbody, tr, td) {
+			display: block;
+		}
+		thead {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+		}
+		tbody tr {
+			padding: var(--space-8) 0;
+			border-bottom: 1px solid var(--line);
+		}
+		tbody tr:last-child {
+			border-bottom: 0;
+		}
+		td {
+			padding: var(--space-4) var(--space-12);
+			border-bottom: 0;
+		}
+		td:global([data-label])::before {
+			content: attr(data-label);
+			display: block;
+			font-size: var(--fs-12);
+			font-weight: var(--fw-semibold);
+			color: var(--ink-3);
+		}
 	}
 </style>

@@ -468,7 +468,7 @@
 		display: flex;
 		flex-direction: column;
 		padding: var(--sm-panel-top, 6em) 2em 2em 2em;
-		overflow-y: auto;
+		overflow: hidden auto;
 		z-index: 2;
 		pointer-events: auto;
 	}

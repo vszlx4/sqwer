@@ -188,7 +188,7 @@
 	}
 	.scroll {
 		max-height: 260px;
-		overflow: auto;
+		overflow: hidden auto;
 		margin-top: var(--space-8);
 	}
 	table {

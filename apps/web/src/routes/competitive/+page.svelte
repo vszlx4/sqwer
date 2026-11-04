@@ -391,22 +391,19 @@
 	.ranks-head h2 {
 		font-size: var(--fs-title);
 	}
+	/* Every rank in view: the rail wraps instead of scrolling sideways. */
 	.rail {
-		display: flex;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
 		gap: var(--space-6);
 		margin-top: var(--space-20);
 		padding: var(--space-6) var(--space-2) var(--space-12);
-		overflow-x: auto;
-		scrollbar-width: thin;
-		scroll-snap-type: x proximity;
 	}
 	.rank-tab {
-		flex: 0 0 auto;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: var(--space-4);
-		width: 92px;
 		padding: var(--space-10) var(--space-4);
 		border-radius: var(--radius);
 		border: 1px solid transparent;
@@ -414,7 +411,6 @@
 		color: var(--band-ink-3);
 		font: inherit;
 		cursor: pointer;
-		scroll-snap-align: start;
 		transition:
 			background-color var(--dur-fast) var(--ease-out),
 			border-color var(--dur-fast) var(--ease-out),
