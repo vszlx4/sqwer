@@ -410,7 +410,7 @@
 		align-items: center;
 		gap: 0.4rem;
 		height: 40px;
-		padding: 0 4px;
+		padding: 0 var(--space-4);
 		background: transparent;
 		border: none;
 		cursor: pointer;
@@ -462,7 +462,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		width: clamp(260px, 38vw, 420px);
+		width: clamp(260px, 38vw, var(--w-form));
 		height: 100%;
 		background: var(--bg);
 		display: flex;
@@ -478,7 +478,7 @@
 		top: 0;
 		right: 0;
 		bottom: 0;
-		width: clamp(260px, 38vw, 420px);
+		width: clamp(260px, 38vw, var(--w-form));
 		pointer-events: none;
 		z-index: 5;
 	}
@@ -520,7 +520,7 @@
 		color: var(--ink);
 		text-decoration: none;
 		position: relative;
-		padding: 2px 0;
+		padding: var(--space-2) 0;
 		display: inline-block;
 		transition: color 0.3s ease, opacity 0.3s ease;
 	}

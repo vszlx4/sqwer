@@ -261,14 +261,14 @@
 	.learn {
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
+		gap: var(--space-20);
 	}
 	/* Title and progress share one compact row. */
 	.top {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
 		align-items: end;
-		gap: 24px;
+		gap: var(--space-24);
 	}
 	.kicker,
 	.label {
@@ -279,12 +279,12 @@
 		color: var(--ink-2);
 	}
 	h1 {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		font-size: var(--fs-display);
 		line-height: var(--lh-snug);
 	}
 	.lede {
-		margin-top: 8px;
+		margin-top: var(--space-8);
 		font-size: var(--fs-16);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
@@ -292,8 +292,8 @@
 	.rank {
 		display: flex;
 		align-items: center;
-		gap: 16px;
-		padding: 16px 18px;
+		gap: var(--space-16);
+		padding: var(--space-16) var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -303,13 +303,13 @@
 		min-width: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.rank-line {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: 4px 12px;
+		gap: var(--space-4) var(--space-12);
 	}
 	.rank h2 {
 		font-family: var(--font-sans);
@@ -357,7 +357,7 @@
 		background: var(--surface);
 	}
 	.facts div {
-		padding: 12px 14px;
+		padding: var(--space-12) var(--space-16);
 	}
 	.facts div + div {
 		border-left: 1px solid var(--line);
@@ -377,9 +377,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 16px;
+		gap: var(--space-16);
 		flex-wrap: wrap;
-		padding: 14px 18px;
+		padding: var(--space-16) var(--space-20);
 		border-radius: 3px;
 		background:
 			radial-gradient(120% 160% at 100% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%),
@@ -402,13 +402,13 @@
 	.ways {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.way {
 		display: flex;
 		align-items: center;
-		gap: 12px;
-		padding: 12px 14px;
+		gap: var(--space-12);
+		padding: var(--space-12) var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -461,17 +461,17 @@
 	.explorer {
 		display: grid;
 		grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
-		gap: 20px;
+		gap: var(--space-20);
 		align-items: start;
 	}
 	.chapters {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	.part-name {
-		margin-bottom: 6px;
-		padding-left: 8px;
+		margin-bottom: var(--space-6);
+		padding-left: var(--space-8);
 		border-left: 3px solid var(--part);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-bold);
@@ -482,14 +482,14 @@
 	.part ol {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.card {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-12);
 		width: 100%;
-		padding: 10px 12px;
+		padding: var(--space-10) var(--space-12);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -525,7 +525,7 @@
 		min-width: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.card-title {
 		font-size: var(--fs-14);
@@ -535,7 +535,7 @@
 	.card-foot {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.card-bar,
 	.ch-bar {
@@ -562,7 +562,7 @@
 		color: var(--part);
 	}
 	.here {
-		padding: 2px 6px;
+		padding: var(--space-2) var(--space-6);
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
@@ -573,8 +573,8 @@
 	.detail {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
-		padding: 18px 20px;
+		gap: var(--space-16);
+		padding: var(--space-20) var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background:
@@ -586,7 +586,7 @@
 	.detail-head {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto;
-		gap: 10px 20px;
+		gap: var(--space-10) var(--space-20);
 		align-items: end;
 	}
 	.part-tag {
@@ -603,7 +603,7 @@
 		line-height: var(--lh-snug);
 	}
 	.ch-summary {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
@@ -612,7 +612,7 @@
 	}
 	.ch-stats {
 		display: flex;
-		gap: 20px;
+		gap: var(--space-20);
 	}
 	.ch-stats dt {
 		font-size: var(--fs-12);
@@ -637,15 +637,15 @@
 	.lessons {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.lesson {
 		display: grid;
 		grid-template-columns: 36px minmax(0, 1fr) auto;
 		align-items: start;
-		gap: 12px;
+		gap: var(--space-12);
 		height: 100%;
-		padding: 12px;
+		padding: var(--space-12);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--bg);
@@ -695,13 +695,13 @@
 	.l-text {
 		display: flex;
 		flex-direction: column;
-		gap: 3px;
+		gap: var(--space-4);
 		min-width: 0;
 	}
 	.l-title {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		font-size: var(--fs-15);
 		font-weight: var(--fw-semibold);
 	}
@@ -714,14 +714,14 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 4px;
-		margin-top: 4px;
+		gap: var(--space-4);
+		margin-top: var(--space-4);
 	}
 	.chip {
 		display: inline-flex;
 		align-items: center;
-		gap: 4px;
-		padding: 2px 6px;
+		gap: var(--space-4);
+		padding: var(--space-2) var(--space-6);
 		border-radius: 3px;
 		background: var(--surface-2);
 		font-size: var(--fs-12);
@@ -746,7 +746,7 @@
 		color: var(--ink-3);
 	}
 	.next-tag {
-		padding: 2px 6px;
+		padding: var(--space-2) var(--space-6);
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
@@ -777,7 +777,7 @@
 			grid-template-columns: 1fr;
 		}
 		.detail {
-			padding: 14px;
+			padding: var(--space-16);
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {

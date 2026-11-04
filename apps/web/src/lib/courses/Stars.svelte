@@ -14,7 +14,7 @@
 <style>
 	.stars {
 		display: inline-flex;
-		gap: 2px;
+		gap: var(--space-2);
 		vertical-align: middle;
 	}
 	path {

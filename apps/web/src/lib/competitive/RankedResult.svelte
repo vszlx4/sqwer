@@ -143,12 +143,12 @@
 	.ranked {
 		display: flex;
 		flex-direction: column;
-		gap: 30px;
+		gap: var(--space-32);
 	}
 	.hero {
 		display: flex;
 		align-items: center;
-		gap: clamp(18px, 4vw, 36px);
+		gap: clamp(var(--space-20), 4vw, var(--space-40));
 	}
 	.emblem.up {
 		animation: rank-up 900ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -166,14 +166,14 @@
 		color: var(--ink-2);
 	}
 	h2 {
-		margin-top: 2px;
+		margin-top: var(--space-2);
 		font-size: var(--fs-hero);
 		font-weight: var(--fw-bold);
 		line-height: var(--lh-tight);
 		letter-spacing: var(--tr-tight);
 	}
 	.verdict {
-		margin-top: 12px;
+		margin-top: var(--space-12);
 		max-width: 60ch;
 		font-size: var(--fs-16);
 		color: var(--ink-2);
@@ -184,27 +184,27 @@
 		font-weight: var(--fw-semibold);
 	}
 	.range {
-		margin-top: 2px;
+		margin-top: var(--space-2);
 		font-size: var(--fs-14);
 		color: var(--ink-3);
 	}
 	.ladder {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		max-width: 720px;
+		gap: var(--space-8);
+		max-width: var(--w-text);
 	}
 	.ends {
 		display: flex;
 		justify-content: space-between;
-		gap: 12px;
+		gap: var(--space-12);
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
 	}
 	.ends span {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.ends small {
 		font-weight: var(--fw-regular);
@@ -240,9 +240,9 @@
 	.figures {
 		display: grid;
 		grid-template-columns: auto auto minmax(0, 1fr);
-		gap: clamp(20px, 5vw, 56px);
+		gap: clamp(var(--space-20), 5vw, var(--space-64));
 		align-items: end;
-		padding-top: 24px;
+		padding-top: var(--space-24);
 		border-top: 1px solid var(--line);
 	}
 	.big {
@@ -262,7 +262,7 @@
 		font-variant-numeric: tabular-nums;
 	}
 	.value small {
-		margin-left: 4px;
+		margin-left: var(--space-4);
 		font-size: 0.32em;
 		font-weight: var(--fw-semibold);
 		letter-spacing: 0;
@@ -274,13 +274,13 @@
 	.mini {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-		gap: 14px 24px;
+		gap: var(--space-16) var(--space-24);
 	}
 	.mini div {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
-		padding-left: 14px;
+		gap: var(--space-2);
+		padding-left: var(--space-16);
 		border-left: 1px solid var(--line);
 	}
 	.mini dt {
@@ -301,7 +301,7 @@
 	.check {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		font-size: var(--fs-15);
 		color: var(--ink-2);
 	}
@@ -330,19 +330,19 @@
 	.actions {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.actions kbd {
-		margin-left: 4px;
-		padding: 1px 6px;
+		margin-left: var(--space-4);
+		padding: 1px var(--space-6);
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);
 		font-size: var(--fs-11);
 	}
 	.full {
-		margin-top: 36px;
-		padding-top: 28px;
+		margin-top: var(--space-40);
+		padding-top: var(--space-32);
 		border-top: 1px solid var(--line);
 	}
 	@media (max-width: 760px) {

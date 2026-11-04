@@ -186,7 +186,7 @@
 	.captcha {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 		min-width: 0;
 		margin: 0;
 		padding: 0;
@@ -194,7 +194,7 @@
 	}
 	legend {
 		padding: 0;
-		margin-bottom: 6px;
+		margin-bottom: var(--space-6);
 		font-size: var(--fs-15);
 		font-weight: var(--fw-semibold);
 		color: var(--ink);
@@ -202,8 +202,8 @@
 	.panel {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
-		padding: 14px;
+		gap: var(--space-12);
+		padding: var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
@@ -218,7 +218,7 @@
 	.stage {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto;
-		gap: 10px;
+		gap: var(--space-10);
 		align-items: stretch;
 	}
 	.image,
@@ -241,7 +241,7 @@
 		display: block;
 	}
 	.question {
-		padding: 12px 14px;
+		padding: var(--space-12) var(--space-16);
 		font-size: var(--fs-16);
 		font-weight: var(--fw-semibold);
 		line-height: var(--lh-body);
@@ -255,15 +255,15 @@
 	.tools {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 		justify-content: center;
 	}
 	.tool {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 		min-height: 36px;
-		padding: 0 10px;
+		padding: 0 var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -281,7 +281,7 @@
 	.answer {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.answer label {
 		font-size: var(--fs-14);
@@ -291,7 +291,7 @@
 	.answer input {
 		width: 100%;
 		min-height: 46px;
-		padding: 10px 12px;
+		padding: var(--space-10) var(--space-12);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -313,7 +313,7 @@
 	.status {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}

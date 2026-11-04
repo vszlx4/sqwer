@@ -384,20 +384,20 @@
 		color: var(--ink-2);
 	}
 	h2 {
-		margin-top: 10px;
+		margin-top: var(--space-10);
 		font-size: var(--fs-display);
 		line-height: var(--lh-snug);
 		letter-spacing: var(--tr-tight);
 	}
 	.section-head {
-		max-width: 680px;
+		max-width: var(--w-text);
 	}
 	.section-head.center {
 		margin: 0 auto;
 		text-align: center;
 	}
 	.section-head > p:last-child {
-		margin-top: 14px;
+		margin-top: var(--space-16);
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
@@ -421,7 +421,7 @@
 		/* Fills the first screen; svh keeps it steady while mobile toolbars move. */
 		min-height: 100vh;
 		min-height: 100svh;
-		padding: calc(var(--header-h) + clamp(48px, 10vh, 112px)) 0 clamp(48px, 10vh, 112px);
+		padding: calc(var(--header-h) + clamp(var(--space-48), 10vh, var(--space-96))) 0 clamp(var(--space-48), 10vh, var(--space-96));
 	}
 	.hero[data-takeover] .hero-stage {
 		position: sticky;
@@ -460,7 +460,7 @@
 	.portal-label {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 	}
@@ -501,7 +501,7 @@
 		flex-direction: column;
 		align-items: center;
 		text-align: center;
-		max-width: 820px;
+		max-width: var(--w-wide);
 	}
 	h1 {
 		font-size: var(--fs-hero);
@@ -514,8 +514,8 @@
 		font-weight: var(--fw-bold);
 	}
 	.lede {
-		margin-top: 22px;
-		max-width: 520px;
+		margin-top: var(--space-24);
+		max-width: var(--w-narrow);
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
@@ -524,13 +524,13 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 14px;
-		margin-top: 30px;
+		gap: var(--space-16);
+		margin-top: var(--space-32);
 	}
 	.resume {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 		font-size: var(--fs-15);
 		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
@@ -551,10 +551,10 @@
 	.facts {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px 20px;
+		gap: var(--space-8) var(--space-20);
 		justify-content: center;
-		margin-top: 34px;
-		padding-top: 18px;
+		margin-top: var(--space-32);
+		padding-top: var(--space-20);
 		border-top: 1px solid var(--line);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
@@ -562,7 +562,7 @@
 	.facts li {
 		display: inline-flex;
 		align-items: center;
-		gap: 7px;
+		gap: var(--space-8);
 	}
 	/* Held until enterHero runs; shown anyway after 2s if scripts never do. */
 	@media (prefers-reduced-motion: no-preference) {
@@ -600,7 +600,7 @@
 	}
 	/* After the takeover the page is already the band: the road starts solid, without the fade from the hero. */
 	.landing:has(.hero[data-takeover]) .road {
-		padding-top: clamp(64px, 9vw, 112px);
+		padding-top: clamp(var(--space-64), 9vw, var(--space-96));
 	}
 	.landing:has(.hero[data-takeover]) .road::before {
 		background: var(--band-bg);
@@ -609,7 +609,7 @@
 		display: grid;
 		grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
 		align-items: center;
-		gap: 48px;
+		gap: var(--space-48);
 		margin-right: calc(50% - 50vw);
 	}
 	.road-stage .section-head {
@@ -617,7 +617,7 @@
 		text-align: left;
 	}
 	.road-lede {
-		margin-top: 14px;
+		margin-top: var(--space-16);
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
 		color: var(--band-ink-2);
@@ -625,8 +625,8 @@
 	.road-progress {
 		display: flex;
 		align-items: center;
-		gap: 14px;
-		margin-top: 28px;
+		gap: var(--space-16);
+		margin-top: var(--space-32);
 	}
 	.count {
 		font-variant-numeric: tabular-nums;
@@ -635,7 +635,7 @@
 	}
 	.ticks {
 		display: flex;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	/* One bar per part: parts behind are filled, the one in front fills up until the next card comes forward. */
 	.ticks span {
@@ -665,7 +665,7 @@
 		}
 	}
 	.road-end {
-		margin-top: 24px;
+		margin-top: var(--space-24);
 	}
 	/* Deck column runs to the screen edge; windows bleed off its right and bottom. The blur covers the bottom strip. */
 	.road-deck {
@@ -699,16 +699,16 @@
 	.window-bar {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-20);
 		height: 64px;
 		flex: none;
-		padding: 0 24px;
+		padding: 0 var(--space-24);
 		background: var(--part);
 		color: var(--on-hue);
 	}
 	.shapes {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.shape {
 		width: 13px;
@@ -729,8 +729,8 @@
 	.window-body {
 		display: flex;
 		flex-direction: column;
-		gap: 22px;
-		padding: 30px 34px;
+		gap: var(--space-24);
+		padding: var(--space-32) var(--space-32);
 		transition: opacity 400ms ease;
 	}
 	.window-summary {
@@ -743,7 +743,7 @@
 	.w-head {
 		display: flex;
 		align-items: baseline;
-		gap: 22px;
+		gap: var(--space-24);
 	}
 	.w-num {
 		font-family: var(--font-mono);
@@ -779,12 +779,12 @@
 	.w-board {
 		display: flex;
 		flex-direction: column;
-		gap: 5px;
+		gap: var(--space-6);
 	}
 	.w-row {
 		display: flex;
-		gap: 5px;
-		padding-left: calc(var(--indent) * 14px);
+		gap: var(--space-6);
+		padding-left: calc(var(--indent) * var(--space-16));
 	}
 	.w-key {
 		display: grid;
@@ -814,8 +814,8 @@
 	}
 	.w-stats {
 		display: flex;
-		gap: 36px;
-		padding-top: 18px;
+		gap: var(--space-40);
+		padding-top: var(--space-20);
 		border-top: 1px solid color-mix(in srgb, var(--part) 25%, transparent);
 	}
 	.w-stats dt {
@@ -825,7 +825,7 @@
 		color: var(--band-ink-3);
 	}
 	.w-stats dd {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-family: var(--font-mono);
 		font-size: var(--fs-20);
 		color: var(--band-ink);
@@ -839,7 +839,7 @@
 	/* Clear air above and below the curve, so the road and the games each get their own room. */
 	.drift {
 		--band: var(--band-bg);
-		padding: clamp(140px, 18vw, 280px) 0 clamp(120px, 15vw, 240px);
+		padding: clamp(140px, 18vw, 280px) 0 clamp(120px, 15vw, 240px); /* off-scale: air around the curve */
 		color: var(--band-ink);
 	}
 	.drift :global(.curved) {
@@ -853,7 +853,7 @@
 
 	/* ---------- Games ---------- */
 	.games {
-		padding: clamp(64px, 9vw, 112px) 0;
+		padding: clamp(var(--space-64), 9vw, var(--space-96)) 0;
 		color: var(--band-ink);
 	}
 	.games::before {
@@ -870,20 +870,20 @@
 	.game-grid {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 14px;
-		margin-top: 40px;
+		gap: var(--space-16);
+		margin-top: var(--space-40);
 	}
 	.game {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		padding: 14px 14px 20px;
+		gap: var(--space-8);
+		padding: var(--space-16) var(--space-16) var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--band-line);
 		background: var(--band-surface);
 	}
 	.game h3 {
-		margin-top: 8px;
+		margin-top: var(--space-8);
 		font-size: var(--fs-18);
 		font-weight: var(--fw-bold);
 	}
@@ -904,19 +904,19 @@
 	}
 	/* ---------- Ranks ---------- */
 	.ranks {
-		padding: clamp(64px, 9vw, 112px) 0;
+		padding: clamp(var(--space-64), 9vw, var(--space-96)) 0;
 	}
 
 	/* ---------- Technique ---------- */
 	.split {
 		display: grid;
 		grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-		gap: clamp(28px, 5vw, 64px);
+		gap: clamp(var(--space-32), 5vw, var(--space-64));
 		align-items: center;
 	}
 	.technique {
 		--band: var(--surface);
-		padding: clamp(64px, 9vw, 112px) 0;
+		padding: clamp(var(--space-64), 9vw, var(--space-96)) 0;
 	}
 	.technique::before {
 		border-top: 1px solid var(--line);
@@ -924,7 +924,7 @@
 	.copy {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	.copy > p:not(.kicker) {
 		font-size: var(--fs-18);
@@ -934,27 +934,27 @@
 	.checks {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
-		margin-top: 4px;
+		gap: var(--space-10);
+		margin-top: var(--space-4);
 	}
 	.checks li {
 		display: flex;
 		align-items: flex-start;
-		gap: 10px;
+		gap: var(--space-10);
 		font-size: var(--fs-16);
 		font-weight: var(--fw-regular);
 	}
 	.checks :global(svg) {
 		flex-shrink: 0;
-		margin-top: 2px;
-		padding: 2px;
+		margin-top: var(--space-2);
+		padding: var(--space-2);
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
 	}
 	.visual .card {
 		background: var(--bg);
-		padding: clamp(18px, 2.4vw, 28px);
+		padding: clamp(var(--space-20), 2.4vw, var(--space-32));
 	}
 
 	@media (max-width: 1100px) {
@@ -972,19 +972,19 @@
 		/* The road stacks: copy over the deck. */
 		.road-stage {
 			grid-template-columns: minmax(0, 1fr);
-			gap: 28px;
+			gap: var(--space-32);
 		}
 		.road-stage .section-head {
-			padding-right: 16px;
+			padding-right: var(--space-16);
 		}
 		.road-lede {
 			font-size: var(--fs-15);
 		}
 		.road-progress {
-			margin-top: 16px;
+			margin-top: var(--space-16);
 		}
 		.road-end {
-			margin-top: 12px;
+			margin-top: var(--space-12);
 		}
 		.road-deck {
 			--card-w: 100vw;
@@ -996,15 +996,15 @@
 		}
 		.window-bar {
 			height: 50px;
-			gap: 12px;
-			padding: 0 16px;
+			gap: var(--space-12);
+			padding: 0 var(--space-16);
 		}
 		.window-bar h3 {
 			font-size: var(--fs-16);
 		}
 		.window-body {
-			gap: 18px;
-			padding: 22px 20px;
+			gap: var(--space-20);
+			padding: var(--space-24) var(--space-20);
 		}
 		.window-summary {
 			font-size: var(--fs-24);
@@ -1018,14 +1018,14 @@
 			width: 36px;
 		}
 		.w-row {
-			gap: 3px;
-			padding-left: calc(var(--indent) * 8px);
+			gap: var(--space-4);
+			padding-left: calc(var(--indent) * var(--space-8));
 		}
 		.w-board {
-			gap: 3px;
+			gap: var(--space-4);
 		}
 		.w-stats {
-			gap: 22px;
+			gap: var(--space-24);
 		}
 	}
 	@media (max-width: 560px) {

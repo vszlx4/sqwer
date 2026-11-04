@@ -28,7 +28,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 16px;
+		gap: var(--space-16);
 	}
 	.labels {
 		display: grid;
@@ -44,7 +44,7 @@
 	}
 	.row {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	/* Shown in the finger's hue, then blank; typed back, it turns the success hue. */
 	.ek {

@@ -31,18 +31,18 @@
 	.setting {
 		display: grid;
 		grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.5fr);
-		gap: 18px clamp(20px, 4vw, 48px);
-		padding: 28px 0;
+		gap: var(--space-20) clamp(var(--space-20), 4vw, var(--space-48));
+		padding: var(--space-32) 0;
 		border-top: 1px solid var(--line);
 	}
 	.setting:first-of-type {
 		border-top: 0;
-		padding-top: 4px;
+		padding-top: var(--space-4);
 	}
 	.about {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	h2 {
 		font-size: var(--fs-20);
@@ -58,7 +58,7 @@
 	.body {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: var(--space-16);
 		min-width: 0;
 	}
 	.danger h2 {

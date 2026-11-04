@@ -75,7 +75,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.placement-start.centred {
 		align-items: center;
@@ -85,7 +85,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.centred .buttons {
 		justify-content: center;

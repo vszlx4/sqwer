@@ -48,7 +48,7 @@
 	.password {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.forgot {
 		align-self: flex-end;

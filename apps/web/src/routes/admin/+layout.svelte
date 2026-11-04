@@ -40,15 +40,15 @@
 	.admin {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
+		gap: var(--space-24);
 	}
 	.tabs {
 		display: flex;
-		gap: 4px;
+		gap: var(--space-4);
 		border-bottom: 1px solid var(--line);
 	}
 	.tabs a {
-		padding: 10px 14px;
+		padding: var(--space-10) var(--space-16);
 		margin-bottom: -1px;
 		border-bottom: 2px solid transparent;
 		font-size: var(--fs-15);

@@ -164,28 +164,28 @@
 		flex-wrap: wrap;
 		align-items: flex-end;
 		justify-content: space-between;
-		gap: 12px 24px;
+		gap: var(--space-12) var(--space-24);
 	}
 	h1 {
 		font-size: var(--fs-display);
 	}
 	.head p {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		max-width: 64ch;
 		color: var(--ink-2);
 	}
 	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
+		gap: var(--space-6);
 		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
 	.chips a {
 		display: inline-flex;
-		gap: 6px;
-		padding: 5px 10px;
+		gap: var(--space-6);
+		padding: var(--space-6) var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		font-size: var(--fs-13);
@@ -199,7 +199,7 @@
 	.results {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 		transition: opacity 160ms ease;
 	}
 	.busy {
@@ -224,7 +224,7 @@
 	}
 	th,
 	td {
-		padding: 9px 12px;
+		padding: var(--space-10) var(--space-12);
 		text-align: left;
 		vertical-align: top;
 		border-bottom: 1px solid var(--line);
@@ -283,11 +283,11 @@
 	}
 	.pager {
 		display: flex;
-		gap: 10px;
+		gap: var(--space-10);
 		justify-content: flex-end;
 	}
 	.empty {
-		padding: 24px;
+		padding: var(--space-24);
 		border-radius: 3px;
 		border: 1px dashed var(--line-strong);
 		color: var(--ink-2);

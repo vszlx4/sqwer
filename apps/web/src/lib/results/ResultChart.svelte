@@ -216,8 +216,8 @@
 	.legend {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px 16px;
-		margin-bottom: 10px;
+		gap: var(--space-6) var(--space-16);
+		margin-bottom: var(--space-10);
 		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
@@ -225,7 +225,7 @@
 	.tip p {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.line {
 		display: inline-block;
@@ -331,7 +331,7 @@
 		position: absolute;
 		top: 40px;
 		min-width: 168px;
-		padding: 10px 12px;
+		padding: var(--space-10) var(--space-12);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -339,7 +339,7 @@
 		font-size: var(--fs-13);
 		display: flex;
 		flex-direction: column;
-		gap: 3px;
+		gap: var(--space-4);
 		pointer-events: none;
 	}
 	.tip-title {
@@ -347,11 +347,11 @@
 	}
 	.tip b {
 		margin-left: auto;
-		padding-left: 8px;
+		padding-left: var(--space-8);
 		font-variant-numeric: tabular-nums;
 	}
 	.data-table {
-		margin-top: 8px;
+		margin-top: var(--space-8);
 		font-size: var(--fs-13);
 	}
 	.data-table summary {
@@ -360,13 +360,13 @@
 	}
 	table {
 		width: 100%;
-		margin-top: 8px;
+		margin-top: var(--space-8);
 		border-collapse: collapse;
 		font-variant-numeric: tabular-nums;
 	}
 	th,
 	td {
-		padding: 4px 8px;
+		padding: var(--space-4) var(--space-8);
 		text-align: right;
 		border-bottom: 1px solid var(--line);
 	}

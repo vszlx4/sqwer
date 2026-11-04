@@ -103,15 +103,15 @@
 		align-items: center;
 		justify-content: space-between;
 		flex-wrap: wrap;
-		gap: 20px 32px;
-		padding-bottom: 24px;
-		margin-bottom: 28px;
+		gap: var(--space-20) var(--space-32);
+		padding-bottom: var(--space-24);
+		margin-bottom: var(--space-32);
 		border-bottom: 1px solid var(--line);
 	}
 	.who {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-20);
 		min-width: 0;
 	}
 	.names {
@@ -125,22 +125,22 @@
 		overflow-wrap: anywhere;
 	}
 	.handle {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.standing {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 10px;
+		gap: var(--space-10);
 		margin: 0;
 	}
 	.standing > div {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: var(--space-4);
 		min-width: 150px;
-		padding: 10px 14px;
+		padding: var(--space-10) var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -158,7 +158,7 @@
 		display: grid;
 		grid-template-columns: auto 1fr;
 		align-items: center;
-		gap: 2px 10px;
+		gap: var(--space-2) var(--space-10);
 	}
 	.big {
 		grid-row: 1 / span 2;
@@ -166,7 +166,7 @@
 		place-items: center;
 		min-width: 38px;
 		height: 38px;
-		padding: 0 6px;
+		padding: 0 var(--space-6);
 		border-radius: 3px;
 		background: var(--violet);
 		color: var(--on-hue);
@@ -193,7 +193,7 @@
 	.rank dd {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	.rank b,
 	.course b {
@@ -203,7 +203,7 @@
 	.account {
 		display: grid;
 		grid-template-columns: 210px minmax(0, 1fr);
-		gap: clamp(24px, 4vw, 48px);
+		gap: clamp(var(--space-24), 4vw, var(--space-48));
 		align-items: start;
 	}
 	.side {
@@ -213,7 +213,7 @@
 	.side ul {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: var(--space-2);
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -221,8 +221,8 @@
 	.side a {
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		padding: 9px 12px;
+		gap: var(--space-10);
+		padding: var(--space-10) var(--space-12);
 		border-radius: 3px;
 		font-size: var(--fs-15);
 		font-weight: var(--fw-regular);
@@ -248,7 +248,7 @@
 	}
 	.sep {
 		height: 1px;
-		margin: 8px 12px;
+		margin: var(--space-8) var(--space-12);
 		background: var(--line);
 	}
 	.content {
@@ -257,23 +257,23 @@
 	@media (max-width: 900px) {
 		.account {
 			grid-template-columns: 1fr;
-			gap: 20px;
+			gap: var(--space-20);
 		}
 		.side {
 			position: static;
-			margin: 0 -16px;
-			padding: 0 16px;
+			margin: 0 calc(var(--space-16) * -1);
+			padding: 0 var(--space-16);
 			overflow-x: auto;
 			scrollbar-width: none;
 		}
 		.side ul {
 			flex-direction: row;
-			gap: 4px;
+			gap: var(--space-4);
 			width: max-content;
 		}
 		.side a {
 			white-space: nowrap;
-			padding: 8px 12px;
+			padding: var(--space-8) var(--space-12);
 			border: 1px solid var(--line);
 		}
 		.side a[aria-current='page'] {

@@ -236,8 +236,8 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 16px;
-		padding: 22px 18px 18px;
+		gap: var(--space-16);
+		padding: var(--space-24) var(--space-20) var(--space-20);
 	}
 	.sound {
 		position: absolute;
@@ -245,8 +245,8 @@
 		right: 12px;
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 5px 10px;
+		gap: var(--space-6);
+		padding: var(--space-6) var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -278,7 +278,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: 8px;
+		gap: var(--space-8);
 		min-height: 48px;
 	}
 	.slots li {
@@ -317,6 +317,6 @@
 	}
 	.board {
 		width: 100%;
-		max-width: 760px;
+		max-width: var(--w-text);
 	}
 </style>

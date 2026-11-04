@@ -24,7 +24,7 @@
 
 <style>
 	.keys {
-		margin-top: 28px;
+		margin-top: var(--space-32);
 		text-align: center;
 		font-size: var(--fs-13);
 		color: var(--ink-2);
@@ -32,7 +32,7 @@
 	kbd {
 		font-family: var(--font-mono);
 		font-size: var(--fs-12);
-		padding: 1px 6px;
+		padding: 1px var(--space-6);
 		border-radius: 3px;
 		background: var(--surface);
 		border: 1px solid var(--line);

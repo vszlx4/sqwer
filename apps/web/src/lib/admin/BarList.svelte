@@ -53,14 +53,14 @@
 	.list {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: var(--space-10);
 		min-width: 0;
 	}
 	header {
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: 10px;
+		gap: var(--space-10);
 	}
 	h2 {
 		font-family: var(--font-sans);
@@ -74,7 +74,7 @@
 	ol {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: var(--space-4);
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -84,9 +84,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
+		gap: var(--space-12);
 		min-height: 32px;
-		padding: 0 10px;
+		padding: 0 var(--space-10);
 		font-size: var(--fs-14);
 	}
 	.bar {
@@ -118,7 +118,7 @@
 	.value {
 		display: inline-flex;
 		align-items: baseline;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-shrink: 0;
 		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
@@ -134,7 +134,7 @@
 		color: var(--ink-2);
 	}
 	.empty {
-		padding: 14px;
+		padding: var(--space-16);
 		border-radius: 3px;
 		border: 1px dashed var(--line-strong);
 		font-size: var(--fs-14);

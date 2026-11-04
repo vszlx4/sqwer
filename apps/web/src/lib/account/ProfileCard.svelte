@@ -80,11 +80,11 @@
 	.body {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		padding: 0 22px 22px;
+		gap: var(--space-6);
+		padding: 0 var(--space-24) var(--space-24);
 	}
 	.compact .body {
-		padding: 0 16px 16px;
+		padding: 0 var(--space-16) var(--space-16);
 	}
 	.identity {
 		position: relative;
@@ -92,24 +92,24 @@
 		display: flex;
 		align-items: flex-end;
 		justify-content: space-between;
-		gap: 12px;
-		margin-top: -46px;
-		margin-bottom: 6px;
+		gap: var(--space-12);
+		margin-top: calc(var(--space-48) * -1);
+		margin-bottom: var(--space-6);
 	}
 	.compact .identity {
-		margin-top: -32px;
+		margin-top: calc(var(--space-32) * -1);
 	}
 	.avatar-ring {
 		display: inline-flex;
-		padding: 4px;
+		padding: var(--space-4);
 		border-radius: 3px;
 		background: var(--surface);
 	}
 	.rank {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 4px 10px 4px 4px;
+		gap: var(--space-6);
+		padding: var(--space-4) var(--space-10) var(--space-4) var(--space-4);
 		border-radius: 3px;
 		background: var(--rank-soft);
 		color: var(--rank);
@@ -131,18 +131,18 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.pronouns {
-		padding: 1px 7px;
+		padding: 1px var(--space-8);
 		border-radius: 3px;
 		background: var(--surface-2);
 		font-size: var(--fs-13);
 	}
 	.headline {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-size: var(--fs-16);
 		font-weight: var(--fw-semibold);
 		color: var(--ink);
@@ -157,11 +157,11 @@
 	.stats {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-		gap: 8px;
-		margin-top: 10px;
+		gap: var(--space-8);
+		margin-top: var(--space-10);
 	}
 	.stats div {
-		padding: 10px 12px;
+		padding: var(--space-10) var(--space-12);
 		border-radius: 3px;
 		background: var(--bg);
 		border: 1px solid var(--line);

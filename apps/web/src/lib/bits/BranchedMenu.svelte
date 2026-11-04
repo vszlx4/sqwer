@@ -86,7 +86,7 @@
 		flex-direction: column;
 		width: fit-content;
 		max-width: 100%;
-		padding-left: 14px;
+		padding-left: var(--space-16);
 		line-height: var(--lh-base);
 	}
 	.branched::before {
@@ -126,7 +126,7 @@
 	.body {
 		position: relative;
 		box-sizing: border-box;
-		padding: 4px 0;
+		padding: var(--space-4) 0;
 	}
 	svg {
 		position: absolute;
@@ -151,7 +151,7 @@
 	a {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		height: var(--bm-row);
 		padding-left: var(--bm-indent);
 		font-size: var(--fs-15);

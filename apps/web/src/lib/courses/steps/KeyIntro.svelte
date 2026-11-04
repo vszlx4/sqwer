@@ -118,10 +118,10 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 22px;
+		gap: var(--space-24);
 	}
 	.tip {
-		max-width: 620px;
+		max-width: var(--w-narrow);
 		text-align: center;
 		font-size: var(--fs-18);
 		line-height: var(--lh-body);
@@ -130,7 +130,7 @@
 	.prompt {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-20);
 		min-height: 88px;
 	}
 	.cap {
@@ -138,7 +138,7 @@
 		place-items: center;
 		min-width: 72px;
 		height: 72px;
-		padding: 0 14px;
+		padding: 0 var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--key-edge);
 		border-bottom-width: 4px;
@@ -166,8 +166,8 @@
 	.dots {
 		display: flex;
 		align-items: center;
-		gap: 6px;
-		margin-top: 8px;
+		gap: var(--space-6);
+		margin-top: var(--space-8);
 	}
 	.dots span:not(.which) {
 		width: 22px;
@@ -180,12 +180,12 @@
 		background: var(--accent);
 	}
 	.which {
-		margin-left: 8px;
+		margin-left: var(--space-8);
 		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
 	.wrong {
-		margin-top: 8px;
+		margin-top: var(--space-8);
 		font-size: var(--fs-15);
 		color: var(--error);
 		font-weight: var(--fw-semibold);
@@ -194,7 +194,7 @@
 		width: min(100%, 360px);
 	}
 	.kb {
-		width: min(100%, 760px);
+		width: min(100%, var(--w-text));
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.cap {

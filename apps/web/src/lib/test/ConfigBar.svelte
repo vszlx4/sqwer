@@ -108,8 +108,8 @@
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
-		gap: 4px;
-		padding: 5px;
+		gap: var(--space-4);
+		padding: var(--space-6);
 		border-radius: 3px;
 		background: var(--surface);
 		border: 1px solid var(--line);
@@ -117,19 +117,19 @@
 	.group {
 		display: flex;
 		align-items: center;
-		gap: 2px;
+		gap: var(--space-2);
 	}
 	.sep {
 		width: 1px;
 		height: 20px;
 		background: var(--line-strong);
-		margin: 0 6px;
+		margin: 0 var(--space-6);
 	}
 	.opt {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 6px 11px;
+		gap: var(--space-6);
+		padding: var(--space-6) var(--space-12);
 		border-radius: 3px;
 		font-size: var(--fs-14);
 		font-weight: var(--fw-regular);
@@ -150,8 +150,8 @@
 	.list {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 0 4px 0 11px;
+		gap: var(--space-6);
+		padding: 0 var(--space-4) 0 var(--space-12);
 		color: var(--ink-3);
 	}
 	.list:hover,
@@ -159,7 +159,7 @@
 		color: var(--ink);
 	}
 	.list select {
-		padding: 6px 4px;
+		padding: var(--space-6) var(--space-4);
 		border-radius: 3px;
 		background: transparent;
 		color: inherit;
@@ -178,7 +178,7 @@
 			display: none;
 		}
 		.opt {
-			padding: 6px 9px;
+			padding: var(--space-6) var(--space-10);
 		}
 	}
 </style>

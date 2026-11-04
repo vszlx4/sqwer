@@ -42,8 +42,8 @@
 	.setup {
 		display: flex;
 		flex-direction: column;
-		gap: 28px;
-		max-width: 1000px;
+		gap: var(--space-32);
+		max-width: var(--w-wide);
 		margin: 0 auto;
 	}
 	h1 {
@@ -51,7 +51,7 @@
 		line-height: var(--lh-snug);
 	}
 	header p {
-		margin-top: 10px;
+		margin-top: var(--space-10);
 		font-size: var(--fs-16);
 		color: var(--ink-2);
 	}

@@ -26,15 +26,15 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 16px;
+		gap: var(--space-16);
 	}
 	/* The speaker lights while the word plays. */
 	.speaker {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-12);
 		height: 52px;
-		padding: 0 16px;
+		padding: 0 var(--space-16);
 		border-radius: 3px;
 		border: 1px solid color-mix(in srgb, var(--accent) calc(25% + var(--voice) * 45%), transparent);
 		background: color-mix(in srgb, var(--accent) calc(6% + var(--voice) * 8%), transparent);
@@ -43,7 +43,7 @@
 	.wave {
 		display: flex;
 		align-items: center;
-		gap: 4px;
+		gap: var(--space-4);
 		height: 32px;
 	}
 	.wave span {
@@ -56,9 +56,9 @@
 	.answer {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-10);
 		min-width: 132px;
-		padding: 0 4px 6px;
+		padding: 0 var(--space-4) var(--space-6);
 		border-bottom: 2px solid color-mix(in srgb, var(--lime) calc(var(--ok) * 100%), var(--band-line-strong));
 	}
 	.typed {
@@ -72,7 +72,7 @@
 		display: inline-block;
 		width: 2px;
 		height: 1em;
-		margin-left: 2px;
+		margin-left: var(--space-2);
 		vertical-align: -0.12em;
 		background: var(--accent);
 	}

@@ -112,7 +112,7 @@
 		--gold: var(--gold-on-light);
 		--emerald: var(--emerald-on-light);
 		--diamond: var(--diamond-on-light);
-		margin-top: 48px;
+		margin-top: var(--space-48);
 	}
 	:global(:root[data-theme='dark']) .ranks-graph {
 		--bronze: var(--bronze-on-dark);
@@ -175,16 +175,16 @@
 	}
 	.plain {
 		display: grid;
-		gap: 8px;
+		gap: var(--space-8);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
 	.note {
 		display: flex;
 		align-items: flex-start;
-		gap: 10px;
-		margin-top: 32px;
-		padding-top: 16px;
+		gap: var(--space-10);
+		margin-top: var(--space-32);
+		padding-top: var(--space-16);
 		border-top: 1px solid var(--line);
 		font-size: var(--fs-13);
 		line-height: var(--lh-body);
@@ -192,7 +192,7 @@
 	}
 	.note :global(.icon-info) {
 		flex: none;
-		margin-top: 2px;
+		margin-top: var(--space-2);
 		color: var(--ink-2);
 	}
 	.note span {
@@ -203,7 +203,7 @@
 	@media (max-width: 1100px) {
 		.rank-stage {
 			aspect-ratio: 360 / 860;
-			max-width: 440px;
+			max-width: var(--w-form);
 			margin: 0 auto;
 		}
 	}

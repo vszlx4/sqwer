@@ -138,10 +138,10 @@
 
 <style>
 	.page-head {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-8);
 	}
 	.page-head p {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		max-width: 64ch;
 		color: var(--ink-2);
 	}
@@ -152,14 +152,14 @@
 		align-self: flex-start;
 	}
 	.text {
-		max-width: 640px;
+		max-width: var(--w-text);
 		font-size: var(--fs-15);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.form {
 		width: 100%;
-		max-width: 440px;
+		max-width: var(--w-form);
 	}
 	.categories {
 		width: 100%;
@@ -171,7 +171,7 @@
 		background: var(--surface);
 	}
 	.categories li {
-		padding: 14px 16px;
+		padding: var(--space-16) var(--space-16);
 	}
 	.categories li + li {
 		border-top: 1px solid var(--line);
@@ -180,32 +180,32 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 16px;
+		gap: var(--space-16);
 	}
 	.about h3 {
 		font-size: var(--fs-16);
 		font-weight: var(--fw-semibold);
 	}
 	.summary {
-		max-width: 600px;
-		margin-top: 2px;
+		max-width: var(--w-narrow);
+		margin-top: var(--space-2);
 		font-size: var(--fs-14);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.count {
-		margin-top: 4px;
+		margin-top: var(--space-4);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-semibold);
 		color: var(--ink-3);
 		font-variant-numeric: tabular-nums;
 	}
 	.confirm {
-		max-width: 440px;
-		margin-top: 12px;
+		max-width: var(--w-form);
+		margin-top: var(--space-12);
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.effect {
 		font-size: var(--fs-14);
@@ -223,7 +223,7 @@
 	}
 	.row {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 	}
 </style>

@@ -141,7 +141,7 @@
 	.chart {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: var(--space-10);
 		margin: 0;
 	}
 	figcaption {
@@ -149,7 +149,7 @@
 		flex-wrap: wrap;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: 6px 16px;
+		gap: var(--space-6) var(--space-16);
 	}
 	.title {
 		font-weight: var(--fw-semibold);
@@ -157,7 +157,7 @@
 	.legend {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 14px;
+		gap: var(--space-16);
 		font-size: var(--fs-13);
 		color: var(--ink-2);
 	}
@@ -165,7 +165,7 @@
 	.tip span {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	i {
 		display: inline-block;
@@ -207,9 +207,9 @@
 		transform: translateX(-50%);
 		display: flex;
 		flex-direction: column;
-		gap: 3px;
+		gap: var(--space-4);
 		min-width: 150px;
-		padding: 8px 10px;
+		padding: var(--space-8) var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -232,7 +232,7 @@
 	.scroll {
 		max-height: 280px;
 		overflow: auto;
-		margin-top: 8px;
+		margin-top: var(--space-8);
 	}
 	table {
 		width: 100%;
@@ -241,7 +241,7 @@
 	}
 	th,
 	td {
-		padding: 6px 8px;
+		padding: var(--space-6) var(--space-8);
 		text-align: left;
 		border-bottom: 1px solid var(--line);
 	}

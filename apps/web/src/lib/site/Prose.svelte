@@ -100,17 +100,17 @@
 
 <style>
 	.prose-page {
-		max-width: 760px;
+		max-width: var(--w-text);
 		margin: 0 auto;
-		padding-top: clamp(8px, 3vh, 32px);
+		padding-top: clamp(var(--space-8), 3vh, var(--space-32));
 	}
 	.body {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
-		gap: 32px;
+		gap: var(--space-32);
 	}
 	.doc-toc {
-		padding: 18px 20px;
+		padding: var(--space-20) var(--space-20);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -118,7 +118,7 @@
 		line-height: var(--lh-base);
 	}
 	.doc-toc-title {
-		margin-bottom: 10px;
+		margin-bottom: var(--space-10);
 		font-size: var(--fs-12);
 		font-weight: var(--fw-semibold);
 		letter-spacing: var(--tr-wide);
@@ -129,13 +129,13 @@
 	.doc-toc ol {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-		gap: 2px 24px;
+		gap: var(--space-2) var(--space-24);
 	}
 	.doc-toc a {
 		display: flex;
-		gap: 8px;
-		padding: 5px 8px;
-		margin: 0 -8px;
+		gap: var(--space-8);
+		padding: var(--space-6) var(--space-8);
+		margin: 0 calc(var(--space-8) * -1);
 		border-radius: 3px;
 		color: var(--ink-2);
 		text-decoration: none;
@@ -155,7 +155,7 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 		gap: 1px;
-		margin-top: 8px;
+		margin-top: var(--space-8);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--line);
@@ -164,8 +164,8 @@
 	.doc-meta div {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
-		padding: 12px 14px;
+		gap: var(--space-2);
+		padding: var(--space-12) var(--space-16);
 		background: var(--surface);
 	}
 	.doc-meta dt {
@@ -184,34 +184,34 @@
 	.doc-actions {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
+		gap: var(--space-8);
 	}
 	.doc-footer {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
-		margin-top: 40px;
-		padding-top: 28px;
+		gap: var(--space-16);
+		margin-top: var(--space-40);
+		padding-top: var(--space-32);
 		border-top: 1px solid var(--line);
 		font-size: var(--fs-15);
 	}
 	.prose .related-title {
-		margin-top: 8px;
+		margin-top: var(--space-8);
 		font-size: var(--fs-24);
 	}
 	.prose .related {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-		gap: 8px;
+		gap: var(--space-8);
 		padding: 0;
 		list-style: none;
 	}
 	.prose .related a {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: var(--space-2);
 		height: 100%;
-		padding: 12px 14px;
+		padding: var(--space-12) var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -247,9 +247,9 @@
 	header {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
-		padding-bottom: 28px;
-		margin-bottom: 32px;
+		gap: var(--space-12);
+		padding-bottom: var(--space-32);
+		margin-bottom: var(--space-32);
 		border-bottom: 1px solid var(--line);
 	}
 	.kicker {
@@ -277,13 +277,13 @@
 	.prose {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
+		gap: var(--space-16);
 		font-size: var(--fs-16);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.prose :global(h2) {
-		margin-top: 28px;
+		margin-top: var(--space-32);
 		font-size: var(--fs-28);
 		font-weight: var(--fw-regular);
 		line-height: var(--lh-base);
@@ -292,7 +292,7 @@
 		scroll-margin-top: 24px;
 	}
 	.prose :global(h3) {
-		margin-top: 12px;
+		margin-top: var(--space-12);
 		font-size: var(--fs-18);
 		font-weight: var(--fw-semibold);
 		color: var(--ink);
@@ -314,8 +314,8 @@
 	.prose :global(ol) {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		padding-left: 22px;
+		gap: var(--space-8);
+		padding-left: var(--space-24);
 		list-style: decimal;
 	}
 	.prose :global(ol[type='a']) {
@@ -335,7 +335,7 @@
 	}
 	.prose :global(th),
 	.prose :global(td) {
-		padding: 10px 14px;
+		padding: var(--space-10) var(--space-16);
 		text-align: left;
 		vertical-align: top;
 		border-bottom: 1px solid var(--line);
@@ -365,7 +365,7 @@
 		color: var(--ink);
 	}
 	.prose :global(.summary) {
-		padding: 18px 22px;
+		padding: var(--space-20) var(--space-24);
 		border-radius: 3px;
 		border: 1px solid var(--ink);
 		box-shadow: inset 4px 0 0 var(--accent);
@@ -377,8 +377,8 @@
 	.prose :global(ul) {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		padding-left: 22px;
+		gap: var(--space-8);
+		padding-left: var(--space-24);
 		list-style: disc;
 	}
 	.prose :global(ul li::marker) {
@@ -387,8 +387,8 @@
 	.prose :global(dl) {
 		display: grid;
 		grid-template-columns: minmax(120px, 180px) 1fr;
-		gap: 14px 24px;
-		padding: 20px 22px;
+		gap: var(--space-16) var(--space-24);
+		padding: var(--space-20) var(--space-24);
 		border-radius: 3px;
 		background: var(--surface);
 		border: 1px solid var(--line);
@@ -400,14 +400,14 @@
 	.prose :global(kbd) {
 		font-family: var(--font-mono);
 		font-size: var(--fs-13);
-		padding: 1px 6px;
+		padding: 1px var(--space-6);
 		border-radius: 3px;
 		background: var(--surface);
 		border: 1px solid var(--line);
 		color: var(--ink);
 	}
 	.prose :global(.callout) {
-		padding: 16px 20px;
+		padding: var(--space-16) var(--space-20);
 		border-radius: 3px;
 		background: var(--surface);
 		border: 1px solid var(--line);
@@ -416,10 +416,10 @@
 	@media (max-width: 560px) {
 		.prose :global(dl) {
 			grid-template-columns: 1fr;
-			gap: 4px;
+			gap: var(--space-4);
 		}
 		.prose :global(dd) {
-			margin-bottom: 10px;
+			margin-bottom: var(--space-10);
 		}
 	}
 </style>

@@ -124,18 +124,18 @@
 	.upload {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	.row {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-20);
 		flex-wrap: wrap;
 	}
 	.controls,
 	.controls form {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 	}
 	label.btn {
@@ -143,7 +143,7 @@
 	}
 	.rights {
 		flex-basis: 100%;
-		max-width: 520px;
+		max-width: var(--w-narrow);
 		font-size: var(--fs-14);
 	}
 	label.btn:has(+ input:focus-visible) {

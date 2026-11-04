@@ -51,7 +51,7 @@
 		background: var(--bg);
 		color: var(--ink);
 		padding: 0;
-		width: min(460px, calc(100vw - 32px));
+		width: min(var(--w-form), calc(100vw - 32px));
 		max-height: calc(100dvh - 32px);
 		overflow: auto;
 		overscroll-behavior: contain;
@@ -80,10 +80,10 @@
 		}
 	}
 	.body {
-		padding: 24px;
+		padding: var(--space-24);
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-12);
 	}
 	h2 {
 		font-size: var(--fs-28);
@@ -95,14 +95,14 @@
 		line-height: var(--lh-body);
 	}
 	.content :global(p + p) {
-		margin-top: 8px;
+		margin-top: var(--space-8);
 	}
 	.actions {
 		display: flex;
 		justify-content: flex-end;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
-		margin-top: 8px;
+		margin-top: var(--space-8);
 	}
 	@media (max-width: 420px) {
 		.actions {

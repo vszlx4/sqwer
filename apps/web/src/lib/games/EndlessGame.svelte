@@ -277,32 +277,32 @@
 	.endless {
 		display: flex;
 		flex-direction: column;
-		gap: 18px;
+		gap: var(--space-20);
 	}
 	.setup {
 		display: grid;
 		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
-		gap: clamp(20px, 4vw, 48px);
+		gap: clamp(var(--space-20), 4vw, var(--space-48));
 		align-items: start;
 	}
 	h2 {
 		font-size: var(--fs-24);
 	}
 	.rules {
-		padding-top: 4px;
+		padding-top: var(--space-4);
 	}
 	.rules ol {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
-		margin: 16px 0 0;
+		gap: var(--space-16);
+		margin: var(--space-16) 0 0;
 		padding: 0;
 		list-style: none;
 		counter-reset: rule;
 	}
 	.rules li {
 		position: relative;
-		padding-left: 36px;
+		padding-left: var(--space-40);
 		font-size: var(--fs-15);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
@@ -327,8 +327,8 @@
 		color: var(--ink);
 	}
 	.record {
-		margin-top: 22px;
-		padding-top: 16px;
+		margin-top: var(--space-24);
+		padding-top: var(--space-16);
 		border-top: 1px solid var(--line);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
@@ -340,8 +340,8 @@
 	.difficulty {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
-		padding: clamp(18px, 3vw, 28px);
+		gap: var(--space-16);
+		padding: clamp(var(--space-20), 3vw, var(--space-32));
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -349,7 +349,7 @@
 	fieldset {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: var(--space-10);
 		margin: 0;
 		padding: 0;
 		border: 0;
@@ -383,14 +383,14 @@
 	.adaptive {
 		display: flex;
 		align-items: flex-start;
-		gap: 12px;
-		padding: 14px 16px;
+		gap: var(--space-12);
+		padding: var(--space-16) var(--space-16);
 	}
 	.mark {
 		flex-shrink: 0;
 		width: 18px;
 		height: 18px;
-		margin-top: 2px;
+		margin-top: var(--space-2);
 		border-radius: 50%;
 		border: 1.5px solid var(--ink-3);
 	}
@@ -400,16 +400,16 @@
 	.adaptive-text {
 		display: flex;
 		flex-direction: column;
-		gap: 3px;
+		gap: var(--space-4);
 	}
 	.adaptive-title {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		font-weight: var(--fw-bold);
 	}
 	.tag {
-		padding: 1px 7px;
+		padding: 1px var(--space-8);
 		border-radius: 3px;
 		background: var(--accent);
 		color: var(--on-accent);
@@ -422,7 +422,7 @@
 		color: var(--ink-2);
 	}
 	.or {
-		margin-top: 6px;
+		margin-top: var(--space-6);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-semibold);
 		color: var(--ink-3);
@@ -430,14 +430,14 @@
 	.levels {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.level {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 2px;
-		padding: 10px 6px;
+		gap: var(--space-2);
+		padding: var(--space-10) var(--space-6);
 		text-align: center;
 	}
 	.level-name {
@@ -458,7 +458,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-10);
 		font-size: var(--fs-14);
 	}
 	.source-label {
@@ -467,7 +467,7 @@
 		color: var(--ink-3);
 	}
 	.source select {
-		padding: 7px 10px;
+		padding: var(--space-8) var(--space-10);
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
 		background: var(--surface);
@@ -513,8 +513,8 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 8px 22px;
-		padding: 10px 14px;
+		gap: var(--space-8) var(--space-24);
+		padding: var(--space-10) var(--space-16);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 		background: var(--surface);
@@ -525,7 +525,7 @@
 	.hud > span {
 		display: inline-flex;
 		align-items: baseline;
-		gap: 6px;
+		gap: var(--space-6);
 	}
 	.hud small {
 		font-size: var(--fs-12);
@@ -554,15 +554,15 @@
 		color: var(--ink);
 	}
 	.loading {
-		padding: 24px 0;
+		padding: var(--space-24) 0;
 		font-size: var(--fs-20);
 	}
 	.result {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 12px;
-		padding: 36px 24px;
+		gap: var(--space-12);
+		padding: var(--space-40) var(--space-24);
 		text-align: center;
 		border-radius: 3px;
 		border: 1px solid var(--line-strong);
@@ -593,8 +593,8 @@
 	}
 	.totals {
 		display: flex;
-		gap: 28px;
-		margin-top: 4px;
+		gap: var(--space-32);
+		margin-top: var(--space-4);
 	}
 	.totals div {
 		display: flex;
@@ -617,12 +617,12 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: 10px;
-		margin-top: 4px;
+		gap: var(--space-10);
+		margin-top: var(--space-4);
 	}
 	.row kbd {
-		margin-left: 6px;
-		padding: 1px 6px;
+		margin-left: var(--space-6);
+		padding: 1px var(--space-6);
 		border-radius: 3px;
 		background: var(--track);
 		font-family: var(--font-mono);

@@ -109,25 +109,25 @@
 	.replay {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
+		gap: var(--space-16);
 		--typing-size: clamp(18px, 2vw, 24px);
 		--typing-leading: 1.6;
 	}
 	.controls {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-8);
 		flex-wrap: wrap;
 	}
 	.speed {
 		display: inline-flex;
-		padding: 3px;
-		gap: 2px;
+		padding: var(--space-4);
+		gap: var(--space-2);
 		border-radius: 3px;
 		border: 1px solid var(--line);
 	}
 	.speed button {
-		padding: 6px 10px;
+		padding: var(--space-6) var(--space-10);
 		border-radius: 3px;
 		font-size: var(--fs-14);
 		font-weight: var(--fw-semibold);
@@ -153,6 +153,6 @@
 		font-variant-numeric: tabular-nums;
 	}
 	.kb {
-		max-width: 720px;
+		max-width: var(--w-text);
 	}
 </style>

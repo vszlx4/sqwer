@@ -34,17 +34,17 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 16px;
+		gap: var(--space-16);
 	}
 	.mini-kb {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: var(--space-4);
 	}
 	.kb-row {
 		display: flex;
-		gap: 4px;
-		margin-left: calc(var(--r) * 9px);
+		gap: var(--space-4);
+		margin-left: calc(var(--r) * var(--space-10));
 	}
 	/* A lit key takes its finger's hue; a ring shows the hit (success) or the timeout (error). */
 	.mk {

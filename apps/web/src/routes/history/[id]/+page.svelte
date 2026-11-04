@@ -52,7 +52,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 14px;
+		gap: var(--space-16);
 	}
 	h1 {
 		font-size: var(--fs-display);
