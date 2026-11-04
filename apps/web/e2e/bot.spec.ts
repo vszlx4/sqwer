@@ -1,6 +1,6 @@
 import { expect, test, type APIRequestContext, type Browser, type Page } from '@playwright/test';
 import { DECLINED } from './consent.ts';
-import { answerQuestion } from './human.ts';
+import { solveCaptcha } from './human.ts';
 
 /* Bot protection abuse cases against the real server. One client address per test. */
 
@@ -9,16 +9,6 @@ const ORIGIN = 'http://localhost:4321';
 async function contextAt(browser: Browser, ip: string) {
 	const context = await browser.newContext({ baseURL: ORIGIN, extraHTTPHeaders: { 'x-forwarded-for': ip }, storageState: DECLINED });
 	return { context, page: await context.newPage() };
-}
-
-/** Solves the verification on the open page, as a person would. */
-async function solve(page: Page) {
-	const toText = page.getByRole('button', { name: 'Use a text question' });
-	if (await toText.isVisible()) await toText.click();
-	const question = page.locator('.captcha .question');
-	await expect(question).toHaveText(/\?|\.$/);
-	await page.getByRole('textbox', { name: 'Your answer' }).fill(answerQuestion((await question.textContent())!.trim()));
-	await expect.poll(() => page.locator('input[name="altcha"]').inputValue(), { timeout: 30_000 }).not.toBe('');
 }
 
 /** Every protection field of the form on the page, as the browser would send them. */
@@ -73,7 +63,7 @@ test('a solved verification is accepted once, and only for the form it was issue
 	const ip = '198.51.100.13';
 	const { context, page } = await contextAt(browser, ip);
 	await page.goto('/signin');
-	await solve(page);
+	await solveCaptcha(page);
 	const fields = await protectionFields(page);
 	const creds = { email: `nobody-${Date.now()}@example.com`, password: 'wrong-password-123' };
 
@@ -86,7 +76,7 @@ test('a solved verification is accepted once, and only for the form it was issue
 
 	// A challenge solved on the sign-in page cannot be spent on registration.
 	await page.goto('/signin');
-	await solve(page);
+	await solveCaptcha(page);
 	const forSignin = await protectionFields(page);
 	await page.goto('/signup');
 	await page.waitForTimeout(2700);
@@ -126,7 +116,7 @@ test('the password reset form is protected in the same way', async ({ browser })
 	await page.getByLabel('Recovery code').fill('ABCD-EFGH-JKMN');
 	await page.getByLabel('New password', { exact: true }).fill('a-long-password-3');
 	await page.getByLabel('Confirm new password').fill('a-long-password-3');
-	await solve(page);
+	await solveCaptcha(page);
 	await page.waitForTimeout(1600);
 	await page.getByRole('button', { name: 'Reset password' }).click();
 	await expect(page.getByRole('alert')).toContainText('The email address or recovery code is incorrect.');
@@ -142,7 +132,7 @@ test('the sign-in lock gives the same answer whether or not an account exists', 
 		for (let i = 0; i < 5; i++) {
 			await page.getByLabel('Email address').fill(email);
 			await page.getByLabel('Password').fill(`wrong-password-${i}`);
-			if (await page.locator('.captcha').isVisible()) await solve(page);
+			if (await page.locator('.captcha').isVisible()) await solveCaptcha(page);
 			await Promise.all([page.waitForResponse((r) => r.request().method() === 'POST'), page.getByRole('button', { name: 'Sign in' }).click()]);
 		}
 		await context.close();
@@ -153,7 +143,7 @@ test('the sign-in lock gives the same answer whether or not an account exists', 
 		await page.goto('/signin');
 		await page.getByLabel('Email address').fill(email);
 		await page.getByLabel('Password').fill('another-wrong-password');
-		if (await page.locator('.captcha').isVisible()) await solve(page);
+		if (await page.locator('.captcha').isVisible()) await solveCaptcha(page);
 		await Promise.all([page.waitForResponse((r) => r.request().method() === 'POST'), page.getByRole('button', { name: 'Sign in' }).click()]);
 		const text = (await page.getByRole('alert').first().textContent())!.trim();
 		await context.close();
@@ -175,7 +165,7 @@ test('a sign-in redirect never leaves the site', async ({ browser }) => {
 	await page.goto('/signin');
 	await page.getByLabel('Email address').fill('member@e2e.test');
 	await page.getByLabel('Password').fill('E2e-member-pass-2026');
-	if (await page.locator('.captcha').isVisible()) await solve(page);
+	if (await page.locator('.captcha').isVisible()) await solveCaptcha(page);
 	await page.getByRole('button', { name: 'Sign in' }).click();
 	await expect(page).toHaveURL(/\/account\/setup$/);
 	// Signed in, /signin forwards to redirectTo. Regression: "/\t/evil.example" became "//evil.example".

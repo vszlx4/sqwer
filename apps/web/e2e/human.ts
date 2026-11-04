@@ -21,10 +21,12 @@ export function answerQuestion(q: string): string {
 
 /** Completes the verification using its text question, and waits for the background check to finish. */
 export async function solveCaptcha(page: Page, answer?: string) {
-	const toText = page.getByRole('button', { name: 'Use a text question' });
-	if (await toText.isVisible()) await toText.click();
 	const question = page.locator('.captcha .question');
-	await expect(question).toHaveText(/\?|\.$/);
+	// The verification can still be loading or hydrating; switch until the text question is up.
+	await expect(async () => {
+		if (!(await question.isVisible())) await page.getByRole('button', { name: 'Use a text question' }).click({ timeout: 2000 });
+		await expect(question).toHaveText(/\?|\.$/, { timeout: 2000 });
+	}).toPass({ timeout: 20_000 });
 	const text = (await question.textContent())!.trim();
 	await page.getByRole('textbox', { name: 'Your answer' }).fill(answer ?? answerQuestion(text));
 	await expect.poll(async () => page.locator('input[name="altcha"]').inputValue(), { timeout: 30_000 }).not.toBe('');
