@@ -4,7 +4,7 @@
 	Upstream commit: c37078c5ff7af7b090e510e0a2d0fbb472c1d286
 	Licence: MIT + Commons Clause, see THIRD_PARTY_NOTICES. Not covered by the GPL.
 	Changes: the float (stretched, squeezed, lifted out of sight) exported as `FLOAT` and `floatAway()` so other
-	timelines can play it on their own targets, in either direction; a gradual blur and an opacity fade ride along; `direction` prop for floating in or away;
+	timelines can play it on their own targets, in either direction; an opacity fade rides along (no blur: a filter per letter repaints every frame); `direction` prop for floating in or away;
 	gsap through lib/motion under the motion guard (text left as rendered under reduced motion), named ease instead
 	of back.inOut; window scroll only; letters aria-hidden under one aria-label; span root instead of h2; class
 	props folded into one.
@@ -12,10 +12,10 @@
 <script module lang="ts">
 	import type { EaseName } from '#lib/motion/tokens.ts';
 
-	/** The floated-off state: squeezed, stretched tall, lifted past its line, blurred out and faded to nothing. */
-	export const FLOAT = { opacity: 0, filter: 'blur(16px)', yPercent: -120, scaleY: 2.3, scaleX: 0.7, transformOrigin: '50% 100%' } as const;
+	/** The floated-off state: squeezed, stretched tall, lifted past its line and faded to nothing. */
+	export const FLOAT = { opacity: 0, yPercent: -120, scaleY: 2.3, scaleX: 0.7, transformOrigin: '50% 100%' } as const;
 	/** The resting state. */
-	export const REST = { opacity: 1, filter: 'blur(0px)', yPercent: 0, scaleY: 1, scaleX: 1 } as const;
+	export const REST = { opacity: 1, yPercent: 0, scaleY: 1, scaleX: 1 } as const;
 
 	/** Tween vars that float targets away, one after another. */
 	export function floatAway(stagger = 0.03, ease: EaseName = 'in-quick') {

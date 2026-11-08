@@ -303,7 +303,7 @@
 						{/snippet}
 					</CardSwap>
 				</div>
-				<GradualBlur position="bottom" height="var(--drop)" strength={2.4} divCount={8} curve="bezier" zIndex={20} />
+				<GradualBlur position="bottom" height="var(--drop)" strength={2.4} divCount={4} curve="bezier" zIndex={20} />
 			</div>
 		</div>
 	</section>
