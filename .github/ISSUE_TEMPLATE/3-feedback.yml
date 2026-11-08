@@ -1,0 +1,38 @@
+name: Share feedback
+description: What you liked, what felt off, how the site feels to use.
+labels: [feedback, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Not sure if it's a problem or an idea? Use this one. Any thought helps, short or long.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where on the site
+      options:
+        - Home page
+        - Learning path (lessons)
+        - Practice (typing tests)
+        - Practice (games)
+        - Competitive and leaderboards
+        - Finger map
+        - Account, sign in and profile
+        - The whole site
+    validations: { required: true }
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Your feedback
+      placeholder: The Echo game feels slow; waiting for each letter takes too long.
+    validations: { required: true }
+  - type: textarea
+    id: shot
+    attributes:
+      label: Screenshot
+      description: Optional. Drag the file into this box, or paste it with Ctrl+V (Cmd+V on Mac).
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options: [Computer, Phone, Tablet]
