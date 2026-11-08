@@ -75,7 +75,8 @@ export function heroTakeover(p: TakeoverParts): Takeover {
 	const pressure = { p: 0 };
 	const tl = gsap.timeline({
 		defaults: { ease: 'none' },
-		scrollTrigger: { trigger: p.track, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true }
+		// Wheel scroll is eased already (smooth-scroll.ts); a long scrub on top of it reads as lag.
+		scrollTrigger: { trigger: p.track, start: 'top top', end: 'bottom bottom', scrub: 0.3, invalidateOnRefresh: true }
 	});
 
 	// The portal takes the button's place on the first pixel of scroll and fills the screen by 0.42, before the line
@@ -90,16 +91,17 @@ export function heroTakeover(p: TakeoverParts): Takeover {
 		0
 	);
 	tl.fromTo(p.veil, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: 'out-soft' }, 0);
-	tl.fromTo(p.fade, { opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(6px)', duration: 0.25, ease: 'out-soft' }, 0.02);
+	tl.fromTo(p.fade, { opacity: 1 }, { opacity: 0, duration: 0.25, ease: 'out-soft' }, 0.02);
 
 	// The label rides with the portal from the button to the centre, on the portal's own curve, and hands over once
 	// the band covers the middle of the screen.
 	tl.fromTo(p.label, { x: () => offset().x, y: () => offset().y }, { x: 0, y: 0, duration: 0.42, ease: 'in-quick' }, 0);
 	tl.fromTo(p.label, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.08 }, 0.24);
 	// The line never moves: it appears in the centre, grows in place to the width of the screen and thickens from
-	// light to heaviest.
+	// light to heaviest. Set at its full size and scaled up to it, so the growth never lays the letters out again.
+	tl.set(p.line, { fontSize: endSize }, 0);
 	tl.fromTo(p.line, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.08 }, 0.3);
-	tl.fromTo(p.line, { fontSize: () => startSize * 1.4 }, { fontSize: endSize, duration: 0.54, ease: 'out-soft' }, 0.3);
+	tl.fromTo(p.line, { scale: () => (startSize * 1.4) / endSize() }, { scale: 1, duration: 0.54, ease: 'out-soft' }, 0.3);
 	tl.fromTo(pressure, { p: 0 }, { p: 1, duration: 0.46, onUpdate: () => p.onPressure(pressure.p) }, 0.4);
 
 	// Then the letters float straight up out of each line from its middle outwards (Scroll Float, without the sideways
