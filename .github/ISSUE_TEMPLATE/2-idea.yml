@@ -1,0 +1,43 @@
+name: Suggest an idea
+description: Something new, or a change to how something works.
+labels: [enhancement, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideas from anyone are welcome. Answer in your own words.
+
+        - **Title:** the idea in a few words, e.g. *Pick any game in Practice*.
+        - **One idea per report.** Two ideas? Send two.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where on the site
+      options:
+        - Home page
+        - Learning path (lessons)
+        - Practice (typing tests)
+        - Practice (games)
+        - Competitive and leaderboards
+        - Finger map
+        - Account, sign in and profile
+        - Somewhere else
+    validations: { required: true }
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: What would you add or change?
+      placeholder: A back button in Practice, so I can leave a game and pick another.
+    validations: { required: true }
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it would help
+      description: What gets easier, or what bothers you today?
+      placeholder: Today I have to reload the page to get out of a game.
+  - type: textarea
+    id: sketch
+    attributes:
+      label: Picture or sketch
+      description: Optional. Drag a screenshot or a photo of a drawing into this box.

@@ -1,5 +1,5 @@
-name: Design task
-description: A design or layout change
+name: Design task (team)
+description: A design or layout change, written by the team.
 labels: [design]
 body:
   - type: input

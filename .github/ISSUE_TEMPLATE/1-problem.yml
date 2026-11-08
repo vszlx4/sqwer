@@ -1,0 +1,69 @@
+name: Report a problem
+description: Something on the website is broken, wrong or confusing.
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing sqwer. No coding knowledge needed: answer in your own words, and skip anything you don't know.
+
+        - **Title:** say what went wrong in a few words, e.g. *Streak shows 1 day after three days of practice*.
+        - **One problem per report.** Two problems? Send two reports.
+        - **Never paste passwords or email addresses.** Security problems go to the private form on the previous page.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where on the site
+      options:
+        - Home page
+        - Learning path (lessons)
+        - Practice (typing tests)
+        - Practice (games)
+        - Competitive and leaderboards
+        - Finger map
+        - Account, sign in and profile
+        - Somewhere else
+    validations: { required: true }
+  - type: textarea
+    id: what
+    attributes:
+      label: What went wrong
+      description: What were you doing, and what did you see?
+      placeholder: I finished lesson 34 and the streak said 1 day, but I practiced yesterday too.
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      placeholder: A 2-day streak.
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to see it
+      description: The steps to make it happen again, if you know them.
+      placeholder: |
+        1. Open the Learning path
+        2. Finish any lesson
+        3. Look at the streak on the result screen
+  - type: textarea
+    id: shot
+    attributes:
+      label: Screenshot or video
+      description: |
+        Drag the file into this box, or paste it with Ctrl+V (Cmd+V on Mac).
+        Take one with Win+Shift+S on Windows, Cmd+Shift+4 on Mac, or the power and volume-down buttons on a phone.
+  - type: dropdown
+    id: often
+    attributes:
+      label: How often
+      options: [Every time, Sometimes, Only once]
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options: [Computer, Phone, Tablet]
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      placeholder: Chrome, Safari, Firefox, Edge…
