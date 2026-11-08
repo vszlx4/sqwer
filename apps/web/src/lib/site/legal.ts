@@ -22,8 +22,8 @@ export const LEGAL_DOCUMENTS = {
 		ref: 'SQW-LGL-002',
 		title: 'Privacy Policy',
 		href: '/privacy',
-		version: '2.6',
-		effectiveIso: '2026-11-03',
+		version: '2.7',
+		effectiveIso: '2026-11-08',
 		summary: 'What personal data sqwer processes, why, on what legal basis, for how long, with whom, and your rights.'
 	},
 	cookies: {

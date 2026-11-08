@@ -228,7 +228,7 @@
 				<tr><th scope="row">Profile</th><td>Display name, username, and optionally a headline, pronouns and biography; typing experience, goal, target speed, keyboard type, avatar color, banner style, which showcase items to display, and whether your profile is public. Pronouns are optional and shown only if you enter them; do not enter information you do not want others to see.</td></tr>
 				<tr><th scope="row">Profile picture</th><td>If you upload one: a 256 × 256 pixel image, cropped and re-encoded in your browser before upload, which removes embedded information such as location and camera details; and the time you confirmed that you hold the rights to it.</td></tr>
 				<tr><th scope="row">Examination results</th><td>For each test or assessment, including attempts not completed: speed, accuracy, a per-second timeline, the words shown, the time taken for each word and the sequence of keystrokes, so that the result can be replayed.</td></tr>
-				<tr><th scope="row">Course progress</th><td>For each lesson: the best stars, accuracy and speed, the number of attempts and when it was first completed; the calendar days on which you completed a lesson (for your streak); the level you described and the lesson you chose to start from. Points and ranks are calculated from these.</td></tr>
+				<tr><th scope="row">Course progress</th><td>For each lesson: the best stars, accuracy and speed, the number of attempts and when it was first completed; the calendar days on which you completed a lesson or a test (for your streak); the level you described and the lesson you chose to start from. Points and ranks are calculated from these.</td></tr>
 				<tr><th scope="row">Finger map</th><td>Each entry: the key pressed, the neighboring keys, the finger you selected and the time.</td></tr>
 				<tr><th scope="row">Experience and competitive results</th><td>For each saved examination result, the experience points (XP) it earned, worked out from its length, speed and accuracy, and its speed; for competitive results, whether they passed the automated plausibility check. Your account level is calculated from your XP and course points.</td></tr>
 				<tr><th scope="row">Leaderboard setting</th><td>Whether you appear on the leaderboards (on unless you switch it off).</td></tr>
@@ -618,7 +618,8 @@
 				<tr><th scope="col">Version</th><th scope="col">Effective</th><th scope="col">Changes</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>2.6</td><td>{formatDay(doc.effectiveIso)}</td><td>Summary wording updated.</td></tr>
+				<tr><td>2.7</td><td>{formatDay(doc.effectiveIso)}</td><td>Finished tests count toward the streak, as lessons do.</td></tr>
+				<tr><td>2.6</td><td>{formatDay('2026-11-03')}</td><td>Summary wording updated.</td></tr>
 				<tr><td>2.5</td><td>{formatDay('2026-11-03')}</td><td>Listening exercises play recordings of each word made on sqwer's own server.</td></tr>
 				<tr><td>2.4</td><td>{formatDay('2026-10-18')}</td><td>Signed-in devices end at most 90 days after signing in; downloads of your data appear in your security activity.</td></tr>
 				<tr><td>2.3</td><td>{formatDay('2026-10-18')}</td><td>First-party usage analytics: visit statistics with consent, account and product events, administrator access, 13-month retention and the consent banner.</td></tr>

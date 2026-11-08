@@ -134,6 +134,11 @@ class CourseStore {
 		}
 	}
 
+	/** A finished test's day, saved by the results API; shown in the streak without a reload. */
+	practiced(day: string) {
+		if (this.signedIn && !this.days.includes(day)) this.days = [...this.days, day].sort();
+	}
+
 	async setLevel(level: Level | null) {
 		this.level = level;
 		write(LEVEL_KEY, level);
