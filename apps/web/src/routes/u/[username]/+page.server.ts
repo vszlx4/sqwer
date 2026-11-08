@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { buildProfile } from '@sqwer/fingermap';
 import { qwertyAnsi, type Platform } from '@sqwer/layouts';
-import { lessonPoints, localDay, rankFor, streak } from '#lib/courses/progression.ts';
+import { lessonPoints, rankFor, streakAnyZone } from '#lib/courses/progression.ts';
 import { avatarUrl } from '#lib/server/avatar.ts';
 import { db, schema } from '#lib/server/db/index.ts';
 import type { PageServerLoad } from './$types';
@@ -50,7 +50,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	let dayStreak: number | null = null;
 	if (p.showStreak) {
 		const days = await d.select({ day: schema.courseDays.day }).from(schema.courseDays).where(eq(schema.courseDays.userId, userId));
-		dayStreak = streak(days.map((x) => x.day), localDay());
+		dayStreak = streakAnyZone(days.map((x) => x.day));
 	}
 
 	return {

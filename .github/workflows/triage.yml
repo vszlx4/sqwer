@@ -1,0 +1,33 @@
+# Labels new issues: the area picked in the form, and `external` for reports from outside the team.
+name: Label issues
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const areas = {
+              'Home page': 'area: home',
+              'Learning path (lessons)': 'area: learning path',
+              'Practice (typing tests)': 'area: practice',
+              'Practice (games)': 'area: games',
+              'Competitive and leaderboards': 'area: competitive',
+              'Finger map': 'area: finger map',
+              'Account, sign in and profile': 'area: account'
+            };
+            const issue = context.payload.issue;
+            const labels = [];
+            const picked = /### Where on the site\s+([^\n]+)/.exec(issue.body ?? '')?.[1]?.trim();
+            if (picked && areas[picked]) labels.push(areas[picked]);
+            if (!['OWNER', 'MEMBER', 'COLLABORATOR'].includes(issue.author_association)) labels.push('external');
+            if (labels.length) await github.rest.issues.addLabels({ ...context.repo, issue_number: issue.number, labels });

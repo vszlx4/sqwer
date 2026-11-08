@@ -76,7 +76,7 @@ Contributions are by invitation. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the
 [branching guide](docs/operations/BRANCHING.md) first. In short: open or pick an issue, branch from `dev`, and open a
 pull request into `dev` once `npm run check`, `npm test` and `npm run build` pass.
 
-Feedback on the website is welcome from anyone: [open a Feedback issue](https://github.com/vszlx4/sqwer/issues/new?template=feedback.yml).
+Problems, ideas and feedback are welcome from anyone, no coding needed: [open an issue](https://github.com/vszlx4/sqwer/issues/new/choose), or read [how to report something](CONTRIBUTING.md#report-a-problem-or-share-an-idea) first.
 
 Found a security problem? Please report it privately, as described in [SECURITY.md](.github/SECURITY.md), and not in a
 public issue.

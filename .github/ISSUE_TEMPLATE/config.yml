@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: First time? How to report something
+    url: https://github.com/vszlx4/sqwer/blob/main/CONTRIBUTING.md#report-a-problem-or-share-an-idea
+    about: A short guide for people who have never opened an issue.
   - name: Security problem
     url: https://github.com/vszlx4/sqwer/security/advisories/new
     about: Report vulnerabilities privately, never in a public issue.

@@ -1,0 +1,28 @@
+name: Ask a question
+description: Not sure how something works, or whether it's meant to be that way.
+labels: [question, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        No question is too small. If the answer shows something is broken, we turn it into a problem report for you.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where on the site
+      options:
+        - Home page
+        - Learning path (lessons)
+        - Practice (typing tests)
+        - Practice (games)
+        - Competitive and leaderboards
+        - Finger map
+        - Account, sign in and profile
+        - Somewhere else
+    validations: { required: true }
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      placeholder: Do typing tests count toward my daily streak?
+    validations: { required: true }
