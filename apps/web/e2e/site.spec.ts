@@ -22,10 +22,13 @@ test('home page: one primary action above the fold, leading to getting started',
 	await page.goto('/');
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('Stop looking down');
 	const main = page.getByRole('main');
-	// A single, specific primary action; the course is explained on the page itself.
-	await expect(main.locator('.btn-primary')).toHaveCount(1);
-	const cta = main.getByRole('link', { name: 'Get started' });
+	const hero = main.locator('.hero');
+	// A single, specific primary action; the course is explained on the page itself. The finale repeats it.
+	await expect(hero.locator('.btn-primary')).toHaveCount(1);
+	const cta = hero.getByRole('link', { name: 'Get started' });
 	await expect(cta).toBeInViewport();
+	await expect(main.locator('.finale .btn-primary')).toHaveAttribute('href', '/start');
+	await expect(main.locator('.btn-primary')).toHaveCount(2);
 
 	await main.getByRole('link', { name: 'See the whole course' }).click();
 	await expect(page).toHaveURL(/#road$/);
