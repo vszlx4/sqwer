@@ -8,9 +8,11 @@ import {
 	lessonPoints,
 	lessonStars,
 	nextLessonId,
+	plausibleDay,
 	rankFor,
 	recommendedChapter,
 	streak,
+	streakAnyZone,
 	totalPoints
 } from './progression.ts';
 import type { LessonProgress } from './types.ts';
@@ -166,6 +168,23 @@ describe('streaks', () => {
 		expect(streak(['2026-10-12', '2026-10-13'], '2026-10-14')).toBe(2);
 		expect(streak(['2026-10-10', '2026-10-13'], '2026-10-14')).toBe(1);
 		expect(streak(['2026-10-01'], '2026-10-14')).toBe(0);
+	});
+
+	it('accepts a local date only where some time zone has it', () => {
+		const t = Date.parse('2026-10-14T06:00:00Z');
+		expect(plausibleDay('2026-10-13', t)).toBe(true);
+		expect(plausibleDay('2026-10-14', t)).toBe(true);
+		expect(plausibleDay('2026-10-12', t)).toBe(false);
+		expect(plausibleDay('2026-10-15', t)).toBe(false);
+	});
+
+	it('keeps a streak alive while it is alive in any time zone', () => {
+		const t = Date.parse('2026-10-14T23:00:00Z');
+		// Already the 15th east of UTC.
+		expect(streakAnyZone(['2026-10-13', '2026-10-14', '2026-10-15'], t)).toBe(3);
+		// Still the 14th west of UTC, so yesterday's practice holds.
+		expect(streakAnyZone(['2026-10-12', '2026-10-13'], t)).toBe(2);
+		expect(streakAnyZone(['2026-10-11', '2026-10-12'], t)).toBe(0);
 	});
 });
 

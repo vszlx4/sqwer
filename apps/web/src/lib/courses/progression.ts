@@ -113,6 +113,23 @@ export function streak(days: readonly string[], today: string): number {
 	return count;
 }
 
+/** UTC calendar date of `t`, shifted by `hours`. */
+function utcDay(t: number, hours = 0): string {
+	return new Date(t + hours * 3_600_000).toISOString().slice(0, 10);
+}
+
+/** Whether `day` is the local date somewhere on Earth at `t` (UTC−12 to UTC+14). */
+export function plausibleDay(day: string, t: number): boolean {
+	return day >= utcDay(t, -12) && day <= utcDay(t, 14);
+}
+
+/** Streak without the learner's time zone: alive while it's alive in any zone. */
+export function streakAnyZone(days: readonly string[], t = Date.now()): number {
+	const set = new Set(days);
+	const today = [utcDay(t, 14), utcDay(t), utcDay(t, -12)].find((d) => set.has(d)) ?? utcDay(t, -12);
+	return streak(days, today);
+}
+
 /** Local calendar date as `YYYY-MM-DD`. */
 export function localDay(t = Date.now()): string {
 	const d = new Date(t);

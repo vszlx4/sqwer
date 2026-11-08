@@ -147,7 +147,7 @@ export const courseProgress = pgTable(
 	(t) => [primaryKey({ columns: [t.userId, t.lessonId] })]
 ).enableRLS();
 
-/** Calendar days (in the learner's time zone) on which a lesson was completed, for streaks. */
+/** Calendar days (in the learner's time zone) on which a lesson or test was finished, for streaks. */
 export const courseDays = pgTable(
 	'course_days',
 	{

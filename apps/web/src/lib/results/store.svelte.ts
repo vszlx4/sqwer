@@ -1,3 +1,5 @@
+import { courses } from '#lib/courses/store.svelte.ts';
+import { localDay } from '#lib/courses/progression.ts';
 import { idbGet, idbSet } from '#lib/storage/idb.ts';
 import type { ExamId, ResultRecord } from './types.ts';
 
@@ -57,12 +59,15 @@ class ResultsStore {
 	}
 
 	private async upload(record: ResultRecord): Promise<UploadOutcome | null> {
+		const day = localDay(record.at);
 		const res = await fetch('/api/results', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(record)
+			body: JSON.stringify({ ...record, day })
 		});
-		return res.ok ? ((await res.json()) as UploadOutcome) : null;
+		if (!res.ok) return null;
+		if (record.status !== 'abandoned') courses.practiced(day);
+		return (await res.json()) as UploadOutcome;
 	}
 
 	/** Saves a result locally and, when signed in, to the account. Resolves with the server's XP and check. */

@@ -10,6 +10,7 @@ import { rateLimit, spendBudget } from '#lib/server/rate-limit.ts';
 import { checkResult } from '#lib/server/anticheat.ts';
 import { logSecurity } from '#lib/server/security-log.ts';
 import { invalidateLeaderboards } from '#lib/server/progress.ts';
+import { plausibleDay } from '#lib/courses/progression.ts';
 import { verifyCompetitive, verifyMinute } from '#lib/progress/competitive.ts';
 import { examXp } from '#lib/progress/xp.ts';
 import { EXAM_IDS } from '#lib/results/types.ts';
@@ -45,7 +46,9 @@ const recordSchema = z.object({
 	label: z.string().max(120),
 	status: z.enum(['completed', 'abandoned']).default('completed'),
 	fingers: z.partialRecord(z.enum(FINGERS), score).optional(),
-	detail: detailSchema.optional()
+	detail: detailSchema.optional(),
+	// Learner's local date of `at`, for the streak; not stored with the result.
+	day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional()
 });
 
 export const GET: RequestHandler = async ({ locals }) => {
@@ -64,7 +67,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	if (!rateLimit(`results:${locals.user.id}`, 120, 60 * 60 * 1000).ok) error(429, 'Too many requests.');
 	const parsed = recordSchema.safeParse(await request.json().catch(() => null));
 	if (!parsed.success) error(400, 'The result is not valid.');
-	const r = parsed.data;
+	const { day, ...r } = parsed.data;
 	// A result from before its category was cleared is a stale copy from a browser: it is not kept.
 	if (r.at <= (await clearedAt(locals.user.id, categoryOfExam(r.exam)))) error(409, 'This result belongs to data you cleared.');
 	const userId = locals.user.id;
@@ -118,7 +121,12 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		.insert(schema.results)
 		.values({ id: r.id, userId, exam: r.exam, createdAt: new Date(r.at), data: r, xp, wpm: stats?.wpm ?? r.wpm, verified })
 		.onConflictDoNothing();
-	if (r.status === 'completed') track('test_completed', { userId, props: { exam: r.exam } });
+	if (r.status === 'completed') {
+		// A finished test counts toward the streak, like a lesson.
+		const practiced = day && plausibleDay(day, r.at) ? day : new Date(r.at).toISOString().slice(0, 10);
+		await d.insert(schema.courseDays).values({ userId, day: practiced }).onConflictDoNothing();
+		track('test_completed', { userId, props: { exam: r.exam } });
+	}
 	if (verified && r.exam === 'competitive') {
 		track('ranked_verified', { userId });
 		invalidateLeaderboards();
