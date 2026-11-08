@@ -57,7 +57,7 @@
 				onToggle: ({ isActive }) => {
 					spin.paused(!isActive);
 					loop.paused(!isActive);
-					// The CSS drift and bob run only while the finale is on screen.
+					// The glows drift only while the finale is on screen.
 					stage.toggleAttribute('data-live', isActive);
 				}
 			});
