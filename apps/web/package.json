@@ -24,16 +24,16 @@
 		"@sveltejs/adapter-node": "^6.0.1",
 		"@sveltejs/kit": "^3.1.1",
 		"@sveltejs/vite-plugin-svelte": "^7.2.0",
-		"@tailwindcss/vite": "^4.3.3",
+		"@tailwindcss/vite": "^4.3.4",
 		"@types/node": "^26.6.6",
 		"@types/pg": "^8.23.1",
 		"@types/three": "^0.187.0",
 		"drizzle-kit": "^0.31.11",
 		"svelte": "^5.57.3",
-		"svelte-check": "^4.7.7",
+		"svelte-check": "^4.7.8",
 		"tailwindcss": "^4.3.3",
 		"typescript": "^7.0.2",
-		"vite": "^8.3.5"
+		"vite": "^8.3.6"
 	},
 	"imports": {
 		"#lib/*": "./src/lib/*"
