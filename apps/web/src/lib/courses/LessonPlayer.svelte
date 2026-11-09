@@ -9,6 +9,7 @@
 	import { drillTokens, seeded } from './generate.ts';
 	import LessonComplete from './LessonComplete.svelte';
 	import { lessonStars, rankFor } from './progression.ts';
+	import { canPick, clearRun, loadRun, nextOpen, resumeAt, saveRun, type Run } from './run.ts';
 	import FallingGame from './steps/FallingGame.svelte';
 	import KeyIntro from './steps/KeyIntro.svelte';
 	import KeyHunt from './steps/KeyHunt.svelte';
@@ -27,7 +28,8 @@
 
 	let index = $state(0);
 	let attempt = $state(0);
-	let results = $state<StepResult[]>([]);
+	/** Latest result of each step, kept on this device as soon as the step is done. */
+	let run = $state<Run>(untrack(() => Array(lesson.steps.length).fill(null)));
 	let outcome = $state<StepResult | null>(null);
 	// Hints start on in the alphabet chapters; the learner can switch them off at any time.
 	let hints = $state(untrack(() => lesson.chapter <= 3));
@@ -54,6 +56,8 @@
 	const weakPool = untrack(() => lesson.steps.map(weakPoolOf).find((p) => !!p) ?? null);
 	let weak = $state<WeakKeys | null>(null);
 	onMount(() => {
+		run = loadRun(lesson.id, lesson.steps.length);
+		index = resumeAt(run);
 		if (!weakPool) return;
 		weak = weakKeys(weakPool, examResults.list);
 		void examResults.load().then(() => {
@@ -77,7 +81,11 @@
 		return s;
 	});
 	/** Share of the lesson done: completed steps, counting a step as soon as it is passed. */
-	const progress = $derived(complete ? 1 : (index + (outcome?.passed ? 1 : 0)) / lesson.steps.length);
+	const progress = $derived(complete ? 1 : run.filter(Boolean).length / lesson.steps.length);
+	/** The step that follows the current one, or -1 when it is the last one left. */
+	const following = $derived(nextOpen(run, index));
+	/** A lesson finished before can be replayed from any step; otherwise only steps already reached. */
+	const finishedBefore = $derived(!!courses.progress[lesson.id]?.completedAt || !!complete);
 	const chapter = $derived(chapterOf(lesson));
 	const next = $derived(lessonAfter(lesson));
 	// New text for every attempt, so a retry is practice rather than memorisation of one passage.
@@ -87,10 +95,33 @@
 		return [];
 	});
 
+	/** Keeps a passed step's result: saved now, replaced if the step is redone. */
+	function keep(r: StepResult) {
+		run = run.map((x, i) => (i === index ? r : x));
+		saveRun(lesson.id, run);
+	}
+
 	function done(r: StepResult) {
 		pace.record(r);
-		if (!r.passed) fails++;
+		if (r.passed) keep(r);
+		else fails++;
 		swap(() => (outcome = r));
+	}
+
+	/** Opens a step again, finished or current; steps not reached yet stay closed. */
+	function pick(i: number) {
+		if (!canPick(run, i, index, finishedBefore)) return;
+		swap(() => {
+			complete = null;
+			outcome = null;
+			index = i;
+			attempt++;
+			fails = 0;
+		});
+	}
+
+	function redo() {
+		pick(index);
 	}
 
 	async function proceed() {
@@ -103,21 +134,21 @@
 			});
 			return;
 		}
-		if (index + 1 < lesson.steps.length) {
+		if (following !== -1) {
+			const to = following;
 			swap(() => {
-				results = [...results, current];
 				outcome = null;
-				index++;
+				index = to;
 				attempt++;
 				fails = 0;
 			});
 			return;
 		}
-		results = [...results, current];
 		await finish();
 	}
 
 	async function finish() {
+		const results = run.filter((r): r is StepResult => !!r);
 		const stars = lessonStars(results);
 		const graded = results.filter((r) => r.graded !== false);
 		const accuracy = graded.length ? graded.reduce((s, r) => s + r.accuracy, 0) / graded.length : 100;
@@ -125,6 +156,7 @@
 		const before = courses.rank;
 		const bestBefore = courses.progress[lesson.id]?.stars ?? 0;
 		const saved = await courses.record(lesson.id, stars, accuracy, wpm);
+		if (saved) clearRun(lesson.id);
 		swap(() => {
 			outcome = null;
 			complete = { stars, accuracy, wpm, before, after: courses.rank, bestBefore, saved };
@@ -138,7 +170,9 @@
 	const isGame = $derived(['falling', 'keyhunt', 'race'].includes(step.kind));
 	const canSkip = $derived(step.kind !== 'checkpoint' && (isGame ? fails >= 1 : fails >= 2));
 	function skipStep() {
-		outcome = { passed: true, graded: false, accuracy: 0, summary: isGame ? 'Game skipped.' : 'Step skipped.' };
+		const r: StepResult = { passed: true, graded: false, accuracy: 0, summary: isGame ? 'Game skipped.' : 'Step skipped.' };
+		keep(r);
+		outcome = r;
 		void proceed();
 	}
 	/** Lowers the pace and tries again, with hints on for typing steps. */
@@ -149,9 +183,10 @@
 	}
 
 	function restart() {
+		clearRun(lesson.id);
+		run = Array(lesson.steps.length).fill(null);
 		index = 0;
 		attempt++;
-		results = [];
 		outcome = null;
 		complete = null;
 	}
@@ -181,7 +216,7 @@
 		}
 	}
 
-	const inProgress = $derived(!complete && (index > 0 || outcome !== null));
+	const inProgress = $derived(!complete && (run.some(Boolean) || outcome !== null));
 	function leave() {
 		if (inProgress) leaving = true;
 		else void goto('/learn');
@@ -200,9 +235,20 @@
 		<ol class="track" aria-label="Lesson steps">
 			{#each lesson.steps as s, i (i)}
 				{@const info = STEP_INFO[s.kind]}
-				<li class:done={i < index || !!complete} class:current={i === index && !complete} aria-current={i === index && !complete ? 'step' : undefined}>
-					<span class="dot"><Icon name={i < index || complete ? 'check' : info.icon} size={14} /></span>
-					<span class="label">{info.label}</span>
+				{@const isDone = !!run[i]}
+				{@const current = i === index && !complete}
+				<li class:done={isDone} class:current aria-current={current ? 'step' : undefined}>
+					{#if canPick(run, i, index, finishedBefore) && !current}
+						<button type="button" class="pick" onclick={() => pick(i)} aria-label={`Step ${i + 1}: ${info.label}${isDone ? ', done. Redo it' : '. Go to it'}`}>
+							<span class="dot"><Icon name={isDone ? 'check' : info.icon} size={14} /></span>
+							<span class="label">{info.label}</span>
+						</button>
+					{:else}
+						<span class="pick" aria-disabled={current ? undefined : 'true'}>
+							<span class="dot"><Icon name={isDone ? 'check' : info.icon} size={14} /></span>
+							<span class="label">{info.label}</span>
+						</span>
+					{/if}
 				</li>
 			{/each}
 		</ol>
@@ -230,7 +276,7 @@
 		{:else if outcome}
 			<section class="outcome" class:passed={outcome.passed} aria-live="polite">
 				<span class="badge" aria-hidden="true"><Icon name={outcome.passed ? 'check' : 'restart'} size={30} /></span>
-				<h2>{outcome.passed ? (index + 1 < lesson.steps.length ? 'Step complete' : 'Last step complete') : 'Not quite yet'}</h2>
+				<h2>{outcome.passed ? (following !== -1 ? 'Step complete' : 'Last step complete') : 'Not quite yet'}</h2>
 				<p>{outcome.summary}</p>
 				{#if !outcome.passed}
 					<p class="advice">
@@ -238,10 +284,13 @@
 					</p>
 				{/if}
 				<button type="button" class="btn btn-primary btn-lg" onclick={proceed} use:autofocus>
-					{outcome.passed ? (index + 1 < lesson.steps.length ? 'Continue' : 'See your result') : 'Try again'}
+					{outcome.passed ? (following !== -1 ? 'Continue' : 'See your result') : 'Try again'}
 					<Icon name={outcome.passed ? 'arrow' : 'restart'} size={18} />
 					<kbd aria-hidden="true">Enter</kbd>
 				</button>
+				{#if outcome.passed}
+					<p class="saved-note">Saved. <button type="button" class="redo" onclick={redo}><Icon name="restart" size={14} /> Redo this step</button></p>
+				{/if}
 				{#if !outcome.passed && fails >= 2}
 					<div class="help" role="group" aria-label="Help with this step">
 						<p><b>Need a hand?</b> This step has been hard twice. You can slow the pace down, or move on and come back to it later.</p>
@@ -286,7 +335,7 @@
 </div>
 
 <Dialog open={leaving} title="Leave this lesson?" alert onclose={() => (leaving = false)}>
-	<p>Your progress in this attempt will not be saved. You can start the lesson again at any time.</p>
+	<p>The steps you finished are saved on this device, so you can pick up where you left off. The step you are on starts over.</p>
 	{#snippet actions()}
 		<button type="button" class="btn" data-autofocus onclick={() => (leaving = false)}>Keep going</button>
 		<a class="btn btn-danger" href="/learn">Leave lesson</a>
@@ -342,9 +391,6 @@
 	}
 	.track li {
 		display: inline-flex;
-		align-items: center;
-		gap: var(--space-8);
-		padding: var(--space-6) var(--space-12) var(--space-6) var(--space-6);
 		border-radius: var(--radius);
 		border: 1px solid var(--line);
 		font-size: var(--fs-13);
@@ -352,6 +398,29 @@
 		transition:
 			border-color var(--dur-base) var(--ease-out),
 			background-color var(--dur-base) var(--ease-out);
+	}
+	.pick {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-8);
+		padding: var(--space-6) var(--space-12) var(--space-6) var(--space-6);
+		border: 0;
+		border-radius: var(--radius);
+		background: none;
+		font: inherit;
+		color: inherit;
+	}
+	button.pick {
+		cursor: pointer;
+	}
+	button.pick:hover {
+		color: var(--ink);
+	}
+	.track li:has(button.pick:hover) {
+		border-color: var(--ink-3);
+	}
+	.pick[aria-disabled='true'] {
+		opacity: 0.6;
 	}
 	.dot {
 		display: grid;
@@ -556,11 +625,33 @@
 		font-family: var(--font-mono);
 		font-size: var(--fs-12);
 	}
+	.saved-note {
+		display: flex;
+		align-items: center;
+		gap: var(--space-8);
+		font-size: var(--fs-14);
+	}
+	.redo {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-6);
+		padding: var(--space-4) var(--space-8);
+		border: 0;
+		border-radius: var(--radius);
+		background: none;
+		color: var(--ink);
+		font: inherit;
+		font-weight: var(--fw-semibold);
+		cursor: pointer;
+	}
+	.redo:hover {
+		color: var(--ink-2);
+	}
 	@media (max-width: 560px) {
 		.track .label {
 			display: none;
 		}
-		.track li {
+		.pick {
 			padding: var(--space-4);
 		}
 	}
