@@ -27,7 +27,7 @@
 		"@tailwindcss/vite": "^4.3.3",
 		"@types/node": "^26.6.6",
 		"@types/pg": "^8.23.1",
-		"@types/three": "^0.186.0",
+		"@types/three": "^0.187.0",
 		"drizzle-kit": "^0.31.11",
 		"svelte": "^5.57.3",
 		"svelte-check": "^4.7.7",
@@ -39,7 +39,7 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
-		"@electric-sql/pglite": "^0.5.13",
+		"@electric-sql/pglite": "^0.5.15",
 		"@fontsource-variable/geist-mono": "^5.3.0",
 		"@sqwer/content": "*",
 		"@sqwer/engine": "*",
@@ -47,12 +47,12 @@
 		"@sqwer/layouts": "*",
 		"altcha-lib": "^2.8.0",
 		"drizzle-orm": "^0.45.4",
-		"gsap": "^3.15.0",
+		"gsap": "^3.15.1",
 		"onnxruntime-node": "^1.31.1",
 		"pg": "^8.23.1",
 		"phonemizer": "^1.2.1",
 		"qrcode-generator": "2.0.4",
-		"three": "^0.186.1",
+		"three": "^0.187.0",
 		"zod": "^4.6.7"
 	}
 }
