@@ -51,16 +51,6 @@ export type StepSpec =
 			weak?: boolean;
 	  }
 	| {
-			/** Keys flash in a sequence; repeat it from memory. The sequence grows by one each round. */
-			kind: 'echo';
-			pool: string;
-			/** Length of the first sequence. */
-			start: number;
-			/** Sequence length to reach. */
-			target: number;
-			weak?: boolean;
-	  }
-	| {
 			/** A word is spoken aloud; the learner types what they hear. */
 			kind: 'listen';
 			pool: string;

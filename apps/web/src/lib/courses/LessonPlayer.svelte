@@ -11,7 +11,6 @@
 	import { lessonStars, rankFor } from './progression.ts';
 	import FallingGame from './steps/FallingGame.svelte';
 	import KeyIntro from './steps/KeyIntro.svelte';
-	import Echo from './steps/Echo.svelte';
 	import KeyHunt from './steps/KeyHunt.svelte';
 	import ListenType from './steps/ListenType.svelte';
 	import Race from './steps/Race.svelte';
@@ -75,7 +74,6 @@
 			return { ...s, source, minAccuracy: Math.max(75, s.minAccuracy - easier) };
 		}
 		if ((s.kind === 'keyhunt' || s.kind === 'falling') && s.weak && weak) return { ...s, focus };
-		if (s.kind === 'echo' && s.weak && weak) return { ...s, pool: focus.length >= 3 ? focus : s.pool };
 		return s;
 	});
 	/** Share of the lesson done: completed steps, counting a step as soon as it is passed. */
@@ -137,7 +135,7 @@
 	 * Games can be skipped after one failure, other steps (except chapter checks) after two. Skipped steps earn
 	 * no stars.
 	 */
-	const isGame = $derived(['falling', 'keyhunt', 'race', 'echo'].includes(step.kind));
+	const isGame = $derived(['falling', 'keyhunt', 'race'].includes(step.kind));
 	const canSkip = $derived(step.kind !== 'checkpoint' && (isGame ? fails >= 1 : fails >= 2));
 	function skipStep() {
 		outcome = { passed: true, graded: false, accuracy: 0, summary: isGame ? 'Game skipped.' : 'Step skipped.' };
@@ -274,8 +272,6 @@
 						<KeyHunt pool={step.pool} focus={step.focus} target={step.target} pace={pace.value} oncomplete={done} />
 					{:else if step.kind === 'race'}
 						<Race pool={step.pool} focus={step.focus} words={step.words} sentences={step.sentences} count={step.count} pacerWpm={Math.max(6, Math.round(step.pacerWpm * pace.value))} oncomplete={done} />
-					{:else if step.kind === 'echo'}
-						<Echo pool={step.pool} start={step.start} target={pace.value < 0.85 ? Math.max(step.start, step.target - 1) : step.target} oncomplete={done} />
 					{:else if step.kind === 'listen'}
 						<ListenType pool={step.pool} focus={step.focus} words={step.words} count={step.count} target={step.target} oncomplete={done} />
 					{/if}

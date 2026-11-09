@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { playEcho, playKeyHunt, proceed, typeDrill } from './play.ts';
+import { playFalling, playKeyHunt, proceed, typeDrill } from './play.ts';
 
 test('a guest can take the whole first lesson and is invited to keep it', async ({ page }) => {
 	test.setTimeout(180_000);
@@ -22,8 +22,8 @@ test('a guest can take the whole first lesson and is invited to keep it', async 
 	await playKeyHunt(page);
 	await proceed(page);
 
-	await expect(page.locator('.overlay .title')).toHaveText('Echo');
-	await playEcho(page);
+	await expect(page.locator('.overlay .title')).toHaveText('Falling letters');
+	await playFalling(page);
 	await proceed(page);
 
 	await expect(page.locator('.overlay .title')).toHaveText('Key hunt');
