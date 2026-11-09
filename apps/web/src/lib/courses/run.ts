@@ -52,6 +52,17 @@ export function clearRuns() {
 	writeAll({});
 }
 
+/** Graded results rank above ungraded ones (skips, introductions); then accuracy, then speed. */
+const rank = (r: StepResult) => [r.graded === false ? 0 : 1, r.accuracy, r.wpm ?? 0];
+
+/** The better of a step's saved result and a new one; a redo never lowers what was saved. */
+export function best(saved: StepResult | null, next: StepResult): StepResult {
+	if (!saved) return next;
+	const [a, b] = [rank(next), rank(saved)];
+	for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i]! > b[i]! ? next : saved;
+	return next;
+}
+
 /** The next step without a result: after `from` first, then from the start. -1 when every step is done. */
 export function nextOpen(run: Run, from: number): number {
 	for (let i = from + 1; i < run.length; i++) if (!run[i]) return i;

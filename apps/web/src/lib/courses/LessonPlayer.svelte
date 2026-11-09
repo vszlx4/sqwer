@@ -9,7 +9,7 @@
 	import { drillTokens, seeded } from './generate.ts';
 	import LessonComplete from './LessonComplete.svelte';
 	import { lessonStars, rankFor } from './progression.ts';
-	import { canPick, clearRun, loadRun, nextOpen, resumeAt, saveRun, type Run } from './run.ts';
+	import { best, canPick, clearRun, loadRun, nextOpen, resumeAt, saveRun, type Run } from './run.ts';
 	import FallingGame from './steps/FallingGame.svelte';
 	import KeyIntro from './steps/KeyIntro.svelte';
 	import KeyHunt from './steps/KeyHunt.svelte';
@@ -95,9 +95,14 @@
 		return [];
 	});
 
-	/** Keeps a passed step's result: saved now, replaced if the step is redone. */
+	/** Whether the last redo fell short of the step's saved result, which is kept. */
+	let keptEarlier = $state(false);
+
+	/** Keeps a passed step's result: saved now; a redo replaces it only when it does better. */
 	function keep(r: StepResult) {
-		run = run.map((x, i) => (i === index ? r : x));
+		const kept = best(run[index] ?? null, r);
+		keptEarlier = kept !== r;
+		run = run.map((x, i) => (i === index ? kept : x));
 		saveRun(lesson.id, run);
 	}
 
@@ -289,7 +294,7 @@
 					<kbd aria-hidden="true">Enter</kbd>
 				</button>
 				{#if outcome.passed}
-					<p class="saved-note">Saved. <button type="button" class="redo" onclick={redo}><Icon name="restart" size={14} /> Redo this step</button></p>
+					<p class="saved-note">{keptEarlier ? 'Your earlier, better result is kept.' : 'Saved.'} <button type="button" class="redo" onclick={redo}><Icon name="restart" size={14} /> Redo this step</button></p>
 				{/if}
 				{#if !outcome.passed && fails >= 2}
 					<div class="help" role="group" aria-label="Help with this step">
