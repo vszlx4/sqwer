@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { canPick, clearRun, clearRuns, loadRun, nextOpen, resumeAt, saveRun, type Run } from './run.ts';
+import { best, canPick, clearRun, clearRuns, loadRun, nextOpen, resumeAt, saveRun, type Run } from './run.ts';
 import type { StepResult } from './types.ts';
 
 const ok: StepResult = { passed: true, accuracy: 95, summary: 'ok' };
@@ -60,6 +60,19 @@ describe('lesson runs', () => {
 		expect(loadRun('l001', 2)).toEqual([null, null]);
 		localStorage.setItem('sqwer:lesson-runs', 'not json');
 		expect(loadRun('l001', 2)).toEqual([null, null]);
+	});
+
+	it('keeps the better result when a step is redone', () => {
+		const good: StepResult = { passed: true, accuracy: 97, wpm: 20, summary: 'good' };
+		const worse: StepResult = { passed: true, accuracy: 91, wpm: 30, summary: 'worse' };
+		const faster: StepResult = { passed: true, accuracy: 97, wpm: 24, summary: 'faster' };
+		const skipped: StepResult = { passed: true, graded: false, accuracy: 0, summary: 'skipped' };
+		expect(best(null, worse)).toBe(worse);
+		expect(best(good, worse)).toBe(good);
+		expect(best(worse, good)).toBe(good);
+		expect(best(good, faster)).toBe(faster);
+		expect(best(skipped, worse)).toBe(worse);
+		expect(best(worse, skipped)).toBe(worse);
 	});
 
 	it('clears one lesson or all of them', () => {
