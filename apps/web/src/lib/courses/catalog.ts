@@ -38,7 +38,6 @@ const sentencesOf = (sentences: readonly string[], count: number): DrillSource =
 const keyhunt = (pool: string, focus: string, target = 14, weak = false): StepSpec => ({ kind: 'keyhunt', pool, focus, target, ...(weak ? { weak } : {}) });
 const fallingLetters = (pool: string, focus: string, target = 14, weak = false): StepSpec => ({ kind: 'falling', items: 'letters', pool, focus, target, ...(weak ? { weak } : {}) });
 const fallingWords = (pool: string, focus: string, target = 10, words?: readonly string[]): StepSpec => ({ kind: 'falling', items: 'words', pool, focus, words, target });
-const echo = (pool: string, start = 3, target = 5, weak = false): StepSpec => ({ kind: 'echo', pool, start, target, ...(weak ? { weak } : {}) });
 const race = (pool: string, focus: string, pacerWpm: number, count = 10, words?: readonly string[]): StepSpec => ({ kind: 'race', pool, focus, words, count, pacerWpm });
 const raceSentences = (sentences: readonly string[], pacerWpm: number, count = 14): StepSpec => ({ kind: 'race', pool: LETTERS, focus: '', sentences, count, pacerWpm });
 const listen = (pool: string, words?: readonly string[], count = 8, target = 6): StepSpec => ({ kind: 'listen', pool, focus: '', words, count, target });
@@ -63,13 +62,13 @@ function keyLessons(plan: KeyPlan, known: string, chapter: number, n: number, pa
 		keyhunt(pool, plan.keys, 12)
 	];
 	if (known) learn.push(drill('Mix them with the keys you know', patterns(pool, plan.keys, 12)));
-	learn.push(odd ? fallingLetters(pool, plan.keys, 14) : echo(pool, 3, 5));
+	learn.push(fallingLetters(pool, plan.keys, 14));
 	if (hasWords) learn.push(drill('Real words', wordsFrom(L, F, 10), 90));
 	learn.push(hasWords ? fallingWords(L, F, 8) : keyhunt(pool, '', 14));
 
 	const use: StepSpec[] = [
 		drill('Warm up', patterns(pool, plan.keys, 12)),
-		odd ? echo(pool, 3, 6) : fallingLetters(pool, plan.keys, 16),
+		odd ? keyhunt(pool, plan.keys, 16) : fallingLetters(pool, plan.keys, 16),
 		hasWords ? drill('Words with the new keys', wordsFrom(L, F, 14), 90) : drill('Longer groups', patterns(pool, plan.keys, 14)),
 		hasWords ? race(L, F, pacer, 10) : keyhunt(pool, '', 16),
 		drill('Everything so far', patterns(pool, '', 12)),
@@ -109,11 +108,11 @@ function rowWordLessons(chapter: number, pool: string, focus: string, name: stri
 		{
 			chapter,
 			title: `${name} in flow`,
-			summary: 'Longer runs of words at an even pace, and a memory round.',
+			summary: 'Longer runs of words at an even pace, with falling words between.',
 			newKeys: [],
 			steps: [
 				drill('Warm up', patterns(pool, focus, 12)),
-				echo(pool, 4, 7),
+				fallingWords(L, '', 12),
 				drill('Words in a row', wordsFrom(L, '', 18), 90),
 				race(L, '', pacer + 3, 12),
 				keyhunt(pool, '', 18),
@@ -136,7 +135,6 @@ function weakLesson(chapter: number, pool: string): Draft {
 			keyhunt(pool, '', 14, true),
 			...(L.length >= 8 ? [drill('Words for those fingers', wordsFrom(L, '', 12), 88, true)] : []),
 			fallingLetters(pool, '', 14, true),
-			echo(pool, 3, 6, true),
 			drill('Once more, steadily', patterns(pool, '', 12), 88, true)
 		]
 	};
@@ -167,7 +165,7 @@ function symbolLessons(title: string, keys: string, tip: string, chapter: number
 				drill(`Practice ${keyList([...keys])}`, patterns(keys, keys, 10), 85),
 				n % 2 ? fallingLetters(keys, keys, 12) : keyhunt(keys, keys, 12),
 				drill('In context', listOf(context.slice(0, half)), 88),
-				echo(keys, 3, 5)
+				n % 2 ? keyhunt(keys, keys, 12) : fallingLetters(keys, keys, 12)
 			]
 		},
 		{
@@ -179,7 +177,7 @@ function symbolLessons(title: string, keys: string, tip: string, chapter: number
 				drill('Warm up', patterns(keys, keys, 12), 86),
 				n % 2 ? keyhunt(keys, keys, 14) : fallingLetters(keys, keys, 14),
 				drill('More context', listOf(context.slice(half)), 88),
-				echo(keys, 4, 6),
+				n % 2 ? fallingLetters(keys, keys, 14) : keyhunt(keys, keys, 14),
 				drill('All of them together', listOf(context), 88)
 			]
 		}
@@ -195,7 +193,7 @@ function capitalWords(hand: 'left' | 'right', count: number, skip = 0): string[]
 }
 
 /** Words and short phrases, split for lessons that use them in turn. */
-type WordGame = 'race' | 'listen' | 'falling' | 'echo';
+type WordGame = 'race' | 'listen' | 'falling';
 function wordGame(game: WordGame, words: readonly string[], pacer: number): StepSpec {
 	switch (game) {
 		case 'race':
@@ -204,8 +202,6 @@ function wordGame(game: WordGame, words: readonly string[], pacer: number): Step
 			return listen(LETTERS, words, 8, 6);
 		case 'falling':
 			return fallingWords(LETTERS, '', 12, words);
-		case 'echo':
-			return echo(LETTERS, 4, 7);
 	}
 }
 
@@ -213,11 +209,11 @@ function wordGame(game: WordGame, words: readonly string[], pacer: number): Step
 function wordsLesson(title: string, summary: string, chapter: number, group: readonly string[], n: number, pacer: number): Draft {
 	const ORDERS: WordGame[][] = [
 		['listen', 'race', 'falling'],
-		['falling', 'echo', 'race'],
-		['race', 'listen', 'echo'],
-		['echo', 'falling', 'listen'],
-		['echo', 'race', 'listen'],
-		['race', 'echo', 'falling']
+		['falling', 'listen', 'race'],
+		['race', 'falling', 'listen'],
+		['falling', 'race', 'listen'],
+		['listen', 'falling', 'race'],
+		['race', 'listen', 'falling']
 	];
 	const [a, b, c] = ORDERS[n % ORDERS.length]!;
 	const half = Math.ceil(group.length / 2);
@@ -406,7 +402,7 @@ function build(): Chapter[] {
 			]
 		},
 		sentenceLesson('Capital sentences', 'Capital letters at the start of sentences, with periods at the end.', 4, CAPS.slice(0, 10), 16),
-		sentenceLesson('More capital sentences', 'New sentences, a little longer.', 4, CAPS.slice(10, 20), 18, [echo(LETTERS, 4, 6)]),
+		sentenceLesson('More capital sentences', 'New sentences, a little longer.', 4, CAPS.slice(10, 20), 18, [keyhunt(LETTERS, '', 16)]),
 		sentenceLesson('Capitals in flow', 'Sentences typed without stopping at the capitals.', 4, CAPS.slice(20, 30), 20, [listen(LETTERS, COMMON_1.slice(0, 40), 8, 6)]),
 		weakLesson(4, LETTERS),
 		check('Capitals check', 4, sentencesOf(CAPS.slice(30), CAPS.length - 30), 45, 15)
@@ -440,7 +436,6 @@ function build(): Chapter[] {
 				drill('All ten digits', patterns(DIGITS, '', 12), 86),
 				keyhunt(DIGITS, '', 16),
 				drill('Years and prices', listOf(['1999', '2024', '15.50', '3.75', '1066', '2001', '42', '7.99', '1984', '360']), 88),
-				echo(DIGITS, 4, 7),
 				fallingLetters(DIGITS, '', 16)
 			]
 		},
@@ -470,7 +465,7 @@ function build(): Chapter[] {
 		['Longer sentences', 'Sentences that need you to keep going.'],
 		['Flow practice', 'A mix of everything in this chapter.']
 	] as const;
-	const flowGames: StepSpec[] = [listen(LETTERS, COMMON_1.slice(0, 50), 8, 6), fallingWords(LETTERS, '', 12, COMMON_1.slice(0, 60)), echo(LETTERS, 4, 7), keyhunt(LETTERS, '', 18), listen(LETTERS, COMMON_2.slice(0, 50), 8, 6), race(LETTERS, '', 28, 12, COMMON_2)];
+	const flowGames: StepSpec[] = [listen(LETTERS, COMMON_1.slice(0, 50), 8, 6), fallingWords(LETTERS, '', 12, COMMON_1.slice(0, 60)), race(LETTERS, '', 28, 12, COMMON_1.slice(50)), keyhunt(LETTERS, '', 18), listen(LETTERS, COMMON_2.slice(0, 50), 8, 6), race(LETTERS, '', 28, 12, COMMON_2)];
 	chunks(FLOW.slice(0, 42), 7).forEach((set, i) => add(sentenceLesson(flowNames[i]![0], flowNames[i]![1], 9, set, 24 + i * 2, [flowGames[i]!])));
 	add(weakLesson(9, LETTERS), check('Flow check', 9, sentencesOf(FLOW.slice(42), FLOW.length - 42), 60, 25));
 
@@ -487,8 +482,7 @@ function build(): Chapter[] {
 				drill('Pairs', listOf(PAIRS), 92),
 				fallingWords(LETTERS, '', 14, PAIRS),
 				drill('Pairs in words', listOf(['the', 'then', 'there', 'other', 'into', 'under', 'and', 'order', 'one', 'atone', 'tend', 'notes']), 92),
-				race(LETTERS, '', 30, 12, ['the', 'then', 'there', 'other', 'into', 'under', 'and', 'order', 'one', 'tend', 'notes', 'often']),
-				echo(LETTERS, 5, 8)
+				race(LETTERS, '', 30, 12, ['the', 'then', 'there', 'other', 'into', 'under', 'and', 'order', 'one', 'tend', 'notes', 'often'])
 			]
 		},
 		{
@@ -514,9 +508,9 @@ function build(): Chapter[] {
 		{
 			chapter: 10,
 			title: 'Quick reactions',
-			summary: 'Key hunts and falling words at a quicker pace, with a memory round between.',
+			summary: 'Key hunts, falling letters and falling words at a quicker pace.',
 			newKeys: [],
-			steps: [keyhunt(LETTERS, '', 22), echo(LETTERS, 5, 8), fallingWords(LETTERS, '', 14, COMMON_2), drill('Steady words', listOf(COMMON_2.slice(0, 24)), 92)]
+			steps: [keyhunt(LETTERS, '', 22), fallingLetters(LETTERS, '', 20), fallingWords(LETTERS, '', 14, COMMON_2), drill('Steady words', listOf(COMMON_2.slice(0, 24)), 92)]
 		},
 		{
 			chapter: 10,
@@ -543,7 +537,6 @@ function build(): Chapter[] {
 				drill('Near-perfect accuracy', listOf(LESS_COMMON.slice(32, 56)), 97),
 				keyhunt(LETTERS, '', 20),
 				drill('Again, carefully', listOf(LESS_COMMON.slice(56, 80)), 97),
-				echo(LETTERS, 5, 8),
 				drill('A final careful run', listOf(LESS_COMMON.slice(80, 104)), 97)
 			]
 		},
@@ -565,7 +558,7 @@ function build(): Chapter[] {
 			title: 'Every symbol',
 			summary: 'All the symbols of this chapter, by touch.',
 			newKeys: [],
-			steps: [drill('All the symbols', patterns(SYMBOLS, '', 12), 85), keyhunt(SYMBOLS, '', 16), echo(SYMBOLS, 3, 6), fallingLetters(SYMBOLS, '', 14)]
+			steps: [drill('All the symbols', patterns(SYMBOLS, '', 12), 85), keyhunt(SYMBOLS, '', 16), fallingLetters(SYMBOLS, '', 14)]
 		},
 		weakLesson(12, LETTERS + DIGITS),
 		check('Final check', 12, sentencesOf([...PUNCTUATION_SENTENCES, ...NUMBER_SENTENCES], 10), 90, 38, 95)

@@ -22,6 +22,7 @@
 		{ name: 'sqwer:sound', purpose: 'Whether sound is on in the Echo game.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:endless', purpose: 'For each endless game: your best run, the level adaptive difficulty reached and the difficulty you chose last.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:resets', purpose: 'When this browser last discarded its copy of data you cleared from your account, so that it is not uploaded again.', lasts: 'Until you remove it', sent: 'Never' },
+		{ name: 'sqwer:lesson-runs', purpose: 'The steps you finished in a lesson you have not completed yet, so that you can pick up where you left off or redo a step.', lasts: 'Until you complete the lesson or remove it', sent: 'Never' },
 		{ name: 'sqwer:pace', purpose: 'The adaptive pace of the Courses, which makes games and drills gentler or brisker according to how your exercises go.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:analytics-consent', purpose: 'Your answer to the analytics question (allow or refuse) and when you gave it, so that you are not asked again. It contains no identifier.', lasts: 'Until you remove it, or until what analytics collects changes and you are asked again', sent: 'Never' },
 		{ name: 'sqwer:device', purpose: 'A random identifier for this browser, created only while you are signed in, so that its usage statistics are kept separate from your other devices.', lasts: 'Until you remove it', sent: 'With your usage statistics, while signed in' }

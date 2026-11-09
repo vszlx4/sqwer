@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { playEcho, playKeyHunt, proceed, typeDrill } from './play.ts';
+import { playFalling, playKeyHunt, proceed, typeDrill } from './play.ts';
 
 test('a guest can take the whole first lesson and is invited to keep it', async ({ page }) => {
 	test.setTimeout(180_000);
@@ -22,8 +22,8 @@ test('a guest can take the whole first lesson and is invited to keep it', async 
 	await playKeyHunt(page);
 	await proceed(page);
 
-	await expect(page.locator('.overlay .title')).toHaveText('Echo');
-	await playEcho(page);
+	await expect(page.locator('.overlay .title')).toHaveText('Falling letters');
+	await playFalling(page);
 	await proceed(page);
 
 	await expect(page.locator('.overlay .title')).toHaveText('Key hunt');
@@ -91,5 +91,33 @@ test('Tab restarts only the current exercise', async ({ page }) => {
 	await expect(page.locator('[data-word] .correct')).toHaveCount(0);
 	await expect(page.getByTestId('typing-input')).toBeFocused();
 	await expect(page.getByRole('list', { name: 'Lesson steps' }).getByRole('listitem').first()).toHaveClass(/done/);
+	await expect(page.getByRole('heading', { name: 'Get to know F and J' })).toBeVisible();
+});
+
+test('finished steps are saved, can be picked again, and steps ahead stay closed', async ({ page }) => {
+	await page.goto('/learn/l001');
+	await expect(page.getByText('Press F with your left index finger.')).toBeVisible();
+	for (const k of 'fffjjj') await page.keyboard.press(k);
+	await expect(page.locator('.outcome')).toContainText('Saved.');
+
+	// Leaving and coming back resumes at the next step.
+	await page.reload();
+	await expect(page.getByRole('heading', { name: 'Get to know F and J' })).toBeVisible();
+	const steps = page.getByRole('list', { name: 'Lesson steps' });
+	await expect(steps.getByRole('listitem').first()).toHaveClass(/done/);
+	await expect(steps.getByRole('button')).toHaveCount(1);
+
+	// The finished introduction opens again; the drill reached before stays open, later steps do not.
+	await steps.getByRole('button', { name: /Step 1: Meet the keys, done/ }).click();
+	await expect(page.getByText('Press F with your left index finger.')).toBeVisible();
+	await expect(steps.getByRole('button', { name: /Step 2: Practice/ })).toBeVisible();
+	await expect(steps.getByRole('button', { name: /Step 3/ })).toHaveCount(0);
+
+	// Redo from the result, then continue back to where the lesson was.
+	for (const k of 'fffjjj') await page.keyboard.press(k);
+	await page.getByRole('button', { name: 'Redo this step' }).click();
+	await expect(page.getByText('Press F with your left index finger.')).toBeVisible();
+	for (const k of 'fffjjj') await page.keyboard.press(k);
+	await proceed(page);
 	await expect(page.getByRole('heading', { name: 'Get to know F and J' })).toBeVisible();
 });

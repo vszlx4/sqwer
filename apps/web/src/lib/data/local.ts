@@ -1,4 +1,5 @@
 import { pace } from '#lib/courses/pace.svelte.ts';
+import { clearRuns } from '#lib/courses/run.ts';
 import { courses } from '#lib/courses/store.svelte.ts';
 import { fingerMap } from '#lib/fingermap/store.svelte.ts';
 import { results } from '#lib/results/store.svelte.ts';
@@ -33,6 +34,7 @@ export async function forgetLocal(category: DataCategory, at = Date.now()) {
 	switch (category) {
 		case 'learning':
 			pace.reset();
+			clearRuns();
 			await courses.forget();
 			break;
 		case 'practice':
