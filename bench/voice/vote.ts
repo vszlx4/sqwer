@@ -1,6 +1,6 @@
 /*
  * Blind listening vote, local only. `node vote.ts [rounds]`, then open http://127.0.0.1:5180
- * Each round plays one word from every contestant (best-scoring voice per engine) under shuffled letters, normal
+ * Each round plays one word from every contestant (best-scoring voice per engine, 80% or more) under shuffled letters, normal
  * or slow. Votes go to results/votes.json; names show only on /reveal.
  */
 
@@ -23,7 +23,7 @@ type Vote = { word: string; speed: string; winner: Contestant; heard: Contestant
 const scored: { engine: string; voice: string; normal: number }[] = JSON.parse(readFileSync(path.join(RESULTS, 'results.json'), 'utf8'));
 const contestants: Contestant[] = ENGINES.flatMap((e) => {
 	const best = scored.filter((r) => r.engine === e.id).sort((a, b) => b.normal - a.normal)[0];
-	return best ? [{ engine: e.id, voice: best.voice }] : [];
+	return best && best.normal >= 0.8 ? [{ engine: e.id, voice: best.voice }] : [];
 });
 
 const shuffle = <T>(xs: T[]) => {
@@ -110,6 +110,7 @@ createServer((req, res) => {
 		return;
 	}
 	if (url === '/reveal') return res.writeHead(200, { 'content-type': 'text/html' }).end(reveal());
+	if (url !== '/') return res.writeHead(404).end();
 	round ??= next();
 	if (!round) return res.writeHead(200, { 'content-type': 'text/html' }).end(`${reveal()}<p>All rounds done.</p>`);
 	res.writeHead(200, { 'content-type': 'text/html', 'cache-control': 'no-store' }).end(page(round));

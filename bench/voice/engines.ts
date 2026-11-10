@@ -79,7 +79,7 @@ const piper = (voice: string, accent: 'us' | 'gb', licence: string, sid = 0): En
 		id: `piper-${voice}`,
 		label: 'Piper',
 		ipa: 'espeak',
-		licence: 'GPL-3.0 runtime; voice: see model card',
+		licence: `voice ${licence}`,
 		files: [modelDir(archive)],
 		model: () => ({
 			vits: {
