@@ -45,12 +45,15 @@ const kokoro = (archive: string, label: string): Engine => ({
 			lexicon: f(archive, 'lexicon-us-en.txt')
 		}
 	}),
-	voices: [
-		{ id: 'af_heart', sid: 3, accent: 'us' },
-		{ id: 'af_bella', sid: 2, accent: 'us' },
-		{ id: 'am_michael', sid: 16, accent: 'us' },
-		{ id: 'bf_emma', sid: 21, accent: 'gb' }
-	]
+	// int8 is today's voice: the baseline only
+	voices: archive.includes('int8')
+		? [{ id: 'af_heart', sid: 3, accent: 'us' }]
+		: [
+				{ id: 'af_heart', sid: 3, accent: 'us' },
+				{ id: 'af_bella', sid: 2, accent: 'us' },
+				{ id: 'am_michael', sid: 16, accent: 'us' },
+				{ id: 'bf_emma', sid: 21, accent: 'gb' }
+			]
 });
 
 const kitten = (archive: string, id: string, model: string): Engine => ({
@@ -66,11 +69,8 @@ const kitten = (archive: string, id: string, model: string): Engine => ({
 			tokens: f(archive, 'tokens.txt')
 		}
 	}),
-	voices: [
-		{ id: 'f2', sid: 1, accent: 'us' },
-		{ id: 'm2', sid: 0, accent: 'us' },
-		{ id: 'f4', sid: 5, accent: 'us' }
-	]
+	// one voice per size; the others only if a size comes close
+	voices: [{ id: 'f2', sid: 1, accent: 'us' }]
 });
 
 const piper = (voice: string, accent: 'us' | 'gb', licence: string, sid = 0): Engine => {
@@ -124,6 +124,7 @@ const pocket = (archive: string, id: string): Engine => {
 const SUPERTONIC = 'sherpa-onnx-supertonic-3-tts-int8-2026-05-11';
 const MELO = 'vits-melo-tts-en';
 
+// Out by licence: Piper en_US lessac (Blizzard 2013, research only) and ryan (CC BY-NC-SA 4.0).
 export const ENGINES: Engine[] = [
 	kokoro('kokoro-multi-lang-v1_0', 'Kokoro 1.0'),
 	kokoro('kokoro-int8-multi-lang-v1_0', 'Kokoro 1.0 int8 (current)'),
@@ -138,8 +139,6 @@ export const ENGINES: Engine[] = [
 	kitten('kitten-nano-en-v0_8-int8', 'kitten-nano', 'model.int8.onnx'),
 	kitten('kitten-micro-en-v0_8', 'kitten-micro', 'model.onnx'),
 	kitten('kitten-mini-en-v0_8', 'kitten-mini', 'model.onnx'),
-	piper('en_US-lessac-medium', 'us', 'Blizzard 2013 (research only, fails)'),
-	piper('en_US-ryan-high', 'us', 'CC BY-NC-SA 4.0 (non-commercial, fails)'),
 	piper('en_US-libritts_r-medium', 'us', 'CC BY 4.0'),
 	piper('en_GB-cori-high', 'gb', 'public domain'),
 	piper('en_GB-alba-medium', 'gb', 'CC BY 4.0'),

@@ -1,11 +1,11 @@
 /*
- * Voice engine bench for Listen and type (#171). `node run.ts [--score-only] [engine...]`
- * Renders the word set with each engine (one process each), has Whisper read every clip back, marks it with
- * matchHeard, and writes results.md and results.json next to the clips.
+ * Voice engine bench for Listen and type (#171). `node run.ts [--rerender] [--slow] [engine...]`
+ * Renders the word set with each engine not rendered yet (one process each), has Whisper read the normal clips back
+ * (and the slow ones with --slow), marks them with matchHeard, and writes results.md and results.json.
  */
 
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { matchHeard } from '../../packages/content/src/heard.ts';
 import { ENGINES, SLOW, THREADS, clipFile, sherpa, whisper } from './engines.ts';
@@ -13,12 +13,14 @@ import { BENCH_DIR } from './models.ts';
 import type { RenderResult } from './render.ts';
 import { GROUPS, WORDS } from './words.ts';
 
-const scoreOnly = process.argv.includes('--score-only');
+const rerender = process.argv.includes('--rerender');
+const scoreSlow = process.argv.includes('--slow');
 const only = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const engines = only.length ? ENGINES.filter((e) => only.includes(e.id)) : ENGINES;
 const results = path.join(BENCH_DIR, 'results');
 
-for (const e of scoreOnly ? [] : engines) {
+for (const e of engines) {
+	if (!rerender && existsSync(path.join(results, `render-${e.id}.json`))) continue;
 	console.log(`render ${e.id}`);
 	execFileSync(process.execPath, [path.join(import.meta.dirname, 'render.ts'), e.id], { stdio: 'inherit' });
 }
@@ -59,7 +61,7 @@ for (const e of engines) {
 		const groups: Record<string, number> = {};
 		const missed: string[] = [];
 		for (const word of WORDS) {
-			for (const speed of ['normal', 'slow'] as const) {
+			for (const speed of scoreSlow ? (['normal', 'slow'] as const) : (['normal'] as const)) {
 				const heard = hear(clipFile(e.id, v.voice, speed, word));
 				if (matchHeard(word, heard).ok) ok[speed]++;
 				else if (speed === 'normal') missed.push(`${word}→${heard || '∅'}`);
@@ -68,7 +70,7 @@ for (const e of engines) {
 		for (const [g, ws] of Object.entries(GROUPS))
 			groups[g] = ws.filter((w) => !missed.some((m) => m.startsWith(`${w}→`))).length / ws.length;
 		const { voices: _, engine: __, ...shared } = render;
-		rows.push({ engine: e.id, ...shared, ...v, normal: ok.normal / WORDS.length, slow: ok.slow / WORDS.length, groups, missed });
+		rows.push({ engine: e.id, ...shared, ...v, normal: ok.normal / WORDS.length, slow: scoreSlow ? ok.slow / WORDS.length : NaN, groups, missed });
 		console.log(`score ${e.id}/${v.voice}: ${ok.normal}/${WORDS.length} normal, ${ok.slow} slow`);
 	}
 }
@@ -83,7 +85,7 @@ const md = [
 	'| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
 	...rows.map((r) => {
 		const e = engines.find((x) => x.id === r.engine)!;
-		return `| ${e.label} | ${r.voice} | ${e.licence} | ${pct(r.normal)} | ${pct(r.slow)} | ${r.msPerWord.toFixed(0)} | ${r.p95.toFixed(0)} | ${r.loadMs.toFixed(0)} | ${r.memoryMb.toFixed(0)} | ${r.modelMb.toFixed(0)} | ${pct(r.deterministic)} | ${r.sampleRate} |`;
+		return `| ${e.label} | ${r.voice} | ${e.licence} | ${pct(r.normal)} | ${Number.isNaN(r.slow) ? '–' : pct(r.slow)} | ${r.msPerWord.toFixed(0)} | ${r.p95.toFixed(0)} | ${r.loadMs.toFixed(0)} | ${r.memoryMb.toFixed(0)} | ${r.modelMb.toFixed(0)} | ${pct(r.deterministic)} | ${r.sampleRate} |`;
 	}),
 	'',
 	'## Missed at normal speed',
