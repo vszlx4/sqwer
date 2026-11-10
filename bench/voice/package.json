@@ -1,0 +1,19 @@
+{
+	"name": "sqwer-voice-bench",
+	"private": true,
+	"license": "GPL-3.0-only",
+	"type": "module",
+	"engines": {
+		"node": ">=24.22.1"
+	},
+	"scripts": {
+		"fetch": "node fetch.ts",
+		"bench": "node run.ts",
+		"pronounce": "node pronounce.ts",
+		"vote": "node vote.ts"
+	},
+	"dependencies": {
+		"phonemizer": "1.2.1",
+		"sherpa-onnx-node": "2.0.1"
+	}
+}
