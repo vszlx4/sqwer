@@ -17,8 +17,6 @@ export const ARCHIVES: Archive[] = [
 	tts('kitten-nano-en-v0_8-int8', '6fa5be852612ce761094ba74ee6123b4fc4acfefa79bf64dc63acae4a83af2fd'),
 	tts('kitten-micro-en-v0_8', '85faaea7511ca9d1d2f251fed0a4553bdf0d1ee046102fa60ddd8046c751f76f'),
 	tts('kitten-mini-en-v0_8', '518f9b130320f690d5b5476df77bde4215fca67773cda16710318e5081234b9d'),
-	tts('vits-piper-en_US-lessac-medium', '9e3febfacf0abf4270172d2958bcec246032b7e88efc2720840cc80c93de334e'),
-	tts('vits-piper-en_US-ryan-high', '6a71edf4d308b9cb2eaeadc8d1f3c6bf96120ecb7fe52c29a2b6e139c59760ed'),
 	tts('vits-piper-en_US-libritts_r-medium', '10dc268f3e371696d721486123e2705a9fc1faa113491979fde4d88dba1f1b1c'),
 	tts('vits-piper-en_GB-cori-high', '42922f07738fcde2e49eed4e959635692f73b933de35a6b7c1010162ff566292'),
 	tts('vits-piper-en_GB-alba-medium', 'fcd45962906933eec4431d3688f7d74aaac8713c87c6717f91fd3b23463aa1a1'),
