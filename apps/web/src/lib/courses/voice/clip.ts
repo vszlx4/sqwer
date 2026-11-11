@@ -8,4 +8,5 @@ export function isSpeakable(word: string): boolean {
 	return word.length <= 24 && /^[a-z]+(?:['-][a-z]+)*$/.test(word);
 }
 
-export const clipUrl = (word: string) => `/voice/${CLIP_VERSION}/${encodeURIComponent(word)}`;
+/** A word in the voice this copy uses (Standard or Supertonic, picked on the server). */
+export const clipUrl = (word: string, speed: 'normal' | 'slow' = 'normal') => `/voice/auto/${speed}/${encodeURIComponent(word)}`;

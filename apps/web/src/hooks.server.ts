@@ -11,13 +11,15 @@ import {
 	validateSession
 } from '#lib/server/auth.ts';
 import { startAnalyticsMaintenance } from '#lib/server/analytics/maintenance.ts';
+import { startVoiceGenerator } from '#lib/server/voice/background.ts';
 import { DEFAULT_LOCALE, LOCALES } from '#lib/i18n/locales.ts';
 import { areaFor } from '#lib/site/areas.ts';
 
-/** Background upkeep of analytics (daily totals and retention), once per server process. */
+/** Background upkeep, once per server process: analytics totals and retention, Supertonic clips when chosen. */
 export const init: ServerInit = () => {
 	checkConfiguration();
 	startAnalyticsMaintenance();
+	startVoiceGenerator();
 };
 
 /** Unexpected errors: details logged under a reference; the response shows only the reference. */
