@@ -84,22 +84,26 @@
 		});
 		// Clips are fetched while the intro is read, so the first word plays at once.
 		voice.prepare(list);
-		meter();
 	});
 
 	/** Bar weights across the pill, loudest in the middle. */
 	const SHAPE = [0.2, 0.36, 0.6, 0.86, 0.72, 1, 0.84, 0.58, 0.74, 0.46, 0.3, 0.18];
 
-	/** Drives the pill from the playing clip's real level. Device voices give no level: a still mid level. */
+	let level = 0;
+	/**
+	 * Drives the pill from the playing clip's real level; device voices give none, so a still mid level. Runs while
+	 * a word plays and stops once the bars have settled.
+	 */
 	function meter() {
-		let level = 0;
+		if (frame) return;
 		const still = matchMedia(REDUCED);
 		const step = () => {
 			const live = playing !== null;
 			const aim = !live ? 0 : still.matches || !voice.speaking ? 0.55 : voice.level();
 			level = still.matches ? aim : level * 0.55 + aim * 0.45;
+			if (!live && level < 0.005) level = 0;
 			pill?.style.setProperty('--level', level.toFixed(3));
-			frame = requestAnimationFrame(step);
+			frame = live || level ? requestAnimationFrame(step) : 0;
 		};
 		frame = requestAnimationFrame(step);
 	}
@@ -108,6 +112,7 @@
 		if (!speech) return flash();
 		playing = speed;
 		plays++;
+		meter();
 		const said = await speak(word, speed);
 		playing = null;
 		if (!said) flash();
