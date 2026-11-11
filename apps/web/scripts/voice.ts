@@ -10,7 +10,7 @@
 // the running site makes the rest in the background. SQWER_VOICE=skip keeps Standard; SQWER_VOICE=pause holds clips.
 import { availableParallelism, setPriority } from 'node:os';
 import { DATA_DIR } from '../src/lib/server/config.ts';
-import { countMade, readState, runGenerator } from '../src/lib/server/voice/generator.ts';
+import { countMade, isLocked, readState, runGenerator } from '../src/lib/server/voice/generator.ts';
 import { supertonicMaker, threadsFor } from '../src/lib/server/voice/make.ts';
 import { buildManifest, findListsDir } from '../src/lib/server/voice/manifest.ts';
 import { activeVoice, readSettings, shouldGenerate, voiceDir, voiceEnv, writeSettings } from '../src/lib/server/voice/settings.ts';
@@ -43,6 +43,11 @@ async function download() {
 }
 
 async function make(sets: ReturnType<typeof buildManifest>, background: boolean) {
+	// Checked before loading the model, which takes a few seconds and a few hundred MB.
+	if (isLocked(VOICE_DIR)) {
+		if (!background) console.log('Another generator is already making clips (the running site, or another sync).');
+		return;
+	}
 	const settings = readSettings(DATA_DIR);
 	if (background && settings.mode === 'low') {
 		try {
@@ -121,7 +126,10 @@ switch (command) {
 		// Hooks (install, dev, build): a status line at most, never an error.
 		if (flag('--check')) {
 			try {
-				if (activeVoice(s) === 'supertonic' && !flag('--quiet')) console.log(`Voice: Supertonic, ${progressLine()}.${s.paused ? ' Paused.' : ''}`);
+				// The generator's last saved count: no recount, so dev and build start at once.
+				const st = readState(VOICE_DIR);
+				const line = st ? `${n(st.made)} of ${n(st.total)} clips made` : 'no clips made yet';
+				if (activeVoice(s) === 'supertonic' && !flag('--quiet')) console.log(`Voice: Supertonic, ${line}.${s.paused ? ' Paused.' : ''}`);
 			} catch (e) {
 				console.log(`Voice: status unavailable (${e instanceof Error ? e.message : e}).`);
 			}

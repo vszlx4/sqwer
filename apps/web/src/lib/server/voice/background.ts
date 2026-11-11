@@ -8,8 +8,9 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { DATA_DIR } from '../config.ts';
+import { isLocked } from './generator.ts';
 import { findListsDir } from './manifest.ts';
-import { readSettings, shouldGenerate } from './settings.ts';
+import { readSettings, shouldGenerate, voiceDir } from './settings.ts';
 
 const CHECK_MS = 30_000;
 
@@ -27,7 +28,8 @@ function script(): string | null {
 }
 
 function check() {
-	if (child || !shouldGenerate(readSettings(DATA_DIR))) return;
+	// Another generator (a voice:sync) already making clips: nothing to start.
+	if (child || !shouldGenerate(readSettings(DATA_DIR)) || isLocked(voiceDir(DATA_DIR))) return;
 	const file = script();
 	if (!file) return;
 	child = spawn(process.execPath, [file, 'run'], {

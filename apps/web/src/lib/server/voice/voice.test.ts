@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { RESPELL, SPEEDS, clipPath, fingerprint, seedOf, spoken } from './clips.ts';
-import { countMade, readState, runGenerator, takeLock, type ClipMaker } from './generator.ts';
+import { countMade, isLocked, readState, runGenerator, takeLock, type ClipMaker } from './generator.ts';
 import { buildManifest, SET_ORDER, type VoiceSet } from './manifest.ts';
 import { encodeMp3, halveRate } from './mp3.ts';
 import { DEFAULT_SETTINGS, activeVoice, readSettings, shouldGenerate, voiceDir, writeSettings } from './settings.ts';
@@ -135,8 +135,11 @@ describe('voice generator', () => {
 		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => true })).toBe('done');
 		expect(await takeLock(dir, process.ppid)).toBe(true);
 		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => true })).toBe('locked');
+		expect(isLocked(dir)).toBe(true);
 		writeFileSync(path.join(dir, 'supertonic', 'generator.lock'), '999999');
+		expect(isLocked(dir)).toBe(false);
 		expect(await takeLock(dir)).toBe(true);
+		expect(isLocked(dir)).toBe(false);
 	});
 
 	it('clears half-written files left by a crash', async () => {

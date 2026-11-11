@@ -4,7 +4,7 @@
  * where it left off next time, since finished clips are on disk. Progress goes to state.json for the screens.
  */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { SPEEDS, clipPath, clipsDir, fingerprint, type Speed } from './clips.ts';
@@ -46,6 +46,16 @@ const alive = (pid: number) => {
 	}
 };
 
+/** Whether another live process holds the generator lock. */
+export function isLocked(voiceDir: string, pid = process.pid): boolean {
+	try {
+		const holder = Number(readFileSync(lockFile(voiceDir), 'utf8'));
+		return !!holder && holder !== pid && alive(holder);
+	} catch {
+		return false;
+	}
+}
+
 /** Takes the lock, or returns false when another live generator holds it. A lock left by a dead process is taken over. */
 export async function takeLock(voiceDir: string, pid = process.pid): Promise<boolean> {
 	const file = lockFile(voiceDir);
@@ -74,11 +84,23 @@ export function readState(voiceDir: string): GeneratorState | null {
 	}
 }
 
-/** Clips on disk per set, by checking each wanted file. */
-export function countMade(voiceDir: string, sets: readonly VoiceSet[]): SetProgress[] {
+/** Fingerprints of the finished clips on disk, from one listing per folder (far quicker than a check per clip). */
+export function listClips(voiceDir: string): Set<string> {
+	const root = clipsDir(voiceDir);
+	const out = new Set<string>();
+	if (!existsSync(root)) return out;
+	for (const sub of readdirSync(root, { withFileTypes: true })) {
+		if (!sub.isDirectory()) continue;
+		for (const f of readdirSync(path.join(root, sub.name))) if (f.endsWith('.mp3')) out.add(f.slice(0, -4));
+	}
+	return out;
+}
+
+/** Clips on disk per set. */
+export function countMade(voiceDir: string, sets: readonly VoiceSet[], have = listClips(voiceDir)): SetProgress[] {
 	return sets.map((s) => {
 		let made = 0;
-		for (const w of s.words) for (const sp of Object.keys(SPEEDS) as Speed[]) if (existsSync(clipPath(voiceDir, fingerprint(w, sp)))) made++;
+		for (const w of s.words) for (const sp of Object.keys(SPEEDS) as Speed[]) if (have.has(fingerprint(w, sp))) made++;
 		return { id: s.id, name: s.name, made, total: s.words.length * 2 };
 	});
 }
@@ -119,7 +141,8 @@ export type RunResult = 'done' | 'stopped' | 'locked';
 export async function runGenerator(o: RunOptions): Promise<RunResult> {
 	if (!(await takeLock(o.voiceDir))) return 'locked';
 	const order = [...o.sets].sort((a, b) => Number(o.first?.includes(b.id) ?? 0) - Number(o.first?.includes(a.id) ?? 0));
-	const sets = countMade(o.voiceDir, order);
+	const have = listClips(o.voiceDir);
+	const sets = countMade(o.voiceDir, order, have);
 	const recent: number[] = [];
 	const state: GeneratorState = { running: true, made: 0, total: 0, sets, msPerClip: null, word: null, error: null, updatedAt: '' };
 	const save = async (force = false, every = o.saveEvery ?? 10) => {
@@ -138,8 +161,8 @@ export async function runGenerator(o: RunOptions): Promise<RunResult> {
 			for (const word of set.words) {
 				for (const speed of Object.keys(SPEEDS) as Speed[]) {
 					const fp = fingerprint(word, speed);
+					if (have.has(fp)) continue;
 					const file = clipPath(o.voiceDir, fp);
-					if (existsSync(file)) continue;
 					if (!o.keepGoing()) {
 						result = 'stopped';
 						break outer;
@@ -147,6 +170,7 @@ export async function runGenerator(o: RunOptions): Promise<RunResult> {
 					state.word = word;
 					const t = performance.now();
 					await writeAtomic(file, await o.make(word, speed, fp));
+					have.add(fp);
 					recent.push(performance.now() - t);
 					if (recent.length > 50) recent.shift();
 					sets[i]!.made++;
