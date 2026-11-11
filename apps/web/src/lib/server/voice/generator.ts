@@ -31,6 +31,9 @@ export interface GeneratorState {
 	msPerClip: number | null;
 	word: string | null;
 	error: string | null;
+	/** When this run started, and the clips it has made so far. */
+	startedAt?: string;
+	fresh?: number;
 	/** The run covered every set, so made === total means nothing is missing. */
 	all?: boolean;
 	/** Model download in progress, before the first clip. */
@@ -157,7 +160,7 @@ export async function runGenerator(o: RunOptions): Promise<RunResult> {
 	const recent: number[] = [];
 	// The last known pace stands until new clips give a fresh one.
 	const before = readState(o.voiceDir)?.msPerClip ?? null;
-	const state: GeneratorState = { running: true, made: 0, total: 0, sets, msPerClip: null, word: null, error: null, all: o.all ?? false, updatedAt: '' };
+	const state: GeneratorState = { running: true, made: 0, total: 0, sets, msPerClip: null, word: null, error: null, startedAt: new Date().toISOString(), fresh: 0, all: o.all ?? false, updatedAt: '' };
 	const save = async (force = false, every = o.saveEvery ?? 10) => {
 		state.made = sets.reduce((n, s) => n + s.made, 0);
 		state.total = sets.reduce((n, s) => n + s.total, 0);
@@ -187,6 +190,7 @@ export async function runGenerator(o: RunOptions): Promise<RunResult> {
 					recent.push(performance.now() - t);
 					if (recent.length > 50) recent.shift();
 					sets[i]!.made++;
+				state.fresh!++;
 					await save();
 				}
 			}

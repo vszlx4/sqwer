@@ -36,7 +36,7 @@
 			: v.paused
 				? 'Paused'
 				: v.running
-					? `${percent(v.made, v.total)}% made${left !== null ? `, ${formatDuration(left)} left` : ''}`
+					? `${v.first ? 'Set made first, ' : ''}${percent(v.made, v.total)}% made${left !== null ? `, ${formatDuration(left)} left` : ''}`
 					: 'Starting soon'
 	);
 </script>

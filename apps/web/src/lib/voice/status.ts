@@ -57,6 +57,8 @@ export interface VoiceBrief {
 	chosen: VoiceId;
 	paused: boolean;
 	mode: VoiceMode;
+	/** A set made before the rest; made and total are then that set's. */
+	first: string | null;
 	running: boolean;
 	downloading: { received: number; total: number } | null;
 	made: number;

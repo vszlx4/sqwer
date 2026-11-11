@@ -109,8 +109,12 @@ export async function voiceStatus(dataDir: string, set?: string): Promise<VoiceS
 	const liveAt = state ? Date.parse(state.updatedAt) : 0;
 	const live = new Map(state?.sets.map((s) => [s.id, s.made]) ?? []);
 	const sets = counts.sets.map((s) => ({ ...s, made: (liveAt > counts.at && live.get(s.id)) || s.made }));
-	const made = sets.reduce((n, s) => n + s.made, 0);
-	const total = sets.reduce((n, s) => n + s.total, 0);
+	// A set made first is counted apart from the manifest: its new clips go on top of the last count, until the next.
+	const firstRun = !!state?.sets.length && state.sets.every((s) => s.id.startsWith('first:'));
+	const since = firstRun && state?.startedAt && Date.parse(state.startedAt) >= counts.at ? (state.fresh ?? 0) : 0;
+	const total0 = sets.reduce((n, s) => n + s.total, 0);
+	const made = Math.min(total0, sets.reduce((n, s) => n + s.made, 0) + since);
+	const total = total0;
 	const core = sets.filter((s) => CORE_SETS.has(s.id)).reduce((n, s) => n + s.total, 0);
 	const msPerClip = state?.msPerClip ?? null;
 	const status: VoiceStatus = {
@@ -153,6 +157,7 @@ export function voiceBrief(dataDir: string): VoiceBrief {
 		chosen: settings.voice,
 		paused: settings.paused,
 		mode: settings.mode,
+		first: settings.first,
 		running,
 		downloading: running ? (state!.downloading ?? null) : null,
 		made: state?.made ?? 0,

@@ -160,6 +160,19 @@ describe('voice status', () => {
 	});
 });
 
+describe('voice status during a set made first', () => {
+	it('adds its new clips to the last count until the next recount', async () => {
+		const data = tmp();
+		const dir = voiceDir(data);
+		expect((await voiceStatus(data)).made).toBe(0);
+		await new Promise((r) => setTimeout(r, 5));
+		await runGenerator({ voiceDir: dir, sets: [{ id: firstId('english-200'), name: 'English 200', words: ['the', 'of'] }], make: async () => clip(), keepGoing: () => true });
+		const s = await voiceStatus(data, 'english-200');
+		expect(s.made).toBe(4);
+		expect(s.set?.made).toBe(4);
+	});
+});
+
 describe('voice figures', () => {
 	it('read as plain time, size and share', () => {
 		expect(formatDuration(20_000)).toBe('under a minute');

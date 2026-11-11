@@ -11,7 +11,8 @@ import { WORD_TIERS } from '@sqwer/content/sets';
 import { isSpeakable } from '#lib/courses/voice/clip.ts';
 
 export interface VoiceSet {
-	id: 'course' | WordListId;
+	/** 'course', a word list id, or first:<id> for a set made first. */
+	id: string;
 	name: string;
 	words: string[];
 }
