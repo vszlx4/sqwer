@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { readFile } from 'node:fs/promises';
-import { isSpeakable } from '#lib/courses/voice/clip.ts';
+import { CLIP_VERSION, isSpeakable } from '#lib/courses/voice/clip.ts';
 import { networkOf } from '#lib/server/bot/risk.ts';
 import { DATA_DIR } from '#lib/server/config.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
@@ -27,14 +27,17 @@ export const GET: RequestHandler = async (event) => {
 		const fp = fingerprint(word, speed);
 		const mp3 = await readFile(clipPath(VOICE_DIR, fp)).catch(() => null);
 		if (mp3) {
-			const etag = `"${fp}"`;
-			const headers = { ETag: etag, 'Cache-Control': 'no-cache', 'X-Voice': 'supertonic', 'Content-Security-Policy': "default-src 'none'; sandbox" };
-			if (event.request.headers.get('if-none-match') === etag) return new Response(null, { status: 304, headers });
-			return new Response(new Uint8Array(mp3), { headers: { ...headers, 'Content-Type': 'audio/mpeg' } });
+			const tag = `"${fp}"`;
+			const h = { ETag: tag, 'Cache-Control': 'no-cache', 'X-Voice': 'supertonic', 'Content-Security-Policy': "default-src 'none'; sandbox" };
+			if (event.request.headers.get('if-none-match') === tag) return new Response(null, { status: 304, headers: h });
+			return new Response(new Uint8Array(mp3), { headers: { ...h, 'Content-Type': 'audio/mpeg' } });
 		}
 	}
 
 	// Standard (Kokoro): one speed, rendered per word on first request; rendering is rate-limited.
+	const etag = `"standard-${CLIP_VERSION}-${word}"`;
+	const headers = { ETag: etag, 'Cache-Control': 'no-cache', 'X-Voice': 'standard', 'Content-Security-Policy': "default-src 'none'; sandbox" };
+	if (event.request.headers.get('if-none-match') === etag && hasStandardClip(word)) return new Response(null, { status: 304, headers });
 	if (!hasStandardClip(word)) {
 		const ip = addressOf(event) ?? 'unknown';
 		if (!rateLimit(`voice:${ip}`, 300, TEN_MINUTES).ok || !rateLimit(`voice:net:${networkOf(ip)}`, 1_500, TEN_MINUTES).ok) {
@@ -45,12 +48,5 @@ export const GET: RequestHandler = async (event) => {
 		console.error(JSON.stringify({ kind: 'voice', word, error: e instanceof Error ? e.message : String(e) }));
 		error(503, 'The voice is not available right now.');
 	});
-	return new Response(new Uint8Array(wav), {
-		headers: {
-			'Content-Type': 'audio/wav',
-			'Cache-Control': 'no-cache',
-			'X-Voice': 'standard',
-			'Content-Security-Policy': "default-src 'none'; sandbox"
-		}
-	});
+	return new Response(new Uint8Array(wav), { headers: { ...headers, 'Content-Type': 'audio/wav' } });
 };
