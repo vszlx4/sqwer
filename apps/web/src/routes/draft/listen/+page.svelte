@@ -3,26 +3,20 @@
 	import { goto } from '$app/navigation';
 	import Seo from '#lib/site/Seo.svelte';
 	import StageA from './StageA.svelte';
-	import StageB from './StageB.svelte';
 	import type { Screen } from './mock.ts';
 
-	type Version = 'a' | 'b';
+	// The chosen Listen and type layout (open stage), the reference the screens build (issue 177) start from.
 	type Area = 'learn' | 'games';
 
-	const version = $derived<Version>(page.url.searchParams.get('v') === 'b' ? 'b' : 'a');
 	const screen = $derived<Screen>((['listening', 'close', 'accepted'] as const).find((s) => s === page.url.searchParams.get('s')) ?? 'listening');
 	const area = $derived<Area>(page.url.searchParams.get('area') === 'games' ? 'games' : 'learn');
 
 	function set(key: string, value: string) {
 		const url = new URL(page.url.href);
 		url.searchParams.set(key, value);
-		void goto(url.href,{ replaceState: true, reset: false });
+		void goto(url.href, { replaceState: true, reset: false });
 	}
 
-	const VERSIONS: [Version, string][] = [
-		['a', 'A · Open stage'],
-		['b', 'B · Framed console']
-	];
 	const SCREENS: [Screen, string][] = [
 		['listening', 'Listening'],
 		['close', 'Close answer'],
@@ -34,13 +28,13 @@
 	];
 </script>
 
-<Seo title="Listen and type mockups" description="Draft screens for review." noindex />
+<Seo title="Listen and type mockup" description="Draft screen for review." noindex />
 
 <div class="draft">
 	<div class="bar" aria-label="Mockup controls" role="group">
 		<p class="label">Draft · issue 176</p>
-		{#each [['v', VERSIONS, version], ['s', SCREENS, screen], ['area', AREAS, area]] as [key, options, current] (key)}
-			<div class="seg" role="radiogroup" aria-label={key === 'v' ? 'Version' : key === 's' ? 'Moment' : 'Where'}>
+		{#each [['s', SCREENS, screen], ['area', AREAS, area]] as [key, options, current] (key)}
+			<div class="seg" role="radiogroup" aria-label={key === 's' ? 'Moment' : 'Where'}>
 				{#each options as [value, text] (value)}
 					<button type="button" role="radio" aria-checked={current === value} onclick={() => set(key as string, value as string)}>{text}</button>
 				{/each}
@@ -49,12 +43,8 @@
 	</div>
 
 	<section class="frame" data-area={area}>
-		{#key `${version}-${screen}-${area}`}
-			{#if version === 'a'}
-				<StageA {screen} {area} />
-			{:else}
-				<StageB {screen} {area} />
-			{/if}
+		{#key `${screen}-${area}`}
+			<StageA {screen} {area} />
 		{/key}
 	</section>
 </div>
