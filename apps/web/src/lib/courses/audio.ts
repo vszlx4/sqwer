@@ -1,7 +1,7 @@
 /* Course audio: synthesised tones (Echo) and on-device speech: the natural voice, else the device's own voices. */
 
 import { DEFAULT_LOCALE } from '#lib/i18n/locales.ts';
-import { voice } from './voice/voice.svelte.ts';
+import { voice, type Speed } from './voice/voice.svelte.ts';
 
 let context: AudioContext | null = null;
 let output: AudioNode | null = null;
@@ -79,9 +79,9 @@ export function voicesReady(): Promise<void> {
 }
 
 /** Speaks a word: its clip from the natural voice, else a device voice. False when nothing could say it. */
-export async function speak(text: string, rate = 0.85): Promise<boolean> {
-	if (await voice.say(text)) return true;
-	return speakDevice(text, rate);
+export async function speak(text: string, speed: Speed = 'normal'): Promise<boolean> {
+	if (await voice.say(text, speed)) return true;
+	return speakDevice(text, speed === 'slow' ? 0.6 : 0.85);
 }
 
 /** Stops whatever is being spoken. */
@@ -101,6 +101,7 @@ function speakDevice(text: string, rate: number): Promise<boolean> {
 		if (!u.voice) return resolve(false);
 		u.lang = u.voice?.lang ?? DEFAULT_LOCALE;
 		u.rate = rate;
+		u.volume = voice.volume;
 		u.onend = () => resolve(true);
 		u.onerror = () => resolve(false);
 		speechSynthesis.speak(u);

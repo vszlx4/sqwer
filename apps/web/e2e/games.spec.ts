@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { playFalling } from './play.ts';
 
@@ -32,4 +33,32 @@ test('endless games are listed in practice and play round after round at the cho
 test('an unknown game is not found', async ({ page }) => {
 	const res = await page.goto('/play/chess');
 	expect(res?.status()).toBe(404);
+});
+
+test('Listen and type: answer, explanation, Continue, then the next word', async ({ page }) => {
+	await page.goto('/play/listen');
+	await page.getByRole('button', { name: /Start at level/ }).click();
+	await expect(page.getByText('You will hear', { exact: false }).or(page.getByText('Look and type'))).toBeVisible();
+	await page.keyboard.press('Space');
+
+	const input = page.getByTestId('listen-input');
+	await expect(input).toBeFocused();
+	await expect(page.locator('.stage .meta')).toContainText('Word 1 of');
+	await page.keyboard.type('zqzq');
+	await page.keyboard.press('Enter');
+
+	// The explanation waits for Continue instead of moving on by itself.
+	const grade = page.locator('#listen-grade');
+	await expect(grade).toContainText('Not quite');
+	await expect(grade).toContainText('You typed z q z q. The word is');
+	const next = page.getByRole('button', { name: /Continue/ });
+	await expect(next).toBeFocused();
+	await expect(input).toBeDisabled();
+	const axe = await new AxeBuilder({ page }).include('main').analyze();
+	expect(axe.violations).toEqual([]);
+
+	await page.keyboard.press('Enter');
+	await expect(page.locator('.stage .meta')).toContainText('Word 2 of');
+	await expect(input).toBeFocused();
+	await expect(page.locator('.stage .dot').first()).toHaveClass(/wrong/);
 });
