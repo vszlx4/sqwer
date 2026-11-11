@@ -8,13 +8,19 @@ import { clipUrl, isSpeakable } from './clip.ts';
 export type Speed = 'normal' | 'slow';
 
 const VOLUME_KEY = 'sqwer:volume';
+/** Frequency bins (fft 256) summed for the level: roughly 170-690 Hz, 690-1900 Hz, 1.9-5.7 kHz at 44.1 kHz. */
+const SPEECH_BANDS = [
+	[1, 4],
+	[4, 11],
+	[11, 33]
+] as const;
 
 class Voice {
 	#clips = new Map<string, Promise<AudioBuffer | null>>();
 	#ctx: AudioContext | null = null;
 	#gain: GainNode | null = null;
 	#analyser: AnalyserNode | null = null;
-	#samples: Float32Array<ArrayBuffer> | null = null;
+	#bins: Uint8Array<ArrayBuffer> | null = null;
 	#playing: AudioBufferSourceNode | null = null;
 	/** Volume from 0 to 1, kept on this device. */
 	volume = $state(0.8);
@@ -41,14 +47,20 @@ class Voice {
 		}
 	}
 
-	/** Loudness of the playing clip, from 0 to 1; 0 when nothing plays. */
+	/**
+	 * Loudness of the playing clip, 0 to 1: energy in three speech bands (low voice, vowels, consonants), as Voice
+	 * Pill measures it. 0 when nothing plays.
+	 */
 	level(): number {
-		if (!this.#analyser || !this.#samples || !this.#playing) return 0;
-		this.#analyser.getFloatTimeDomainData(this.#samples);
-		let sum = 0;
-		for (const v of this.#samples) sum += v * v;
-		// Speech RMS sits around 0.05-0.3; scaled so a normal word fills most of the range.
-		return Math.min(1, Math.sqrt(sum / this.#samples.length) * 4);
+		if (!this.#analyser || !this.#bins || !this.#playing) return 0;
+		this.#analyser.getByteFrequencyData(this.#bins);
+		let total = 0;
+		for (const [lo, hi] of SPEECH_BANDS) {
+			let sum = 0;
+			for (let i = lo; i < hi; i++) sum += this.#bins[i];
+			total += sum / ((hi - lo) * 255);
+		}
+		return Math.min(1, (total / SPEECH_BANDS.length) * 1.25);
 	}
 	/** Bumped by every say() and stop(), so a clip that arrives late does not play over a newer one. */
 	#turn = 0;
@@ -64,8 +76,9 @@ class Voice {
 			this.#gain = this.#ctx.createGain();
 			this.#gain.gain.value = this.volume;
 			this.#analyser = this.#ctx.createAnalyser();
-			this.#analyser.fftSize = 512;
-			this.#samples = new Float32Array(this.#analyser.fftSize);
+			this.#analyser.fftSize = 256;
+			this.#analyser.smoothingTimeConstant = 0;
+			this.#bins = new Uint8Array(this.#analyser.frequencyBinCount);
 			// Level is read before the volume, so the pill moves the same at any volume.
 			this.#analyser.connect(this.#gain).connect(this.#ctx.destination);
 		}

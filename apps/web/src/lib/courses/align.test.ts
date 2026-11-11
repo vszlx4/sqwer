@@ -1,5 +1,5 @@
 import { describe as group, expect, it } from 'vitest';
-import { align, describe, spoken } from './align.ts';
+import { align, describe, plain, spoken } from './align.ts';
 
 const marks = (typed: string, word: string, variant = false) => align(typed, word, variant).map((s) => s.mark);
 
@@ -29,14 +29,22 @@ group('align', () => {
 });
 
 group('describe', () => {
-	it('counts what differs in plain words', () => {
-		expect(describe(align('nitch', 'niche'))).toBe('One extra letter and one missing letter.');
-		expect(describe(align('cat', 'cut'))).toBe('One wrong letter.');
-		expect(describe(align('recieve', 'receive'))).toBe('Two wrong letters.');
+	const say = (typed: string, word: string) => plain(describe(align(typed, word)));
+
+	it('names the letters that differ', () => {
+		expect(say('nitch', 'niche')).toBe('You added t and missed e.');
+		expect(say('cat', 'cut')).toBe('You wrote a for u.');
+		expect(say('lisen', 'listen')).toBe('You missed t.');
 	});
 
-	it('names a completely different word', () => {
-		expect(describe(align('dog', 'sun'))).toBe('A different word.');
+	it('keeps the letters apart from the text', () => {
+		expect(describe(align('nitch', 'niche'))).toEqual(['You ', 'added ', { letter: 't' }, ' and ', 'missed ', { letter: 'e' }, '.']);
+	});
+
+	it('says plainly when the word is different or far off', () => {
+		expect(say('dog', 'sun')).toBe('A different word from the one spoken.');
+		expect(say('abcdefgh', 'abxyzwgh')).toBe('Several letters differ from the word.');
+		expect(say('niche', 'niche')).toBe('Spelled exactly right.');
 	});
 });
 

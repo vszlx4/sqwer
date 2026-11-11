@@ -41,22 +41,32 @@ export function align(typed: string, word: string, variant = false): Slot[] {
 	return variant ? slots.map((s) => (s.mark === 'same' ? s : { ...s, mark: 'variant' })) : slots;
 }
 
-const COUNT = ['no', 'one', 'two', 'three', 'four', 'five'];
-const count = (n: number, what: string) => `${COUNT[n] ?? n} ${what}${n === 1 ? '' : 's'}`;
+/** A sentence in pieces: plain text and letters to set apart. */
+export type Part = string | { letter: string };
 
-/** One plain sentence on what differs, for a wrong answer. */
-export function describe(slots: readonly Slot[]): string {
-	const n = (mark: Mark) => slots.filter((s) => s.mark === mark).length;
-	const parts = [
-		n('wrong') && count(n('wrong'), 'wrong letter'),
-		n('extra') && count(n('extra'), 'extra letter'),
-		n('missing') && count(n('missing'), 'missing letter')
-	].filter((p): p is string => !!p);
-	if (!parts.length) return 'Spelled exactly right.';
-	if (slots.every((s) => s.mark !== 'same')) return 'A different word.';
-	const text = parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}`;
-	return `${text[0].toUpperCase()}${text.slice(1)}.`;
+/** Joins phrases as "a", "a and b", "a, b and c". */
+function list<T>(items: T[][], sep: T, last: T): T[] {
+	return items.flatMap((item, i) => (i === 0 ? item : [i === items.length - 1 ? last : sep, ...item]));
 }
+
+/** One plain sentence on what differs in a wrong answer, naming the letters. */
+export function describe(slots: readonly Slot[]): Part[] {
+	const wrong = slots.filter((s) => s.mark === 'wrong');
+	const extra = slots.filter((s) => s.mark === 'extra');
+	const missing = slots.filter((s) => s.mark === 'missing');
+	if (!wrong.length && !extra.length && !missing.length) return ['Spelled exactly right.'];
+	if (slots.every((s) => s.mark !== 'same')) return ['A different word from the one spoken.'];
+	if (wrong.length + extra.length + missing.length > 3) return ['Several letters differ from the word.'];
+	const letters = (group: Slot[], key: 'typed' | 'word'): Part[] => list<Part>(group.map((s) => [{ letter: s[key] }]), ', ', ' and ');
+	const phrases: Part[][] = [];
+	for (const s of wrong) phrases.push(['wrote ', { letter: s.typed }, ' for ', { letter: s.word }]);
+	if (extra.length) phrases.push(['added ', ...letters(extra, 'typed')]);
+	if (missing.length) phrases.push(['missed ', ...letters(missing, 'word')]);
+	return ['You ', ...list<Part>(phrases, ', ', ' and '), '.'];
+}
+
+/** The sentence as plain text. */
+export const plain = (parts: readonly Part[]) => parts.map((p) => (typeof p === 'string' ? p : p.letter)).join('');
 
 /** Text version of the comparison, for screen readers. */
 export function spoken(typed: string, word: string): string {

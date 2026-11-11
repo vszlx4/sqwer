@@ -38,19 +38,20 @@ test('an unknown game is not found', async ({ page }) => {
 test('Listen and type: answer, explanation, Continue, then the next word', async ({ page }) => {
 	await page.goto('/play/listen');
 	await page.getByRole('button', { name: /Start at level/ }).click();
-	await expect(page.getByText('You will hear', { exact: false }).or(page.getByText('Look and type'))).toBeVisible();
-	await page.keyboard.press('Space');
+	await expect(page.getByText(/Listen and type|Look and type/).first()).toBeVisible();
+	await page.getByRole('button', { name: /^Start/ }).click();
 
 	const input = page.getByTestId('listen-input');
+	await expect(input).toBeEnabled();
 	await expect(input).toBeFocused();
-	await expect(page.locator('.stage .meta')).toContainText('Word 1 of');
+	await expect(page.getByRole('list', { name: /^Word 1 of/ })).toBeVisible();
 	await page.keyboard.type('zqzq');
 	await page.keyboard.press('Enter');
 
 	// The explanation waits for Continue instead of moving on by itself.
-	const grade = page.locator('#listen-grade');
-	await expect(grade).toContainText('Not quite');
-	await expect(grade).toContainText('You typed z q z q. The word is');
+	await expect(page.locator('#listen-grade')).toContainText('Not quite');
+	await expect(page.getByRole('status').filter({ hasText: 'You typed z q z q. The word is' })).toHaveCount(1);
+	await expect(page.locator('.result .word')).not.toBeEmpty();
 	const next = page.getByRole('button', { name: /Continue/ });
 	await expect(next).toBeFocused();
 	await expect(input).toBeDisabled();
@@ -58,7 +59,8 @@ test('Listen and type: answer, explanation, Continue, then the next word', async
 	expect(axe.violations).toEqual([]);
 
 	await page.keyboard.press('Enter');
-	await expect(page.locator('.stage .meta')).toContainText('Word 2 of');
+	await expect(page.getByRole('list', { name: /^Word 2 of/ })).toBeVisible();
 	await expect(input).toBeFocused();
-	await expect(page.locator('.stage .dot').first()).toHaveClass(/wrong/);
+	await expect(page.locator('.marks .status-mark').first()).toHaveAttribute('data-status', 'failed');
+	await expect(page.locator('.hud .status')).toContainText('1 /');
 });
