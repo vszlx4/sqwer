@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { SITE_URL } from '#lib/server/config.ts';
+import { DATA_DIR, SITE_URL } from '#lib/server/config.ts';
 import { avatarUrl } from '#lib/server/avatar.ts';
 import { dataResets } from '#lib/server/data.ts';
 import { db, schema } from '#lib/server/db/index.ts';
@@ -9,6 +9,8 @@ import { issueAnalyticsToken } from '#lib/server/analytics/token.ts';
 import { networkOf } from '#lib/server/bot/risk.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
 import { addressOf } from '#lib/server/security-log.ts';
+import { isLocalRequest } from '#lib/server/voice/local.ts';
+import { voiceBrief } from '#lib/server/voice/status.ts';
 import type { LayoutServerLoad } from './$types';
 
 /** Analytics token (lib/server/analytics/token.ts), rate-limited per address and network. */
@@ -41,8 +43,11 @@ export const load: LayoutServerLoad = async (event) => {
 		avatarUrl(userId),
 		dataResets(userId)
 	]);
+	// The account menu shows Supertonic's progress on the machine running the copy.
+	const brief = isLocalRequest(event) ? voiceBrief(DATA_DIR) : null;
+	const voice = brief?.chosen === 'supertonic' ? brief : null;
 	return {
-		user: { email: locals.user.email, profile: rows[0] ?? null, avatar, level, best, pace, resets, isAdmin: locals.user.role === 'admin' },
+		user: { email: locals.user.email, profile: rows[0] ?? null, avatar, level, best, pace, resets, isAdmin: locals.user.role === 'admin', voice },
 		siteUrl: SITE_URL,
 		locale: locals.locale,
 		analytics,
