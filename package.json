@@ -13,7 +13,7 @@
 	},
 	"scripts": {
 		"preinstall": "node scripts/check-node.mjs",
-		"postinstall": "node scripts/font-fallback.mjs",
+		"postinstall": "node scripts/font-fallback.mjs && npm run voice -w web --silent -- sync --check",
 		"dev": "npm run dev -w web",
 		"build": "npm run build -w web",
 		"preview": "npm run preview -w web",
@@ -22,7 +22,9 @@
 		"test:e2e": "npm run test:e2e -w web",
 		"check": "npm run check -w web",
 		"release": "node scripts/release.mjs",
-		"bits": "node scripts/bits.mjs"
+		"bits": "node scripts/bits.mjs",
+		"voice": "npm run voice -w web --",
+		"voice:sync": "npm run voice -w web -- sync"
 	},
 	"devDependencies": {
 		"@sveltejs/kit": "^3.1.1",

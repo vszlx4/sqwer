@@ -5,7 +5,9 @@
 	"version": "1.0.0-beta.38",
 	"type": "module",
 	"scripts": {
+		"predev": "node scripts/voice.ts sync --check",
 		"dev": "vite dev",
+		"prebuild": "node scripts/voice.ts sync --check",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
@@ -16,7 +18,8 @@
 		"start": "node scripts/start.js",
 		"db:backup": "bash scripts/backup-db.sh",
 		"admin": "node scripts/admin.mjs",
-		"db:migrate": "node scripts/migrate.mjs"
+		"db:migrate": "node scripts/migrate.mjs",
+		"voice": "node scripts/voice.ts"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.14.0",
@@ -39,6 +42,7 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
+		"@breezystack/lamejs": "^1.2.7",
 		"@electric-sql/pglite": "^0.5.15",
 		"@fontsource-variable/geist-mono": "^5.3.0",
 		"@sqwer/content": "*",
@@ -52,6 +56,7 @@
 		"pg": "^8.23.1",
 		"phonemizer": "^1.2.1",
 		"qrcode-generator": "2.0.4",
+		"seek-bzip": "^2.0.0",
 		"three": "^0.187.0",
 		"zod": "^4.6.7"
 	}
