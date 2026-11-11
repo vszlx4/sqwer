@@ -6,6 +6,8 @@
 	import { tierFor } from '#lib/progress/competitive.ts';
 	import { examXp, type LevelStatus } from '#lib/progress/xp.ts';
 	import Icon from '#lib/ui/Icon.svelte';
+	import VoiceMenuStatus from '#lib/voice/VoiceMenuStatus.svelte';
+	import type { VoiceBrief } from '#lib/voice/status.ts';
 	import SignOutDialog from './SignOutDialog.svelte';
 	import { ACCOUNT_LINKS } from './links.ts';
 	import { formatNumber } from '#lib/i18n/format.ts';
@@ -23,6 +25,8 @@
 			best: number | null;
 			pace: { tests: number; wpm: number | null; accuracy: number | null };
 			isAdmin?: boolean;
+			/** Supertonic's progress, on the machine running the copy only. */
+			voice?: VoiceBrief | null;
 		};
 	}
 
@@ -131,6 +135,7 @@
 					<span style:transform={`scaleX(${user.level.progress})`}></span>
 				</div>
 			</div>
+			{#if user.voice}<VoiceMenuStatus initial={user.voice} />{/if}
 			<nav aria-label="Account">
 				{#if user.profile}
 					{#each ACCOUNT_LINKS as link (link.href)}

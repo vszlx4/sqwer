@@ -31,6 +31,7 @@ export const ACCOUNT_LINKS = [
 	{ href: '/account/profile', label: 'Profile' },
 	{ href: '/account/statistics', label: 'Statistics' },
 	{ href: '/account/security', label: 'Security' },
+	{ href: '/account/voice', label: 'Voice' },
 	{ href: '/account/data', label: 'Your data' }
 ] as const;
 

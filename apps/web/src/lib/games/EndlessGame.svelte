@@ -4,6 +4,7 @@
 	import FallingGame from '#lib/courses/steps/FallingGame.svelte';
 	import KeyHunt from '#lib/courses/steps/KeyHunt.svelte';
 	import ListenType from '#lib/courses/steps/ListenType.svelte';
+	import ListenVoice from '#lib/voice/ListenVoice.svelte';
 	import Race from '#lib/courses/steps/Race.svelte';
 	import type { StepResult } from '#lib/courses/types.ts';
 	import Icon from '#lib/ui/Icon.svelte';
@@ -188,6 +189,7 @@
 						<p class="source-note">This list includes profanity and other mature words. <a href="/copyright#word-lists">About the word lists</a></p>
 					{/if}
 				{/if}
+				{#if game.id === 'listen'}<ListenVoice set={source === 'levels' ? 'course' : source} />{/if}
 				{#if loadError}<p class="source-note" role="alert">The words could not be loaded. Check your connection and start again.</p>{/if}
 				<p class="chosen" aria-live="polite">{choice.level === null ? 'Adapts to you after every round.' : choice.note}</p>
 				<button type="button" class="btn btn-primary btn-lg start" onclick={begin}>

@@ -39,7 +39,7 @@ describe('voice settings', () => {
 		expect(shouldGenerate(s, 'skip')).toBe(false);
 		expect(activeVoice(s, 'skip')).toBe('standard');
 		expect(shouldGenerate(await writeSettings(data, { paused: true }), undefined)).toBe(false);
-		expect(readSettings(data)).toEqual({ voice: 'supertonic', mode: 'low', paused: true });
+		expect(readSettings(data)).toEqual({ voice: 'supertonic', mode: 'low', paused: true, first: null });
 	});
 });
 

@@ -31,6 +31,13 @@ export interface GeneratorState {
 	msPerClip: number | null;
 	word: string | null;
 	error: string | null;
+	/** When this run started, and the clips it has made so far. */
+	startedAt?: string;
+	fresh?: number;
+	/** The run covered every set, so made === total means nothing is missing. */
+	all?: boolean;
+	/** Model download in progress, before the first clip. */
+	downloading?: { received: number; total: number } | null;
 	updatedAt: string;
 }
 
@@ -84,6 +91,11 @@ export function readState(voiceDir: string): GeneratorState | null {
 	}
 }
 
+/** Saves the generator state for the screens. */
+export async function writeState(voiceDir: string, state: GeneratorState): Promise<void> {
+	await writeAtomic(stateFile(voiceDir), new TextEncoder().encode(JSON.stringify(state)));
+}
+
 /** Fingerprints of the finished clips on disk, from one listing per folder (far quicker than a check per clip). */
 export function listClips(voiceDir: string): Set<string> {
 	const root = clipsDir(voiceDir);
@@ -133,6 +145,8 @@ export interface RunOptions {
 	onProgress?: (state: GeneratorState) => void;
 	/** How often to save state.json, in clips. */
 	saveEvery?: number;
+	/** The sets are the whole manifest. */
+	all?: boolean;
 }
 
 export type RunResult = 'done' | 'stopped' | 'locked';
@@ -144,14 +158,16 @@ export async function runGenerator(o: RunOptions): Promise<RunResult> {
 	const have = listClips(o.voiceDir);
 	const sets = countMade(o.voiceDir, order, have);
 	const recent: number[] = [];
-	const state: GeneratorState = { running: true, made: 0, total: 0, sets, msPerClip: null, word: null, error: null, updatedAt: '' };
+	// The last known pace stands until new clips give a fresh one.
+	const before = readState(o.voiceDir)?.msPerClip ?? null;
+	const state: GeneratorState = { running: true, made: 0, total: 0, sets, msPerClip: null, word: null, error: null, startedAt: new Date().toISOString(), fresh: 0, all: o.all ?? false, updatedAt: '' };
 	const save = async (force = false, every = o.saveEvery ?? 10) => {
 		state.made = sets.reduce((n, s) => n + s.made, 0);
 		state.total = sets.reduce((n, s) => n + s.total, 0);
-		state.msPerClip = recent.length ? recent.reduce((a, b) => a + b, 0) / recent.length : null;
+		state.msPerClip = recent.length ? recent.reduce((a, b) => a + b, 0) / recent.length : before;
 		state.updatedAt = new Date().toISOString();
 		o.onProgress?.(state);
-		if (force || state.made % every === 0) await writeAtomic(stateFile(o.voiceDir), new TextEncoder().encode(JSON.stringify(state)));
+		if (force || state.made % every === 0) await writeState(o.voiceDir, state);
 	};
 	let result: RunResult = 'done';
 	try {
@@ -174,6 +190,7 @@ export async function runGenerator(o: RunOptions): Promise<RunResult> {
 					recent.push(performance.now() - t);
 					if (recent.length > 50) recent.shift();
 					sets[i]!.made++;
+				state.fresh!++;
 					await save();
 				}
 			}

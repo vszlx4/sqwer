@@ -22,7 +22,9 @@ export const ACCOUNTS = [
 	// Suspended and restored by the moderation test.
 	{ email: 'suspend@e2e.test', password: 'E2e-suspend-pass-2026', role: 'user' },
 	// Sends results to the anti-cheat checks.
-	{ email: 'player@e2e.test', password: 'E2e-player-pass-2026', role: 'user' }
+	{ email: 'player@e2e.test', password: 'E2e-player-pass-2026', role: 'user' },
+	// Sets up a profile and opens the voice settings.
+	{ email: 'voice@e2e.test', password: 'E2e-voice-pass-2026', role: 'user' }
 ];
 
 const db = await open({ migrate: true });

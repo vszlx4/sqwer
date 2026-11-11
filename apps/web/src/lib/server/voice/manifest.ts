@@ -11,7 +11,8 @@ import { WORD_TIERS } from '@sqwer/content/sets';
 import { isSpeakable } from '#lib/courses/voice/clip.ts';
 
 export interface VoiceSet {
-	id: 'course' | WordListId;
+	/** 'course', a word list id, or first:<id> for a set made first. */
+	id: string;
 	name: string;
 	words: string[];
 }
@@ -19,6 +20,9 @@ export interface VoiceSet {
 const THEMED = WORD_LISTS.filter((l) => l.group === 'Themed').map((l) => l.id);
 /** Making order after the course words. */
 export const SET_ORDER: readonly WordListId[] = ['english-200', 'english-1k', ...THEMED, 'english-5k', 'english-10k', 'english-25k', 'english-450k'];
+
+/** What `npm run voice:sync` makes without --all: the lessons and the small lists. */
+export const CORE_SETS: ReadonlySet<string> = new Set(['course', 'english-200', 'english-1k', ...THEMED]);
 
 /** packages/content/lists, found by walking up from a folder (the repo root holds packages/). */
 export function findListsDir(from = process.cwd()): string {
@@ -44,4 +48,11 @@ export function buildManifest(listsDir: string, load: (id: WordListId) => readon
 	const sets: VoiceSet[] = [{ id: 'course', name: 'Lessons', words: take(clean([...WORD_TIERS.flat(), ...COURSE_WORDS])) }];
 	for (const id of SET_ORDER) sets.push({ id, name: WORD_LISTS.find((l) => l.id === id)?.name ?? id, words: take(clean(load(id))) });
 	return sets;
+}
+
+/** Every word a set id stands for, words shared with earlier sets included: what "make this set now" makes. */
+export function fullSet(listsDir: string, id: string, manifest: readonly VoiceSet[]): VoiceSet | null {
+	if (id === 'course') return manifest.find((s) => s.id === 'course') ?? null;
+	const list = WORD_LISTS.find((l) => l.id === id);
+	return list ? { id: list.id, name: list.name, words: loadList(listsDir, list.id) } : null;
 }

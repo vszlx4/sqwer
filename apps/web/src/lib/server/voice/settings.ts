@@ -20,9 +20,11 @@ export interface VoiceSettings {
 	mode: GeneratorMode;
 	/** Stays paused across restarts. */
 	paused: boolean;
+	/** A set to make before the rest, in active mode; cleared once it is done. */
+	first: string | null;
 }
 
-export const DEFAULT_SETTINGS: VoiceSettings = { voice: 'standard', mode: 'low', paused: false };
+export const DEFAULT_SETTINGS: VoiceSettings = { voice: 'standard', mode: 'low', paused: false, first: null };
 
 export const voiceDir = (dataDir: string) => path.join(dataDir, 'voice');
 const settingsFile = (dataDir: string) => path.join(voiceDir(dataDir), 'settings.json');
@@ -38,7 +40,8 @@ export function readSettings(dataDir: string): VoiceSettings {
 	return {
 		voice: VOICES.includes(saved.voice as VoiceId) ? (saved.voice as VoiceId) : DEFAULT_SETTINGS.voice,
 		mode: MODES.includes(saved.mode as GeneratorMode) ? (saved.mode as GeneratorMode) : DEFAULT_SETTINGS.mode,
-		paused: saved.paused === true
+		paused: saved.paused === true,
+		first: typeof saved.first === 'string' && /^[a-z0-9-]{1,40}$/.test(saved.first) ? saved.first : null
 	};
 }
 
