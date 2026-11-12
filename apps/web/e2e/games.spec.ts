@@ -140,6 +140,8 @@ test('Listen and type: a missed word is practiced unscored after Stop, then the 
 	await page.getByRole('button', { name: /Start at level/ }).click();
 	const input = page.getByTestId('listen-input');
 	await expect(input).toBeEnabled();
+	// The first word is up once it has played.
+	await expect(page.locator('.state')).toContainText('Heard');
 	await page.keyboard.type('zqzq');
 	await page.keyboard.press('Enter');
 	await expect(page.locator('#listen-grade')).toContainText('Not quite');
@@ -176,4 +178,51 @@ test('Listen and type limits replays at high levels', async ({ page }) => {
 	await expect(page.locator('.state')).toContainText('no replays left');
 	await expect(again).toBeDisabled();
 	await expect(page.getByRole('button', { name: 'Slow' })).toBeDisabled();
+});
+
+test('Listen and type fast mode moves on the moment a word is typed right, and Enter plays it again', async ({ page }) => {
+	const asked: string[] = [];
+	await page.route('**/voice/*/auto/*/*', (route) => {
+		asked.push(new URL(route.request().url()).pathname);
+		return route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.1) });
+	});
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByRole('checkbox', { name: /Fast mode/ }).check();
+	await page.getByRole('checkbox', { name: /Show words instead of sound/ }).check();
+	await page.getByRole('button', { name: /Start at level/ }).click();
+
+	const input = page.getByTestId('listen-input');
+	await expect(input).toBeFocused();
+	const word = (await page.locator('.player .shown').textContent())!.trim();
+	await page.keyboard.type(word);
+	// No Enter: the next word is up and the answer box is empty again.
+	await expect(page.locator('.hud')).toContainText('Words1');
+	await expect(input).toHaveValue('');
+	await expect(page.locator('#listen-grade')).toHaveCount(0);
+
+	// Enter plays the word again (shown again here) and never checks the answer.
+	await expect(page.locator('.player .shown')).toHaveCount(0);
+	await page.keyboard.type('zq');
+	await page.keyboard.press('Enter');
+	await expect(page.locator('.player .shown')).toBeVisible();
+	await expect(page.locator('#listen-grade')).toHaveCount(0);
+	await expect(input).toHaveValue('zq');
+
+	// Esc skips a word it cannot get, and shows what it was.
+	await page.keyboard.press('Escape');
+	await expect(page.locator('#listen-grade')).toContainText('Not quite');
+	await expect(page.locator('.hud')).toContainText('Words2');
+});
+
+test('the Listen and type answer box takes letters only', async ({ page }) => {
+	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.1) }));
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: /Start at level/ }).click();
+	const input = page.getByTestId('listen-input');
+	await expect(input).toBeEnabled();
+	await expect(page.locator('.state')).toContainText('Heard');
+	await page.keyboard.type("A1b-c d'!?.e");
+	await expect(input).toHaveValue('abcde');
+	await input.fill('x2y_z');
+	await expect(input).toHaveValue('xyz');
 });

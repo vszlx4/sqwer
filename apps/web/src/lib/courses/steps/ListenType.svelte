@@ -15,7 +15,7 @@
 	import { COURSE_WORDS, compareLetters, loadHeardData, type HeardData, type HeardResult, type HeardSetId } from '@sqwer/content';
 	import { activityWords, seeded } from '../generate.ts';
 	import { BATCH, LOOKAHEAD, batchLevel } from '#lib/games/listen/run.ts';
-	import { grade, isRight, pointsOf, type Answer, type Outcome } from '#lib/games/listen/score.ts';
+	import { grade, pointsOf, type Answer, type Outcome } from '#lib/games/listen/score.ts';
 	import { canReplay, countsAsReplay, replayLimit, result as roundResult, newRound, type RoundResult } from '#lib/games/listen/round.ts';
 	import { WordMemory } from '#lib/games/listen/memory.ts';
 	import { pick } from '#lib/games/listen/pick.ts';
@@ -331,14 +331,46 @@
 		}
 	}
 
-	async function submit() {
+	/** Fast mode: a full point moves on the moment it is typed; Enter only plays the word again. */
+	const fast = $derived(settings.fastMode);
+	/** The word just typed right in fast mode, shown for a moment in the status row. */
+	let quick = $state<string | null>(null);
+
+	const gradeOf = (typed: string) => grade(word, typed, { data: heardData, isWord: (w) => w !== word && known.has(w) });
+
+	/** Answers hold letters only: no digits, symbols, spaces or punctuation (don't is typed dont and counts). */
+	const lettersOnly = (text: string) => text.toLowerCase().replace(/[^a-z]/g, '');
+
+	function typed(next: string) {
+		value = lettersOnly(next);
+		if (input && input.value !== value) input.value = value;
+		if (fast && started && !feedback && word && value && gradeOf(value).points === 1) void submit();
+	}
+
+	/** Checks the answer. `giveUp` checks even an empty one: fast mode's Skip. */
+	async function submit(giveUp = false) {
 		const typed = value.trim();
-		if (!typed || feedback || !word) return;
+		if ((!typed && !giveUp) || feedback || !word) return;
 		voice.stop();
 		playing = null;
-		const r = grade(word, typed, { data: heardData, isWord: (w) => w !== word && known.has(w) });
+		const r = gradeOf(typed);
 		const outcome = r.kind;
 		outcomes[endless ? answers.length : index] = outcome;
+		const a: Answer = { word, typed: r.typed, outcome, points: r.points, level, plays, ms: Math.round(performance.now() - firstPlay) };
+		memory.record(word, outcome);
+		if (feed) {
+			answers.push(a);
+			if (answers.length % BATCH === 0) level = batchLevel(level, answers.slice(-BATCH), feed.adaptive);
+			feed.onanswer($state.snapshot(answers), level);
+		} else done[index] = a;
+		// Fast mode: a full point goes straight to the next word, no explanation.
+		if (fast && r.points === 1) {
+			const right = word;
+			quick = right;
+			timers.push(setTimeout(() => quick === right && (quick = null), 900));
+			advance();
+			return;
+		}
 		const slots: Slot[] = r.letters.map((l) => ({ typed: l.typed, word: l.word, mark: outcome === 'accepted' && l.mark !== 'right' ? 'variant' : SLOT[l.mark] }));
 		const differ = slots.filter((s) => s.mark !== 'same').length;
 		const note = noteFor(r, slots);
@@ -352,23 +384,18 @@
 			note,
 			said: `${GRADE[outcome]}. ${spoken(r.typed, word)} ${plain(note)}${r.spellings ? ` American ${r.spellings.american}, British ${r.spellings.british}.` : ''}`
 		};
-		const a: Answer = { word, typed: r.typed, outcome, points: r.points, level, plays, ms: Math.round(performance.now() - firstPlay) };
-		memory.record(word, outcome);
-		if (feed) {
-			answers.push(a);
-			if (answers.length % BATCH === 0) level = batchLevel(level, answers.slice(-BATCH), feed.adaptive);
-			feed.onanswer($state.snapshot(answers), level);
-		} else done[index] = a;
 		await tick();
 		next?.focus({ preventScroll: true });
-		if (settings.autoContinue && isRight(outcome)) {
-			const at = endless ? answers.length : index;
-			timers.push(setTimeout(() => (endless ? answers.length : index) === at && feedback && proceed(), 1200));
-		}
 	}
 
 	function proceed() {
 		if (!feedback || over) return;
+		advance();
+	}
+
+	/** On to the next word, or the review after the last one. */
+	function advance() {
+		if (over) return;
 		if (endless) {
 			voice.stop();
 			queue.shift();
@@ -425,10 +452,15 @@
 	});
 
 	function onkeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && fast) {
+			e.preventDefault();
+			void submit(true);
+			return;
+		}
 		if (e.key !== 'Enter') return;
 		e.preventDefault();
 		if (e.shiftKey) void play('slow');
-		else if (!value.trim()) void play();
+		else if (fast || !value.trim()) void play();
 		else void submit();
 	}
 
@@ -451,9 +483,9 @@
 				}
 				if (!input || input.disabled) return;
 				input.focus({ preventScroll: true });
-				if (e.key === 'Enter') onkeydown(e);
-				else if (e.key === 'Backspace') value = value.slice(0, -1);
-				else if (e.key.length === 1) value += e.key;
+				if (e.key === 'Enter' || e.key === 'Escape') onkeydown(e);
+				else if (e.key === 'Backspace') typed(value.slice(0, -1));
+				else if (e.key.length === 1) typed(value + e.key);
 			}
 		})
 	);
@@ -573,6 +605,7 @@
 		<p class="state" aria-live="polite">
 			{#if feedback}
 				<span class="grade" class:close={feedback.outcome === 'close'} id="listen-grade"><StatusMark status={MARK[feedback.outcome]} size={20} decorative /> {GRADE[feedback.outcome]}</span>
+			{:else if quick}<span class="grade quick"><StatusMark status="done" size={20} decorative /> {quick}</span>
 			{:else if loadError}The words could not be loaded. Stop and start again.
 			{:else if speech && started && sound.state === 'blocked'}<button type="button" class="btn on" onclick={turnOn}><Icon name="volume" size={16} /> Tap to turn sound on</button>
 			{:else if preparing || (endless && started && !word)}<span class="spin" aria-hidden="true"></span> Preparing the voice…
@@ -594,7 +627,8 @@
 					<input
 						bind:this={input}
 						data-typing-input
-						bind:value
+						{value}
+						oninput={(e) => typed(e.currentTarget.value)}
 						{onkeydown}
 						class="box"
 						type="text"
@@ -625,9 +659,12 @@
 				</div>
 			{:else}
 				<p class="keys">
-					<span><kbd>Enter</kbd> Check</span>
-					{#if speech}<span><kbd>Enter</kbd> on empty: play again</span>
-						<span><kbd>Shift</kbd>&nbsp;+&nbsp;<kbd>Enter</kbd> Slow</span>{/if}
+					{#if fast}<span>Fast mode: a right word moves on by itself</span>
+						{#if speech}<span><kbd>Enter</kbd> Play again</span>{/if}
+						<span><kbd>Esc</kbd> Skip</span>
+					{:else}<span><kbd>Enter</kbd> Check</span>
+						{#if speech}<span><kbd>Enter</kbd> on empty: play again</span>{/if}{/if}
+					{#if speech}<span><kbd>Shift</kbd>&nbsp;+&nbsp;<kbd>Enter</kbd> Slow</span>{/if}
 					{#if speech && sound.silentSwitch}<span>No sound? Check the silent switch.</span>{/if}
 				</p>
 			{/if}
@@ -646,7 +683,11 @@
 					{endless || index + 1 < list.length ? 'Continue' : 'See the round'} <Icon name="arrow" size={18} />
 				</button>
 			{:else}
-				<button type="button" class="btn btn-primary act" onclick={() => void submit()} disabled={!started || !value.trim()}>Check</button>
+				{#if fast}
+					<button type="button" class="btn act" onclick={() => void submit(true)} disabled={!started || !word}>Skip</button>
+				{:else}
+					<button type="button" class="btn btn-primary act" onclick={() => void submit()} disabled={!started || !value.trim()}>Check</button>
+				{/if}
 			{/if}
 		</div>
 	</div>

@@ -3,7 +3,7 @@
 	import Icon from '#lib/ui/Icon.svelte';
 	import { voice } from './player.svelte.ts';
 
-	/** Listen and type on this device: voice volume, words shown instead of said, moving on by itself. Saved on the device. */
+	/** Listen and type on this device: voice volume, words shown instead of said, fast mode. Saved on the device. */
 	let { compact = false }: { compact?: boolean } = $props();
 
 	const pct = $derived(Math.round(settings.voiceVolume * 100));
@@ -33,15 +33,15 @@
 	<label class="row check">
 		<input
 			type="checkbox"
-			checked={settings.autoContinue}
+			checked={settings.fastMode}
 			onchange={(e) => {
-				settings.autoContinue = e.currentTarget.checked;
+				settings.fastMode = e.currentTarget.checked;
 				saveSettings();
 			}}
 		/>
 		<span>
-			<span class="name">Continue automatically after a right word</span>
-			<span class="note">The next word plays a moment after a right answer. Missed words still wait for Continue.</span>
+			<span class="name">Fast mode</span>
+			<span class="note">A right word moves on the moment it is typed, with no Enter. Enter plays the word again; Esc skips it.</span>
 		</span>
 	</label>
 </fieldset>

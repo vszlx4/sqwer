@@ -28,8 +28,8 @@ export interface Settings {
 	voiceVolume: number;
 	/** Listen and type shows each word instead of saying it. */
 	showWords: boolean;
-	/** Listen and type moves on by itself after a right answer. */
-	autoContinue: boolean;
+	/** Listen and type fast mode: a right word moves on the moment it is typed; Enter plays it again. */
+	fastMode: boolean;
 }
 
 const DEFAULTS: Settings = {
@@ -48,7 +48,7 @@ const DEFAULTS: Settings = {
 	ranked: { time: true, speed: true },
 	voiceVolume: 0.8,
 	showWords: false,
-	autoContinue: false
+	fastMode: false
 };
 
 const KEY = 'sqwer:settings';
@@ -64,7 +64,7 @@ function load(): Settings {
 		const old = Number(localStorage.getItem('sqwer:volume') ?? NaN);
 		const volume = Number(saved.voiceVolume ?? (Number.isFinite(old) ? old : DEFAULTS.voiceVolume));
 		const voiceVolume = Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : DEFAULTS.voiceVolume;
-		return { ...DEFAULTS, ...saved, ranked, wordList, voiceVolume, showWords: saved.showWords === true, autoContinue: saved.autoContinue === true };
+		return { ...DEFAULTS, ...saved, ranked, wordList, voiceVolume, showWords: saved.showWords === true, fastMode: saved.fastMode === true };
 	} catch {
 		return { ...DEFAULTS };
 	}
