@@ -19,7 +19,6 @@ Components (source path, upstream commit):
 - StaggeredMenu.svelte: static/r/staggered-menu.json @ c37078c5ff7a
 - StatusMark.svelte: static/r/status-mark.json @ c37078c5ff7a
 - TextPressure.svelte: static/r/text-pressure.json @ c37078c5ff7a
-- VoicePill.svelte: static/r/voice-pill.json @ c37078c5ff7a
 - WakeSlider.svelte: static/r/wake-slider.json @ c37078c5ff7a
 
 MIT + Commons Clause License Condition v1.0

@@ -8,20 +8,15 @@ import { clipUrl, isSpeakable } from './clip.ts';
 export type Speed = 'normal' | 'slow';
 
 const VOLUME_KEY = 'sqwer:volume';
-/** Frequency bins (fft 256) summed for the level: roughly 170-690 Hz, 690-1900 Hz, 1.9-5.7 kHz at 44.1 kHz. */
-const SPEECH_BANDS = [
-	[1, 4],
-	[4, 11],
-	[11, 33]
-] as const;
 
 class Voice {
 	#clips = new Map<string, Promise<AudioBuffer | null>>();
 	#ctx: AudioContext | null = null;
 	#gain: GainNode | null = null;
-	#analyser: AnalyserNode | null = null;
-	#bins: Uint8Array<ArrayBuffer> | null = null;
 	#playing: AudioBufferSourceNode | null = null;
+	/** Context time the playing clip started at, and its length in seconds. */
+	#start = 0;
+	#length = 0;
 	/** Volume from 0 to 1, kept on this device. */
 	volume = $state(0.8);
 	/** True while a clip plays. */
@@ -47,21 +42,38 @@ class Voice {
 		}
 	}
 
-	/**
-	 * Loudness of the playing clip, 0 to 1: energy in three speech bands (low voice, vowels, consonants), as Voice
-	 * Pill measures it. 0 when nothing plays.
-	 */
-	level(): number {
-		if (!this.#analyser || !this.#bins || !this.#playing) return 0;
-		this.#analyser.getByteFrequencyData(this.#bins);
-		let total = 0;
-		for (const [lo, hi] of SPEECH_BANDS) {
-			let sum = 0;
-			for (let i = lo; i < hi; i++) sum += this.#bins[i];
-			total += sum / ((hi - lo) * 255);
-		}
-		return Math.min(1, (total / SPEECH_BANDS.length) * 1.25);
+	/** How far the playing clip has got, 0 to 1. 0 when nothing plays. */
+	progress(): number {
+		if (!this.#ctx || !this.#playing || !this.#length) return 0;
+		return Math.min(1, Math.max(0, (this.#ctx.currentTime - this.#start) / this.#length));
 	}
+
+	/**
+	 * The clip's outline as `bars` heights from 0.08 to 1: loudness (RMS) per slice, scaled to the loudest slice.
+	 * Null when there is no clip for the word.
+	 */
+	async shape(text: string, speed: Speed = 'normal', bars = 48): Promise<number[] | null> {
+		const buffer = await this.clip(text, speed);
+		if (!buffer) return null;
+		const data = buffer.getChannelData(0);
+		const size = Math.max(1, Math.floor(data.length / bars));
+		const rms = Array.from({ length: bars }, (_, b) => {
+			let sum = 0;
+			const from = b * size;
+			const to = Math.min(data.length, from + size);
+			for (let i = from; i < to; i++) sum += data[i] * data[i];
+			return Math.sqrt(sum / Math.max(1, to - from));
+		});
+		const top = Math.max(...rms) || 1;
+		// Square root lifts quiet consonants so the word's outline reads.
+		return rms.map((v) => Math.max(0.08, Math.sqrt(v / top)));
+	}
+
+	/** Starts the audio from a click, so browsers that need a gesture let the first word play by itself later. */
+	unlock() {
+		this.#audio();
+	}
+
 	/** Bumped by every say() and stop(), so a clip that arrives late does not play over a newer one. */
 	#turn = 0;
 
@@ -75,12 +87,7 @@ class Voice {
 			this.#ctx = new AudioContext();
 			this.#gain = this.#ctx.createGain();
 			this.#gain.gain.value = this.volume;
-			this.#analyser = this.#ctx.createAnalyser();
-			this.#analyser.fftSize = 256;
-			this.#analyser.smoothingTimeConstant = 0;
-			this.#bins = new Uint8Array(this.#analyser.frequencyBinCount);
-			// Level is read before the volume, so the pill moves the same at any volume.
-			this.#analyser.connect(this.#gain).connect(this.#ctx.destination);
+			this.#gain.connect(this.#ctx.destination);
 		}
 		if (this.#ctx.state === 'suspended') void this.#ctx.resume();
 		return this.#ctx;
@@ -124,11 +131,13 @@ class Voice {
 		this.#halt();
 		const source = ctx.createBufferSource();
 		source.buffer = buffer;
-		source.connect(this.#analyser!);
+		source.connect(this.#gain!);
 		this.#playing = source;
+		this.#length = buffer.duration;
 		this.speaking = true;
 		await new Promise<void>((resolve) => {
 			source.onended = () => resolve();
+			this.#start = ctx.currentTime;
 			source.start();
 		});
 		if (this.#playing === source) {
