@@ -19,7 +19,8 @@
 		"db:backup": "bash scripts/backup-db.sh",
 		"admin": "node scripts/admin.mjs",
 		"db:migrate": "node scripts/migrate.mjs",
-		"voice": "node scripts/voice.ts"
+		"voice": "node scripts/voice.ts",
+		"heard:data": "node scripts/heard.ts"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.14.0",
