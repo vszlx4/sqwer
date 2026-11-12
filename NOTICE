@@ -34,6 +34,11 @@ Third-party material:
   english_legal.json by pprestwood-collab; english_medical.json by aarnav593; english_old.json by kjvlbu; with
   later changes by other Monkeytype contributors. Changes for sqwer: one word per line, joined entries split,
   duplicates removed, æ written ae and þ or ð written th. Per-list details are in packages/content/src/lists.ts.
+- British spellings in packages/content/src/heard/data/ (the "variants" pairs), taken from Wiktionary
+  (https://en.wiktionary.org) by its contributors, licensed under CC BY-SA 4.0
+  (https://creativecommons.org/licenses/by-sa/4.0/). Changes for sqwer: pairs read from "standard spelling of"
+  definitions, reviewed, and split per word list. The sound-alike groups beside them are made from espeak-ng phonemes
+  (GPL-3.0) by apps/web/scripts/heard.ts.
 - The Kokoro-82M voice model (https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX), licensed under
   Apache-2.0. It is not included in this repository: the server downloads a pinned revision on first use and
   renders word clips with it (apps/web/src/lib/server/voice.ts). The phoneme clean-up there follows kokoro-js

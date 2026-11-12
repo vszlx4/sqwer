@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { americanSpelling, matchHeard, normalizeAnswer, soundsAlike } from './index.ts';
+import { americanSpelling, matchHeard, normalizeAnswer, soundsAlike } from '../index.ts';
 
 describe('matchHeard', () => {
 	it('accepts the word itself, ignoring case, spaces and curly apostrophes', () => {

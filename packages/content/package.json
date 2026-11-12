@@ -7,5 +7,8 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./sets": "./src/sets.ts"
+	},
+	"dependencies": {
+		"@sqwer/layouts": "*"
 	}
 }
