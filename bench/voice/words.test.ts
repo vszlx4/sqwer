@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isSpeakable } from '../../apps/web/src/lib/courses/voice/clip.ts';
+import { isSpeakable } from '../../apps/web/src/lib/voice/clip.ts';
 import { GROUPS, WORDS } from './words.ts';
 
 describe('voice bench word set', () => {

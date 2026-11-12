@@ -3,7 +3,7 @@
  * batches of six, and a batch moves the adaptive level the way a round does in the other games.
  */
 
-import { isSpeakable } from '#lib/courses/voice/clip.ts';
+import { isSpeakable } from '#lib/voice/clip.ts';
 import { nextLevel, roundSettings } from './endless.ts';
 
 /** Answers per hidden batch. */

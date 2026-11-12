@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { COURSE_WORDS, EXAM_WORDS, WORD_LISTS, parseWordList, type WordListId } from '@sqwer/content';
 import { WORD_TIERS } from '@sqwer/content/sets';
-import { isSpeakable } from '#lib/courses/voice/clip.ts';
+import { isSpeakable } from '#lib/voice/clip.ts';
 
 export interface VoiceSet {
 	/** 'course', a word list id, or first:<id> for a set made first. */

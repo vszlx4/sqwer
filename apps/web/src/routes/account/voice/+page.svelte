@@ -2,6 +2,7 @@
 	import Seo from '#lib/site/Seo.svelte';
 	import Skeleton from '#lib/ui/Skeleton.svelte';
 	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
+	import SoundSettings from '#lib/voice/SoundSettings.svelte';
 	import VoiceSettings from '#lib/voice/VoiceSettings.svelte';
 	import type { PageProps } from './$types';
 
@@ -16,6 +17,10 @@
 		<p>The voice that reads words in Listen and type, and the clips this computer makes for it.</p>
 	</header>
 
+	<section class="device">
+		<SoundSettings />
+	</section>
+
 	{#await data.status}
 		<SkeletonRegion label="Counting voice clips…">
 			<Skeleton lines={3} />
@@ -29,6 +34,10 @@
 </div>
 
 <style>
+	.device {
+		max-width: 64ch;
+		margin-bottom: var(--space-32);
+	}
 	.page-head {
 		margin-bottom: var(--space-8);
 	}

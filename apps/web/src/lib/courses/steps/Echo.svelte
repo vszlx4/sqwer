@@ -5,7 +5,7 @@
 	import { pressesFor, qwertyAnsi } from '@sqwer/layouts';
 	import Keyboard from '#lib/keyboard/Keyboard.svelte';
 	import { resolvedPlatform } from '#lib/settings.svelte.ts';
-	import { LANE_NOTES, tone } from '../audio.ts';
+	import { LANE_NOTES, tone } from '#lib/voice/audio.svelte.ts';
 	import { keyName } from '../catalog.ts';
 	import { seeded } from '../generate.ts';
 	import type { StepResult } from '../types.ts';

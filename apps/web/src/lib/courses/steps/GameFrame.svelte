@@ -20,6 +20,8 @@
 		over?: { won: boolean; text: string } | null;
 		paused?: boolean;
 		onstart: () => void;
+		/** Called from the Start click itself, before any count-in: what needs a gesture (sound) starts here. */
+		onready?: () => void;
 		onpause?: () => void;
 		onresume?: () => void;
 		height?: number;
@@ -32,7 +34,7 @@
 		children: Snippet;
 	}
 
-	let { title, icon, how, goal, progress, status, lives = null, over = null, paused = false, onstart, onpause, onresume, height = 360, preview = 0, previewLabel = 'Get ready', autostart = false, children }: Props = $props();
+	let { title, icon, how, goal, progress, status, lives = null, over = null, paused = false, onstart, onready, onpause, onresume, height = 360, preview = 0, previewLabel = 'Get ready', autostart = false, children }: Props = $props();
 
 	let phase = $state<'ready' | 'preview' | 'countdown' | 'playing'>(untrack(() => (autostart ? 'playing' : 'ready')));
 	onMount(() => {
@@ -51,6 +53,7 @@
 
 	function start() {
 		if (phase !== 'ready') return;
+		onready?.();
 		if (preview > 0) {
 			phase = 'preview';
 			left = preview;

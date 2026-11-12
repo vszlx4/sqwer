@@ -5,9 +5,10 @@
 	import KeyHunt from '#lib/courses/steps/KeyHunt.svelte';
 	import ListenType from '#lib/courses/steps/ListenType.svelte';
 	import ListenVoice from '#lib/voice/ListenVoice.svelte';
+	import SoundSettings from '#lib/voice/SoundSettings.svelte';
 	import Race from '#lib/courses/steps/Race.svelte';
 	import type { StepResult } from '#lib/courses/types.ts';
-	import { voice } from '#lib/courses/voice/voice.svelte.ts';
+	import { sound } from '#lib/voice/audio.svelte.ts';
 	import { summarize, type Answer } from './listen-run.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import Skeleton from '#lib/ui/Skeleton.svelte';
@@ -101,7 +102,7 @@
 	function begin() {
 		if (continuous) {
 			// The click allows audio, so the first word can play by itself once it is ready.
-			voice.unlock();
+			void sound.unlock();
 			pools.clear();
 			stats = summarize([]);
 			newBest = false;
@@ -249,7 +250,7 @@
 						<p class="source-note">This list includes profanity and other mature words. <a href="/copyright#word-lists">About the word lists</a></p>
 					{/if}
 				{/if}
-				{#if game.id === 'listen'}<ListenVoice set={source === 'levels' ? 'course' : source} />{/if}
+				{#if game.id === 'listen'}<SoundSettings compact /><ListenVoice set={source === 'levels' ? 'course' : source} />{/if}
 				{#if loadError}<p class="source-note" role="alert">The words could not be loaded. Check your connection and start again.</p>{/if}
 				<p class="chosen" aria-live="polite">{choice.level === null ? (continuous ? 'Adapts to you as you play.' : 'Adapts to you after every round.') : choice.note}</p>
 				<button type="button" class="btn btn-primary btn-lg start" onclick={begin}>

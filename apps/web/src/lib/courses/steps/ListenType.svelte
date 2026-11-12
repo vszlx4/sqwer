@@ -7,9 +7,10 @@
 	import WakeSlider from '#lib/bits/WakeSlider.svelte';
 	import ClipWave from './ClipWave.svelte';
 	import GameFrame from './GameFrame.svelte';
-	import { canSpeak, speak, stopSpeaking, voicesReady } from '../audio.ts';
-	import { voice, type Speed } from '../voice/voice.svelte.ts';
-	import type { ClipShape } from '../voice/shape.ts';
+	import { settings } from '#lib/settings.svelte.ts';
+	import { sound } from '#lib/voice/audio.svelte.ts';
+	import { voice, type Speed } from '#lib/voice/player.svelte.ts';
+	import type { ClipShape } from '#lib/voice/shape.ts';
 	import { align, describe, plain, spoken, type Part, type Slot } from '../align.ts';
 	import { americanSpelling, COURSE_WORDS, matchHeard } from '@sqwer/content';
 	import { activityWords, seeded, shuffle } from '../generate.ts';
@@ -44,13 +45,13 @@
 	 * Lesson words: five letters or more first, then four. Sound-alikes stay in: any spelling of the sound is
 	 * accepted (matchHeard). Topped up from course vocabulary with taught keys.
 	 */
-	const list = untrack(() => {
+	const allowed = untrack(() => new Set([...pool]));
+	let list = $state(untrack(() => {
 		if (feed) return [];
 		const rand = seeded(Date.now() % 100000);
 		const given = activityWords(pool, focus, words, rand);
 		const long = given.filter((w) => w.length >= 5);
 		if (long.length < count) {
-			const allowed = new Set([...pool]);
 			const extra = shuffle(
 				COURSE_WORDS.filter((w) => w.length >= 5 && w.length <= 9 && !long.includes(w) && [...w].every((c) => allowed.has(c))),
 				rand
@@ -59,9 +60,9 @@
 		}
 		const rest = given.filter((w) => w.length === 4 && !long.includes(w));
 		return [...long, ...rest, ...given.filter((w) => w.length < 4)].slice(0, count);
-	});
-	// Without any voice on the device, the word is shown briefly and typed from memory instead.
-	let speech = $state(canSpeak());
+	}));
+	// Words are heard, unless sound is turned off in settings or the browser has none: then each is shown briefly.
+	const speech = $derived(!settings.showWords && voice.supported);
 
 	interface Feedback {
 		outcome: Outcome;
@@ -104,43 +105,58 @@
 
 	/* ---------------------------------------------------------------- clips: made ahead, shown when ready */
 
-	/** Per word: its clip is ready, or there is none (the device's voice speaks it). Missing while it is made. */
-	let clips = $state<Record<string, 'ready' | 'none'>>({});
-	function prepare(ws: readonly string[]) {
-		for (const w of ws) {
-			if (w in clips) continue;
-			if (!voice.supported) {
-				clips[w] = 'none';
-				continue;
-			}
-			void voice.clip(w).then((b) => (clips[w] = b ? 'ready' : 'none'));
-		}
-	}
-	const preparing = $derived(speech && !!word && !(word in clips));
-	const ready = $derived(upcoming.filter((w) => w in clips).length);
+	const heard = (w: string) => ['ready', 'playing'].includes(voice.state(w) ?? '');
+	const preparing = $derived(speech && !!word && ['loading', undefined].includes(voice.state(word)));
+	const ready = $derived(upcoming.filter(heard).length);
+	const hasClip = $derived(heard(word));
 
 	let shape = $state<ClipShape | null>(null);
 	$effect(() => {
 		const w = word;
 		shape = null;
-		if (clips[w] !== 'ready') return;
+		if (!hasClip) return;
 		void voice.shape(w, 'normal', 24).then((s) => {
 			if (w === word) shape = s;
 		});
 	});
 
+	/* A word the voice has no clip for is swapped for another before it comes up; it is never shown instead. */
+	$effect(() => {
+		if (!speech) return;
+		if (endless) {
+			const gone = queue.filter((w, i) => voice.state(w) === 'missing' && !(i === 0 && feedback));
+			if (!gone.length) return;
+			untrack(() => {
+				const first = gone.includes(queue[0]!);
+				queue = queue.filter((w) => !gone.includes(w));
+				if (first && started && !feedback) {
+					if (queue.length) present();
+					else waiting = true;
+				}
+				void fill();
+			});
+			return;
+		}
+		list.forEach((w, i) => {
+			if (i < index || (i === index && feedback) || voice.state(w) !== 'missing') return;
+			untrack(() => {
+				const spare = COURSE_WORDS.find((c) => c.length >= 4 && c.length <= 9 && !list.includes(c) && voice.state(c) !== 'missing' && [...c].every((ch) => allowed.has(ch)));
+				if (!spare) return;
+				list[i] = spare;
+				voice.prepare([spare]);
+				if (i === index && started) present();
+			});
+		});
+	});
+
 	onDestroy(() => {
 		timers.forEach(clearTimeout);
-		stopSpeaking();
+		voice.stop();
 	});
 	onMount(() => {
-		// Voices load asynchronously in some browsers; the mode is settled before the exercise starts.
-		void voicesReady().then(() => {
-			if (!started) speech = canSpeak();
-		});
 		// Clips are made while the intro is read, so the first word plays at once.
 		if (endless) void fill();
-		else prepare(list);
+		else if (speech) voice.prepare(list);
 	});
 
 	/** Keeps the word in play and LOOKAHEAD more fetched, from the current level's pool. */
@@ -153,7 +169,7 @@
 				const add = pickWords(from, [...answers.map((a) => a.word), ...queue], 1 + LOOKAHEAD - queue.length, Math.random);
 				if (!add.length) break;
 				queue.push(...add);
-				prepare(add);
+				if (speech) voice.prepare(add);
 				if (waiting) {
 					waiting = false;
 					present();
@@ -198,10 +214,16 @@
 		const w = word;
 		playing = speed;
 		plays++;
-		const said = await speak(w, speed);
+		const said = await voice.say(w, speed);
 		if (w !== word) return;
 		playing = null;
-		if (!said) flash();
+		// Sound itself failed: the word is shown. A missing clip is swapped for another word above.
+		if (said === 'error') flash();
+	}
+
+	/** Browsers that still hold the sound after Start: a tap turns it on and plays the word. */
+	async function turnOn() {
+		if (await sound.unlock()) void play();
 	}
 
 	/** Shows the word for a moment, when it cannot be heard. */
@@ -217,6 +239,11 @@
 		playing = null;
 		rating = loadRating(word);
 		void play();
+		// While this word is shown: its slow clip and the next word.
+		if (speech) {
+			voice.prepare([word], 'slow');
+			voice.prepare(upcoming.slice(0, 1));
+		}
 		requestAnimationFrame(() => input?.focus({ preventScroll: true }));
 	}
 
@@ -240,7 +267,7 @@
 	async function submit() {
 		const typed = value.trim().toLowerCase();
 		if (!typed || feedback || !word) return;
-		stopSpeaking();
+		voice.stop();
 		playing = null;
 		const match = matchHeard(word, typed);
 		const outcome: Outcome = !match.ok ? 'wrong' : match.how === 'exact' ? 'exact' : 'accepted';
@@ -268,7 +295,7 @@
 	function proceed() {
 		if (!feedback || over) return;
 		if (endless) {
-			stopSpeaking();
+			voice.stop();
 			queue.shift();
 			if (queue.length) present();
 			else {
@@ -336,7 +363,7 @@
 		return feedback ? done : [...done, { key: answers.length, outcome: null, current: started }];
 	});
 	const position = $derived(endless ? `Word ${answers.length + (feedback ? 0 : 1)}` : `Word ${Math.min(index + 1, list.length)} of ${list.length}`);
-	const waving = $derived(playing !== null && (voice.speaking || clips[word] === 'none'));
+	const waving = $derived(playing !== null && voice.speaking);
 </script>
 
 <GameFrame
@@ -344,12 +371,13 @@
 	icon="volume"
 	how={speech
 		? `You will hear ${list.length} words, one at a time. Type each word and press Enter. Words that sound the same and British spellings count. Turn your sound on.`
-		: `No voice is built into this device, so each of the ${list.length} words is shown for a moment instead. Type it from memory and press Enter.`}
+		: `${settings.showWords ? 'Sound is off in your settings' : 'This browser cannot play sound'}, so each of the ${list.length} words is shown for a moment instead. Type it from memory and press Enter.`}
 	goal={`Type ${target} of ${list.length} words correctly`}
 	progress={Math.min(1, correct / Math.max(1, target))}
 	status={`${answered} / ${list.length} words`}
 	{over}
 	onstart={begin}
+	onready={() => void sound.unlock()}
 	autostart={endless}
 	height={460}
 >
@@ -403,6 +431,7 @@
 			{#if feedback}
 				<span class="grade" id="listen-grade"><StatusMark status={MARK[feedback.outcome]} size={20} decorative /> {GRADE[feedback.outcome]}</span>
 			{:else if loadError}The words could not be loaded. Stop and start again.
+			{:else if speech && started && sound.state === 'blocked'}<button type="button" class="btn on" onclick={turnOn}><Icon name="volume" size={16} /> Tap to turn sound on</button>
 			{:else if preparing || (endless && started && !word)}<span class="spin" aria-hidden="true"></span> Preparing the voice…
 			{:else if playing}{playing === 'slow' ? 'Playing slowly…' : 'Playing…'}
 			{:else if !started}Press Start to hear the first word
@@ -455,6 +484,7 @@
 					<span><kbd>Enter</kbd> Check</span>
 					{#if speech}<span><kbd>Enter</kbd> on empty: play again</span>
 						<span><kbd>Shift</kbd>&nbsp;+&nbsp;<kbd>Enter</kbd> Slow</span>{/if}
+					{#if speech && sound.silentSwitch}<span>No sound? Check the silent switch.</span>{/if}
 				</p>
 			{/if}
 		</div>
@@ -559,6 +589,13 @@
 	.btn.slow {
 		flex: none;
 		padding: 0 var(--space-12);
+	}
+	/* Fits the 28px status row. */
+	.state .btn.on {
+		min-height: 28px;
+		padding: 0 var(--space-12);
+		gap: var(--space-6);
+		font-size: var(--fs-14);
 	}
 	.sound {
 		flex: 1;

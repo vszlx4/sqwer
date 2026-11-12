@@ -24,6 +24,10 @@ export interface Settings {
 	mapExtended: boolean;
 	/** Which live readouts the ranked test shows. */
 	ranked: { time: boolean; speed: boolean };
+	/** Listen and type voice volume, 0 to 1. */
+	voiceVolume: number;
+	/** Listen and type shows each word instead of saying it. */
+	showWords: boolean;
 }
 
 const DEFAULTS: Settings = {
@@ -39,7 +43,9 @@ const DEFAULTS: Settings = {
 	liveWpm: true,
 	platform: 'auto',
 	mapExtended: false,
-	ranked: { time: true, speed: true }
+	ranked: { time: true, speed: true },
+	voiceVolume: 0.8,
+	showWords: false
 };
 
 const KEY = 'sqwer:settings';
@@ -51,7 +57,11 @@ function load(): Settings {
 		const ranked = { ...DEFAULTS.ranked };
 		for (const key of Object.keys(ranked) as (keyof Settings['ranked'])[]) if (typeof saved.ranked?.[key] === 'boolean') ranked[key] = saved.ranked[key];
 		const wordList = isWordListId(saved.wordList) ? saved.wordList : DEFAULTS.wordList;
-		return { ...DEFAULTS, ...saved, ranked, wordList };
+		// Volume moved here from its own key.
+		const old = Number(localStorage.getItem('sqwer:volume') ?? NaN);
+		const volume = Number(saved.voiceVolume ?? (Number.isFinite(old) ? old : DEFAULTS.voiceVolume));
+		const voiceVolume = Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : DEFAULTS.voiceVolume;
+		return { ...DEFAULTS, ...saved, ranked, wordList, voiceVolume, showWords: saved.showWords === true };
 	} catch {
 		return { ...DEFAULTS };
 	}
