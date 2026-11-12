@@ -23,8 +23,8 @@ export const RESPELL: Readonly<Record<string, string>> = {
 	receipt: 'reseet'
 };
 
-/** What the model is asked to say for a word. */
-export const spoken = (word: string) => RESPELL[word] ?? word;
+/** What the model is asked to say for a word. Own keys only: "constructor" would read Object's. */
+export const spoken = (word: string) => (Object.hasOwn(RESPELL, word) ? RESPELL[word]! : word);
 
 /** Raised when trimming or encoding changes, so every clip is remade. */
 const FORMAT = `mp3-${MP3_RATE}-${MP3_KBPS}-trim1`;

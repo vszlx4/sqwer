@@ -49,12 +49,14 @@ describe('clip names', () => {
 		expect(fingerprint('water', 'normal')).not.toBe(fingerprint('water', 'slow'));
 		expect(fingerprint('water', 'normal')).not.toBe(fingerprint('waiter', 'normal'));
 		expect(fingerprint('water', 'normal')).toMatch(/^[0-9a-f]{32}$/);
+		expect(fingerprint('constructor', 'normal')).not.toBe(fingerprint('valueOf', 'normal'));
 	});
 
 	it('use respellings for words Supertonic says wrong', () => {
 		expect(spoken('niche')).toBe('neesh');
 		expect(spoken('receipt')).toBe('reseet');
 		expect(spoken('water')).toBe('water');
+		for (const word of ['constructor', 'toString', 'valueOf', 'hasOwnProperty', '__proto__']) expect(spoken(word)).toBe(word);
 		for (const [word, say] of Object.entries(RESPELL)) expect(say).not.toBe(word);
 	});
 
