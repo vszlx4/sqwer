@@ -4,6 +4,7 @@
  */
 
 import { clipUrl, isSpeakable } from './clip.ts';
+import { outline, type ClipShape } from './shape.ts';
 
 export type Speed = 'normal' | 'slow';
 
@@ -49,24 +50,14 @@ class Voice {
 	}
 
 	/**
-	 * The clip's outline as `bars` heights from 0.08 to 1: loudness (RMS) per slice, scaled to the loudest slice.
-	 * Null when there is no clip for the word.
+	 * The spoken part of a clip as `bars` heights from 0.1 to 1 (loudness per slice, scaled to the loudest), with
+	 * where speech starts and ends as fractions of the clip, so playback can be mapped onto the bars. Silence at
+	 * either end is cut, so the bars hold only the word. Null when there is no clip.
 	 */
-	async shape(text: string, speed: Speed = 'normal', bars = 48): Promise<number[] | null> {
+	async shape(text: string, speed: Speed = 'normal', bars = 32): Promise<ClipShape | null> {
 		const buffer = await this.clip(text, speed);
 		if (!buffer) return null;
-		const data = buffer.getChannelData(0);
-		const size = Math.max(1, Math.floor(data.length / bars));
-		const rms = Array.from({ length: bars }, (_, b) => {
-			let sum = 0;
-			const from = b * size;
-			const to = Math.min(data.length, from + size);
-			for (let i = from; i < to; i++) sum += data[i] * data[i];
-			return Math.sqrt(sum / Math.max(1, to - from));
-		});
-		const top = Math.max(...rms) || 1;
-		// Square root lifts quiet consonants so the word's outline reads.
-		return rms.map((v) => Math.max(0.08, Math.sqrt(v / top)));
+		return outline(buffer.getChannelData(0), bars);
 	}
 
 	/** Starts the audio from a click, so browsers that need a gesture let the first word play by itself later. */

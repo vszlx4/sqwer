@@ -47,7 +47,7 @@ test('Listen and type: endless words, the explanation in place, Stop with statis
 	await expect(page.locator('.hud')).not.toContainText('Tries');
 	await expect(page.getByRole('list', { name: 'Word 1' })).toBeVisible();
 	// Offset inside the stage, so the scroll that brings the game into view does not count.
-	const offset = () => page.locator('.controls').evaluate((el) => el.getBoundingClientRect().top - el.closest('.stage')!.getBoundingClientRect().top);
+	const offset = () => page.locator('.footer .act').evaluate((el) => el.getBoundingClientRect().top - el.closest('.stage')!.getBoundingClientRect().top);
 	const before = await offset();
 	await page.keyboard.type('zqzq');
 	await page.keyboard.press('Enter');

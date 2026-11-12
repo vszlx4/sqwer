@@ -9,6 +9,7 @@
 	import GameFrame from './GameFrame.svelte';
 	import { canSpeak, speak, stopSpeaking, voicesReady } from '../audio.ts';
 	import { voice, type Speed } from '../voice/voice.svelte.ts';
+	import type { ClipShape } from '../voice/shape.ts';
 	import { align, describe, plain, spoken, type Part, type Slot } from '../align.ts';
 	import { americanSpelling, COURSE_WORDS, matchHeard } from '@sqwer/content';
 	import { activityWords, seeded, shuffle } from '../generate.ts';
@@ -118,12 +119,12 @@
 	const preparing = $derived(speech && !!word && !(word in clips));
 	const ready = $derived(upcoming.filter((w) => w in clips).length);
 
-	let shape = $state<number[] | null>(null);
+	let shape = $state<ClipShape | null>(null);
 	$effect(() => {
 		const w = word;
 		shape = null;
 		if (clips[w] !== 'ready') return;
-		void voice.shape(w).then((s) => {
+		void voice.shape(w, 'normal', 24).then((s) => {
 			if (w === word) shape = s;
 		});
 	});
@@ -197,11 +198,9 @@
 		const w = word;
 		playing = speed;
 		plays++;
-		if (speed === 'slow' && clips[w] === 'ready') void voice.shape(w, 'slow').then((s) => w === word && playing === 'slow' && (shape = s));
 		const said = await speak(w, speed);
 		if (w !== word) return;
 		playing = null;
-		if (speed === 'slow' && clips[w] === 'ready') void voice.shape(w).then((s) => w === word && (shape = s));
 		if (!said) flash();
 	}
 
@@ -352,8 +351,9 @@
 	{over}
 	onstart={begin}
 	autostart={endless}
-	height={480}
+	height={460}
 >
+	<!-- One column; every row keeps its height, so answering swaps content in place and nothing moves. -->
 	<div class="play">
 		<div class="top">
 			<ol class="marks" aria-label={position}>
@@ -365,24 +365,46 @@
 				{/each}
 			</ol>
 			{#if speech && started && upcoming.length}
-				<p class="ahead">{ready === upcoming.length ? `Next ${ready} ready` : `Preparing the next words · ${ready} of ${upcoming.length}`}</p>
+				<p class="ahead">{ready === upcoming.length ? `Next ${ready} ready` : `Preparing next words: ${ready} of ${upcoming.length}`}</p>
 			{/if}
 		</div>
 
-		<div class="sound">
-			{#if showWord}
-				<p class="shown" aria-live="polite">{word}</p>
-			{:else}
-				<ClipWave {shape} playing={waving} progress={() => (voice.speaking ? voice.progress() : null)} />
+		<!-- The player: always on screen, with the volume. -->
+		<div class="player" class:mute={!speech}>
+			{#if speech}
+				<button type="button" class="btn icon" aria-label="Play the word again" onclick={() => play('normal')} disabled={!started || playing !== null || preparing}>
+					<Icon name="play" size={18} />
+				</button>
+			{/if}
+			<div class="sound">
+				{#if showWord}
+					<p class="shown" aria-live="polite">{word}</p>
+				{:else}
+					<ClipWave
+						{shape}
+						playing={waving}
+						progress={() => (voice.speaking ? voice.progress() : null)}
+						estimate={Math.max(500, word.length * (playing === 'slow' ? 160 : 100))}
+						bars={24}
+					/>
+				{/if}
+			</div>
+			{#if speech}
+				<button type="button" class="btn slow" onclick={() => play('slow')} disabled={!started || playing !== null || preparing}>Slow</button>
+				<div class="volume">
+					<Icon name={voice.volume === 0 ? 'mute' : 'volume'} size={18} />
+					<WakeSlider value={Math.round(voice.volume * 100)} onChange={(v) => voice.setVolume(v / 100)} step={5} ariaLabel="Volume" formatValue={(v) => `${v}%`} />
+					<span class="pct" aria-hidden="true">{Math.round(voice.volume * 100)}%</span>
+				</div>
 			{/if}
 		</div>
 
 		<p class="state" aria-live="polite">
 			{#if feedback}
-				<span class="grade {feedback.outcome}" id="listen-grade"><StatusMark status={MARK[feedback.outcome]} size={20} decorative /> {GRADE[feedback.outcome]}</span>
+				<span class="grade" id="listen-grade"><StatusMark status={MARK[feedback.outcome]} size={20} decorative /> {GRADE[feedback.outcome]}</span>
 			{:else if loadError}The words could not be loaded. Stop and start again.
 			{:else if preparing || (endless && started && !word)}<span class="spin" aria-hidden="true"></span> Preparing the voice…
-			{:else if playing}{playing === 'slow' ? 'Playing slowly' : 'Playing'}
+			{:else if playing}{playing === 'slow' ? 'Playing slowly…' : 'Playing…'}
 			{:else if !started}Press Start to hear the first word
 			{:else if !speech}Shown for a moment
 			{:else if plays}Heard {plays === 1 ? 'once' : `${plays} times`}{/if}
@@ -390,7 +412,7 @@
 
 		<div class="answer">
 			{#if feedback}
-				<p class="box typed" aria-hidden="true">
+				<p class="box" aria-hidden="true">
 					{#each feedback.slots as s, i (i)}{#if s.typed}<span class:bad={feedback.marked && (s.mark === 'extra' || s.mark === 'wrong')} class:variant={s.mark === 'variant'}>{s.typed}</span>{/if}{/each}
 				</p>
 				<p class="sr-only" role="status">{feedback.said}</p>
@@ -404,11 +426,12 @@
 						{onkeydown}
 						class="box"
 						type="text"
+						name="heard"
 						autocomplete="off"
 						autocapitalize="off"
 						spellcheck="false"
 						disabled={!started || !!over}
-						placeholder="Type what you hear"
+						placeholder="Type what you hear…"
 						data-testid="listen-input"
 						data-tab-restart
 					/>
@@ -430,74 +453,58 @@
 			{:else}
 				<p class="keys">
 					<span><kbd>Enter</kbd> Check</span>
-					{#if speech}<span><kbd>Enter</kbd> on empty: hear again</span>
-						<span><kbd>Shift</kbd> + <kbd>Enter</kbd> Slow</span>{/if}
+					{#if speech}<span><kbd>Enter</kbd> on empty: play again</span>
+						<span><kbd>Shift</kbd>&nbsp;+&nbsp;<kbd>Enter</kbd> Slow</span>{/if}
 				</p>
 			{/if}
 		</div>
 
-		<div class="controls">
-			{#if feedback}
-				{#if speech}
-					<div class="rate">
-						<span>Voice clarity</span>
-						<PeekRating value={rating} onChange={rate} size={18} lift={4} ariaLabel="How clear was the voice" labels={['Unclear', 'Hard to follow', 'Fine', 'Clear', 'Very clear']} />
-					</div>
+		<!-- The primary action never moves: Check while typing, Continue after. -->
+		<div class="footer">
+			<div class="aside">
+				{#if feedback && speech}
+					<span>Voice clarity</span>
+					<PeekRating value={rating} onChange={rate} size={18} lift={4} ariaLabel="How clear was the voice" labels={['Unclear', 'Hard to follow', 'Fine', 'Clear', 'Very clear']} />
 				{/if}
-				<div class="pair">
-					{#if speech}
-						<button type="button" class="btn" onclick={() => play('normal')} disabled={playing !== null}>
-							<Icon name="volume" size={18} /> Hear it
-						</button>
-					{/if}
-					<button type="button" class="btn btn-primary" bind:this={next} onclick={proceed}>
-						{endless || index + 1 < list.length ? 'Continue' : 'Finish'}
-					</button>
-				</div>
-			{:else if speech}
-				<div class="pair">
-					<button type="button" class="btn" onclick={() => play('normal')} disabled={!started || playing !== null || preparing}>
-						<Icon name="repeat" size={18} /> Again
-					</button>
-					<button type="button" class="btn" onclick={() => play('slow')} disabled={!started || playing !== null || preparing}>
-						<Icon name="clock" size={18} /> Slow
-					</button>
-				</div>
-				<div class="volume">
-					<Icon name={voice.volume === 0 ? 'mute' : 'volume'} size={18} />
-					<WakeSlider value={Math.round(voice.volume * 100)} onChange={(v) => voice.setVolume(v / 100)} step={5} ariaLabel="Volume" formatValue={(v) => `${v}%`} />
-					<span class="pct" aria-hidden="true">{Math.round(voice.volume * 100)}%</span>
-				</div>
+			</div>
+			{#if feedback}
+				<button type="button" class="btn btn-primary act" bind:this={next} onclick={proceed}>
+					{endless || index + 1 < list.length ? 'Continue' : 'Finish'} <Icon name="arrow" size={18} />
+				</button>
+			{:else}
+				<button type="button" class="btn btn-primary act" onclick={() => void submit()} disabled={!started || !value.trim()}>Check</button>
 			{/if}
 		</div>
 	</div>
 </GameFrame>
 
 <style>
-	/* Every row has a fixed height, so answering swaps content in place and nothing below moves. */
 	.play {
 		display: grid;
-		grid-template-rows: 20px 72px 28px 64px 136px 48px; /* off-scale: fixed rows of the stage */
-		justify-items: center;
+		grid-template-rows: 20px 64px 28px 64px 132px 48px; /* off-scale: fixed rows of the stage */
 		align-items: center;
 		gap: var(--space-12);
-		padding: var(--space-24);
-		text-align: center;
+		width: min(100%, var(--w-narrow));
+		margin: 0 auto;
+		padding: var(--space-24) var(--space-16);
 	}
-	/* No focus ring inside the game: the caret marks the field, and buttons darken their edge. */
+	/* No focus rings inside the game: the field shows its caret, buttons take their hover tone. */
 	.play :global(:focus-visible) {
 		outline: none;
 		box-shadow: none;
 	}
 	.play :global(.btn:not(.btn-primary):focus-visible) {
-		border-color: var(--ink);
+		background: var(--surface-2);
+		border-color: var(--ink-3);
+	}
+	.play :global(.btn-primary:focus-visible) {
+		filter: brightness(0.94);
 	}
 
 	.top {
 		position: relative;
 		display: flex;
 		justify-content: center;
-		width: 100%;
 	}
 	.marks {
 		display: flex;
@@ -532,22 +539,62 @@
 		font-variant-numeric: tabular-nums;
 	}
 
-	.sound {
-		width: min(100%, var(--w-form));
+	.player {
+		display: flex;
+		align-items: center;
+		gap: var(--space-12);
 		height: 100%;
+		padding: 0 var(--space-10);
+		border-radius: var(--radius);
+		background: var(--surface);
+	}
+	.player.mute {
+		justify-content: center;
+	}
+	.btn.icon {
+		flex: none;
+		width: 44px;
+		padding: 0;
+	}
+	.btn.slow {
+		flex: none;
+		padding: 0 var(--space-12);
+	}
+	.sound {
+		flex: 1;
+		min-width: 0;
+		height: 40px;
 	}
 	.shown {
 		display: grid;
 		place-items: center;
 		height: 100%;
 		font-family: var(--font-mono);
-		font-size: var(--fs-32);
+		font-size: var(--fs-28);
 		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}
-	.state {
-		display: inline-flex;
+	.volume {
+		display: flex;
+		flex: none;
 		align-items: center;
+		gap: var(--space-8);
+		width: 168px;
+		padding-left: var(--space-12);
+		border-left: 1px solid var(--line);
+		color: var(--ink-2);
+	}
+	.pct {
+		min-width: 4ch;
+		font-size: var(--fs-13);
+		font-variant-numeric: tabular-nums;
+		text-align: right;
+	}
+
+	.state {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		gap: var(--space-8);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
@@ -576,11 +623,8 @@
 
 	.answer,
 	.answer label {
-		width: min(100%, var(--w-form));
-		height: 100%;
-	}
-	.answer label {
 		display: block;
+		height: 100%;
 	}
 	.box {
 		display: flex;
@@ -595,12 +639,13 @@
 		background: var(--bg);
 		color: var(--ink);
 		font-family: var(--font-mono);
-		font-size: clamp(22px, 2.6vw, 32px); /* off-scale: lesson drill typing size from the design guide */
+		font-size: clamp(22px, 2.6vw, 30px); /* off-scale: lesson drill typing size from the design guide */
 		font-weight: var(--fw-semibold);
 		letter-spacing: 0.04em; /* off-scale: mono letters read apart */
 		text-align: center;
 		overflow: hidden;
 		white-space: nowrap;
+		touch-action: manipulation;
 	}
 	input.box::placeholder {
 		font-weight: var(--fw-regular);
@@ -609,20 +654,20 @@
 	input.box:disabled {
 		background: var(--surface);
 	}
-	.typed .bad {
+	.box .bad {
 		font-weight: var(--fw-bold);
 		color: var(--error);
 	}
-	.typed .variant {
+	.box .variant {
 		color: var(--ink-2);
 	}
 
 	.middle {
 		display: grid;
 		place-items: center;
-		width: min(100%, var(--w-form));
 		height: 100%;
 		overflow: hidden;
+		text-align: center;
 	}
 	.result {
 		display: grid;
@@ -638,7 +683,7 @@
 	}
 	.word {
 		font-family: var(--font-mono);
-		font-size: clamp(26px, 3.4vw, 40px); /* off-scale: the answer word is the largest thing in the panel */
+		font-size: clamp(26px, 3.4vw, 38px); /* off-scale: the answer word is the largest thing in the panel */
 		font-weight: var(--fw-semibold);
 		letter-spacing: 0.04em; /* off-scale: mono letters read apart */
 		line-height: var(--lh-snug);
@@ -676,55 +721,31 @@
 		color: var(--ink-3);
 	}
 
-	.controls {
+	.footer {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--space-12);
-		width: min(100%, var(--w-form));
 		height: 100%;
+		padding-top: var(--space-12);
+		border-top: 1px solid var(--line);
 	}
-	/* Equal columns sized by the wider button, so a pair always matches. */
-	.pair {
-		display: grid;
-		grid-auto-columns: 1fr;
-		grid-auto-flow: column;
-		flex: none;
-		gap: var(--space-8);
-	}
-	.pair .btn {
-		min-width: 112px; /* off-scale: paired buttons share one width */
-		height: 44px;
-	}
-	.controls > .pair:only-child {
-		margin-left: auto;
-	}
-	.rate {
+	.aside {
 		display: flex;
 		align-items: center;
-		gap: var(--space-8);
-		height: 44px;
+		gap: var(--space-10);
+		min-width: 0;
 		font-size: var(--fs-13);
 		white-space: nowrap;
 		color: var(--ink-2);
 	}
 	/* The stars keep room above them for their tip; it overlaps the row so the stars line up with the label. */
-	.rate > :global(:last-child) {
+	.aside > :global(:last-child:not(span)) {
 		margin-top: calc(-1 * var(--pr-room));
 	}
-	.volume {
-		display: flex;
-		flex: 1;
-		align-items: center;
-		gap: var(--space-8);
-		max-width: 220px;
-		color: var(--ink-2);
-	}
-	.pct {
-		min-width: 4ch;
-		font-size: var(--fs-13);
-		font-variant-numeric: tabular-nums;
-		text-align: right;
+	.act {
+		flex: none;
+		min-width: 148px; /* off-scale: Check and Continue share one width */
 	}
 	kbd {
 		padding: 1px var(--space-6);
@@ -738,29 +759,27 @@
 
 	@media (max-width: 560px) {
 		.play {
-			grid-template-rows: 20px 64px 28px 56px 136px 100px; /* off-scale: fixed rows of the stage */
+			grid-template-rows: 20px 108px 28px 56px 132px 56px; /* off-scale: fixed rows of the stage */
 			padding: var(--space-20) var(--space-16);
 		}
 		.ahead {
 			display: none;
 		}
-		.controls {
-			flex-direction: column;
-			justify-content: center;
-			gap: var(--space-8);
-		}
-		.pair {
-			width: 100%;
-		}
-		.pair .btn {
-			min-width: 0;
-		}
-		.controls > .pair:only-child {
-			margin-left: 0;
+		.player {
+			display: grid;
+			grid-template-columns: 44px minmax(0, 1fr) auto;
+			grid-template-rows: 44px 36px;
+			gap: var(--space-6) var(--space-10);
+			padding: var(--space-6) var(--space-10);
 		}
 		.volume {
+			grid-column: 1 / -1;
 			width: 100%;
-			max-width: none;
+			padding-left: 0;
+			border-left: 0;
+		}
+		.aside > span {
+			display: none;
 		}
 	}
 	@media (pointer: coarse) {
