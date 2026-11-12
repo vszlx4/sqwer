@@ -133,3 +133,47 @@ test('Listen and type shows the words instead when sound is turned off in settin
 	await page.reload({ waitUntil: 'networkidle' });
 	await expect(page.getByRole('checkbox', { name: /Show words instead of sound/ })).toBeChecked();
 });
+
+test('Listen and type: a missed word is practiced unscored after Stop, then the review leads back to the run', async ({ page }) => {
+	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav() }));
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: /Start at level/ }).click();
+	const input = page.getByTestId('listen-input');
+	await expect(input).toBeEnabled();
+	await page.keyboard.type('zqzq');
+	await page.keyboard.press('Enter');
+	await expect(page.locator('#listen-grade')).toContainText('Not quite');
+	await page.getByRole('button', { name: 'Stop' }).click();
+
+	await expect(page.getByRole('heading', { name: 'Run complete' })).toBeVisible();
+	await page.getByRole('button', { name: 'Practice these words' }).click();
+	await page.getByRole('button', { name: /^Start/ }).click();
+	await expect(input).toBeEnabled();
+	await page.keyboard.type('zqzq');
+	await page.keyboard.press('Enter');
+	await page.getByRole('button', { name: 'See the round' }).click();
+
+	await expect(page.getByText('Practice round')).toBeVisible();
+	await expect(page.getByText('Not scored')).toBeVisible();
+	await expect(page.locator('.answers li')).toHaveCount(1);
+	await expect(page.locator('.answers li')).toContainText('you typed zqzq');
+	await expect(page.getByRole('button', { name: 'Finish' })).toBeFocused();
+	const axe = await new AxeBuilder({ page }).include('main').analyze();
+	expect(axe.violations).toEqual([]);
+	await page.keyboard.press('Enter');
+	await expect(page.getByRole('heading', { name: 'Run complete' })).toBeVisible();
+});
+
+test('Listen and type limits replays at high levels', async ({ page }) => {
+	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.15) }));
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByText('Expert', { exact: true }).click();
+	await page.getByRole('button', { name: /Start at level 10/ }).click();
+	await expect(page.locator('.state')).toContainText('1 replay left');
+	const again = page.getByRole('button', { name: 'Play the word again' });
+	await expect(again).toBeEnabled();
+	await again.click();
+	await expect(page.locator('.state')).toContainText('no replays left');
+	await expect(again).toBeDisabled();
+	await expect(page.getByRole('button', { name: 'Slow' })).toBeDisabled();
+});
