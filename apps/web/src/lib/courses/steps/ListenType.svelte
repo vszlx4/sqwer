@@ -93,6 +93,8 @@
 	let level = $state(untrack(() => feed?.level ?? 0));
 	let loadError = $state(false);
 	let filling = false;
+	/** Set when the queue ran dry: the next word plays as soon as it arrives. */
+	let waiting = false;
 
 	const word = $derived(endless ? (queue[0] ?? '') : (list[index] ?? ''));
 	const upcoming = $derived(endless ? queue.slice(1) : list.slice(index + 1));
@@ -151,6 +153,10 @@
 				if (!add.length) break;
 				queue.push(...add);
 				prepare(add);
+				if (waiting) {
+					waiting = false;
+					present();
+				}
 			}
 			loadError = false;
 		} catch {
@@ -215,9 +221,13 @@
 		requestAnimationFrame(() => input?.focus({ preventScroll: true }));
 	}
 
-	async function begin() {
+	function begin() {
 		started = true;
-		if (endless && !queue.length) await fill();
+		if (endless && !queue.length) {
+			waiting = true;
+			void fill();
+			return;
+		}
 		present();
 	}
 
@@ -256,17 +266,17 @@
 		next?.focus({ preventScroll: true });
 	}
 
-	async function proceed() {
+	function proceed() {
 		if (!feedback || over) return;
 		if (endless) {
 			stopSpeaking();
 			queue.shift();
-			void fill();
-			if (!queue.length) {
+			if (queue.length) present();
+			else {
 				feedback = null;
-				await fill();
+				waiting = true;
 			}
-			present();
+			void fill();
 			return;
 		}
 		if (index + 1 < list.length) {
@@ -298,7 +308,7 @@
 			key: (e) => {
 				if (!started || over) return;
 				if (feedback) {
-					if (e.key === 'Enter') void proceed();
+					if (e.key === 'Enter') proceed();
 					return;
 				}
 				if (!input || input.disabled) return;
