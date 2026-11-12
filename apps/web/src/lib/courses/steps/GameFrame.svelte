@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount, untrack } from 'svelte';
 	import Icon, { type IconName } from '#lib/ui/Icon.svelte';
 
 	/** Game frame: ready screen, count-in, progress to target, pause on hidden tab, end screen. Ends at target. */
@@ -27,12 +27,19 @@
 		preview?: number;
 		/** What to look at during the preview, for example "Read the passage". */
 		previewLabel?: string;
+		/** Starts at once, with no ready screen, count-in or progress bar: endless play started elsewhere. */
+		autostart?: boolean;
 		children: Snippet;
 	}
 
-	let { title, icon, how, goal, progress, status, lives = null, over = null, paused = false, onstart, onpause, onresume, height = 360, preview = 0, previewLabel = 'Get ready', children }: Props = $props();
+	let { title, icon, how, goal, progress, status, lives = null, over = null, paused = false, onstart, onpause, onresume, height = 360, preview = 0, previewLabel = 'Get ready', autostart = false, children }: Props = $props();
 
-	let phase = $state<'ready' | 'preview' | 'countdown' | 'playing'>('ready');
+	let phase = $state<'ready' | 'preview' | 'countdown' | 'playing'>(untrack(() => (autostart ? 'playing' : 'ready')));
+	onMount(() => {
+		if (!autostart) return;
+		reveal();
+		onstart();
+	});
 	let count = $state(3);
 	let left = $state(0);
 	let timer: ReturnType<typeof setTimeout> | undefined;
@@ -114,7 +121,7 @@
 			<span class="prep-bar" aria-hidden="true"><span style:animation-duration={`${preview}s`}></span></span>
 			<button type="button" class="btn btn-primary" onclick={play}>Start now <kbd>Space</kbd></button>
 		</div>
-	{:else}
+	{:else if !autostart}
 	<div class="hud">
 		{#if lives}
 			<span class="lives" role="img" aria-label={`${lives.left} of ${lives.total} lives left`}>
