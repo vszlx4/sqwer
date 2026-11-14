@@ -50,6 +50,8 @@ We set labels; you don't need to.
 1. Open an issue from a template, or pick one.
 2. Branch from `dev` as `fix/short-name` or `feat/short-name`.
 3. Run `npm install`, then before pushing: `npm run check`, `npm test`, `npm run build`.
+   Set `SQWER_VOICE=skip` to work without downloading a voice model; end-to-end tests serve small test clips and
+   never download one.
 4. Open a pull request into `dev` and fill in the template.
 5. When CI is green and a code owner approves, it is squash merged.
 

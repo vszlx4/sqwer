@@ -43,4 +43,11 @@ Third-party material:
   Apache-2.0. It is not included in this repository: the server downloads a pinned revision on first use and
   renders word clips with it (apps/web/src/lib/server/voice.ts). The phoneme clean-up there follows kokoro-js
   by hexgrad and Xenova (https://github.com/hexgrad/kokoro, Apache-2.0).
-- Dependencies installed by npm are covered by their own licences.
+- The Supertonic 3 voice model by Supertone Inc., as packaged in int8 by sherpa-onnx
+  (https://github.com/k2-fsa/sherpa-onnx, Apache-2.0). The model weights are licensed under OpenRAIL-M, which adds
+  use restrictions; the packaged files carry Supertone's MIT licence. It is not included in this repository: the
+  server downloads a pinned release only when Supertonic is chosen, checks its SHA-256 and renders word clips with it
+  on onnxruntime-node (apps/web/src/lib/server/voice/supertonic.ts). The pipeline follows Supertone's MIT Node
+  example. Using that voice means accepting the model's licence.
+- Dependencies installed by npm are covered by their own licences, among them onnxruntime-node (MIT), phonemizer
+  (Apache-2.0, with espeak-ng under GPL-3.0), lamejs (LGPL-3.0) and seek-bzip (MIT).

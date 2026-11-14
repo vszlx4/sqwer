@@ -15,12 +15,14 @@
 
 	const LOCAL: Item[] = [
 		{ name: 'sqwer:theme', purpose: 'Your color theme, applied before the page appears so that it does not flash.', lasts: 'Until you remove it', sent: 'Never' },
-		{ name: 'sqwer:settings', purpose: 'Your typing test and keyboard preferences.', lasts: 'Until you remove it', sent: 'Never' },
+		{ name: 'sqwer:settings', purpose: 'Your typing test, keyboard and sound preferences, including the voice volume, showing the words and fast mode in Listen and type.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:level', purpose: 'How you described your typing in Getting started.', lasts: 'Until you remove it', sent: 'Copied to your account when you sign in' },
 		{ name: 'sqwer:start', purpose: 'The course lesson you chose to start from.', lasts: 'Until you remove it', sent: 'Copied to your account when you sign in' },
 		{ name: 'sqwer:pending-lesson', purpose: 'Your result in the first lesson when taken without an account, so that it can be saved if you create one.', lasts: 'Until you create an account or remove it', sent: 'When you create an account' },
 		{ name: 'sqwer:sound', purpose: 'Whether sound is on in the Echo game.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:endless', purpose: 'For each endless game: your best run, the level adaptive difficulty reached and the difficulty you chose last.', lasts: 'Until you remove it', sent: 'Never' },
+		{ name: 'sqwer:word-memory', purpose: 'For each word you heard in Listen and type: when you last heard it, how your answers went and when it is due again, so that missed words come back and known words rest. About 5,000 words at most, the oldest dropped first.', lasts: 'Until you clear your learning path data or remove it', sent: 'Never' },
+		{ name: 'sqwer:clip-ratings', purpose: 'The stars you gave a word recording for clarity in Listen and type.', lasts: 'Until you clear your learning path data or remove it', sent: 'Never' },
 		{ name: 'sqwer:resets', purpose: 'When this browser last discarded its copy of data you cleared from your account, so that it is not uploaded again.', lasts: 'Until you remove it', sent: 'Never' },
 		{ name: 'sqwer:lesson-runs', purpose: 'The steps you finished in a lesson you have not completed yet, so that you can pick up where you left off or redo a step.', lasts: 'Until you complete the lesson or remove it', sent: 'Never' },
 		{ name: 'sqwer:pace', purpose: 'The adaptive pace of the Courses, which makes games and drills gentler or brisker according to how your exercises go.', lasts: 'Until you remove it', sent: 'Never' },
@@ -187,7 +189,7 @@
 
 	<h2 id="other">6. Other device features</h2>
 	<ul>
-		<li><strong>Speech:</strong> the listening exercises play recordings of each word served by sqwer, which your browser may keep in its ordinary cache. When a recording cannot be played, a voice built into your device is used; only voices that run on your device are used, and the words are not sent to any speech service.</li>
+		<li><strong>Speech:</strong> the listening exercises play recordings of each word served by sqwer, which your browser may keep in its ordinary cache. When a recording cannot be played, the word is shown on screen instead. No voice built into your device is used, and the words are not sent to any speech service.</li>
 		<li><strong>Sound:</strong> the Echo game plays soft notes generated in your browser, and can be muted. No audio is recorded.</li>
 		<li><strong>Verification:</strong> sqwer’s own check on account forms performs a computation in your browser and stores nothing on your device. Where Cloudflare Turnstile is enabled, its check runs in a frame from challenges.cloudflare.com, under Cloudflare’s Turnstile privacy terms; Cloudflare states that the data is used only to tell people from bots and not for advertising.</li>
 	</ul>

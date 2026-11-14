@@ -275,6 +275,12 @@ test('clears only the learning path and keeps every other kind of data', async (
 	await expect(page).toHaveURL(/\/account$/);
 
 	await page.goto('/account/data');
+	// Listen and type word memory and clip ratings live on this device only, and go with the learning path.
+	const DEVICE_KEYS = ['sqwer:word-memory', 'sqwer:clip-ratings'];
+	await page.evaluate(([memory, ratings]) => {
+		localStorage.setItem(memory!, JSON.stringify({ cat: { seen: 1, due: 2, right: 1, misses: 0, last: 'exact' } }));
+		localStorage.setItem(ratings!, JSON.stringify({ cat: 2 }));
+	}, DEVICE_KEYS);
 	const row = (title: string) => page.locator('.categories li', { has: page.getByRole('heading', { name: title, exact: true }) });
 	await expect(row('Learning path').locator('.count')).toHaveText(/\d+ lessons? completed/);
 	const practiceBefore = await row('Practice results').locator('.count').textContent();
@@ -290,6 +296,7 @@ test('clears only the learning path and keeps every other kind of data', async (
 	await expect(page.getByRole('status')).toHaveText('Learning path cleared. Everything else is unchanged.');
 	await expect(row('Learning path').locator('.count')).toHaveText('Nothing stored');
 	await expect(row('Practice results').locator('.count')).toHaveText(practiceBefore!);
+	expect(await page.evaluate((keys) => keys.map((k) => localStorage.getItem(k)), DEVICE_KEYS)).toEqual([null, null]);
 
 	// The course starts again; results are untouched.
 	await page.goto('/learn/start');

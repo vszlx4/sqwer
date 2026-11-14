@@ -22,7 +22,7 @@ export const GAMES: GameInfo[] = [
 	{ id: 'falling-words', title: 'Falling words', icon: 'text', summary: 'Type each word before it lands. Words get longer as you climb.' },
 	{ id: 'falling-letters', title: 'Falling letters', icon: 'keyboard', summary: 'Single keys fall from the top; press each before it lands.' },
 	{ id: 'echo', title: 'Echo', icon: 'repeat', summary: 'Letters of a word light up one at a time and fade; type the word from memory.' },
-	{ id: 'listen', title: 'Listen and type', icon: 'volume', summary: 'Hear a word, type what you heard. Longer words at higher levels.' },
+	{ id: 'listen', title: 'Listen and type', icon: 'volume', summary: 'Hear a word, type what you heard. Higher levels pick harder words and allow fewer replays.' },
 	{ id: 'keyhunt', title: 'Key hunt', icon: 'target', summary: 'A key lights up somewhere on the keyboard; find it and press it.' }
 ];
 

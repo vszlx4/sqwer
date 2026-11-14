@@ -3,7 +3,7 @@ export const DATA_CATEGORIES = [
 	{
 		id: 'learning',
 		title: 'Learning path',
-		summary: 'Lesson stars and points, practice days and streak, your stated level, starting point and course pace.',
+		summary: 'Lesson stars and points, practice days and streak, your stated level, starting point and course pace, and on this device the Listen and type words you heard and the clips you rated.',
 		effect: 'The course starts again from the beginning or from a new placement. XP earned from lessons is removed from your level.'
 	},
 	{

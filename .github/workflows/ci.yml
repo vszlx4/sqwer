@@ -1,4 +1,5 @@
 # Audit, type check, unit tests and build on main, dev and their pull requests. E2E runs locally.
+# SQWER_VOICE=skip: no voice model is downloaded and no clips are made.
 name: CI
 
 on:
@@ -29,6 +30,8 @@ jobs:
           check-latest: true
           cache: npm
       - run: npm ci
+        env:
+          SQWER_VOICE: skip
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=moderate
       - name: Type check
@@ -39,3 +42,4 @@ jobs:
         run: npm run build -w web
         env:
           PUBLIC_SITE_URL: https://sqwer.invalid
+          SQWER_VOICE: skip
