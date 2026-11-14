@@ -7,7 +7,8 @@ import { RESPELL, SPEEDS, clipPath, fingerprint, seedOf, spoken } from './clips.
 import { countMade, isLocked, readState, runGenerator, takeLock, type ClipMaker } from './generator.ts';
 import { buildManifest, SET_ORDER, type VoiceSet } from './manifest.ts';
 import { encodeMp3, halveRate } from './mp3.ts';
-import { DEFAULT_SETTINGS, activeVoice, readSettings, shouldGenerate, voiceDir, writeSettings } from './settings.ts';
+import { CLIP_DISK_BYTES, DEFAULT_SETTINGS, activeVoice, maxClips, readSettings, shouldGenerate, voiceDir, writeSettings } from './settings.ts';
+import { FLAG_LIMIT, readFlagged, setFlagged } from './flagged.ts';
 import { gaussian, hasModel, prepareText, readStyle, untar } from './supertonic.ts';
 
 const tmp = () => mkdtempSync(path.join(tmpdir(), 'sqwer-voice-'));
@@ -31,6 +32,26 @@ describe('voice settings', () => {
 		expect(readSettings(data)).toEqual(DEFAULT_SETTINGS);
 	});
 
+	it('keep a disk limit from the offered sizes only', async () => {
+		const data = tmp();
+		expect(maxClips(await writeSettings(data, { diskLimit: 2 }))).toBe(Math.floor(2e9 / CLIP_DISK_BYTES));
+		writeFileSync(path.join(voiceDir(data), 'settings.json'), JSON.stringify({ diskLimit: 3 }));
+		expect(readSettings(data).diskLimit).toBeNull();
+		expect(maxClips(readSettings(data))).toBeNull();
+	});
+
+	it('list words rated unclear, newest first, once each', async () => {
+		const dir = voiceDir(tmp());
+		expect(readFlagged(dir)).toEqual([]);
+		await setFlagged(dir, 'water');
+		await setFlagged(dir, 'niche');
+		expect(await setFlagged(dir, 'water')).toEqual(['water', 'niche']);
+		expect(await setFlagged(dir, 'niche', false)).toEqual(['water']);
+		for (let i = 0; i < FLAG_LIMIT + 5; i++) await setFlagged(dir, `w${String.fromCharCode(97 + (i % 26))}${i}`);
+		expect(readFlagged(dir)).toHaveLength(FLAG_LIMIT);
+		expect(await setFlagged(dir, null)).toEqual([]);
+	});
+
 	it('generate only with Supertonic chosen, not paused and no SQWER_VOICE', async () => {
 		const data = tmp();
 		const s = await writeSettings(data, { voice: 'supertonic' });
@@ -39,7 +60,7 @@ describe('voice settings', () => {
 		expect(shouldGenerate(s, 'skip')).toBe(false);
 		expect(activeVoice(s, 'skip')).toBe('standard');
 		expect(shouldGenerate(await writeSettings(data, { paused: true }), undefined)).toBe(false);
-		expect(readSettings(data)).toEqual({ voice: 'supertonic', mode: 'low', paused: true, first: null });
+		expect(readSettings(data)).toEqual({ voice: 'supertonic', mode: 'low', paused: true, first: null, diskLimit: null });
 	});
 });
 
@@ -106,6 +127,18 @@ describe('voice generator', () => {
 		const state = readState(dir)!;
 		expect(state).toMatchObject({ running: false, made: 6, total: 6, error: null });
 		expect(countMade(dir, sets).map((s) => s.made)).toEqual([4, 2]);
+	});
+
+	it('stops at the disk limit and says so', async () => {
+		const dir = tmp();
+		const made: string[] = [];
+		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => true, maxClips: 3 })).toBe('full');
+		expect(made).toHaveLength(3);
+		expect(readState(dir)).toMatchObject({ running: false, full: true, limit: 3 });
+		// A higher limit carries on.
+		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => true, maxClips: 10 })).toBe('done');
+		expect(made).toHaveLength(6);
+		expect(readState(dir)).toMatchObject({ full: false });
 	});
 
 	it('makes only what is missing', async () => {

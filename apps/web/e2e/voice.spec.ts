@@ -93,9 +93,25 @@ test('the Voice page shows the choice and its cost, then the generator with sets
 	await page.getByRole('radio', { name: /Active/ }).check();
 	await expect.poll(() => settings().mode).toBe('active');
 
+	await page.getByLabel('Disk limit for clips').selectOption('5');
+	await expect.poll(() => settings().diskLimit).toBe(5);
+	await expect(page.getByText(/Clips take .* now/)).toBeVisible();
+
+	// A word rated one or two stars in the game is listed here, until cleared.
+	const json = { origin: ORIGIN, 'content-type': 'application/json' };
+	expect((await page.request.post('/api/voice', { headers: json, data: JSON.stringify({ action: 'flag', word: 'Water!', on: true }) })).status()).toBe(400);
+	expect((await page.request.post('/api/voice', { headers: json, data: JSON.stringify({ action: 'flag', word: 'water', on: true }) })).ok()).toBe(true);
+	await page.reload();
+	await expect(page.getByRole('heading', { name: 'Words rated unclear' })).toBeVisible();
+	await expect(page.locator('.flagged')).toHaveText('water');
+
 	await page.getByRole('button', { name: 'Check every clip' }).click();
 	await expect(page.getByText('Checked 0 clips. All fine.')).toBeVisible();
 	await accessible(page);
+	await page.getByRole('button', { name: 'Clear the list' }).click();
+	await expect(page.getByRole('heading', { name: 'Words rated unclear' })).toHaveCount(0);
+	await page.getByLabel('Disk limit for clips').selectOption('off');
+	await expect.poll(() => settings().diskLimit).toBeNull();
 
 	// The account menu follows the generator while clips are still to make.
 	await page.reload();

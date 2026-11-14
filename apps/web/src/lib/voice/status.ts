@@ -48,6 +48,12 @@ export interface VoiceStatus {
 	total: number;
 	sets: VoiceSetStatus[];
 	cost: { core: VoiceCost; all: VoiceCost };
+	/** Most disk the clips may take, in GB, or null; what the made clips take; the generator stopped there. */
+	diskLimit: number | null;
+	clipsDisk: number;
+	full: boolean;
+	/** Words rated unclear in Listen and type on this machine, newest first. */
+	flagged: string[];
 	/** The set asked for with ?set=, counting every word it holds, shared ones included. */
 	set?: VoiceSetStatus & { leftMs: number | null };
 }
@@ -64,6 +70,8 @@ export interface VoiceBrief {
 	made: number;
 	total: number;
 	msPerClip: number | null;
+	/** Stopped at the disk limit. */
+	full: boolean;
 }
 
 /** What anyone else sees. */
@@ -96,7 +104,13 @@ export type VoiceAction =
 	| { action: 'resume' }
 	| { action: 'mode'; mode: VoiceMode }
 	| { action: 'first'; set: string }
-	| { action: 'check'; set?: string };
+	| { action: 'check'; set?: string }
+	| { action: 'limit'; gb: number | null }
+	| { action: 'flag'; word: string; on: boolean }
+	| { action: 'unflag-all' };
+
+/** Disk limits the Voice page offers, in GB. */
+export const DISK_LIMIT_CHOICES = [1, 2, 5, 10, 20] as const;
 
 export async function fetchBrief(): Promise<VoiceBrief | null> {
 	try {
@@ -106,6 +120,14 @@ export async function fetchBrief(): Promise<VoiceBrief | null> {
 	} catch {
 		return null;
 	}
+}
+
+let local: Promise<boolean> | null = null;
+
+/** Lists a word rated unclear on the Voice page, or takes it off. Only the computer running the copy keeps the list. */
+export async function flagWord(word: string, on: boolean): Promise<void> {
+	local ??= fetchBrief().then((b) => b !== null);
+	if (await local) await sendVoice({ action: 'flag', word: word.toLowerCase(), on }).catch(() => {});
 }
 
 export async function fetchVoice(set?: string): Promise<VoiceInfo | null> {

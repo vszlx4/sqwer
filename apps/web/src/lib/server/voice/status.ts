@@ -7,12 +7,12 @@ import { availableParallelism } from 'node:os';
 import { SPEEDS, fingerprint, type Speed } from './clips.ts';
 import { isLocked, listClips, readState } from './generator.ts';
 import { CORE_SETS, buildManifest, findListsDir, fullSet, type VoiceSet } from './manifest.ts';
-import { activeVoice, readSettings, voiceDir, voiceEnv } from './settings.ts';
+import { CLIP_DISK_BYTES, activeVoice, readSettings, voiceDir, voiceEnv } from './settings.ts';
+import { readFlagged } from './flagged.ts';
 import { SUPERTONIC_MODEL, hasModel } from './supertonic.ts';
 import type { VoiceBrief, VoiceCost, VoiceSetStatus, VoiceStatus } from '#lib/voice/status.ts';
 
-/** A clip is about 2 KB, but each file takes a whole 4 KB disk block. */
-export const CLIP_DISK_BYTES = 4096;
+export { CLIP_DISK_BYTES } from './settings.ts';
 /** The unpacked model. */
 export const MODEL_DISK_BYTES = 240_000_000;
 /** Measured in low mode (one thread): an M2 laptop and a 2013 server CPU. */
@@ -135,7 +135,11 @@ export async function voiceStatus(dataDir: string, set?: string): Promise<VoiceS
 		made,
 		total,
 		sets,
-		cost: { core: cost(core, msPerClip), all: cost(total, msPerClip) }
+		cost: { core: cost(core, msPerClip), all: cost(total, msPerClip) },
+		diskLimit: settings.diskLimit,
+		clipsDisk: made * CLIP_DISK_BYTES,
+		full: !running && !!state?.full,
+		flagged: readFlagged(dir)
 	};
 	if (set) {
 		const p = await setProgress(dir, set);
@@ -162,6 +166,7 @@ export function voiceBrief(dataDir: string): VoiceBrief {
 		downloading: running ? (state!.downloading ?? null) : null,
 		made: state?.made ?? 0,
 		total: state?.total ?? 0,
-		msPerClip: state?.msPerClip ?? null
+		msPerClip: state?.msPerClip ?? null,
+		full: !running && !!state?.full
 	};
 }

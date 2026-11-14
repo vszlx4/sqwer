@@ -142,7 +142,9 @@ const LISTEN_WORDS = ['river', 'quiet'];
 const LISTEN_ROUND = LISTEN_LOOP.period / LISTEN_WORDS.length;
 const LISTEN_TYPE = 1.6;
 const LISTEN_CHAR = 0.15;
-const LISTEN_BARS = 9;
+const LISTEN_BARS = 14;
+/** The clip's outline per word, as the game's waveform draws it: fixed, lit from the left while it plays. */
+const LISTEN_SHAPE = (word: string) => Array.from({ length: LISTEN_BARS }, (_, n) => 0.22 + 0.72 * Math.abs(Math.sin(n * 0.55 + word.length) * Math.sin(n * 0.21 + 0.4)));
 
 export function listen(t: number) {
 	const word = LISTEN_WORDS[Math.floor(t / LISTEN_ROUND) % LISTEN_WORDS.length]!;
@@ -154,7 +156,9 @@ export function listen(t: number) {
 	const typed = cleared ? 0 : Math.min(word.length, Math.max(0, Math.floor((r - LISTEN_TYPE) / LISTEN_CHAR) + 1));
 	const ok = cleared ? 0 : ease('out-pop', span(r, done + 0.15, 0.25));
 	return {
-		bars: Array.from({ length: LISTEN_BARS }, (_, n) => 0.18 + voice * (0.22 + 0.6 * Math.abs(Math.sin(r * 11 + n * 0.9) * Math.sin(r * 6.1 + n * 1.7)))),
+		bars: LISTEN_SHAPE(word),
+		// Bars lit so far: sweeps while the word plays, stays lit, clears with the answer.
+		lit: cleared ? 0 : span(r, 0.15, 1.05),
 		voice,
 		text: word.slice(0, typed),
 		ok,

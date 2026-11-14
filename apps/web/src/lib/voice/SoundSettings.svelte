@@ -1,21 +1,47 @@
 <script lang="ts">
+	import WakeSlider from '#lib/bits/WakeSlider.svelte';
 	import { saveSettings, settings } from '#lib/settings.svelte.ts';
 	import Icon from '#lib/ui/Icon.svelte';
-	import { voice } from './player.svelte.ts';
+	import { sound } from './audio.svelte.ts';
+	import { voice, type Said } from './player.svelte.ts';
 
-	/** Listen and type on this device: voice volume, words shown instead of said, fast mode. Saved on the device. */
+	/** Listen and type on this device: voice volume and a test word, words shown instead of said, fast mode. Saved on the device. */
 	let { compact = false }: { compact?: boolean } = $props();
 
 	const pct = $derived(Math.round(settings.voiceVolume * 100));
+
+	const TEST_WORD = 'hello';
+	let testing = $state(false);
+	let tested = $state<Said | 'blocked' | null>(null);
+	const TESTED: Record<Said | 'blocked', string> = {
+		played: 'Heard it? Then you are set. If not, check the volume here and on your device.',
+		stopped: 'Stopped before the end.',
+		missing: 'This copy has no clip for the test word yet.',
+		error: 'The voice did not answer. Words are shown instead until it does.',
+		blocked: 'The browser is holding the sound. Press the button again to allow it.'
+	};
+
+	async function test() {
+		testing = true;
+		tested = null;
+		tested = (await sound.unlock()) ? await voice.say(TEST_WORD) : 'blocked';
+		testing = false;
+	}
 </script>
 
 <fieldset class="sound" class:compact>
 	<legend>Listen and type on this device</legend>
-	<label class="row">
+	<div class="row">
 		<span class="name"><Icon name={pct === 0 ? 'mute' : 'volume'} size={18} /> Voice volume</span>
-		<input type="range" min="0" max="100" step="5" value={pct} oninput={(e) => voice.setVolume(Number(e.currentTarget.value) / 100)} aria-valuetext={`${pct}%`} />
+		<span class="slider"><WakeSlider value={pct} onChange={(v) => voice.setVolume(v / 100)} step={5} ariaLabel="Voice volume" formatValue={(v) => `${v}%`} /></span>
 		<span class="pct" aria-hidden="true">{pct}%</span>
-	</label>
+	</div>
+	{#if voice.supported && !settings.showWords}
+		<div class="test">
+			<button type="button" class="btn" disabled={testing} onclick={test}><Icon name="play" size={16} /> {testing ? 'Playing…' : 'Play a test word'}</button>
+			<span class="note" aria-live="polite">{tested ? TESTED[tested] : ''}</span>
+		</div>
+	{/if}
 	<label class="row check">
 		<input
 			type="checkbox"
@@ -76,10 +102,15 @@
 		gap: var(--space-6);
 		flex: none;
 	}
-	input[type='range'] {
+	.slider {
 		flex: 1;
 		min-width: 0;
-		accent-color: var(--accent);
+	}
+	.test {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: var(--space-8) var(--space-12);
 	}
 	.pct {
 		flex: none;

@@ -22,9 +22,14 @@ export interface VoiceSettings {
 	paused: boolean;
 	/** A set to make before the rest, in active mode; cleared once it is done. */
 	first: string | null;
+	/** Most disk the clips may take, in GB; null for no limit. The generator stops there. */
+	diskLimit: DiskLimit | null;
 }
 
-export const DEFAULT_SETTINGS: VoiceSettings = { voice: 'standard', mode: 'low', paused: false, first: null };
+export const DISK_LIMITS = [1, 2, 5, 10, 20] as const;
+export type DiskLimit = (typeof DISK_LIMITS)[number];
+
+export const DEFAULT_SETTINGS: VoiceSettings = { voice: 'standard', mode: 'low', paused: false, first: null, diskLimit: null };
 
 export const voiceDir = (dataDir: string) => path.join(dataDir, 'voice');
 const settingsFile = (dataDir: string) => path.join(voiceDir(dataDir), 'settings.json');
@@ -41,7 +46,8 @@ export function readSettings(dataDir: string): VoiceSettings {
 		voice: VOICES.includes(saved.voice as VoiceId) ? (saved.voice as VoiceId) : DEFAULT_SETTINGS.voice,
 		mode: MODES.includes(saved.mode as GeneratorMode) ? (saved.mode as GeneratorMode) : DEFAULT_SETTINGS.mode,
 		paused: saved.paused === true,
-		first: typeof saved.first === 'string' && /^[a-z0-9-]{1,40}$/.test(saved.first) ? saved.first : null
+		first: typeof saved.first === 'string' && /^[a-z0-9-]{1,40}$/.test(saved.first) ? saved.first : null,
+		diskLimit: DISK_LIMITS.includes(saved.diskLimit as DiskLimit) ? (saved.diskLimit as DiskLimit) : null
 	};
 }
 
@@ -66,6 +72,12 @@ export function voiceEnv(env: NodeJS.ProcessEnv = process.env): VoiceEnv {
 export function activeVoice(settings: VoiceSettings, env: VoiceEnv = voiceEnv()): VoiceId {
 	return env === 'skip' ? 'standard' : settings.voice;
 }
+
+/** A clip is about 2 KB, but each file takes a whole 4 KB disk block. */
+export const CLIP_DISK_BYTES = 4096;
+
+/** Clips that fit in the disk limit; null for no limit. */
+export const maxClips = (s: Pick<VoiceSettings, 'diskLimit'>) => (s.diskLimit ? Math.floor((s.diskLimit * 1e9) / CLIP_DISK_BYTES) : null);
 
 /** Whether the Supertonic generator may run now. */
 export function shouldGenerate(settings: VoiceSettings, env: VoiceEnv = voiceEnv()): boolean {

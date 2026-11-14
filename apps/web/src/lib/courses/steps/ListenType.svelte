@@ -10,6 +10,7 @@
 	import { settings } from '#lib/settings.svelte.ts';
 	import { sound } from '#lib/voice/audio.svelte.ts';
 	import { voice, type Speed } from '#lib/voice/player.svelte.ts';
+	import { flagWord } from '#lib/voice/status.ts';
 	import type { ClipShape } from '#lib/voice/shape.ts';
 	import { describe, plain, spoken, type Part, type Slot } from '../align.ts';
 	import { COURSE_WORDS, compareLetters, loadHeardData, type HeardData, type HeardResult, type HeardSetId } from '@sqwer/content';
@@ -217,6 +218,8 @@
 		}
 	}
 	function rate(n: number) {
+		// One or two stars lists the word on the Voice page of the computer running this copy; a better rating takes it off.
+		if ((n > 0 && n <= 2) !== (rating > 0 && rating <= 2)) void flagWord(word, n > 0 && n <= 2);
 		rating = n;
 		try {
 			const all = JSON.parse(localStorage.getItem(RATINGS) ?? '{}') as Record<string, number>;
@@ -245,6 +248,8 @@
 		playing = speed;
 		plays++;
 		const said = await voice.say(w, speed);
+		if (said === 'played') failures = 0;
+		else if (said === 'error') failures++;
 		if (w !== word) return;
 		playing = null;
 		// Sound itself failed: the word is shown. A missing clip is swapped for another word above.
@@ -255,6 +260,9 @@
 	async function turnOn() {
 		if (await sound.unlock()) void play();
 	}
+
+	/** Clips that failed in a row: from two on, the status row says the voice is not answering. */
+	let failures = $state(0);
 
 	/** Shows the word for a moment, when it cannot be heard. */
 	function flash() {
@@ -607,6 +615,7 @@
 				<span class="grade" class:close={feedback.outcome === 'close'} id="listen-grade"><StatusMark status={MARK[feedback.outcome]} size={20} decorative /> {GRADE[feedback.outcome]}</span>
 			{:else if quick}<span class="grade quick"><StatusMark status="done" size={20} decorative /> {quick}</span>
 			{:else if loadError}The words could not be loaded. Stop and start again.
+			{:else if speech && started && failures >= 2}<span class="trouble"><Icon name="mute" size={16} /> The voice is not answering. Words are shown instead.</span>
 			{:else if speech && started && sound.state === 'blocked'}<button type="button" class="btn on" onclick={turnOn}><Icon name="volume" size={16} /> Tap to turn sound on</button>
 			{:else if preparing || (endless && started && !word)}<span class="spin" aria-hidden="true"></span> Preparing the voice…
 			{:else if playing}{playing === 'slow' ? 'Playing slowly…' : 'Playing…'}
@@ -821,6 +830,12 @@
 		gap: var(--space-8);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
+	}
+	.trouble {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-6);
+		color: var(--ink);
 	}
 	.spin {
 		width: 14px;

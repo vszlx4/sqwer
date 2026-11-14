@@ -4,7 +4,9 @@ import { nudgeVoiceGenerator } from '#lib/server/voice/background.ts';
 import { checkClips } from '#lib/server/voice/health.ts';
 import { isLocalRequest } from '#lib/server/voice/local.ts';
 import { buildManifest, findListsDir, fullSet } from '#lib/server/voice/manifest.ts';
-import { activeVoice, readSettings, voiceDir, writeSettings } from '#lib/server/voice/settings.ts';
+import { DISK_LIMITS, activeVoice, readSettings, voiceDir, writeSettings, type DiskLimit } from '#lib/server/voice/settings.ts';
+import { setFlagged } from '#lib/server/voice/flagged.ts';
+import { isSpeakable } from '#lib/voice/clip.ts';
 import { forgetCounts, voiceBrief, voiceStatus } from '#lib/server/voice/status.ts';
 import { voiceVersion } from '#lib/server/voice/version.ts';
 import type { VoiceAction, VoiceRemote, VoiceVersion } from '#lib/voice/status.ts';
@@ -45,6 +47,12 @@ function parse(body: unknown): VoiceAction | null {
 			return typeof b.set === 'string' && SET_ID.test(b.set) ? { action: 'first', set: b.set } : null;
 		case 'check':
 			return b.set === undefined || (typeof b.set === 'string' && SET_ID.test(b.set)) ? { action: 'check', set: b.set as string | undefined } : null;
+		case 'limit':
+			return b.gb === null || DISK_LIMITS.includes(b.gb as DiskLimit) ? { action: 'limit', gb: b.gb as number | null } : null;
+		case 'flag':
+			return typeof b.word === 'string' && isSpeakable(b.word) && typeof b.on === 'boolean' ? { action: 'flag', word: b.word, on: b.on } : null;
+		case 'unflag-all':
+			return { action: 'unflag-all' };
 		default:
 			return null;
 	}
@@ -79,6 +87,15 @@ export const POST: RequestHandler = async (event) => {
 			await writeSettings(DATA_DIR, { first: action.set, paused: false });
 			break;
 		}
+		case 'limit':
+			await writeSettings(DATA_DIR, { diskLimit: action.gb as DiskLimit | null });
+			break;
+		case 'flag':
+			await setFlagged(VOICE_DIR, action.word.trim().toLowerCase(), action.on);
+			break;
+		case 'unflag-all':
+			await setFlagged(VOICE_DIR, null);
+			break;
 		case 'check': {
 			const manifest = buildManifest(listsDir);
 			const only = action.set ? fullSet(listsDir, action.set, manifest) : undefined;

@@ -124,6 +124,29 @@ test('Listen and type plays each word from its clip, and Slow from its own', asy
 	await expect.poll(() => page.evaluate(() => (window as unknown as { played: number }).played)).toBeGreaterThan(1);
 });
 
+test('Listen and type plays a test word from the sound settings', async ({ page }) => {
+	const asked: string[] = [];
+	const wav = tinyWav();
+	await page.route('**/voice/*/auto/*/*', (route) => {
+		asked.push(new URL(route.request().url()).pathname);
+		return route.fulfill({ contentType: 'audio/wav', body: wav });
+	});
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await expect(page.getByRole('slider', { name: 'Voice volume' })).toBeVisible();
+	await page.getByRole('button', { name: 'Play a test word' }).click();
+	await expect(page.getByText(/^Heard it\?/)).toBeVisible();
+	expect(asked.some((p) => p.endsWith('/auto/normal/hello'))).toBe(true);
+});
+
+test('Listen and type says so when the voice keeps failing, and shows the words', async ({ page }) => {
+	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ status: 503, body: 'down' }));
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: /Start at level/ }).click();
+	await expect(page.locator('.player .shown')).toHaveText(/^[a-z'-]+$/);
+	await page.getByRole('button', { name: 'Play the word again' }).click();
+	await expect(page.locator('.state')).toContainText('The voice is not answering. Words are shown instead.');
+});
+
 test('Listen and type shows the words instead when sound is turned off in settings', async ({ page }) => {
 	await page.goto('/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('checkbox', { name: /Show words instead of sound/ }).check();
