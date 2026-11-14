@@ -11,10 +11,14 @@
 	import { sound } from '#lib/voice/audio.svelte.ts';
 	import { voice, type Speed } from '#lib/voice/player.svelte.ts';
 	import type { ClipShape } from '#lib/voice/shape.ts';
-	import { align, describe, plain, spoken, type Part, type Slot } from '../align.ts';
-	import { americanSpelling, COURSE_WORDS, matchHeard } from '@sqwer/content';
-	import { activityWords, seeded, shuffle } from '../generate.ts';
-	import { BATCH, LOOKAHEAD, batchLevel, pickWords, type Answer, type Outcome } from '#lib/games/listen-run.ts';
+	import { describe, plain, spoken, type Part, type Slot } from '../align.ts';
+	import { COURSE_WORDS, compareLetters, loadHeardData, type HeardData, type HeardResult, type HeardSetId } from '@sqwer/content';
+	import { activityWords, seeded } from '../generate.ts';
+	import { BATCH, LOOKAHEAD, batchLevel } from '#lib/games/listen/run.ts';
+	import { grade, pointsOf, type Answer, type Outcome } from '#lib/games/listen/score.ts';
+	import { canReplay, countsAsReplay, replayLimit, result as roundResult, newRound, type RoundResult } from '#lib/games/listen/round.ts';
+	import { WordMemory } from '#lib/games/listen/memory.ts';
+	import { pick } from '#lib/games/listen/pick.ts';
 	import type { StepResult } from '../types.ts';
 
 	/** Endless play: words come one after another from the level's pool until the player stops. */
@@ -36,30 +40,34 @@
 		target?: number;
 		oncomplete?: (r: StepResult) => void;
 		feed?: ListenFeed;
+		/** Word set for sound-alikes and British spellings; lessons use the course words. */
+		set?: HeardSetId;
+		/** A practice round: these words, ungraded, then onpracticed. */
+		practice?: boolean;
 	}
 
-	let { pool, focus, words, count = 6, target = 4, oncomplete, feed }: Props = $props();
+	let { pool, focus, words, count = 6, target = 4, oncomplete, feed, set = 'course', practice = false }: Props = $props();
 	const endless = untrack(() => !!feed);
+	const memory = new WordMemory();
+	/** Sound-alike groups and British spellings of the set, loaded with it. */
+	let heardData = $state<HeardData | undefined>();
+	untrack(() => void loadHeardData(set).then((d) => (heardData = d), () => {}));
+	/** Words a misheard answer can be: the course words and the endless pools seen so far. */
+	const known = new Set<string>(COURSE_WORDS);
 
 	/**
-	 * Lesson words: five letters or more first, then four. Sound-alikes stay in: any spelling of the sound is
-	 * accepted (matchHeard). Topped up from course vocabulary with taught keys.
+	 * Lesson words, by the picker (lib/games/listen/pick.ts): the exercise's words, topped up from course words with
+	 * taught keys when it has too few; confusable words never in one round, recent ones resting.
 	 */
 	const allowed = untrack(() => new Set([...pool]));
 	let list = $state(untrack(() => {
 		if (feed) return [];
+		if (practice) return [...(words ?? [])];
 		const rand = seeded(Date.now() % 100000);
-		const given = activityWords(pool, focus, words, rand);
-		const long = given.filter((w) => w.length >= 5);
-		if (long.length < count) {
-			const extra = shuffle(
-				COURSE_WORDS.filter((w) => w.length >= 5 && w.length <= 9 && !long.includes(w) && [...w].every((c) => allowed.has(c))),
-				rand
-			);
-			long.push(...extra.slice(0, count - long.length));
-		}
-		const rest = given.filter((w) => w.length === 4 && !long.includes(w));
-		return [...long, ...rest, ...given.filter((w) => w.length < 4)].slice(0, count);
+		const given = activityWords(pool, focus, words, rand).filter((w) => w.length >= 3);
+		const extra = COURSE_WORDS.filter((w) => w.length >= 4 && w.length <= 9 && !given.includes(w) && [...w].every((c) => allowed.has(c)));
+		const from = given.length >= count * 2 ? given : [...given, ...extra];
+		return pick(from, { n: count, rand, memory, voiced: (w) => voice.state(w) !== 'missing' });
 	}));
 	// Words are heard, unless sound is turned off in settings or the browser has none: then each is shown briefly.
 	const speech = $derived(!settings.showWords && voice.supported);
@@ -67,6 +75,9 @@
 	interface Feedback {
 		outcome: Outcome;
 		typed: string;
+		/** The word as written (capitals kept), and both spellings when it has a British one. */
+		word: string;
+		spellings?: { american: string; british: string };
 		slots: Slot[];
 		/** Letters are marked only when a few differ; otherwise the two words are shown plainly. */
 		marked: boolean;
@@ -81,10 +92,18 @@
 	let showWord = $state(false);
 	let feedback = $state<Feedback | null>(null);
 	let outcomes = $state<Outcome[]>([]);
+	/** Lessons: every answer, for the review. */
+	let done = $state<Answer[]>([]);
+	let reviewing = $state(false);
+	/** Practice: ungraded, every word shown in the review. Set by the prop or by "Practice the missed words". */
+	let practiceMode = $state(untrack(() => practice));
 	let over = $state<{ won: boolean; text: string } | null>(null);
 	/** What is playing now; null when quiet. */
 	let playing = $state<Speed | null>(null);
 	let plays = $state(0);
+	/** Replays of this word (the first play not counted), and when it first played. */
+	let replays = $state(0);
+	let firstPlay = 0;
 	let input: HTMLInputElement | undefined = $state();
 	let next: HTMLButtonElement | undefined = $state();
 	let timers: ReturnType<typeof setTimeout>[] = [];
@@ -100,7 +119,8 @@
 
 	const word = $derived(endless ? (queue[0] ?? '') : (list[index] ?? ''));
 	const upcoming = $derived(endless ? queue.slice(1) : list.slice(index + 1));
-	const correct = $derived(outcomes.filter((o) => o !== 'wrong').length);
+	/** Points so far: exact and accepted 1, close half. */
+	const correct = $derived(pointsOf(done));
 	const answered = $derived(outcomes.filter(Boolean).length);
 
 	/* ---------------------------------------------------------------- clips: made ahead, shown when ready */
@@ -166,7 +186,9 @@
 		try {
 			while (queue.length < 1 + LOOKAHEAD) {
 				const from = await feed.words(level);
-				const add = pickWords(from, [...answers.map((a) => a.word), ...queue], 1 + LOOKAHEAD - queue.length, Math.random);
+				for (const w of from) known.add(w);
+				const taken = [...answers.slice(-BATCH).map((a) => a.word), ...queue];
+				const add = pick(from, { n: 1 + LOOKAHEAD - queue.length, rand: Math.random, memory, level, taken, voiced: (w) => voice.state(w) !== 'missing', data: heardData });
 				if (!add.length) break;
 				queue.push(...add);
 				if (speech) voice.prepare(add);
@@ -208,10 +230,18 @@
 
 	/* ---------------------------------------------------------------- play */
 
+	/** Endless levels limit replays; lessons and practice do not. */
+	const replayLevel = $derived(endless ? level : null);
+	const allows = (speed: Speed) => !plays || canReplay(replayLevel, replays, speed);
+	const left = $derived(replayLimit(replayLevel) - replays);
+
 	async function play(speed: Speed = 'normal') {
-		if (!word) return;
+		if (!word || feedback) return;
 		if (!speech) return flash();
+		if (!allows(speed)) return;
 		const w = word;
+		if (countsAsReplay(replayLevel, plays === 0, speed)) replays++;
+		if (!plays) firstPlay = performance.now();
 		playing = speed;
 		plays++;
 		const said = await voice.say(w, speed);
@@ -236,6 +266,8 @@
 		feedback = null;
 		value = '';
 		plays = 0;
+		replays = 0;
+		firstPlay = performance.now();
 		playing = null;
 		rating = loadRating(word);
 		void play();
@@ -257,43 +289,113 @@
 		present();
 	}
 
-	function accepted(typed: string, w: string, how: 'spelling' | 'sound'): Part[] {
-		if (how === 'sound') return [{ letter: typed }, ' sounds the same as ', { letter: w }, ', so it counts.'];
-		const american = americanSpelling(typed) === typed ? typed : w;
-		const british = american === typed ? w : typed;
-		return [{ letter: british }, ' is the British spelling of ', { letter: american }, '. Both count.'];
+	/** Graded letters as the explanation draws them: a swap or a slip reads as a changed letter. */
+	const SLOT: Record<HeardResult['letters'][number]['mark'], Slot['mark']> = { right: 'same', extra: 'extra', missing: 'missing', changed: 'wrong', swapped: 'wrong' };
+
+	/** One plain sentence on how the answer was graded, naming the letters. */
+	function noteFor(r: HeardResult, slots: Slot[]): Part[] {
+		const typed = r.typed;
+		const w = r.word.toLowerCase();
+		const off = r.letters.filter((l) => l.mark !== 'right');
+		const half = ' Half a point.';
+		switch (r.kind) {
+			case 'exact':
+				return ['Spelled exactly right.'];
+			case 'accepted':
+				if (r.accepted === 'written') return ['Counts. Written ', { letter: r.word }, '.'];
+				if (r.accepted === 'sound') return [{ letter: typed }, ' sounds the same as ', { letter: w }, ', so it counts.'];
+				return ['Another spelling of the same word. Both count.'];
+			case 'close':
+				switch (r.mistake) {
+					case 'sounds-right':
+						return ['Spelled the way it sounds.', half];
+					case 'swap':
+						return ['Two letters swapped: ', { letter: off[0]!.word }, ' and ', { letter: off[1]!.word }, '.', half];
+					case 'double':
+						return ['One letter doubled: ', { letter: off[0]!.typed }, '.', half];
+					case 'neighbor':
+						return off[0]!.mark === 'extra'
+							? ['A brushed key added ', { letter: off[0]!.typed }, '.', half]
+							: ['A slip to the key next door: ', { letter: off[0]!.typed }, ' for ', { letter: off[0]!.word }, '.', half];
+					case 'missing':
+						return ['One letter left out: ', { letter: off[0]!.word }, '.', half];
+					case 'extra':
+						return ['One letter added: ', { letter: off[0]!.typed }, '.', half];
+					default:
+						return ['One letter off: ', { letter: off[0]!.typed }, ' for ', { letter: off[0]!.word }, '.', half];
+				}
+			case 'misheard':
+				return [{ letter: typed }, ' is another word. The word was ', { letter: w }, '.'];
+			default:
+				return describe(slots);
+		}
 	}
 
-	async function submit() {
-		const typed = value.trim().toLowerCase();
-		if (!typed || feedback || !word) return;
+	/** Fast mode: a full point moves on the moment it is typed; Enter only plays the word again. */
+	const fast = $derived(settings.fastMode);
+	/** The word just typed right in fast mode, shown for a moment in the status row. */
+	let quick = $state<string | null>(null);
+
+	const gradeOf = (typed: string) => grade(word, typed, { data: heardData, isWord: (w) => w !== word && known.has(w) });
+
+	/** Answers hold letters only: no digits, symbols, spaces or punctuation (don't is typed dont and counts). */
+	const lettersOnly = (text: string) => text.toLowerCase().replace(/[^a-z]/g, '');
+
+	function typed(next: string) {
+		value = lettersOnly(next);
+		if (input && input.value !== value) input.value = value;
+		if (fast && started && !feedback && word && value && gradeOf(value).points === 1) void submit();
+	}
+
+	/** Checks the answer. `giveUp` checks even an empty one: fast mode's Skip. */
+	async function submit(giveUp = false) {
+		const typed = value.trim();
+		if ((!typed && !giveUp) || feedback || !word) return;
 		voice.stop();
 		playing = null;
-		const match = matchHeard(word, typed);
-		const outcome: Outcome = !match.ok ? 'wrong' : match.how === 'exact' ? 'exact' : 'accepted';
+		const r = gradeOf(typed);
+		const outcome = r.kind;
 		outcomes[endless ? answers.length : index] = outcome;
-		const slots = align(typed, word, outcome === 'accepted');
+		const a: Answer = { word, typed: r.typed, outcome, points: r.points, level, plays, ms: Math.round(performance.now() - firstPlay) };
+		memory.record(word, outcome);
+		if (feed) {
+			answers.push(a);
+			if (answers.length % BATCH === 0) level = batchLevel(level, answers.slice(-BATCH), feed.adaptive);
+			feed.onanswer($state.snapshot(answers), level);
+		} else done[index] = a;
+		// Fast mode: a full point goes straight to the next word, no explanation.
+		if (fast && r.points === 1) {
+			const right = word;
+			quick = right;
+			timers.push(setTimeout(() => quick === right && (quick = null), 900));
+			advance();
+			return;
+		}
+		const slots: Slot[] = r.letters.map((l) => ({ typed: l.typed, word: l.word, mark: outcome === 'accepted' && l.mark !== 'right' ? 'variant' : SLOT[l.mark] }));
 		const differ = slots.filter((s) => s.mark !== 'same').length;
-		const note = !match.ok ? describe(slots) : match.how === 'exact' ? ['Spelled exactly right.'] : accepted(typed, word, match.how);
+		const note = noteFor(r, slots);
 		feedback = {
 			outcome,
-			typed,
+			typed: r.typed,
+			word: r.word,
+			spellings: r.spellings,
 			slots,
-			marked: outcome !== 'wrong' || (differ <= 3 && slots.some((s) => s.mark === 'same')),
+			marked: outcome === 'accepted' || outcome === 'close' || (outcome !== 'misheard' && differ <= 3 && slots.some((s) => s.mark === 'same')),
 			note,
-			said: `${GRADE[outcome]}. ${spoken(typed, word)} ${plain(note)}`
+			said: `${GRADE[outcome]}. ${spoken(r.typed, word)} ${plain(note)}${r.spellings ? ` American ${r.spellings.american}, British ${r.spellings.british}.` : ''}`
 		};
-		if (feed) {
-			answers.push({ word, typed, outcome, level, plays });
-			if (answers.length % BATCH === 0) level = batchLevel(level, answers.slice(-BATCH).map((a) => a.outcome), feed.adaptive);
-			feed.onanswer($state.snapshot(answers), level);
-		}
 		await tick();
 		next?.focus({ preventScroll: true });
 	}
 
 	function proceed() {
 		if (!feedback || over) return;
+		advance();
+	}
+
+	/** On to the next word, or the review after the last one. */
+	function advance() {
+		if (over) return;
 		if (endless) {
 			voice.stop();
 			queue.shift();
@@ -310,17 +412,55 @@
 			present();
 			return;
 		}
-		const won = correct >= target;
-		const summary = `${correct} of ${list.length} words typed correctly. Goal: ${target}.`;
-		over = { won, text: summary };
-		timers.push(setTimeout(() => oncomplete?.({ passed: won, accuracy: (correct / list.length) * 100, summary }), 1200));
+		// Every word answered: the review, with the missed words to practice.
+		voice.stop();
+		reviewing = true;
 	}
 
+	/** The round's result, from its answers. */
+	const roundOut = $derived.by(() => {
+		const r = newRound(list, practiceMode ? 0 : target);
+		r.answers = done;
+		return roundResult(r);
+	});
+	/** The graded round's result, kept while its missed words are practiced. */
+	let graded = $state<RoundResult | null>(null);
+
+	/** Leaves the review: the lesson goes on with the graded round's result. */
+	function finish() {
+		if (over) return;
+		const r = graded ?? roundOut;
+		over = { won: r.passed, text: r.summary };
+		timers.push(setTimeout(() => oncomplete?.({ passed: r.passed, accuracy: r.accuracy, summary: r.summary }), 600));
+	}
+
+	/** An ungraded round of the words missed, then the review again. */
+	function practiceMissed() {
+		graded = roundOut;
+		list = [...roundOut.missed];
+		index = 0;
+		done = [];
+		outcomes = [];
+		reviewing = false;
+		practiceMode = true;
+		present();
+	}
+
+	let review: HTMLButtonElement | undefined = $state();
+	$effect(() => {
+		if (reviewing) void tick().then(() => review?.focus({ preventScroll: true }));
+	});
+
 	function onkeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && fast) {
+			e.preventDefault();
+			void submit(true);
+			return;
+		}
 		if (e.key !== 'Enter') return;
 		e.preventDefault();
 		if (e.shiftKey) void play('slow');
-		else if (!value.trim()) void play();
+		else if (fast || !value.trim()) void play();
 		else void submit();
 	}
 
@@ -333,21 +473,26 @@
 			},
 			key: (e) => {
 				if (!started || over) return;
+				if (reviewing) {
+					if (e.key === 'Enter') review?.click();
+					return;
+				}
 				if (feedback) {
 					if (e.key === 'Enter') proceed();
 					return;
 				}
 				if (!input || input.disabled) return;
 				input.focus({ preventScroll: true });
-				if (e.key === 'Enter') onkeydown(e);
-				else if (e.key === 'Backspace') value = value.slice(0, -1);
-				else if (e.key.length === 1) value += e.key;
+				if (e.key === 'Enter' || e.key === 'Escape') onkeydown(e);
+				else if (e.key === 'Backspace') typed(value.slice(0, -1));
+				else if (e.key.length === 1) typed(value + e.key);
 			}
 		})
 	);
 
-	const GRADE = { exact: 'Correct', accepted: 'Accepted', wrong: 'Not quite' } as const;
-	const MARK: Record<Outcome, StatusMarkStatus> = { exact: 'done', accepted: 'done', wrong: 'failed' };
+	const GRADE: Record<Outcome, string> = { exact: 'Correct', accepted: 'Accepted', close: 'Close', misheard: 'Misheard', wrong: 'Not quite' };
+	/** Close answers show a check in the streak color: half right. */
+	const MARK: Record<Outcome, StatusMarkStatus> = { exact: 'done', accepted: 'done', close: 'done', misheard: 'failed', wrong: 'failed' };
 	/** Endless keeps the last few results in view; lessons show every word of the exercise. */
 	const RECENT = 7;
 
@@ -370,9 +515,9 @@
 	title={speech ? 'Listen and type' : 'Look and type'}
 	icon="volume"
 	how={speech
-		? `You will hear ${list.length} words, one at a time. Type each word and press Enter. Words that sound the same and British spellings count. Turn your sound on.`
+		? `You will hear ${list.length} words, one at a time. Type each word and press Enter. Words that sound the same and British spellings count; a slip of one letter scores half a point. Turn your sound on.`
 		: `${settings.showWords ? 'Sound is off in your settings' : 'This browser cannot play sound'}, so each of the ${list.length} words is shown for a moment instead. Type it from memory and press Enter.`}
-	goal={`Type ${target} of ${list.length} words correctly`}
+	goal={`Score ${target} of ${list.length} points`}
 	progress={Math.min(1, correct / Math.max(1, target))}
 	status={`${answered} / ${list.length} words`}
 	{over}
@@ -381,12 +526,42 @@
 	autostart={endless}
 	height={460}
 >
+	{#if reviewing}
+		<!-- Every answer of the round, then on to the lesson; missed words can be practiced first. -->
+		<div class="review">
+			<div class="review-head">
+				<p class="review-title">{practiceMode ? 'Practice round' : 'Your round'}</p>
+				<p class="review-score">{practiceMode ? 'Not scored' : `${roundOut.points} of ${list.length} points · goal ${target}`}</p>
+			</div>
+			<ol class="answers">
+				{#each done as a, i (i)}
+					<li class:close={a.outcome === 'close'}>
+						<StatusMark status={MARK[a.outcome]} size={18} decorative />
+						<span class="answer-word">{a.word}</span>
+						<span class="answer-typed">
+							{#if a.outcome === 'exact'}typed right{:else}you typed
+								<span class="mono">{#each compareLetters(a.typed, a.word.toLowerCase()) as l, j (j)}{#if l.typed}<span class:bad={l.mark !== 'right'}>{l.typed}</span>{/if}{/each}</span>{/if}
+						</span>
+						<span class="answer-meta">{GRADE[a.outcome]} · {a.plays === 1 ? 'heard once' : `heard ${a.plays} times`} · {(a.ms / 1000).toFixed(1)} s</span>
+					</li>
+				{/each}
+			</ol>
+			<div class="footer">
+				<div class="aside">
+					{#if !practiceMode && !graded && roundOut.missed.length}
+						<button type="button" class="btn" onclick={practiceMissed}>Practice the missed words</button>
+					{/if}
+				</div>
+				<button type="button" class="btn btn-primary act" bind:this={review} onclick={finish}>Finish <Icon name="arrow" size={18} /></button>
+			</div>
+		</div>
+	{:else}
 	<!-- One column; every row keeps its height, so answering swaps content in place and nothing moves. -->
 	<div class="play">
 		<div class="top">
 			<ol class="marks" aria-label={position}>
 				{#each dots as d (d.key)}
-					<li>
+					<li class:close={d.outcome === 'close'}>
 						{#if d.outcome}<StatusMark status={MARK[d.outcome]} size={18} decorative />
 						{:else}<span class="dot" class:current={d.current}></span>{/if}
 					</li>
@@ -400,7 +575,7 @@
 		<!-- The player: always on screen, with the volume. -->
 		<div class="player" class:mute={!speech}>
 			{#if speech}
-				<button type="button" class="btn icon" aria-label="Play the word again" onclick={() => play('normal')} disabled={!started || playing !== null || preparing}>
+				<button type="button" class="btn icon" aria-label="Play the word again" onclick={() => play('normal')} disabled={!started || playing !== null || preparing || !!feedback || !allows('normal')}>
 					<Icon name="play" size={18} />
 				</button>
 			{/if}
@@ -418,7 +593,7 @@
 				{/if}
 			</div>
 			{#if speech}
-				<button type="button" class="btn slow" onclick={() => play('slow')} disabled={!started || playing !== null || preparing}>Slow</button>
+				<button type="button" class="btn slow" onclick={() => play('slow')} disabled={!started || playing !== null || preparing || !!feedback || !allows('slow')}>Slow</button>
 				<div class="volume">
 					<Icon name={voice.volume === 0 ? 'mute' : 'volume'} size={18} />
 					<WakeSlider value={Math.round(voice.volume * 100)} onChange={(v) => voice.setVolume(v / 100)} step={5} ariaLabel="Volume" formatValue={(v) => `${v}%`} />
@@ -429,14 +604,15 @@
 
 		<p class="state" aria-live="polite">
 			{#if feedback}
-				<span class="grade" id="listen-grade"><StatusMark status={MARK[feedback.outcome]} size={20} decorative /> {GRADE[feedback.outcome]}</span>
+				<span class="grade" class:close={feedback.outcome === 'close'} id="listen-grade"><StatusMark status={MARK[feedback.outcome]} size={20} decorative /> {GRADE[feedback.outcome]}</span>
+			{:else if quick}<span class="grade quick"><StatusMark status="done" size={20} decorative /> {quick}</span>
 			{:else if loadError}The words could not be loaded. Stop and start again.
 			{:else if speech && started && sound.state === 'blocked'}<button type="button" class="btn on" onclick={turnOn}><Icon name="volume" size={16} /> Tap to turn sound on</button>
 			{:else if preparing || (endless && started && !word)}<span class="spin" aria-hidden="true"></span> Preparing the voice…
 			{:else if playing}{playing === 'slow' ? 'Playing slowly…' : 'Playing…'}
 			{:else if !started}Press Start to hear the first word
 			{:else if !speech}Shown for a moment
-			{:else if plays}Heard {plays === 1 ? 'once' : `${plays} times`}{/if}
+			{:else if plays}Heard {plays === 1 ? 'once' : `${plays} times`}{#if Number.isFinite(left)} · {left === 0 ? 'no replays left' : left === 1 ? '1 replay left' : `${left} replays left`}{/if}{/if}
 		</p>
 
 		<div class="answer">
@@ -451,7 +627,8 @@
 					<input
 						bind:this={input}
 						data-typing-input
-						bind:value
+						{value}
+						oninput={(e) => typed(e.currentTarget.value)}
 						{onkeydown}
 						class="box"
 						type="text"
@@ -470,20 +647,24 @@
 
 		<div class="middle">
 			{#if feedback}
-				<div class="result" aria-hidden="true">
+				<div class="result" class:both={!!feedback.spellings} aria-hidden="true">
 					<p class="label">The word</p>
 					<p class="word">
-						{#each feedback.slots as s, i (i)}{#if s.word}<span class:fix={feedback.marked && feedback.outcome === 'wrong' && (s.mark === 'missing' || s.mark === 'wrong')}>{s.word}</span>{/if}{/each}
+						{#each feedback.slots as s, i (i)}{#if s.word}<span class:fix={feedback.marked && (feedback.outcome === 'wrong' || feedback.outcome === 'close') && (s.mark === 'missing' || s.mark === 'wrong')}>{s.word}</span>{/if}{/each}
 					</p>
 					<p class="why">
 						{#each feedback.note as part, i (i)}{#if typeof part === 'string'}{part}{:else}<b class="letter">{part.letter}</b>{/if}{/each}
 					</p>
+					{#if feedback.spellings}<p class="spellings">American <i>{feedback.spellings.american}</i> · British <i>{feedback.spellings.british}</i></p>{/if}
 				</div>
 			{:else}
 				<p class="keys">
-					<span><kbd>Enter</kbd> Check</span>
-					{#if speech}<span><kbd>Enter</kbd> on empty: play again</span>
-						<span><kbd>Shift</kbd>&nbsp;+&nbsp;<kbd>Enter</kbd> Slow</span>{/if}
+					{#if fast}<span>Fast mode: a right word moves on by itself</span>
+						{#if speech}<span><kbd>Enter</kbd> Play again</span>{/if}
+						<span><kbd>Esc</kbd> Skip</span>
+					{:else}<span><kbd>Enter</kbd> Check</span>
+						{#if speech}<span><kbd>Enter</kbd> on empty: play again</span>{/if}{/if}
+					{#if speech}<span><kbd>Shift</kbd>&nbsp;+&nbsp;<kbd>Enter</kbd> Slow</span>{/if}
 					{#if speech && sound.silentSwitch}<span>No sound? Check the silent switch.</span>{/if}
 				</p>
 			{/if}
@@ -499,13 +680,18 @@
 			</div>
 			{#if feedback}
 				<button type="button" class="btn btn-primary act" bind:this={next} onclick={proceed}>
-					{endless || index + 1 < list.length ? 'Continue' : 'Finish'} <Icon name="arrow" size={18} />
+					{endless || index + 1 < list.length ? 'Continue' : 'See the round'} <Icon name="arrow" size={18} />
 				</button>
 			{:else}
-				<button type="button" class="btn btn-primary act" onclick={() => void submit()} disabled={!started || !value.trim()}>Check</button>
+				{#if fast}
+					<button type="button" class="btn act" onclick={() => void submit(true)} disabled={!started || !word}>Skip</button>
+				{:else}
+					<button type="button" class="btn btn-primary act" onclick={() => void submit()} disabled={!started || !value.trim()}>Check</button>
+				{/if}
 			{/if}
 		</div>
 	</div>
+	{/if}
 </GameFrame>
 
 <style>
@@ -743,6 +929,92 @@
 		line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
+	}
+	/* Both spellings take the second line of the note. */
+	.both .why {
+		-webkit-line-clamp: 1;
+		line-clamp: 1;
+	}
+	.spellings {
+		font-size: var(--fs-13);
+		color: var(--ink-3);
+	}
+	.spellings i {
+		font-style: normal;
+		font-family: var(--font-mono);
+		color: var(--ink);
+	}
+	/* Close: half right, in the streak color (amber is the games area). */
+	.close :global(.status-mark),
+	.grade.close :global(.status-mark) {
+		color: var(--streak);
+	}
+
+	.review {
+		display: grid;
+		grid-template-rows: auto 1fr 48px; /* off-scale: the footer row matches the stage */
+		gap: var(--space-16);
+		width: min(100%, var(--w-narrow));
+		height: 100%;
+		margin: 0 auto;
+		padding: var(--space-24) var(--space-16);
+	}
+	.review-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-4) var(--space-12);
+	}
+	.review-title {
+		font-weight: var(--fw-semibold);
+	}
+	.review-score {
+		font-size: var(--fs-14);
+		color: var(--ink-2);
+	}
+	.answers {
+		display: grid;
+		align-content: start;
+		gap: var(--space-8);
+		min-height: 0;
+		margin: 0;
+		padding: 0;
+		overflow: hidden auto;
+		list-style: none;
+	}
+	.answers li {
+		display: grid;
+		grid-template-columns: auto auto 1fr;
+		align-items: center;
+		gap: var(--space-2) var(--space-10);
+		padding-bottom: var(--space-8);
+		border-bottom: 1px solid var(--line);
+		font-size: var(--fs-14);
+		min-width: 0;
+	}
+	.answer-word {
+		font-family: var(--font-mono);
+		font-weight: var(--fw-semibold);
+		color: var(--ink);
+	}
+	.answer-typed {
+		color: var(--ink-2);
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+	.answer-typed .mono {
+		font-family: var(--font-mono);
+		color: var(--ink);
+	}
+	.answer-typed .bad {
+		font-weight: var(--fw-bold);
+		color: var(--error);
+	}
+	.answer-meta {
+		grid-column: 2 / -1;
+		font-size: var(--fs-13);
+		color: var(--ink-3);
 	}
 	.letter {
 		font-family: var(--font-mono);

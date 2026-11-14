@@ -9,7 +9,7 @@
 	import Race from '#lib/courses/steps/Race.svelte';
 	import type { StepResult } from '#lib/courses/types.ts';
 	import { sound } from '#lib/voice/audio.svelte.ts';
-	import { summarize, type Answer } from './listen-run.ts';
+	import { summarize, type Answer } from './listen/run.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import Skeleton from '#lib/ui/Skeleton.svelte';
 	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
@@ -34,6 +34,8 @@
 	let { game }: { game: GameInfo } = $props();
 
 	let phase = $state<'setup' | 'loading' | 'playing' | 'between' | 'over'>('setup');
+	/** Listen and type: the run's missed words, practiced unscored after Stop. */
+	let practicing = $state<string[] | null>(null);
 	let difficulty = $state<DifficultyId>('adaptive');
 	let source = $state<WordSource>('levels');
 	let loadError = $state(false);
@@ -269,8 +271,11 @@
 				<button type="button" class="btn stop" onclick={stop}><Icon name="flag" size={16} /> Stop</button>
 			</div>
 			{#key round}
-				<ListenType pool={LETTERS} focus="" feed={{ level, adaptive: choice.level === null, words: poolFor, onanswer: answered }} />
+				<ListenType pool={LETTERS} focus="" set={source === 'levels' ? 'course' : source} feed={{ level, adaptive: choice.level === null, words: poolFor, onanswer: answered }} />
 			{/key}
+		{:else if practicing}
+			<!-- The run's missed words, once more and unscored; then back to the run's results. -->
+			<ListenType pool={LETTERS} focus="" words={practicing} count={practicing.length} target={0} practice set={source === 'levels' ? 'course' : source} oncomplete={() => (practicing = null)} />
 		{:else}
 			<section class="result" aria-labelledby="round-title">
 				<span class="badge" aria-hidden="true"><Icon name="flag" size={26} /></span>
@@ -283,6 +288,7 @@
 					<div><dt>Highest level</dt><dd>{stats.topLevel || '–'}</dd></div>
 					<div><dt>Exact</dt><dd>{stats.exact}</dd></div>
 					<div><dt>Accepted</dt><dd>{stats.accepted}</dd></div>
+					<div><dt>Close</dt><dd>{stats.close}</dd></div>
 					<div><dt>Missed</dt><dd>{stats.missed}</dd></div>
 					<div><dt>Plays per word</dt><dd>{stats.plays || '–'}</dd></div>
 				</dl>
@@ -292,6 +298,7 @@
 						<ul>
 							{#each stats.misses as m, i (i)}<li><b>{m.word}</b> <span>you typed {m.typed}</span></li>{/each}
 						</ul>
+						<button type="button" class="btn" onclick={() => (practicing = [...new Set(stats.misses.map((m) => m.word))])}>Practice these words</button>
 					</div>
 				{/if}
 				<p class="best">{newBest ? 'A new best run.' : best ? `Your best run: ${best} points.` : ''}</p>
@@ -685,6 +692,9 @@
 		list-style: none;
 		font-size: var(--fs-14);
 		color: var(--ink-3);
+	}
+	.misses .btn {
+		margin-top: var(--space-12);
 	}
 	.misses b {
 		font-family: var(--font-mono);

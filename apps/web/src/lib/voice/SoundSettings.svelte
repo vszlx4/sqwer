@@ -3,14 +3,14 @@
 	import Icon from '#lib/ui/Icon.svelte';
 	import { voice } from './player.svelte.ts';
 
-	/** Listen and type sound on this device: voice volume, and words shown instead of said. Saved on the device. */
+	/** Listen and type on this device: voice volume, words shown instead of said, fast mode. Saved on the device. */
 	let { compact = false }: { compact?: boolean } = $props();
 
 	const pct = $derived(Math.round(settings.voiceVolume * 100));
 </script>
 
 <fieldset class="sound" class:compact>
-	<legend>Sound on this device</legend>
+	<legend>Listen and type on this device</legend>
 	<label class="row">
 		<span class="name"><Icon name={pct === 0 ? 'mute' : 'volume'} size={18} /> Voice volume</span>
 		<input type="range" min="0" max="100" step="5" value={pct} oninput={(e) => voice.setVolume(Number(e.currentTarget.value) / 100)} aria-valuetext={`${pct}%`} />
@@ -28,6 +28,20 @@
 		<span>
 			<span class="name">Show words instead of sound</span>
 			<span class="note">Each word appears for a moment and is typed from memory. For when sound is not an option.</span>
+		</span>
+	</label>
+	<label class="row check">
+		<input
+			type="checkbox"
+			checked={settings.fastMode}
+			onchange={(e) => {
+				settings.fastMode = e.currentTarget.checked;
+				saveSettings();
+			}}
+		/>
+		<span>
+			<span class="name">Fast mode</span>
+			<span class="note">A right word moves on the moment it is typed, with no Enter. Enter plays the word again; Esc skips it.</span>
 		</span>
 	</label>
 </fieldset>
