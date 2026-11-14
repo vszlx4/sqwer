@@ -19,6 +19,7 @@
 	import { grade, pointsOf, type Answer, type Outcome } from '#lib/games/listen/score.ts';
 	import { canReplay, countsAsReplay, replayLimit, result as roundResult, newRound, type RoundResult } from '#lib/games/listen/round.ts';
 	import { WordMemory } from '#lib/games/listen/memory.ts';
+	import { ratingOf, setRating } from '#lib/games/listen/ratings.ts';
 	import { pick } from '#lib/games/listen/pick.ts';
 	import type { StepResult } from '../types.ts';
 
@@ -208,27 +209,12 @@
 
 	/* ---------------------------------------------------------------- word ratings, kept on this device */
 
-	const RATINGS = 'sqwer:clip-ratings';
 	let rating = $state(0);
-	function loadRating(w: string): number {
-		try {
-			return (JSON.parse(localStorage.getItem(RATINGS) ?? '{}') as Record<string, number>)[w] ?? 0;
-		} catch {
-			return 0;
-		}
-	}
 	function rate(n: number) {
 		// One or two stars lists the word on the Voice page of the computer running this copy; a better rating takes it off.
 		if ((n > 0 && n <= 2) !== (rating > 0 && rating <= 2)) void flagWord(word, n > 0 && n <= 2);
 		rating = n;
-		try {
-			const all = JSON.parse(localStorage.getItem(RATINGS) ?? '{}') as Record<string, number>;
-			if (n) all[word] = n;
-			else delete all[word];
-			localStorage.setItem(RATINGS, JSON.stringify(all));
-		} catch {
-			// Storage unavailable: the rating is not kept.
-		}
+		setRating(word, n);
 	}
 
 	/* ---------------------------------------------------------------- play */
@@ -277,7 +263,7 @@
 		replays = 0;
 		firstPlay = performance.now();
 		playing = null;
-		rating = loadRating(word);
+		rating = ratingOf(word);
 		void play();
 		// While this word is shown: its slow clip and the next word.
 		if (speech) {

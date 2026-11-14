@@ -49,6 +49,35 @@ The production fonts are not included in this repository. `npm install` puts the
 [Roboto Flex](https://github.com/googlefonts/roboto-flex) in their place, so the site builds and runs but looks slightly
 different from the live version.
 
+### Voices for Listen and type
+
+Listen and type plays a recording of each word, made on your machine by an open speech model. No speech service is
+used, and nothing is in the repository: models and clips live in `apps/web/.data/voice/`.
+
+| Voice | How it works | Download | First run |
+| --- | --- | --- | --- |
+| **Standard** (Kokoro, the default) | Makes each word the first time it is played, then keeps the clip | about 90 MB, on first use | none; the first play of a word takes a moment |
+| **Supertonic** | Makes clips ahead of time in the background while the site runs | about 130 MB, when you pick it | a few hours for the lessons and the smaller lists on a recent laptop |
+
+Until a word's Supertonic clip is made, it plays in the Standard voice. Clips take about 100 MB for the lessons and
+the smaller lists, and about 3.7 GB for every list. While no clip can be played, the game shows the word instead.
+
+Pick the voice and control the generator from the account menu or the Voice page (**Account → Voice**): pause or
+resume, low or active mode, a disk limit, and the words players rated unclear. The same controls work from the
+command line:
+
+```sh
+npm run voice -- status                   # voice, generator mode, clips made
+npm run voice -- use supertonic           # or standard; Supertonic downloads its model first
+npm run voice -- pause                    # or resume
+npm run voice -- mode active              # all cores but one; low: one thread, lowest priority
+npm run voice -- limit 5                  # most disk the clips may take, in GB (1, 2, 5, 10, 20), or off
+npm run voice:sync                        # make the missing lesson and core clips now (--all: every list)
+```
+
+`SQWER_VOICE=skip` keeps the Standard voice and never makes clips ahead of time (CI uses it); `SQWER_VOICE=pause`
+starts the generator paused.
+
 ## Scripts
 
 | Command | What it does |
@@ -59,6 +88,7 @@ different from the live version.
 | `npm test` | Unit tests (engine, layouts, content, finger map) |
 | `npm run test:e2e` | Playwright end-to-end tests against the production build |
 | `npm run check` | Type check |
+| `npm run voice -- <command>` | Voice for Listen and type; see above |
 
 ## Project structure
 

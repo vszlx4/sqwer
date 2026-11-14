@@ -28,7 +28,7 @@
 		{ id: 'automated', label: 'Automated decisions and profiling' },
 		{ id: 'public', label: 'Public profiles' },
 		{ id: 'children', label: 'Children' },
-		{ id: 'cookies', label: 'Cookies, storage and device voices' },
+		{ id: 'cookies', label: 'Cookies, storage and voice recordings' },
 		{ id: 'changes', label: 'Changes and version history' }
 	];
 </script>
@@ -592,7 +592,7 @@
 	</p>
 	<p>18.2. The Examinations, the Finger map and the first lesson can be used without an account, in which case no practice data is sent to us.</p>
 
-	<h2 id="cookies">19. Cookies, storage and device voices</h2>
+	<h2 id="cookies">19. Cookies, storage and voice recordings</h2>
 	<p>
 		19.1. sqwer sets one strictly necessary cookie to keep you signed in, and stores your settings and practice data in
 		your browser. With your consent only, it also stores two analytics identifiers in your browser (paragraph 4.4). Nothing
@@ -600,10 +600,16 @@
 		<a href="/cookies">Cookie and Storage Policy</a>.
 	</p>
 	<p>
-		19.2. The listening exercises play a recording of each word, made on sqwer's own server by an open speech model
-		from sqwer's word lists. Fetching a recording sends only the word, which is not linked to you or your account,
-		and nothing is sent to any speech service. When a recording cannot be played, a voice built into your device is
-		used, and only voices that run on your device.
+		19.2. The listening exercises play a recording of each word, made on sqwer's own server from sqwer's word lists by
+		one of two open speech models: Kokoro, the Standard voice, or Supertonic. Fetching a recording sends only the word,
+		the voice and the speed, which are not linked to you or your account, and nothing is sent to any speech service.
+		When a recording cannot be played, the word is shown on screen instead; no voice built into your device is used.
+	</p>
+	<p>
+		19.3. The words you heard in Listen and type, how each answer went and when each word is due again, and the stars
+		you give a recording for clarity, are kept in your browser only and never sent to us. Clearing your learning path
+		data also removes them from that browser. On a copy of sqwer running on your own computer, a word rated one or two
+		stars is also listed on that copy's Voice page, so that its pronunciation can be corrected there.
 	</p>
 
 	<h2 id="changes">20. Changes and version history</h2>
@@ -618,7 +624,8 @@
 				<tr><th scope="col">Version</th><th scope="col">Effective</th><th scope="col">Changes</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>2.7</td><td>{formatDay(doc.effectiveIso)}</td><td>Finished tests count toward the streak, as lessons do.</td></tr>
+				<tr><td>2.8</td><td>{formatDay(doc.effectiveIso)}</td><td>Listening exercises: two voices, the word shown instead of a device voice, and word memory and clarity ratings kept in your browser.</td></tr>
+				<tr><td>2.7</td><td>{formatDay('2026-11-08')}</td><td>Finished tests count toward the streak, as lessons do.</td></tr>
 				<tr><td>2.6</td><td>{formatDay('2026-11-03')}</td><td>Summary wording updated.</td></tr>
 				<tr><td>2.5</td><td>{formatDay('2026-11-03')}</td><td>Listening exercises play recordings of each word made on sqwer's own server.</td></tr>
 				<tr><td>2.4</td><td>{formatDay('2026-10-18')}</td><td>Signed-in devices end at most 90 days after signing in; downloads of your data appear in your security activity.</td></tr>

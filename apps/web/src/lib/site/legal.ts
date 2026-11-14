@@ -22,16 +22,16 @@ export const LEGAL_DOCUMENTS = {
 		ref: 'SQW-LGL-002',
 		title: 'Privacy Policy',
 		href: '/privacy',
-		version: '2.7',
-		effectiveIso: '2026-11-08',
+		version: '2.8',
+		effectiveIso: '2026-11-14',
 		summary: 'What personal data sqwer processes, why, on what legal basis, for how long, with whom, and your rights.'
 	},
 	cookies: {
 		ref: 'SQW-LGL-003',
 		title: 'Cookie and Storage Policy',
 		href: '/cookies',
-		version: '2.5',
-		effectiveIso: '2026-11-03',
+		version: '2.6',
+		effectiveIso: '2026-11-14',
 		summary: 'The single strictly necessary cookie, the analytics identifiers kept only with your consent, and every item sqwer keeps in your browser.'
 	},
 	copyright: {
@@ -46,8 +46,8 @@ export const LEGAL_DOCUMENTS = {
 		ref: 'SQW-LGL-005',
 		title: 'Accessibility Statement',
 		href: '/accessibility',
-		version: '1.0',
-		effectiveIso: '2026-10-15',
+		version: '1.1',
+		effectiveIso: '2026-11-14',
 		summary: 'The accessibility standard sqwer aims to meet, known limitations and how to request help.'
 	},
 	security: {
@@ -66,4 +66,4 @@ export type LegalKey = keyof typeof LEGAL_DOCUMENTS;
 export const ACCEPTANCE_VERSION = `terms-${LEGAL_DOCUMENTS.terms.version}+privacy-${LEGAL_DOCUMENTS.privacy.version}`;
 
 /** Most recent effective date across all documents (ISO 8601), shown in the legal center. */
-export const LEGAL_UPDATED = '2026-11-03';
+export const LEGAL_UPDATED = '2026-11-14';

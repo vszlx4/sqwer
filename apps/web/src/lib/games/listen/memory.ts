@@ -88,3 +88,12 @@ export class WordMemory {
 		}
 	}
 }
+
+/** Forgets every word on this device, when learning data is cleared. */
+export function forgetWordMemory(store: Pick<Storage, 'removeItem'> | null = typeof localStorage === 'undefined' ? null : localStorage) {
+	try {
+		store?.removeItem(KEY);
+	} catch {
+		// Storage unavailable: nothing was kept.
+	}
+}
