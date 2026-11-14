@@ -9,7 +9,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { InferenceSession } from 'onnxruntime-node';
-import { CLIP_VERSION, isSpeakable } from '#lib/courses/voice/clip.ts';
+import { CLIP_VERSION, isSpeakable } from '#lib/voice/clip.ts';
 import { DATA_DIR } from './config.ts';
 import { afterCarrier, toWav, trimSilence } from './voice-audio.ts';
 
@@ -25,7 +25,9 @@ const MODEL_FILES: Record<string, string> = {
 	'onnx/model_quantized.onnx': 'fbae9257e1e05ffc727e951ef9b9c98418e6d79f1c9b6b13bd59f5c9028a1478',
 	[`voices/${VOICE}.bin`]: 'd583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b'
 };
-const SPEED = 0.9;
+/** Kokoro speed per clip speed: Slow is its own render, not a time-stretch. */
+export const STANDARD_SPEEDS = { normal: 0.9, slow: 0.68 } as const;
+export type StandardSpeed = keyof typeof STANDARD_SPEEDS;
 const RATE = 24000;
 /** Said before the word and cut away; see voice-audio.ts. */
 const CARRIER = 'Okay... ';
@@ -109,14 +111,14 @@ function load(): Promise<Model> {
 }
 
 /** Kokoro speech for a line of text, as 24 kHz samples. */
-async function speak(text: string): Promise<Float32Array> {
+async function speak(text: string, speed: number): Promise<Float32Array> {
 	const { ort, session, vocab, voice } = await load();
 	const ids = [...(await phonemes(text))].flatMap((c) => vocab.get(c) ?? []).slice(0, 510);
 	const row = Math.min(ids.length, 509) * 256;
 	const { waveform } = await session.run({
 		input_ids: new ort.Tensor('int64', BigInt64Array.from([0, ...ids, 0], BigInt), [1, ids.length + 2]),
 		style: new ort.Tensor('float32', voice.slice(row, row + 256), [1, 256]),
-		speed: new ort.Tensor('float32', [SPEED], [1])
+		speed: new ort.Tensor('float32', [speed], [1])
 	});
 	return waveform!.data as Float32Array;
 }
@@ -125,32 +127,36 @@ async function speak(text: string): Promise<Float32Array> {
 let queue: Promise<unknown> = Promise.resolve();
 const pending = new Map<string, Promise<Buffer>>();
 
-async function render(word: string): Promise<Buffer> {
-	const cut = afterCarrier(await speak(`${CARRIER}${word}.`));
+async function render(word: string, speed: StandardSpeed): Promise<Buffer> {
+	const cut = afterCarrier(await speak(`${CARRIER}${word}.`, STANDARD_SPEEDS[speed]));
 	if (!cut) throw new Error(`voice: no pause after the carrier for "${word}"`);
 	return toWav(trimSilence(cut, RATE), RATE);
 }
 
+/** Normal clips stay where they always were; slow ones sit beside them in slow/. */
+const clipFile = (word: string, speed: StandardSpeed) => path.join(CLIPS, ...(speed === 'slow' ? ['slow'] : []), `${word}.wav`);
+
 /** Whether a clip for this word is already on disk. */
-export function hasClip(word: string): boolean {
-	return existsSync(path.join(CLIPS, `${word}.wav`));
+export function hasClip(word: string, speed: StandardSpeed = 'normal'): boolean {
+	return existsSync(clipFile(word, speed));
 }
 
 /** WAV clip of a word, rendered on first request. Throws for words that are not speakable. */
-export async function clip(word: string): Promise<Buffer> {
+export async function clip(word: string, speed: StandardSpeed = 'normal'): Promise<Buffer> {
 	if (!isSpeakable(word)) throw new Error('voice: not a word');
-	const file = path.join(CLIPS, `${word}.wav`);
+	const file = clipFile(word, speed);
 	if (existsSync(file)) return readFile(file);
-	let job = pending.get(word);
+	const key = `${speed}:${word}`;
+	let job = pending.get(key);
 	if (!job) {
-		job = (queue = queue.catch(() => {}).then(() => render(word)))
+		job = (queue = queue.catch(() => {}).then(() => render(word, speed)))
 			.then(async (wav) => {
-				await mkdir(CLIPS, { recursive: true });
+				await mkdir(path.dirname(file), { recursive: true });
 				await writeAtomic(file, wav as Buffer);
 				return wav as Buffer;
 			})
-			.finally(() => pending.delete(word));
-		pending.set(word, job);
+			.finally(() => pending.delete(key));
+		pending.set(key, job);
 	}
 	return job;
 }

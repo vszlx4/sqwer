@@ -2,6 +2,8 @@ import { pace } from '#lib/courses/pace.svelte.ts';
 import { clearRuns } from '#lib/courses/run.ts';
 import { courses } from '#lib/courses/store.svelte.ts';
 import { fingerMap } from '#lib/fingermap/store.svelte.ts';
+import { forgetWordMemory } from '#lib/games/listen/memory.ts';
+import { forgetRatings } from '#lib/games/listen/ratings.ts';
 import { results } from '#lib/results/store.svelte.ts';
 import { usage } from '#lib/usage/store.svelte.ts';
 import { categoryOfExam, type DataCategory, type DataResets } from './categories.ts';
@@ -35,6 +37,8 @@ export async function forgetLocal(category: DataCategory, at = Date.now()) {
 		case 'learning':
 			pace.reset();
 			clearRuns();
+			forgetWordMemory();
+			forgetRatings();
 			await courses.forget();
 			break;
 		case 'practice':

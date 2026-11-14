@@ -1,271 +1,9 @@
 /*
- * Checking a word typed from speech. By ear, sound-alike words (their / there, read / red) cannot be told apart,
- * and British spellings (colour, organise, centre) are the same word. Both count as correct.
+ * Spellings that are the same word: British and American (colour, organise, centre), by the rules and pairs below,
+ * plus the reviewed pairs each word list carries (data/). American is the source spelling.
  */
 
-/** Words pronounced the same in General American English, one group per line. */
-const SOUND_ALIKE = `
-to too two
-there their they're
-here hear
-know no
-new knew gnu
-right write rite wright
-whole hole
-one won
-for four fore
-by buy bye
-see sea
-its it's
-your you're
-our hour
-weather whether wether
-week weak
-piece peace
-where wear ware
-which witch
-road rode rowed
-sun son
-meet meat mete
-plane plain
-tail tale
-wait weight
-flower flour
-break brake
-mail male
-sail sale
-heard herd
-board bored
-blue blew
-bear bare
-dear deer
-ate eight
-be bee
-cent scent sent
-sense cents scents
-cell sell
-seen scene
-sight site cite
-so sew sow
-some sum
-steal steel
-stair stare
-tea tee
-threw through
-throne thrown
-toe tow
-toad towed
-way weigh whey
-wood would
-not knot
-night knight
-nose knows
-pair pear pare
-pain pane
-pale pail
-pole poll
-pour pore
-rain reign rein
-read red
-read reed
-lead led
-real reel
-role roll
-rose rows
-sole soul
-stake steak
-tide tied
-told tolled
-waist waste
-war wore
-warn worn
-whine wine
-yolk yoke
-allowed aloud
-ball bawl
-band banned
-base bass
-berry bury
-billed build
-boar bore
-bold bowled
-born borne
-bread bred
-bridal bridle
-cereal serial
-chews choose
-coarse course
-council counsel
-creak creek
-days daze
-dew due
-die dye
-fair fare
-feat feet
-find fined
-flea flee
-flew flu flue
-foul fowl
-gait gate
-genes jeans
-groan grown
-guessed guest
-hair hare
-hall haul
-heal heel he'll
-higher hire
-him hymn
-hoarse horse
-holy wholly holey
-idle idol
-in inn
-key quay
-knead need kneed
-knit nit
-lessen lesson
-loan lone
-made maid
-mane main
-marshal martial
-might mite
-mind mined
-missed mist
-moose mousse
-morning mourning
-muscle mussel
-naval navel
-none nun
-oar or ore
-overdo overdue
-pact packed
-passed past
-patience patients
-paws pause
-peak peek pique
-peal peel
-pedal peddle
-plum plumb
-praise prays preys
-presence presents
-principal principle
-profit prophet
-rap wrap
-raise rays raze
-ring wring
-rote wrote
-sax sacks
-seam seem
-sees seas seize
-shoe shoo
-side sighed
-sighs size
-slay sleigh
-soar sore
-stationary stationery
-straight strait
-suite sweet
-tacks tax
-taught taut
-tear tier
-there's theirs
-thyme time
-vain vane vein
-wade weighed
-waive wave
-we'd weed
-wheel we'll
-while wile
-whose who's
-you'll yule
-aisle isle i'll
-ail ale
-air heir
-altar alter
-arc ark
-bail bale
-bald bawled
-beat beet
-beach beech
-bell belle
-berth birth
-bite byte
-boos booze
-bough bow
-brews bruise
-brows browse
-cache cash
-carrot carat karat caret
-ceiling sealing
-cellar seller
-cheap cheep
-chord cord
-clause claws
-colonel kernel
-complement compliment
-cue queue
-currant current
-dam damn
-discreet discrete
-doe dough
-does doze
-earn urn
-ewe you yew
-eye i aye
-faint feint
-fir fur
-flair flare
-forth fourth
-freeze frieze
-gorilla guerrilla
-grate great
-hay hey
-hi high
-hoes hose
-leak leek
-lie lye
-links lynx
-lo low
-mall maul
-manner manor
-mantel mantle
-meddle medal
-metal mettle
-miner minor
-moan mown
-mode mowed
-oh owe
-paced paste
-peer pier
-pray prey
-pried pride
-prince prints
-rapped rapt wrapped
-residence residents
-rest wrest
-review revue
-roe row
-rung wrung
-rye wry
-scull skull
-seed cede
-sheer shear
-shone shown
-sign sine
-stile style
-suede swayed
-team teem
-tense tents
-throes throws
-tic tick
-troop troupe
-undo undue
-wail whale
-wax whacks
-we wee
-wet whet
-whirled world
-whit wit
-`;
+import type { HeardData } from './data/index.ts';
 
 /** British (or other accepted) spelling, then the American one, one pair per line. */
 const PAIRS = `
@@ -401,15 +139,16 @@ const LL_ENDINGS = ['ed', 'ing', 'er', 'ers', 'or', 'ors'];
 const ENCE = 'defence offence pretence licence';
 const OGUE = 'catalogue dialogue analogue monologue epilogue prologue travelogue';
 
+
 /** Lowercase, straight apostrophes, single spaces. */
 export function normalizeAnswer(text: string): string {
 	return text.trim().toLowerCase().replace(/[‘’ʼ]/g, "'").replace(/\s+/g, ' ');
 }
 
 let american: Map<string, string> | null = null;
-let sounds: Map<string, number[]> | null = null;
+const loaded = new WeakMap<HeardData, Map<string, string>>();
 
-/** Other spelling → American spelling. */
+/** Other spelling → American spelling, by the built-in rules. */
 function variants(): Map<string, string> {
 	if (american) return american;
 	const map = new Map<string, string>();
@@ -430,40 +169,33 @@ function variants(): Map<string, string> {
 	return (american = map);
 }
 
-/** Word → the sound-alike groups it belongs to. A word can sit in more than one (read: red, reed). */
-function soundGroups(): Map<string, number[]> {
-	if (sounds) return sounds;
-	const map = new Map<string, number[]>();
-	SOUND_ALIKE.trim()
-		.split('\n')
-		.forEach((line, group) => {
-			for (const w of line.split(' ')) map.set(w, [...(map.get(w) ?? []), group]);
-		});
-	return (sounds = map);
-}
-
 /** The American spelling of a word, or the word itself. */
-export function americanSpelling(word: string): string {
+export function americanSpelling(word: string, data?: HeardData): string {
 	const w = normalizeAnswer(word);
-	return variants().get(w) ?? w;
+	const rule = variants().get(w);
+	if (rule || !data) return rule ?? w;
+	let own = loaded.get(data);
+	if (!own) loaded.set(data, (own = new Map(data.variants)));
+	return own.get(w) ?? w;
 }
 
-/** Whether two words sound the same. */
-export function soundsAlike(a: string, b: string): boolean {
-	const x = soundGroups().get(americanSpelling(a));
-	const y = soundGroups().get(americanSpelling(b));
-	return !!x && !!y && x.some((g) => y.includes(g));
-}
+let british: Map<string, string> | null = null;
+const loadedBritish = new WeakMap<HeardData, Map<string, string>>();
 
-export type HeardMatch = { ok: true; how: 'exact' | 'spelling' | 'sound' } | { ok: false };
+/** American → the first other spelling listed for it. */
+const reverse = (pairs: Iterable<readonly [string, string]>) => {
+	const map = new Map<string, string>();
+	for (const [other, us] of pairs) if (!map.has(us)) map.set(us, other);
+	return map;
+};
 
-/** Checks a word typed from hearing `target`: exact, another accepted spelling, or a word that sounds the same. */
-export function matchHeard(target: string, answer: string): HeardMatch {
-	const t = normalizeAnswer(target);
-	const a = normalizeAnswer(answer);
-	if (!a) return { ok: false };
-	if (a === t) return { ok: true, how: 'exact' };
-	if (americanSpelling(a) === americanSpelling(t)) return { ok: true, how: 'spelling' };
-	if (soundsAlike(a, t)) return { ok: true, how: 'sound' };
-	return { ok: false };
+/** The British spelling of a word, when it has one. */
+export function britishSpelling(word: string, data?: HeardData): string | null {
+	const us = americanSpelling(word, data);
+	british ??= reverse(variants());
+	const rule = british.get(us);
+	if (rule || !data) return rule ?? null;
+	let own = loadedBritish.get(data);
+	if (!own) loadedBritish.set(data, (own = reverse(data.variants)));
+	return own.get(us) ?? null;
 }

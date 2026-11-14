@@ -70,3 +70,45 @@ export function toWav(samples: Float32Array, rate = 24000): Buffer {
 	for (let i = 0; i < samples.length; i++) b.writeInt16LE(Math.round(Math.max(-1, Math.min(1, samples[i]!)) * 32767), 44 + i * 2);
 	return b;
 }
+
+/**
+ * Slower speech at the same pitch (WSOLA): windows read `factor` times further apart than they are written, each
+ * shifted up to 10 ms to line up with the previous window's waveform. `factor` above 1 lengthens.
+ */
+export function stretch(samples: Float32Array, factor: number, rate = 24000): Float32Array {
+	const win = 2 * Math.round(rate * 0.0125); // 25 ms, even
+	const hop = win / 2; // written; Hann at half overlap sums to one
+	const read = hop / factor;
+	const tol = Math.round(rate * 0.01);
+	const outLen = Math.round(samples.length * factor);
+	const out = new Float32Array(outLen + win);
+	const sum = new Float32Array(outLen + win);
+	const hann = Float32Array.from({ length: win }, (_, i) => 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / win));
+	const at = (i: number) => (i >= 0 && i < samples.length ? samples[i]! : 0);
+	let prev = 0; // input start of the last window written
+	for (let k = 0; k * hop < outLen; k++) {
+		let pos = Math.round(k * read);
+		if (k > 0) {
+			// Best match for the natural continuation of the last window over its overlap.
+			const want = prev + hop;
+			let best = -Infinity;
+			let bestPos = pos;
+			for (let d = -tol; d <= tol; d++) {
+				const p = pos + d;
+				let c = 0;
+				for (let i = 0; i < hop; i += 2) c += at(p + i) * at(want + i);
+				if (c > best) (best = c), (bestPos = p);
+			}
+			pos = bestPos;
+		}
+		const o = k * hop;
+		for (let i = 0; i < win; i++) {
+			out[o + i]! += at(pos + i) * hann[i]!;
+			sum[o + i]! += hann[i]!;
+		}
+		prev = pos;
+	}
+	// Ends covered by one half window only: divide out the window there.
+	for (let i = 0; i < outLen; i++) if (sum[i]! > 0.1) out[i]! /= sum[i]!;
+	return out.slice(0, outLen);
+}

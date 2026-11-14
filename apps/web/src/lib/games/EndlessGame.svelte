@@ -4,8 +4,12 @@
 	import FallingGame from '#lib/courses/steps/FallingGame.svelte';
 	import KeyHunt from '#lib/courses/steps/KeyHunt.svelte';
 	import ListenType from '#lib/courses/steps/ListenType.svelte';
+	import ListenVoice from '#lib/voice/ListenVoice.svelte';
+	import SoundSettings from '#lib/voice/SoundSettings.svelte';
 	import Race from '#lib/courses/steps/Race.svelte';
 	import type { StepResult } from '#lib/courses/types.ts';
+	import { sound } from '#lib/voice/audio.svelte.ts';
+	import { summarize, type Answer } from './listen/run.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import Skeleton from '#lib/ui/Skeleton.svelte';
 	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
@@ -30,6 +34,8 @@
 	let { game }: { game: GameInfo } = $props();
 
 	let phase = $state<'setup' | 'loading' | 'playing' | 'between' | 'over'>('setup');
+	/** Listen and type: the run's missed words, practiced unscored after Stop. */
+	let practicing = $state<string[] | null>(null);
 	let difficulty = $state<DifficultyId>('adaptive');
 	let source = $state<WordSource>('levels');
 	let loadError = $state(false);
@@ -45,6 +51,11 @@
 	let last = $state<{ passed: boolean; summary: string; level: number; next: number } | null>(null);
 	let newBest = $state(false);
 	let nextButton: HTMLButtonElement | undefined = $state();
+	/** Listen and type runs without rounds or tries: one word after another until the player stops. */
+	const continuous = $derived(game.id === 'listen');
+	let stats = $state(summarize([]));
+	let startedAt = 0;
+	let seconds = $state(0);
 
 	onMount(() => {
 		const saved = loadRecords()[game.id];
@@ -78,7 +89,31 @@
 		phase = 'playing';
 	}
 
+	/** Word pools per level, loaded once a run. */
+	const pools = new Map<number, Promise<string[]>>();
+	function poolFor(at: number): Promise<string[]> {
+		let p = pools.get(at);
+		if (!p) {
+			p = wordsForLevel(at, source);
+			p.catch(() => pools.delete(at));
+			pools.set(at, p);
+		}
+		return p;
+	}
+
 	function begin() {
+		if (continuous) {
+			// The click allows audio, so the first word can play by itself once it is ready.
+			void sound.unlock();
+			pools.clear();
+			stats = summarize([]);
+			newBest = false;
+			level = startLevel;
+			startedAt = Date.now();
+			round++;
+			phase = 'playing';
+			return;
+		}
 		cleared = 0;
 		strikes = 0;
 		score = 0;
@@ -108,6 +143,27 @@
 		requestAnimationFrame(() => nextButton?.focus());
 	}
 
+	function answered(all: Answer[], at: number) {
+		stats = summarize(all);
+		level = at;
+		if (choice.level === null) adaptiveLevel = at;
+		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
+	}
+
+	/** Ends a continuous run and shows its statistics. */
+	function stop() {
+		seconds = Math.round((Date.now() - startedAt) / 1000);
+		score = stats.score;
+		if (score > best) {
+			best = score;
+			newBest = true;
+		}
+		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
+		phase = 'over';
+		requestAnimationFrame(() => nextButton?.focus());
+	}
+	const duration = (s: number) => (s < 60 ? `${s} s` : `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')} s`);
+
 	/** Ends the run at the player's request, keeping the score of the rounds cleared so far. */
 	function endRun() {
 		strikes = STRIKES;
@@ -135,11 +191,19 @@
 		<div class="setup">
 			<aside class="rules" aria-labelledby="rules-title">
 				<h2 id="rules-title">How a run works</h2>
+				{#if continuous}
+				<ol>
+					<li><b>Word after word.</b> It plays until you press Stop; there are no rounds or tries.</li>
+					<li><b>Adapts as you go.</b> The level moves up when you get words right and eases when you miss them.</li>
+					<li><b>Score.</b> Each right word scores its level. Stop whenever you like to see your statistics.</li>
+				</ol>
+				{:else}
 				<ol>
 					<li><b>Round after round.</b> Each round is one game at a level from 1 to {MAX_LEVEL}.</li>
 					<li><b>{STRIKES} tries.</b> A failed round uses one; the run ends when they are gone.</li>
 					<li><b>Score.</b> A cleared round scores its level, so harder rounds count for more.</li>
 				</ol>
+				{/if}
 				<p class="record">
 					{#if best}Best run <b>{best}&nbsp;points</b>{:else}No run yet{/if}
 				</p>
@@ -188,13 +252,64 @@
 						<p class="source-note">This list includes profanity and other mature words. <a href="/copyright#word-lists">About the word lists</a></p>
 					{/if}
 				{/if}
+				{#if game.id === 'listen'}<SoundSettings compact /><ListenVoice set={source === 'levels' ? 'course' : source} />{/if}
 				{#if loadError}<p class="source-note" role="alert">The words could not be loaded. Check your connection and start again.</p>{/if}
-				<p class="chosen" aria-live="polite">{choice.level === null ? 'Adapts to you after every round.' : choice.note}</p>
+				<p class="chosen" aria-live="polite">{choice.level === null ? (continuous ? 'Adapts to you as you play.' : 'Adapts to you after every round.') : choice.note}</p>
 				<button type="button" class="btn btn-primary btn-lg start" onclick={begin}>
 					Start at level {startLevel} <Icon name="arrow" size={18} />
 				</button>
 			</section>
 		</div>
+	{:else if continuous}
+		{#if phase === 'playing'}
+			<div class="hud">
+				<span><small>Level</small><b>{level}</b> {levelName(level)}</span>
+				<span><small>Words</small><b>{stats.words}</b></span>
+				<span><small>Right</small><b>{stats.accuracy}%</b></span>
+				<span><small>Streak</small><b>{stats.streak}</b></span>
+				<span><small>Score</small><b>{stats.score}</b></span>
+				<button type="button" class="btn stop" onclick={stop}><Icon name="flag" size={16} /> Stop</button>
+			</div>
+			{#key round}
+				<ListenType pool={LETTERS} focus="" set={source === 'levels' ? 'course' : source} feed={{ level, adaptive: choice.level === null, words: poolFor, onanswer: answered }} />
+			{/key}
+		{:else if practicing}
+			<!-- The run's missed words, once more and unscored; then back to the run's results. -->
+			<ListenType pool={LETTERS} focus="" words={practicing} count={practicing.length} target={0} practice set={source === 'levels' ? 'course' : source} oncomplete={() => (practicing = null)} />
+		{:else}
+			<section class="result" aria-labelledby="round-title">
+				<span class="badge" aria-hidden="true"><Icon name="flag" size={26} /></span>
+				<h2 id="round-title">Run complete</h2>
+				<p>{stats.words ? `${stats.words} ${stats.words === 1 ? 'word' : 'words'} in ${duration(seconds)}.` : 'You stopped before the first word.'}</p>
+				<dl class="totals stats">
+					<div><dt>Score</dt><dd>{stats.score}</dd></div>
+					<div><dt>Right</dt><dd>{stats.accuracy}%</dd></div>
+					<div><dt>Best streak</dt><dd>{stats.bestStreak}</dd></div>
+					<div><dt>Highest level</dt><dd>{stats.topLevel || '–'}</dd></div>
+					<div><dt>Exact</dt><dd>{stats.exact}</dd></div>
+					<div><dt>Accepted</dt><dd>{stats.accepted}</dd></div>
+					<div><dt>Close</dt><dd>{stats.close}</dd></div>
+					<div><dt>Missed</dt><dd>{stats.missed}</dd></div>
+					<div><dt>Plays per word</dt><dd>{stats.plays || '–'}</dd></div>
+				</dl>
+				{#if stats.misses.length}
+					<div class="misses">
+						<h3>Words to practice</h3>
+						<ul>
+							{#each stats.misses as m, i (i)}<li><b>{m.word}</b> <span>you typed {m.typed}</span></li>{/each}
+						</ul>
+						<button type="button" class="btn" onclick={() => (practicing = [...new Set(stats.misses.map((m) => m.word))])}>Practice these words</button>
+					</div>
+				{/if}
+				<p class="best">{newBest ? 'A new best run.' : best ? `Your best run: ${best} points.` : ''}</p>
+				<div class="row">
+					<button bind:this={nextButton} type="button" class="btn btn-primary btn-lg" onclick={begin}>
+						<Icon name="repeat" size={18} /> Play again
+					</button>
+					<button type="button" class="btn btn-lg" onclick={() => (phase = 'setup')}>Change difficulty</button>
+				</div>
+			</section>
+		{/if}
 	{:else}
 		<div class="hud" aria-live="polite">
 			<span><small>Level</small><b>{level}</b> {levelName(level)}</span>
@@ -547,6 +662,48 @@
 	}
 	.strike.used {
 		opacity: 0.15;
+	}
+	.stop {
+		margin-left: auto;
+		min-height: 36px;
+		padding: 0 var(--space-12);
+		font-size: var(--fs-14);
+	}
+	.totals.stats {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: var(--space-16) var(--space-32);
+	}
+	.misses {
+		width: min(100%, var(--w-form));
+		margin-top: var(--space-8);
+		text-align: left;
+	}
+	.misses h3 {
+		font-size: var(--fs-15);
+		color: var(--ink);
+	}
+	.misses ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-6) var(--space-16);
+		margin: var(--space-8) 0 0;
+		padding: 0;
+		list-style: none;
+		font-size: var(--fs-14);
+		color: var(--ink-3);
+	}
+	.misses .btn {
+		margin-top: var(--space-12);
+	}
+	.misses b {
+		font-family: var(--font-mono);
+		color: var(--ink);
+	}
+	@media (max-width: 560px) {
+		.totals.stats {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
 	}
 	.mode {
 		margin-left: auto;

@@ -18,6 +18,7 @@
 		'/account/profile': 'user',
 		'/account/statistics': 'chart',
 		'/account/security': 'shield',
+		'/account/voice': 'volume',
 		'/account/data': 'download'
 	};
 	const current = $derived(ACCOUNT_LINKS.find((t) => t.href === page.url.pathname));
