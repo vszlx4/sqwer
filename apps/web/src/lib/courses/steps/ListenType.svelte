@@ -53,7 +53,7 @@
 	const memory = new WordMemory();
 	/** Sound-alike groups and British spellings of the set, loaded with it. */
 	let heardData = $state<HeardData | undefined>();
-	untrack(() => void loadHeardData(set).then((d) => (heardData = d), () => {}));
+	const heardReady = untrack(() => loadHeardData(set).then((d) => void (heardData = d), () => {}));
 	/** Words a misheard answer can be: the course words and the endless pools seen so far. */
 	const known = new Set<string>(COURSE_WORDS);
 
@@ -229,7 +229,8 @@
 		if (!speech) return flash();
 		if (!allows(speed)) return;
 		const w = word;
-		if (countsAsReplay(replayLevel, plays === 0, speed)) replays++;
+		const replay = countsAsReplay(replayLevel, plays === 0, speed);
+		if (replay) replays++;
 		if (!plays) firstPlay = performance.now();
 		playing = speed;
 		plays++;
@@ -237,6 +238,11 @@
 		if (said === 'played') failures = 0;
 		else if (said === 'error') failures++;
 		if (w !== word) return;
+		// Not heard (no sound yet, or the clip failed): neither the first play nor a replay is used up.
+		if (said === 'error' || said === 'missing') {
+			plays = Math.max(0, plays - 1);
+			if (replay) replays = Math.max(0, replays - 1);
+		}
 		playing = null;
 		// Sound itself failed: the word is shown. A missing clip is swapped for another word above.
 		if (said === 'error') flash();
@@ -342,9 +348,17 @@
 	}
 
 	/** Checks the answer. `giveUp` checks even an empty one: fast mode's Skip. */
+	let grading = false;
 	async function submit(giveUp = false) {
 		const typed = value.trim();
-		if ((!typed && !giveUp) || feedback || !word) return;
+		if ((!typed && !giveUp) || feedback || !word || grading) return;
+		// Sound-alikes and British spellings come with the set's data; the first answers may arrive before it.
+		if (!heardData) {
+			grading = true;
+			await heardReady;
+			grading = false;
+			if (feedback || !word) return;
+		}
 		voice.stop();
 		playing = null;
 		const r = gradeOf(typed);

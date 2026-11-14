@@ -203,6 +203,28 @@ test('Listen and type limits replays at high levels', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'Slow' })).toBeDisabled();
 });
 
+test('Listen and type does not count a play that was not heard', async ({ page }) => {
+	let down = true;
+	let failed = 0;
+	await page.route('**/voice/*/auto/*/*', (route) => {
+		if (down) {
+			failed++;
+			return route.fulfill({ status: 503, body: 'down' });
+		}
+		return route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.15) });
+	});
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByText('Expert', { exact: true }).click();
+	await page.getByRole('button', { name: /Start at level 10/ }).click();
+	await expect.poll(() => failed).toBeGreaterThan(0);
+	const again = page.getByRole('button', { name: 'Play the word again' });
+	await expect(again).toBeEnabled();
+	down = false;
+	await again.click();
+	// The failed first play was free: the one that was heard is the first, and the replay is still there.
+	await expect(page.locator('.state')).toContainText(/Heard once\s*· 1 replay left/);
+});
+
 test('Listen and type fast mode moves on the moment a word is typed right, and Enter plays it again', async ({ page }) => {
 	const asked: string[] = [];
 	await page.route('**/voice/*/auto/*/*', (route) => {

@@ -44,7 +44,7 @@ export class Player {
 	}
 
 	#version: Promise<string | null> | null = null;
-	/** `${speed}:${word}` → decoded clip; Map order is the memory order, oldest first. */
+	/** `${speed}:${word}` → decoded clip; Map order is the memory order, oldest first. #missing uses the same keys. */
 	#clips = new Map<string, Promise<AudioBuffer | null>>();
 	#missing = new Set<string>();
 	#playing: { source: AudioBufferSourceNode; gain: GainNode; start: number; length: number } | null = null;
@@ -107,7 +107,7 @@ export class Player {
 			this.#clips.set(key, kept);
 			return kept;
 		}
-		if (!this.supported || !isSpeakable(word) || this.#missing.has(word)) {
+		if (!this.supported || !isSpeakable(word) || this.#missing.has(key)) {
 			if (speed === 'normal') this.states.set(word, 'missing');
 			return Promise.resolve(null);
 		}
@@ -116,8 +116,8 @@ export class Player {
 		const clip = (async () => {
 			const body = await this.#fetch(word, speed);
 			if (body === 'missing') {
-				this.#missing.add(word);
-				this.states.set(word, 'missing');
+				this.#missing.add(key);
+				if (speed === 'normal') this.states.set(word, 'missing');
 				return null;
 			}
 			const g = this.#deps.graph();

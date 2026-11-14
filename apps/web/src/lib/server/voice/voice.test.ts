@@ -32,6 +32,12 @@ describe('voice settings', () => {
 		expect(readSettings(data)).toEqual(DEFAULT_SETTINGS);
 	});
 
+	it('keep every change when several are written at once', async () => {
+		const data = tmp();
+		await Promise.all([writeSettings(data, { mode: 'active' }), writeSettings(data, { diskLimit: 5 }), writeSettings(data, { paused: true })]);
+		expect(readSettings(data)).toMatchObject({ mode: 'active', diskLimit: 5, paused: true });
+	});
+
 	it('keep a disk limit from the offered sizes only', async () => {
 		const data = tmp();
 		expect(maxClips(await writeSettings(data, { diskLimit: 2 }))).toBe(Math.floor(2e9 / CLIP_DISK_BYTES));
