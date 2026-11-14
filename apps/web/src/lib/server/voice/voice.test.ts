@@ -50,6 +50,9 @@ describe('clip names', () => {
 		expect(fingerprint('water', 'normal')).not.toBe(fingerprint('waiter', 'normal'));
 		expect(fingerprint('water', 'normal')).toMatch(/^[0-9a-f]{32}$/);
 		expect(fingerprint('constructor', 'normal')).not.toBe(fingerprint('valueOf', 'normal'));
+		// Pinned: changing these remakes every clip on every install. Slow moved to the stretched take (issue 191).
+		expect(fingerprint('water', 'normal')).toBe('a76d8bcb9cf21581413534004097070d');
+		expect(fingerprint('water', 'slow')).toBe('38c71eb8358c36cb943b48d23496e78a');
 	});
 
 	it('use respellings for words Supertonic says wrong', () => {

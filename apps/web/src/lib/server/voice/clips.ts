@@ -29,8 +29,12 @@ export const spoken = (word: string) => (Object.hasOwn(RESPELL, word) ? RESPELL[
 /** Raised when trimming or encoding changes, so every clip is remade. */
 const FORMAT = `mp3-${MP3_RATE}-${MP3_KBPS}-trim1`;
 
+/** Slow clips are the normal take stretched (Supertonic pads a slow word with silence instead of slowing it). */
+const SLOW = 'wsola1';
+
 export function fingerprint(word: string, speed: Speed): string {
-	const key = JSON.stringify([SUPERTONIC_MODEL.sha256, STYLE, STEPS, SPEEDS[speed], FORMAT, spoken(word)]);
+	const parts = [SUPERTONIC_MODEL.sha256, STYLE, STEPS, SPEEDS[speed], FORMAT, spoken(word)];
+	const key = JSON.stringify(speed === 'slow' ? [...parts, SLOW] : parts);
 	return createHash('sha256').update(key).digest('hex').slice(0, 32);
 }
 
