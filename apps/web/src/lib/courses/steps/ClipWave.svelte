@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy, untrack } from 'svelte';
-	import type { ClipShape } from '../voice/shape.ts';
+	import type { ClipShape } from '#lib/voice/shape.ts';
 
 	/**
 	 * A word's waveform: the spoken part of its clip as muted bars that rise in when the clip is ready, then turn to

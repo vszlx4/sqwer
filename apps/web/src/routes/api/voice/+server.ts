@@ -6,7 +6,8 @@ import { isLocalRequest } from '#lib/server/voice/local.ts';
 import { buildManifest, findListsDir, fullSet } from '#lib/server/voice/manifest.ts';
 import { activeVoice, readSettings, voiceDir, writeSettings } from '#lib/server/voice/settings.ts';
 import { forgetCounts, voiceBrief, voiceStatus } from '#lib/server/voice/status.ts';
-import type { VoiceAction, VoiceRemote } from '#lib/voice/status.ts';
+import { voiceVersion } from '#lib/server/voice/version.ts';
+import type { VoiceAction, VoiceRemote, VoiceVersion } from '#lib/voice/status.ts';
 import type { RequestHandler } from './$types';
 
 const VOICE_DIR = voiceDir(DATA_DIR);
@@ -17,9 +18,13 @@ const setParam = (url: URL) => {
 	return set && SET_ID.test(set) ? set : undefined;
 };
 
-/** Voice status: the details for the machine running the copy, only the voice in use for anyone else. */
+/** Voice status: `?version` for the clip addresses (anyone), the details for the machine running the copy, only the voice in use for anyone else. */
 export const GET: RequestHandler = async (event) => {
 	const headers = { 'Cache-Control': 'no-store' };
+	if (event.url.searchParams.has('version')) {
+		const voice = activeVoice(readSettings(DATA_DIR));
+		return json({ voice, version: voiceVersion(voice) } satisfies VoiceVersion, { headers });
+	}
 	if (!isLocalRequest(event)) return json({ local: false, voice: activeVoice(readSettings(DATA_DIR)) } satisfies VoiceRemote, { headers });
 	if (event.url.searchParams.has('brief')) return json({ local: true, brief: voiceBrief(DATA_DIR) }, { headers });
 	return json(await voiceStatus(DATA_DIR, setParam(event.url)), { headers });

@@ -73,3 +73,63 @@ test('Listen and type: endless words, the explanation in place, Stop with statis
 	await expect(page.getByRole('heading', { name: 'Words to practice' })).toBeVisible();
 	await expect(page.getByText('you typed zqzq')).toBeVisible();
 });
+
+/** A short 440 Hz tone as a 16-bit mono WAV, standing in for a word's clip. */
+function tinyWav(seconds = 0.25, rate = 24000): Buffer {
+	const n = Math.round(seconds * rate);
+	const b = Buffer.alloc(44 + n * 2);
+	b.write('RIFF', 0);
+	b.writeUInt32LE(36 + n * 2, 4);
+	b.write('WAVEfmt ', 8);
+	b.writeUInt32LE(16, 16);
+	b.writeUInt16LE(1, 20);
+	b.writeUInt16LE(1, 22);
+	b.writeUInt32LE(rate, 24);
+	b.writeUInt32LE(rate * 2, 28);
+	b.writeUInt16LE(2, 32);
+	b.writeUInt16LE(16, 34);
+	b.write('data', 36);
+	b.writeUInt32LE(n * 2, 40);
+	for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(Math.sin((2 * Math.PI * 440 * i) / rate) * 8000), 44 + i * 2);
+	return b;
+}
+
+test('Listen and type plays each word from its clip, and Slow from its own', async ({ page }) => {
+	const asked: string[] = [];
+	const wav = tinyWav();
+	await page.route('**/voice/*/auto/*/*', (route) => {
+		asked.push(new URL(route.request().url()).pathname);
+		return route.fulfill({ contentType: 'audio/wav', body: wav });
+	});
+	await page.addInitScript(() => {
+		const w = window as unknown as { played: number };
+		w.played = 0;
+		const start = AudioBufferSourceNode.prototype.start;
+		AudioBufferSourceNode.prototype.start = function (...args: Parameters<typeof start>) {
+			w.played++;
+			return start.apply(this, args);
+		};
+	});
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: /Start at level/ }).click();
+
+	await expect.poll(() => page.evaluate(() => (window as unknown as { played: number }).played)).toBeGreaterThan(0);
+	expect(asked.some((p) => /^\/voice\/[0-9a-f]{10}\/auto\/normal\/[a-z'-]+$/.test(p))).toBe(true);
+	await expect(page.locator('.player .sound')).not.toContainText(/\w/);
+
+	const slow = page.getByRole('button', { name: 'Slow' });
+	await expect(slow).toBeEnabled();
+	await slow.click();
+	await expect.poll(() => asked.some((p) => p.includes('/auto/slow/'))).toBe(true);
+	await expect.poll(() => page.evaluate(() => (window as unknown as { played: number }).played)).toBeGreaterThan(1);
+});
+
+test('Listen and type shows the words instead when sound is turned off in settings', async ({ page }) => {
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByRole('checkbox', { name: /Show words instead of sound/ }).check();
+	await page.getByRole('button', { name: /Start at level/ }).click();
+	await expect(page.locator('.player .shown')).toHaveText(/^[a-z'-]+$/);
+	await expect(page.getByRole('button', { name: 'Slow' })).toHaveCount(0);
+	await page.reload({ waitUntil: 'networkidle' });
+	await expect(page.getByRole('checkbox', { name: /Show words instead of sound/ })).toBeChecked();
+});

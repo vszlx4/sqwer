@@ -67,6 +67,12 @@ export interface VoiceBrief {
 }
 
 /** What anyone else sees. */
+/** The voice in use and its settings version, for clip addresses. */
+export interface VoiceVersion {
+	voice: VoiceId;
+	version: string;
+}
+
 export interface VoiceRemote {
 	local: false;
 	voice: VoiceId;
