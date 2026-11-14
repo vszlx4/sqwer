@@ -36,6 +36,9 @@ export interface GeneratorState {
 	fresh?: number;
 	/** The run covered every set, so made === total means nothing is missing. */
 	all?: boolean;
+	/** The last run stopped at the disk limit (`limit` clips). */
+	full?: boolean;
+	limit?: number | null;
 	/** Model download in progress, before the first clip. */
 	downloading?: { received: number; total: number } | null;
 	updatedAt: string;
@@ -147,9 +150,11 @@ export interface RunOptions {
 	saveEvery?: number;
 	/** The sets are the whole manifest. */
 	all?: boolean;
+	/** Clips on disk (any set) at which to stop: the disk limit. */
+	maxClips?: number | null;
 }
 
-export type RunResult = 'done' | 'stopped' | 'locked';
+export type RunResult = 'done' | 'stopped' | 'locked' | 'full';
 
 /** Makes every missing clip, or until told to stop. */
 export async function runGenerator(o: RunOptions): Promise<RunResult> {
@@ -160,7 +165,7 @@ export async function runGenerator(o: RunOptions): Promise<RunResult> {
 	const recent: number[] = [];
 	// The last known pace stands until new clips give a fresh one.
 	const before = readState(o.voiceDir)?.msPerClip ?? null;
-	const state: GeneratorState = { running: true, made: 0, total: 0, sets, msPerClip: null, word: null, error: null, startedAt: new Date().toISOString(), fresh: 0, all: o.all ?? false, updatedAt: '' };
+	const state: GeneratorState = { running: true, made: 0, total: 0, sets, msPerClip: null, word: null, error: null, startedAt: new Date().toISOString(), fresh: 0, all: o.all ?? false, full: false, limit: o.maxClips ?? null, updatedAt: '' };
 	const save = async (force = false, every = o.saveEvery ?? 10) => {
 		state.made = sets.reduce((n, s) => n + s.made, 0);
 		state.total = sets.reduce((n, s) => n + s.total, 0);
@@ -183,6 +188,11 @@ export async function runGenerator(o: RunOptions): Promise<RunResult> {
 						result = 'stopped';
 						break outer;
 					}
+					if (o.maxClips != null && have.size >= o.maxClips) {
+						result = 'full';
+						state.full = true;
+						break outer;
+					}
 					state.word = word;
 					const t = performance.now();
 					await writeAtomic(file, await o.make(word, speed, fp));
@@ -190,7 +200,7 @@ export async function runGenerator(o: RunOptions): Promise<RunResult> {
 					recent.push(performance.now() - t);
 					if (recent.length > 50) recent.shift();
 					sets[i]!.made++;
-				state.fresh!++;
+					state.fresh!++;
 					await save();
 				}
 			}

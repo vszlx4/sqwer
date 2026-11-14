@@ -4,6 +4,7 @@
 //   npm run voice -- use standard|supertonic  pick the voice; Supertonic downloads its model first
 //   npm run voice -- pause | resume           stop or restart making clips (stays paused across restarts)
 //   npm run voice -- mode low|active          low: one thread, lowest priority; active: all cores but one
+//   npm run voice -- limit <GB>|off           most disk the clips may take (1, 2, 5, 10 or 20 GB)
 //   npm run voice:sync [-- --all]             make missing clips now (lessons, English 200/1k, themed; --all: every list)
 //   npm run voice -- first <set>              make one set (course or a list id) before the rest, in active mode
 //   npm run voice -- check [<set>]            health check: remove broken clips (made again) and, for all, orphans
@@ -17,7 +18,7 @@ import { checkClips } from '../src/lib/server/voice/health.ts';
 import { supertonicMaker, threadsFor } from '../src/lib/server/voice/make.ts';
 import { CORE_SETS, buildManifest, findListsDir, fullSet, type VoiceSet } from '../src/lib/server/voice/manifest.ts';
 import { firstId } from '../src/lib/server/voice/status.ts';
-import { activeVoice, readSettings, shouldGenerate, voiceDir, voiceEnv, writeSettings } from '../src/lib/server/voice/settings.ts';
+import { DISK_LIMITS, activeVoice, maxClips, readSettings, shouldGenerate, voiceDir, voiceEnv, writeSettings, type DiskLimit } from '../src/lib/server/voice/settings.ts';
 import { SUPERTONIC_MODEL, ensureModel, hasModel } from '../src/lib/server/voice/supertonic.ts';
 
 const VOICE_DIR = voiceDir(DATA_DIR);
@@ -64,7 +65,7 @@ interface MakeOptions {
 	all?: boolean;
 }
 
-async function make(sets: readonly VoiceSet[], background: boolean, o: MakeOptions = {}): Promise<'done' | 'stopped' | 'locked' | 'skipped'> {
+async function make(sets: readonly VoiceSet[], background: boolean, o: MakeOptions = {}): Promise<'done' | 'stopped' | 'locked' | 'full' | 'skipped'> {
 	// Checked before loading the model, which takes a few seconds and a few hundred MB.
 	if (isLocked(VOICE_DIR)) {
 		if (!background) console.log('Another generator is already making clips (the running site, or another sync).');
@@ -82,13 +83,14 @@ async function make(sets: readonly VoiceSet[], background: boolean, o: MakeOptio
 	const threads = background && !o.active ? threadsFor(settings.mode) : Math.max(1, availableParallelism() - 1);
 	const maker = await supertonicMaker(VOICE_DIR, threads);
 	let last = 0;
-	// In the background, a new mode or a set to make first stops this run; the site starts the next one.
-	const same = (s: ReturnType<typeof readSettings>) => s.mode === settings.mode && s.first === settings.first;
+	// In the background, a new mode, disk limit or set to make first stops this run; the site starts the next one.
+	const same = (s: ReturnType<typeof readSettings>) => s.mode === settings.mode && s.first === settings.first && s.diskLimit === settings.diskLimit;
 	const result = await runGenerator({
 		voiceDir: VOICE_DIR,
 		sets,
 		make: maker,
 		all: o.all,
+		maxClips: maxClips(settings),
 		keepGoing: () => {
 			const s = readSettings(DATA_DIR);
 			return background ? shouldGenerate(s) && same(s) : activeVoice(s) === 'supertonic';
@@ -101,7 +103,7 @@ async function make(sets: readonly VoiceSet[], background: boolean, o: MakeOptio
 		}
 	});
 	if (result === 'locked') console.log('Another generator is already making clips (the running site, or another sync).');
-	else if (!background) console.log(result === 'done' ? 'All clips made.' : 'Stopped.');
+	else if (!background) console.log(result === 'done' ? 'All clips made.' : result === 'full' ? `Stopped at the disk limit (${settings.diskLimit} GB).` : 'Stopped.');
 	return result;
 }
 
@@ -154,6 +156,16 @@ switch (command) {
 		}
 		await writeSettings(DATA_DIR, { mode });
 		console.log(`Mode: ${mode}. Takes effect when the generator next starts.`);
+		break;
+	}
+	case 'limit': {
+		const gb = args[0] === 'off' ? null : Number(args[0]);
+		if (gb !== null && !DISK_LIMITS.includes(gb as DiskLimit)) {
+			console.error(`Usage: npm run voice -- limit ${DISK_LIMITS.join('|')}|off`);
+			process.exit(2);
+		}
+		await writeSettings(DATA_DIR, { diskLimit: gb as DiskLimit | null });
+		console.log(gb ? `Clips may take up to ${gb} GB.` : 'No disk limit.');
 		break;
 	}
 	case 'sync': {
@@ -217,6 +229,6 @@ switch (command) {
 		break;
 	}
 	default:
-		console.error('Usage: npm run voice -- status | use standard|supertonic | pause | resume | mode low|active | first <set> | check [<set>] | sync [--all]');
+		console.error('Usage: npm run voice -- status | use standard|supertonic | pause | resume | mode low|active | limit <GB>|off | first <set> | check [<set>] | sync [--all]');
 		process.exit(2);
 }

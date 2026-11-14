@@ -30,15 +30,13 @@
 
 	const left = $derived(timeLeft(v.made, v.total, v.msPerClip));
 	const done = $derived(v.total > 0 && v.made >= v.total && !v.running);
-	const line = $derived(
-		v.downloading
-			? `Downloading the model, ${percent(v.downloading.received, v.downloading.total)}%`
-			: v.paused
-				? 'Paused'
-				: v.running
-					? `${v.first ? 'Set made first, ' : ''}${percent(v.made, v.total)}% made${left !== null ? `, ${formatDuration(left)} left` : ''}`
-					: 'Starting soon'
-	);
+	const line = $derived.by(() => {
+		if (v.downloading) return `Downloading the model, ${percent(v.downloading.received, v.downloading.total)}%`;
+		if (v.paused) return 'Paused';
+		if (v.full) return 'Stopped at the disk limit';
+		if (v.running) return `${v.first ? 'Set made first, ' : ''}${percent(v.made, v.total)}% made${left !== null ? `, ${formatDuration(left)} left` : ''}`;
+		return 'Starting soon';
+	});
 </script>
 
 {#if !done}

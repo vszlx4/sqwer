@@ -11,6 +11,7 @@
 		percent,
 		sendVoice,
 		timeLeft,
+		DISK_LIMIT_CHOICES,
 		type HealthReport,
 		type VoiceAction,
 		type VoiceCost,
@@ -18,7 +19,7 @@
 		type VoiceStatus
 	} from './status.ts';
 
-	/** Voice choice, generator status and controls, set list and health check. Plain working screen until the Listen and type redesign. */
+	/** Voice choice, generator status and controls (pause, speed, disk limit), set list, words rated unclear and health check. */
 	let { initial }: { initial: VoiceInfo } = $props();
 
 	// svelte-ignore state_referenced_locally
@@ -62,6 +63,7 @@
 		if (v.downloading) return `Downloading the model: ${percent(v.downloading.received, v.downloading.total)}% of ${formatBytes(v.downloading.total)}.`;
 		if (v.running) return v.word ? `Making clips now. Last word: “${v.word}”.` : 'Starting the voice model…';
 		if (v.paused) return 'Paused. Nothing is made until you resume.';
+		if (v.full) return `Stopped at the disk limit of ${v.diskLimit} GB. Raise it to make the rest.`;
 		if (v.made >= v.total && v.total) return 'Every clip is made.';
 		return 'Waiting to start. The site starts making clips within half a minute.';
 	}
@@ -159,6 +161,19 @@
 					<span><b>Active</b> {s.cores > 1 ? `${s.cores - 1} of ${s.cores} cores` : 'Every core'}, much faster, and the computer works hard.</span>
 				</label>
 			</fieldset>
+			<div class="limit">
+				<label for="voice-limit">Disk limit for clips</label>
+				<select
+					id="voice-limit"
+					disabled={!!busy}
+					value={s.diskLimit ?? 'off'}
+					onchange={(e) => send({ action: 'limit', gb: e.currentTarget.value === 'off' ? null : Number(e.currentTarget.value) }, 'limit')}
+				>
+					<option value="off">No limit</option>
+					{#each DISK_LIMIT_CHOICES as gb (gb)}<option value={gb}>{gb} GB</option>{/each}
+				</select>
+				<p class="hint">Clips take {formatBytes(s.clipsDisk)} now. Making stops at the limit; the clips made are kept.</p>
+			</div>
 		</SettingsSection>
 
 		<SettingsSection title="Sets" description="Each word counts once, in the first set that has it. Make a set before the rest, in active mode until every word of its list is done, or check its clips.">
@@ -182,6 +197,19 @@
 					</li>
 				{/each}
 			</ul>
+		</SettingsSection>
+	{/if}
+
+	{#if s.flagged.length}
+		<SettingsSection title="Words rated unclear" description="Rated one or two stars in Listen and type on this computer.">
+			<ul class="flagged">
+				{#each s.flagged as w (w)}<li>{w}</li>{/each}
+			</ul>
+			<p class="text">
+				Each clip is made the same way every time, so making it again sounds the same. A word read wrong needs a respelling,
+				in RESPELL in <code>apps/web/src/lib/server/voice/clips.ts</code>; only that word's clips are made again.
+			</p>
+			<button class="btn" type="button" disabled={!!busy} onclick={() => send({ action: 'unflag-all' }, 'unflag')}>Clear the list</button>
 		</SettingsSection>
 	{/if}
 
@@ -312,6 +340,37 @@
 	.mode input {
 		margin-top: var(--space-4);
 		accent-color: var(--ink);
+	}
+	.limit {
+		display: grid;
+		gap: var(--space-6);
+		justify-items: start;
+	}
+	.limit label {
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
+	}
+	.limit select {
+		min-height: 44px;
+	}
+	.flagged {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-8);
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+	.flagged li {
+		padding: var(--space-4) var(--space-10);
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
+		font-family: var(--font-mono);
+		font-size: var(--fs-14);
+	}
+	.text code {
+		font-size: var(--fs-14);
+		overflow-wrap: anywhere;
 	}
 	.sets {
 		list-style: none;

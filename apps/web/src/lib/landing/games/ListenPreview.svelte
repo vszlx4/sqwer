@@ -8,9 +8,10 @@
 </script>
 
 <div class="stage" use:loop={{ ...LISTEN_LOOP, set: (v) => (t = v) }}>
-	<span class="speaker" style:--voice={s.voice}>
-		<Icon name="volume" size={18} />
-		<span class="wave">{#each s.bars as a, n (n)}<span style:transform={`scaleY(${a})`}></span>{/each}</span>
+	<span class="player" style:--voice={s.voice}>
+		<span class="play"><Icon name="play" size={14} /></span>
+		<span class="wave">{#each s.bars as a, n (n)}<span class:lit={n < s.lit * s.bars.length} style:transform={`scaleY(${a})`}></span>{/each}</span>
+		<span class="slow">Slow</span>
 	</span>
 	<span class="answer" style:opacity={s.opacity} style:--ok={s.ok}>
 		<span class="typed">{s.text}<span class="caret" style:opacity={s.caret}></span></span>
@@ -28,42 +29,69 @@
 		justify-content: center;
 		gap: var(--space-16);
 	}
-	/* The speaker lights while the word plays. */
-	.speaker {
+	/* The game's player row: play, the clip's outline lit as it plays, Slow. */
+	.player {
 		display: flex;
 		align-items: center;
-		gap: var(--space-12);
+		gap: var(--space-10);
 		height: 52px;
-		padding: 0 var(--space-16);
+		padding: 0 var(--space-8);
 		border-radius: var(--radius);
-		border: 1px solid color-mix(in srgb, var(--accent) calc(25% + var(--voice) * 45%), transparent);
-		background: color-mix(in srgb, var(--accent) calc(6% + var(--voice) * 8%), transparent);
-		color: color-mix(in srgb, var(--accent-ink) calc(var(--voice) * 100%), var(--band-ink-3));
+		background: var(--band-surface);
+	}
+	.play,
+	.slow {
+		display: grid;
+		place-items: center;
+		height: 36px;
+		border: 1px solid var(--band-line-strong);
+		border-radius: var(--radius);
+		color: color-mix(in srgb, var(--accent-ink) calc(var(--voice) * 100%), var(--band-ink-2));
+	}
+	.play {
+		width: 36px;
+	}
+	.slow {
+		padding: 0 var(--space-10);
+		font-size: var(--fs-13);
+		color: var(--band-ink-2);
 	}
 	.wave {
 		display: flex;
 		align-items: center;
 		gap: var(--space-4);
-		height: 32px;
+		height: 28px;
 	}
 	.wave span {
 		width: 4px;
 		height: 100%;
 		border-radius: var(--radius);
+		background: var(--band-line-strong);
+	}
+	.wave span.lit {
 		background: var(--accent);
 	}
-	/* The answer underline turns the success hue once the word is right. */
+	/* The answer box turns the success hue once the word is right. */
 	.answer {
 		display: flex;
 		align-items: center;
+		justify-content: center;
 		gap: var(--space-10);
-		min-width: 132px;
-		padding: 0 var(--space-4) var(--space-6);
-		border-bottom: 2px solid color-mix(in srgb, var(--lime) calc(var(--ok) * 100%), var(--band-line-strong));
+		position: relative;
+		min-width: 200px;
+		height: 48px;
+		padding: 0 var(--space-32);
+		border: 1px solid color-mix(in srgb, var(--lime) calc(var(--ok) * 100%), var(--band-line-strong));
+		border-radius: var(--radius);
+		background: var(--band-surface);
+	}
+	.check {
+		position: absolute;
+		right: var(--space-12);
 	}
 	.typed {
-		flex: 1;
 		min-height: 1.2em;
+		text-align: center;
 		font-family: var(--font-mono);
 		font-size: var(--fs-20);
 		color: color-mix(in srgb, var(--lime-ink) calc(var(--ok) * 100%), var(--band-ink));
