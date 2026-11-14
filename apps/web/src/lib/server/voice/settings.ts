@@ -51,14 +51,22 @@ export function readSettings(dataDir: string): VoiceSettings {
 	};
 }
 
-export async function writeSettings(dataDir: string, change: Partial<VoiceSettings>): Promise<VoiceSettings> {
-	const next = { ...readSettings(dataDir), ...change };
-	const file = settingsFile(dataDir);
-	await mkdir(path.dirname(file), { recursive: true });
-	const tmp = `${file}.${process.pid}.part`;
-	await writeFile(tmp, `${JSON.stringify(next, null, '\t')}\n`);
-	await rename(tmp, file);
-	return next;
+/** Writes one at a time, so a change read-merged-written never drops one made a moment earlier. */
+let writing: Promise<unknown> = Promise.resolve();
+let writes = 0;
+
+export function writeSettings(dataDir: string, change: Partial<VoiceSettings>): Promise<VoiceSettings> {
+	const job = writing.catch(() => {}).then(async () => {
+		const next = { ...readSettings(dataDir), ...change };
+		const file = settingsFile(dataDir);
+		await mkdir(path.dirname(file), { recursive: true });
+		const tmp = `${file}.${process.pid}.${++writes}.part`;
+		await writeFile(tmp, `${JSON.stringify(next, null, '\t')}\n`);
+		await rename(tmp, file);
+		return next;
+	});
+	writing = job;
+	return job;
 }
 
 export type VoiceEnv = 'skip' | 'pause' | undefined;

@@ -119,6 +119,15 @@ describe('voice player', () => {
 		expect(await v.say("not a word!")).toBe('missing');
 	});
 
+	it('keeps the normal clip when only the slow one is missing', async () => {
+		const v = player();
+		answer = (url) => (url.includes('/slow/') ? new Response(null, { status: 404 }) : new Response(new Uint8Array(8)));
+		expect(await v.clip('house', 'slow')).toBeNull();
+		expect(v.state('house')).not.toBe('missing');
+		expect(await v.clip('house')).not.toBeNull();
+		expect(v.state('house')).toBe('ready');
+	});
+
 	it('marks a failed fetch as an error and tries again on the next play', async () => {
 		const v = player();
 		answer = () => new Response(null, { status: 503 });
