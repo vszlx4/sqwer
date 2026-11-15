@@ -778,7 +778,7 @@
 	}
 	.try {
 		display: inline-flex;
-		color: var(--life);
+		color: var(--ink);
 		transition: opacity var(--dur-base) var(--ease-out);
 	}
 	.try.used {

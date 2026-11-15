@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import LevelIcon from './LevelIcon.svelte';
 	import StatIcon, { type StatIconName } from './StatIcon.svelte';
-	import { levelChange, tierOf, tierProgress } from './levels.ts';
+	import { levelChange, nightmareDepth, tierOf, tierProgress } from './levels.ts';
 
 	export interface RunStat {
 		icon: StatIconName;
@@ -18,6 +18,7 @@
 	let { difficulty, adaptive, set, stats, extra, actions }: { difficulty: number; adaptive: boolean; set?: string; stats: RunStat[]; extra?: Snippet; actions?: Snippet } = $props();
 	const tier = $derived(tierOf(difficulty));
 	const progress = $derived(tierProgress(difficulty));
+	const depth = $derived(nightmareDepth(difficulty));
 
 	// A move into another level gets a short note under the chip; moves inside a level stay quiet.
 	const NOTE_MS = 2200;
@@ -26,9 +27,10 @@
 	$effect(() => {
 		const now = difficulty;
 		const way = was === null ? null : levelChange(was, now);
+		const deeper = was !== null && nightmareDepth(now) > nightmareDepth(was);
 		was = now;
-		if (!way) return;
-		note = { text: way === 'up' ? `Level up: ${tierOf(now).name}` : `Eased to ${tierOf(now).name}`, key: Date.now() };
+		if (!way && !deeper) return;
+		note = { text: way === 'up' ? `Level up: ${tierOf(now).name}` : way === 'down' ? `Eased to ${tierOf(now).name}` : 'Deeper into Nightmare', key: Date.now() };
 		const timer = setTimeout(() => (note = null), NOTE_MS);
 		return () => clearTimeout(timer);
 	});
@@ -40,6 +42,10 @@
 			<span class="level" data-tip={adaptive ? 'Adaptive level' : 'Fixed level'}>
 				<LevelIcon id={tier.id} size={20} />
 				<span class="name">{tier.name}</span>
+				{#if depth}
+					<span class="depth" aria-hidden="true">{#each Array.from({ length: depth }) as _, i (i)}<span></span>{/each}</span>
+					<span class="sr-only">, depth {depth}</span>
+				{/if}
 				<span class="sr-only">{adaptive ? ', adaptive' : ', fixed'}</span>
 				{#if adaptive}
 					<span class="meter" aria-hidden="true"><span style:transform={`scaleX(${progress})`}></span></span>
@@ -94,6 +100,17 @@
 		font-weight: var(--fw-bold);
 		line-height: var(--lh-tight);
 		color: var(--ink);
+	}
+	/* Depth past Nightmare: small diamonds in the level's color, never a number on screen. */
+	.depth {
+		display: inline-flex;
+		gap: var(--space-2);
+	}
+	.depth > span {
+		width: 6px;
+		height: 6px;
+		background: var(--level);
+		transform: rotate(45deg);
 	}
 	.meter {
 		position: absolute;
