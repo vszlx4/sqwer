@@ -3,7 +3,7 @@
 	import LevelIcon from './LevelIcon.svelte';
 	import StatIcon from './StatIcon.svelte';
 	import type { RunStat } from './RunBar.svelte';
-	import { tierOf } from './levels.ts';
+	import { nightmareDepth, tierOf } from './levels.ts';
 
 	export interface Split {
 		label: string;
@@ -44,6 +44,7 @@
 	const SHOWN = $derived(Math.max(5, Math.floor(width / 130) * 3 - 1));
 	const total = $derived(split.reduce((n, s) => n + s.count, 0));
 	const tier = $derived(top ? tierOf(top) : null);
+	const depth = $derived(top ? nightmareDepth(top) : 0);
 </script>
 
 <section class="run-result" aria-labelledby="run-title">
@@ -63,7 +64,16 @@
 		{#if tier}
 			<div class="reached" style:--level={`var(--level-${tier.id})`}>
 				<LevelIcon id={tier.id} size={40} />
-				<span><small>Reached</small><b>{tier.name}</b></span>
+				<span>
+					<small>Reached</small>
+					<b>
+						{tier.name}
+						{#if depth}
+							<span class="depth" aria-hidden="true">{#each Array.from({ length: depth }) as _, i (i)}<span></span>{/each}</span>
+							<span class="sr-only">, depth {depth}</span>
+						{/if}
+					</b>
+				</span>
 			</div>
 		{/if}
 	</div>
@@ -172,6 +182,18 @@
 	.reached small {
 		font-size: var(--fs-12);
 		color: var(--ink-2);
+	}
+	.depth {
+		display: inline-flex;
+		gap: var(--space-4);
+		margin-left: var(--space-6);
+		vertical-align: middle;
+	}
+	.depth > span {
+		width: 8px;
+		height: 8px;
+		background: var(--level);
+		transform: rotate(45deg);
 	}
 	.reached b {
 		font-size: var(--fs-20);

@@ -1,7 +1,8 @@
-// Voice for Listen and type: Standard (Kokoro, made per word, the default) or Supertonic (made ahead of time).
+// Voice for Listen and type: Standard (Kokoro, made per word, the default) or Enhanced (Supertonic, made ahead of time).
+// The settings keep the id `supertonic` for Enhanced; `use enhanced` and `use supertonic` both pick it.
 //
 //   npm run voice -- status                   which voice, generator mode, clips made
-//   npm run voice -- use standard|supertonic  pick the voice; Supertonic downloads its model first
+//   npm run voice -- use standard|enhanced    pick the voice; Enhanced downloads its model first
 //   npm run voice -- pause | resume           stop or restart making clips (stays paused across restarts)
 //   npm run voice -- mode low|active          low: one thread, lowest priority; active: all cores but one
 //   npm run voice -- limit <GB>|off           most disk the clips may take (1, 2, 5, 10 or 20 GB)
@@ -9,7 +10,7 @@
 //   npm run voice -- first <set>              make one set (course or a list id) before the rest, in active mode
 //   npm run voice -- check [<set>]            health check: remove broken clips (made again) and, for all, orphans
 //
-// install, dev and build run `sync --check`: one status line, nothing made. While Supertonic is chosen and not paused,
+// install, dev and build run `sync --check`: one status line, nothing made. While Enhanced is chosen and not paused,
 // the running site makes the rest in the background. SQWER_VOICE=skip keeps Standard; SQWER_VOICE=pause holds clips.
 import { availableParallelism, setPriority } from 'node:os';
 import { DATA_DIR } from '../src/lib/server/config.ts';
@@ -26,6 +27,7 @@ const [command = 'status', ...args] = process.argv.slice(2);
 const flag = (f: string) => args.includes(f);
 const n = (x: number) => x.toLocaleString('en-US');
 const mb = (b: number) => `${Math.round(b / 1e6)} MB`;
+const NAME = { standard: 'Standard', supertonic: 'Enhanced' } as const;
 
 function progressLine(): string {
 	const sets = buildManifest(findListsDir());
@@ -37,7 +39,7 @@ function progressLine(): string {
 
 async function download(background = false) {
 	if (hasModel(VOICE_DIR)) return;
-	if (!background) console.log(`Downloading the Supertonic model (${mb(SUPERTONIC_MODEL.bytes)}) …`);
+	if (!background) console.log(`Downloading the Enhanced voice model (${mb(SUPERTONIC_MODEL.bytes)}) …`);
 	// The screens show the download from state.json.
 	const prev = readState(VOICE_DIR);
 	const state: GeneratorState = { ...(prev ?? { made: 0, total: 0, sets: [], msPerClip: null }), running: true, word: null, error: null, all: false, updatedAt: '' };
@@ -116,7 +118,7 @@ function setFor(id: string, manifest: readonly VoiceSet[]): VoiceSet | null {
 switch (command) {
 	case 'status': {
 		const s = readSettings(DATA_DIR);
-		console.log(`Voice: ${activeVoice(s)}${voiceEnv() ? ` (SQWER_VOICE=${voiceEnv()})` : ''}`);
+		console.log(`Voice: ${NAME[activeVoice(s)]}${voiceEnv() ? ` (SQWER_VOICE=${voiceEnv()})` : ''}`);
 		if (s.voice === 'supertonic') {
 			console.log(`Generator: ${s.paused ? 'paused' : 'on'}, ${s.mode} mode. Model ${hasModel(VOICE_DIR) ? 'downloaded' : 'not downloaded yet'}.`);
 			console.log(progressLine());
@@ -127,16 +129,16 @@ switch (command) {
 		break;
 	}
 	case 'use': {
-		const voice = args[0];
+		const voice = args[0] === 'enhanced' ? 'supertonic' : args[0];
 		if (voice !== 'standard' && voice !== 'supertonic') {
-			console.error('Usage: npm run voice -- use standard|supertonic');
+			console.error('Usage: npm run voice -- use standard|enhanced');
 			process.exit(2);
 		}
 		if (voice === 'supertonic') {
-			console.log(`Supertonic: a ${mb(SUPERTONIC_MODEL.bytes)} download, then clips made ahead of time (about 2 KB each).`);
+			console.log(`Enhanced: a ${mb(SUPERTONIC_MODEL.bytes)} download, then clips made ahead of time (about 2 KB each).`);
 			await download();
 			await writeSettings(DATA_DIR, { voice, paused: false });
-			console.log('Voice set to Supertonic. The running site makes clips in the background; `npm run voice:sync` makes them now.');
+			console.log('Voice set to Enhanced. The running site makes clips in the background; `npm run voice:sync` makes them now.');
 		} else {
 			await writeSettings(DATA_DIR, { voice });
 			console.log('Voice set to Standard. Clips made so far are kept.');
@@ -176,14 +178,14 @@ switch (command) {
 				// The generator's last saved count: no recount, so dev and build start at once.
 				const st = readState(VOICE_DIR);
 				const line = st ? `${n(st.made)} of ${n(st.total)} clips made` : 'no clips made yet';
-				if (activeVoice(s) === 'supertonic' && !flag('--quiet')) console.log(`Voice: Supertonic, ${line}.${s.paused ? ' Paused.' : ''}`);
+				if (activeVoice(s) === 'supertonic' && !flag('--quiet')) console.log(`Voice: Enhanced, ${line}.${s.paused ? ' Paused.' : ''}`);
 			} catch (e) {
 				console.log(`Voice: status unavailable (${e instanceof Error ? e.message : e}).`);
 			}
 			break;
 		}
 		if (activeVoice(s) !== 'supertonic') {
-			console.log('Voice: Standard; nothing to make. `npm run voice -- use supertonic` switches to the voice made ahead of time.');
+			console.log('Voice: Standard; nothing to make. `npm run voice -- use enhanced` switches to the voice made ahead of time.');
 			break;
 		}
 		const sets = buildManifest(findListsDir());
@@ -229,6 +231,6 @@ switch (command) {
 		break;
 	}
 	default:
-		console.error('Usage: npm run voice -- status | use standard|supertonic | pause | resume | mode low|active | limit <GB>|off | first <set> | check [<set>] | sync [--all]');
+		console.error('Usage: npm run voice -- status | use standard|enhanced | pause | resume | mode low|active | limit <GB>|off | first <set> | check [<set>] | sync [--all]');
 		process.exit(2);
 }

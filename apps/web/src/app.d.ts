@@ -30,6 +30,10 @@ declare global {
 			/** Signed token for sending analytics events (lib/server/analytics/token.ts). */
 			analyticsToken?: string | null;
 		}
+		/** Shallow-routing state (pushState): `run` marks an endless game's run, so Back returns to its menu. */
+		interface PageState {
+			run?: string;
+		}
 		interface Error {
 			message: string;
 			/** For unexpected errors: a reference to the full details in the server log. */

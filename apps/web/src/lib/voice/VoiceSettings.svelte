@@ -4,6 +4,7 @@
 	import { formatNumber } from '#lib/i18n/format.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import VoiceBar from './VoiceBar.svelte';
+	import VoiceIcon from './VoiceIcon.svelte';
 	import {
 		fetchVoice,
 		formatBytes,
@@ -16,10 +17,11 @@
 		type VoiceAction,
 		type VoiceCost,
 		type VoiceInfo,
-		type VoiceStatus
+		type VoiceStatus,
+		VOICE_NAME
 	} from './status.ts';
 
-	/** Voice choice, generator status and controls (pause, speed, disk limit), set list, words rated unclear and health check. */
+	/** Voice choice (Standard or Enhanced), generator status and controls (pause, speed, disk limit), set list, words rated unclear and health check. */
 	let { initial }: { initial: VoiceInfo } = $props();
 
 	// svelte-ignore state_referenced_locally
@@ -29,6 +31,10 @@
 	let report = $state<{ set: string | null; result: HealthReport } | null>(null);
 
 	const s = $derived(info.local ? info : null);
+	const CHOICES = [
+		{ id: 'standard', icon: 'standard', tag: 'Default' },
+		{ id: 'supertonic', icon: 'enhanced', tag: 'Opt-in' }
+	] as const;
 	const fmt = (n: number) => formatNumber(n);
 
 	/** Poll quickly while clips are being made or the model downloads, slowly otherwise. */
@@ -58,7 +64,7 @@
 	const costRange = (c: VoiceCost) => (c.hereMs ? `${formatDuration(c.hereMs)} on this computer` : `${formatDuration(c.fastMs)} on a recent laptop, ${formatDuration(c.slowMs)} on an older one`);
 
 	function statusLine(v: VoiceStatus): string {
-		if (v.env === 'skip') return 'SQWER_VOICE=skip is set, so the Standard voice is used and nothing is made.';
+		if (v.env === 'skip') return 'SQWER_VOICE=skip is set, so Standard is used and nothing is made.';
 		if (v.env === 'pause') return 'SQWER_VOICE=pause is set, so no clips are made until it is removed.';
 		if (v.downloading) return `Downloading the model: ${percent(v.downloading.received, v.downloading.total)}% of ${formatBytes(v.downloading.total)}.`;
 		if (v.running) return v.word ? `Making clips now. Last word: “${v.word}”.` : 'Starting the voice model…';
@@ -81,67 +87,70 @@
 </script>
 
 {#if !s}
-	<SettingsSection title="Voice for Listen and type" description="Set by the person running this copy of sqwer.">
-		<p class="text">
-			Words are read in the {info.voice === 'supertonic' ? 'Supertonic' : 'Standard'} voice. The voice can be changed only on the
-			computer running this copy.
-		</p>
+	<SettingsSection title="Voice">
+		{#snippet icon()}<VoiceIcon name={info.voice === 'supertonic' ? 'enhanced' : 'standard'} size={20} />{/snippet}
+		<p class="text">Words are read in the {VOICE_NAME[info.voice]} voice, set on the computer running this copy.</p>
 	</SettingsSection>
 {:else}
 	{#if failure}<p class="form-alert" role="alert">{failure}</p>{/if}
 
-	<SettingsSection title="Voice for Listen and type" description="Standard reads each word the first time it is needed. Supertonic sounds clearer and is made ahead of time on this computer.">
-		<fieldset class="choices" disabled={!!busy}>
-			<legend class="sr-only">Voice</legend>
-			<div class="choice" class:on={s.chosen === 'standard'}>
-				<div class="choice-head">
-					<h3>Standard</h3>
-					{#if s.chosen === 'standard'}<span class="tag">In use</span>{/if}
+	<SettingsSection title="Choose a voice">
+		{#snippet icon()}<VoiceIcon name={s.chosen === 'supertonic' ? 'enhanced' : 'standard'} size={20} />{/snippet}
+		<div class="choices" role="radiogroup" aria-label="Voice" aria-busy={!!busy}>
+			{#each CHOICES as c (c.id)}
+				<label class="choice" class:on={s.chosen === c.id} style:--tint={`var(--voice-${c.icon})`}>
+					<input
+						class="sr-only"
+						type="radio"
+						name="voice"
+						value={c.id}
+						checked={s.chosen === c.id}
+						disabled={!!busy}
+						onchange={() => send({ action: 'use', voice: c.id }, 'use')}
+					/>
+					<span class="tile"><VoiceIcon name={c.icon} size={22} /></span>
+					<span class="choice-text">
+						<span class="choice-name">{VOICE_NAME[c.id]} <span class="tag">{c.tag}</span></span>
+						<span class="note">{c.id === 'supertonic' ? `Clearer. ${s.model.downloaded ? 'Clips made ahead of time.' : `A ${formatBytes(s.model.download)} download, then clips made ahead of time.`}` : 'Ready now. Each word is made the first time it plays.'}</span>
+					</span>
+					<span class="mark" aria-hidden="true">{#if s.chosen === c.id}<Icon name="check" size={16} />{/if}</span>
+				</label>
+			{/each}
+		</div>
+		{#if busy === 'use'}<p class="hint" role="status">Switching…</p>{/if}
+		<details class="more">
+			<summary>Details</summary>
+			<dl class="cost">
+				<div>
+					<dt>Download</dt>
+					<dd>{s.model.downloaded ? 'Done' : `${formatBytes(s.model.download)}, once`}</dd>
 				</div>
-				<p class="note">The default. Nothing to download; a word is made the first time someone hears it.</p>
-				{#if s.chosen !== 'standard'}
-					<button class="btn" type="button" onclick={() => send({ action: 'use', voice: 'standard' }, 'use')}>Use Standard</button>
-					<p class="hint">Making Supertonic clips stops. The clips made so far are kept for when you switch back.</p>
-				{/if}
-			</div>
-			<div class="choice" class:on={s.chosen === 'supertonic'}>
-				<div class="choice-head">
-					<h3>Supertonic</h3>
-					{#if s.chosen === 'supertonic'}<span class="tag">In use</span>{/if}
+				<div>
+					<dt>Disk</dt>
+					<dd>{formatBytes(s.model.disk)} for the model, {formatBytes(s.cost.core.disk)} for the lessons and small lists, {formatBytes(s.cost.all.disk)} for every list</dd>
 				</div>
-				<p class="note">Clearer, at a normal and a slow speed. Words not made yet are read in the Standard voice.</p>
-				<dl class="cost">
-					<div>
-						<dt>Download</dt>
-						<dd>{s.model.downloaded ? 'Done' : `${formatBytes(s.model.download)}, once`}</dd>
-					</div>
-					<div>
-						<dt>Disk</dt>
-						<dd>{formatBytes(s.model.disk)} for the model, {formatBytes(s.cost.core.disk)} for the lessons and small lists, {formatBytes(s.cost.all.disk)} for every list</dd>
-					</div>
-					<div>
-						<dt>Time</dt>
-						<dd>Lessons and small lists: {costRange(s.cost.core)}. Every list: {costRange(s.cost.all)}.</dd>
-					</div>
-				</dl>
-				{#if s.chosen !== 'supertonic'}
-					<button class="btn btn-primary" type="button" onclick={() => send({ action: 'use', voice: 'supertonic' }, 'use')}>
-						{busy === 'use' ? 'Switching…' : 'Use Supertonic'}
-					</button>
-					<p class="hint">The model downloads first, then clips are made in the background in low mode. You can pause at any time.</p>
-				{/if}
-			</div>
-		</fieldset>
+				<div>
+					<dt>Time</dt>
+					<dd>Lessons and small lists: {costRange(s.cost.core)}. Every list: {costRange(s.cost.all)}.</dd>
+				</div>
+			</dl>
+			<p class="hint">
+				Enhanced makes two clips per word, normal and slow, in the background in low mode; words not made yet play in Standard.
+				Switching back to Standard keeps the clips made.
+			</p>
+			<p class="credit">Standard runs Kokoro; Enhanced runs Supertonic.</p>
+		</details>
 	</SettingsSection>
 
 	{#if s.chosen === 'supertonic'}
-		<SettingsSection title="Making clips" description="Two clips per word, lessons first, then the word lists from small to large.">
+		<SettingsSection title="Making clips" description="Lessons first, then the lists from small to large.">
+		{#snippet icon()}<VoiceIcon name="clips" size={20} />{/snippet}
 			<p class="status" role="status">{statusLine(s)}</p>
 			{#if s.error}<p class="form-alert" role="alert">Last error: {s.error}</p>{/if}
 			<VoiceBar made={s.made} total={s.total} label="Clips made for every list" />
 			<p class="figures">
 				{fmt(s.made)} of {fmt(s.total)} clips ({percent(s.made, s.total)}%)
-				{#if timeLeft(s.made, s.total, s.msPerClip) !== null && s.made < s.total}· {formatDuration(timeLeft(s.made, s.total, s.msPerClip)!)} left at the recent pace{/if}
+				{#if timeLeft(s.made, s.total, s.msPerClip) !== null && s.made < s.total}· {formatDuration(timeLeft(s.made, s.total, s.msPerClip)!)} left{/if}
 			</p>
 			<div class="row">
 				{#if s.paused}
@@ -154,11 +163,11 @@
 				<legend>Speed</legend>
 				<label class="mode" class:on={s.mode === 'low'}>
 					<input type="radio" name="voice-mode" checked={s.mode === 'low'} onchange={() => send({ action: 'mode', mode: 'low' }, 'mode')} />
-					<span><b>Low</b> One core at the lowest priority, so the computer stays quick.</span>
+					<span><b>Low</b> One core, so the computer stays quick.</span>
 				</label>
 				<label class="mode" class:on={s.mode === 'active'}>
 					<input type="radio" name="voice-mode" checked={s.mode === 'active'} onchange={() => send({ action: 'mode', mode: 'active' }, 'mode')} />
-					<span><b>Active</b> {s.cores > 1 ? `${s.cores - 1} of ${s.cores} cores` : 'Every core'}, much faster, and the computer works hard.</span>
+					<span><b>Active</b> {s.cores > 1 ? `${s.cores - 1} of ${s.cores} cores` : 'Every core'}, much faster.</span>
 				</label>
 			</fieldset>
 			<div class="limit">
@@ -172,50 +181,58 @@
 					<option value="off">No limit</option>
 					{#each DISK_LIMIT_CHOICES as gb (gb)}<option value={gb}>{gb} GB</option>{/each}
 				</select>
-				<p class="hint">Clips take {formatBytes(s.clipsDisk)} now. Making stops at the limit; the clips made are kept.</p>
+				<p class="hint">Clips take {formatBytes(s.clipsDisk)} now.</p>
 			</div>
 		</SettingsSection>
 
-		<SettingsSection title="Sets" description="Each word counts once, in the first set that has it. Make a set before the rest, in active mode until every word of its list is done, or check its clips.">
-			<ul class="sets">
-				{#each s.sets as set (set.id)}
-					<li>
-						<div class="set-head">
-							<h3>{set.name}</h3>
-							<span class="set-figures">{fmt(set.made)} of {fmt(set.total)}{#if s.first === set.id} · being made now{/if}</span>
-						</div>
-						<VoiceBar made={set.made} total={set.total} label={`Clips made for ${set.name}`} />
-						<div class="row">
-							{#if set.made < set.total && s.first !== set.id}
-								<button class="btn" type="button" disabled={!!busy} onclick={() => send({ action: 'first', set: set.id }, `first:${set.id}`)}>Make this set now</button>
-							{/if}
-							<button class="btn" type="button" disabled={!!busy || !set.made} onclick={() => send({ action: 'check', set: set.id }, `check:${set.id}`)}>
-								{busy === `check:${set.id}` ? 'Checking…' : 'Check clips'}
-							</button>
-						</div>
-						{#if report?.set === set.id}<p class="report" role="status">{reportLine(report.result)}</p>{/if}
-					</li>
-				{/each}
-			</ul>
+		<SettingsSection title="Sets" description="Make one set before the rest, or check its clips.">
+		{#snippet icon()}<VoiceIcon name="sets" size={20} />{/snippet}
+			<details class="more">
+				<summary>{s.sets.length} sets</summary>
+				<ul class="sets">
+					{#each s.sets as set (set.id)}
+						<li>
+							<div class="set-head">
+								<h3>{set.name}</h3>
+								<span class="set-figures">{fmt(set.made)} of {fmt(set.total)}{#if s.first === set.id} · being made now{/if}</span>
+							</div>
+							<VoiceBar made={set.made} total={set.total} label={`Clips made for ${set.name}`} />
+							<div class="row">
+								{#if set.made < set.total && s.first !== set.id}
+									<button class="btn" type="button" disabled={!!busy} onclick={() => send({ action: 'first', set: set.id }, `first:${set.id}`)}>Make this set now</button>
+								{/if}
+								<button class="btn" type="button" disabled={!!busy || !set.made} onclick={() => send({ action: 'check', set: set.id }, `check:${set.id}`)}>
+									{busy === `check:${set.id}` ? 'Checking…' : 'Check clips'}
+								</button>
+							</div>
+							{#if report?.set === set.id}<p class="report" role="status">{reportLine(report.result)}</p>{/if}
+						</li>
+					{/each}
+				</ul>
+			</details>
 		</SettingsSection>
 	{/if}
 
 	{#if s.flagged.length}
-		<SettingsSection title="Words rated unclear" description="Rated one or two stars in Listen and type on this computer.">
+		<SettingsSection title="Words rated unclear" description="Rated one or two stars in Listen and type here.">
+		{#snippet icon()}<VoiceIcon name="unclear" size={20} />{/snippet}
 			<ul class="flagged">
 				{#each s.flagged as w (w)}<li>{w}</li>{/each}
 			</ul>
-			<p class="text">
-				Each clip is made the same way every time, so making it again sounds the same. A word read wrong needs a respelling,
-				in RESPELL in <code>apps/web/src/lib/server/voice/clips.ts</code>; only that word's clips are made again.
-			</p>
-			<button class="btn" type="button" disabled={!!busy} onclick={() => send({ action: 'unflag-all' }, 'unflag')}>Clear the list</button>
+			<details class="more">
+				<summary>How to fix a word</summary>
+				<p class="text">
+					Each clip is made the same way every time, so making it again sounds the same. A word read wrong needs a respelling,
+					in RESPELL in <code>apps/web/src/lib/server/voice/clips.ts</code>; only that word's clips are made again.
+				</p>
+			</details>
+			<button class="btn start" type="button" disabled={!!busy} onclick={() => send({ action: 'unflag-all' }, 'unflag')}>Clear the list</button>
 		</SettingsSection>
 	{/if}
 
 	{#if s.made || s.chosen === 'supertonic'}
-		<SettingsSection title="Health check" description="Looks at every clip on disk: empty or broken files, odd lengths, leftovers from a crash and clips no list uses any more.">
-			<p class="text">Broken clips are removed and made again; clips no list uses are removed to free space.</p>
+		<SettingsSection title="Health check" description="Fixes empty or broken clips and removes ones no list uses.">
+		{#snippet icon()}<VoiceIcon name="health" size={20} />{/snippet}
 			<button class="btn start" type="button" disabled={!!busy} onclick={() => send({ action: 'check' }, 'check')}>
 				{busy === 'check' ? 'Checking every clip…' : 'Check every clip'}
 			</button>
@@ -242,7 +259,6 @@
 	.status {
 		color: var(--ink);
 	}
-	.choices,
 	.modes {
 		border: 0;
 		padding: 0;
@@ -252,20 +268,78 @@
 		flex-direction: column;
 		gap: var(--space-12);
 	}
+	.choices {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+		gap: var(--space-12);
+	}
 	.choice {
+		position: relative;
 		display: flex;
-		flex-direction: column;
 		align-items: flex-start;
 		gap: var(--space-12);
 		padding: var(--space-16);
 		border: 1px solid var(--line);
 		border-radius: var(--radius);
 		background: var(--surface);
+		cursor: pointer;
+		transition: border-color var(--dur-fast) var(--ease-out);
+	}
+	.choice:hover {
+		border-color: var(--line-strong);
 	}
 	.choice.on {
-		border-color: var(--ink);
+		border-color: var(--tint);
+		box-shadow: inset 0 0 0 1px var(--tint);
 	}
-	.choice-head,
+	.choice:has(input:focus-visible) {
+		outline: 2px solid var(--ink);
+		outline-offset: 2px;
+	}
+	.choice:has(input:disabled) {
+		cursor: default;
+	}
+	.tile {
+		display: grid;
+		place-items: center;
+		flex: none;
+		width: var(--space-40);
+		height: var(--space-40);
+		border-radius: var(--radius);
+		background: color-mix(in srgb, var(--tint) 14%, var(--surface));
+	}
+	.choice-text {
+		display: grid;
+		gap: var(--space-4);
+		min-width: 0;
+		flex: 1;
+	}
+	.choice-name {
+		display: flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: var(--space-8);
+		font-size: var(--fs-16);
+		font-weight: var(--fw-semibold);
+		color: var(--ink);
+	}
+	.choice .note {
+		font-size: var(--fs-14);
+	}
+	.mark {
+		display: grid;
+		place-items: center;
+		flex: none;
+		width: var(--space-20);
+		height: var(--space-20);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--radius-pill);
+		color: var(--bg);
+	}
+	.on .mark {
+		border-color: var(--tint);
+		background: var(--tint);
+	}
 	.set-head {
 		display: flex;
 		align-items: baseline;
@@ -281,6 +355,27 @@
 	.tag {
 		font-size: var(--fs-12);
 		font-weight: var(--fw-semibold);
+		color: var(--ink-3);
+	}
+	.more {
+		display: grid;
+		gap: var(--space-12);
+	}
+	.more summary {
+		justify-self: start;
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
+		color: var(--ink-2);
+		cursor: pointer;
+	}
+	.more summary:hover {
+		color: var(--ink);
+	}
+	.more[open] summary {
+		margin-bottom: var(--space-4);
+	}
+	.credit {
+		font-size: var(--fs-13);
 		color: var(--ink-3);
 	}
 	.cost {

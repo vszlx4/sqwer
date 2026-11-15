@@ -85,7 +85,7 @@ export const POST: RequestHandler = async (event) => {
 			await writeSettings(DATA_DIR, { mode: action.mode });
 			break;
 		case 'first': {
-			if (readSettings(DATA_DIR).voice !== 'supertonic') error(409, 'Choose the Supertonic voice first.');
+			if (readSettings(DATA_DIR).voice !== 'supertonic') error(409, 'Choose the Enhanced voice first.');
 			if (!fullSet(listsDir, action.set, [])) error(400, 'Unknown set.');
 			await writeSettings(DATA_DIR, { first: action.set, paused: false });
 			break;

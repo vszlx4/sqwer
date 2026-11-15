@@ -74,6 +74,50 @@ test('adaptive says so when a round moves the run into another level', async ({ 
 	await expect(page.locator('.runbar .note')).toHaveCount(0, { timeout: 5000 });
 });
 
+test('Back retraces the journey: run → its menu → Practice, each where it was scrolled', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/exams', { waitUntil: 'networkidle' });
+	await page.locator('#games').scrollIntoViewIfNeeded();
+	const practiceY = await page.evaluate(() => Math.round(window.scrollY));
+	await page.locator('#games').getByRole('link', { name: /Key hunt/ }).click();
+	await expect(page).toHaveURL(/\/play\/keyhunt$/);
+	// The arrival scroll can land late under load: scroll until the menu sits at 200.
+	await expect.poll(() => page.evaluate(() => (window.scrollTo(0, 200), Math.round(window.scrollY)))).toBe(200);
+	// Clicked from the page, so the menu stays where it was scrolled (a Playwright click scrolls the button into view);
+	// the position at the click is the one Back must return to.
+	const menuY = await page.getByRole('button', { name: /^Start at/ }).evaluate((b: HTMLButtonElement) => {
+		const y = Math.round(window.scrollY);
+		b.click();
+		return y;
+	});
+	await expect(page.locator('.runbar')).toBeVisible();
+
+	await page.goBack();
+	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
+	await expect(page).toHaveURL(/\/play\/keyhunt$/);
+	await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBe(menuY);
+
+	// Forward does not bring a left run back.
+	await page.goForward();
+	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
+	await expect(page.locator('.runbar')).toHaveCount(0);
+
+	await page.goBack();
+	await expect(page).toHaveURL(/\/exams$/);
+	await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBeGreaterThan(practiceY - 10);
+});
+
+test('Change difficulty on the results goes back to the menu the same way Back does', async ({ page }) => {
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: /^Start at/ }).click();
+	await page.getByRole('button', { name: 'Stop' }).click();
+	await page.getByRole('button', { name: 'Change difficulty' }).click();
+	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
+	// The run's entry is gone: one more Back leaves the game.
+	await page.goBack();
+	await expect(page).not.toHaveURL(/\/play\/listen$/);
+});
+
 test('an unknown game is not found', async ({ page }) => {
 	const res = await page.goto('/play/chess');
 	expect(res?.status()).toBe(404);
@@ -265,6 +309,8 @@ test('Listen and type does not count a play that was not heard', async ({ page }
 	await page.getByText('Insane', { exact: true }).click();
 	await page.getByRole('button', { name: 'Start at Insane' }).click();
 	await expect.poll(() => failed).toBeGreaterThan(0);
+	// The first play, made once the word is on screen, fails too: the word is shown instead.
+	await expect(page.locator('.player .shown')).toBeVisible();
 	const again = page.getByRole('button', { name: 'Play the word again' });
 	await expect(again).toBeEnabled();
 	down = false;

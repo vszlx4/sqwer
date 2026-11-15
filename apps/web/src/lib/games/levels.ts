@@ -1,20 +1,18 @@
-import type { IconName } from '#lib/ui/Icon.svelte';
-
 /*
- * Endless difficulty, shown by name and icon, never a number. Six fixed levels to pick from, and an adaptive rating
+ * Endless difficulty, shown by name and solid icon (LevelIcon.svelte), never a number. Six fixed levels to pick from, and an adaptive rating
  * with no cap. The rating moves by how well each round went; difficulty grows with the log of the rating, so every
  * level takes longer to climb than the one before and Nightmare keeps getting harder. Games read their settings from
  * the difficulty: 1 and up, where the fixed levels sit at 2, 4 … 12 (the old twelve levels' scale).
  */
 
 export const TIERS = [
-	{ id: 'easy', name: 'Easy', icon: 'sprout', difficulty: 2, note: 'Short, very common words and a relaxed pace.' },
-	{ id: 'medium', name: 'Medium', icon: 'leaf', difficulty: 4, note: 'Everyday words at a comfortable speed.' },
-	{ id: 'hard', name: 'Hard', icon: 'flame', difficulty: 6, note: 'Longer everyday words and a quicker pace.' },
-	{ id: 'expert', name: 'Expert', icon: 'bolt', difficulty: 8, note: 'Less common words and a fast pace.' },
-	{ id: 'insane', name: 'Insane', icon: 'demon', difficulty: 10, note: 'Long, less frequent words at full speed.' },
-	{ id: 'nightmare', name: 'Nightmare', icon: 'skull', difficulty: 12, note: 'Rare and technical words from the full dictionary, which includes mature words, at top speed.' }
-] as const satisfies readonly { id: string; name: string; icon: IconName; difficulty: number; note: string }[];
+	{ id: 'easy', name: 'Easy', difficulty: 2, note: 'Short, very common words and a relaxed pace.' },
+	{ id: 'medium', name: 'Medium', difficulty: 4, note: 'Everyday words at a comfortable speed.' },
+	{ id: 'hard', name: 'Hard', difficulty: 6, note: 'Longer everyday words and a quicker pace.' },
+	{ id: 'expert', name: 'Expert', difficulty: 8, note: 'Less common words and a fast pace.' },
+	{ id: 'insane', name: 'Insane', difficulty: 10, note: 'Long, less frequent words at full speed.' },
+	{ id: 'nightmare', name: 'Nightmare', difficulty: 12, note: 'Rare and technical words from the full dictionary, which includes mature words, at top speed.' }
+] as const satisfies readonly { id: string; name: string; difficulty: number; note: string }[];
 
 export type TierId = (typeof TIERS)[number]['id'];
 export type Tier = (typeof TIERS)[number];
@@ -82,10 +80,24 @@ const OLD_IDS: Record<string, TierId> = { gentle: 'easy', steady: 'medium', bris
 /** A saved choice from before the rename: old ids map to the level at the same difficulty. */
 export const migrateChoice = (id: string): TierId | 'adaptive' => (id === 'adaptive' ? 'adaptive' : (OLD_IDS[id] ?? 'easy'));
 
-/** How far a difficulty is through its level, 0 to 1; Nightmare has no end, so it shows full. */
+/** Where Nightmare starts, and how many difficulty steps each depth mark past it takes. */
+const NIGHTMARE = 11;
+const DEPTH_STEP = 2;
+export const MAX_DEPTH = 3;
+
+/** Marks past the start of Nightmare: 0 at first, one more every two steps deeper, three at most. */
+export function nightmareDepth(difficulty: number): number {
+	if (difficulty < NIGHTMARE) return 0;
+	return Math.min(MAX_DEPTH, Math.floor((difficulty - NIGHTMARE) / DEPTH_STEP));
+}
+
+/** How far a difficulty is through its level, 0 to 1. In Nightmare: through the band to the next mark, full at the last. */
 export function tierProgress(difficulty: number): number {
 	const t = tierOf(difficulty);
-	if (t.id === 'nightmare') return 1;
+	if (t.id === 'nightmare') {
+		if (nightmareDepth(difficulty) >= MAX_DEPTH) return 1;
+		return ((difficulty - NIGHTMARE) % DEPTH_STEP) / DEPTH_STEP;
+	}
 	const from = t.id === 'easy' ? START : t.difficulty - 1;
 	return Math.min(1, Math.max(0, (difficulty - from) / (t.difficulty + 1 - from)));
 }
