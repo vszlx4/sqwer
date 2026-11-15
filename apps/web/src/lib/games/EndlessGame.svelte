@@ -30,6 +30,7 @@
 	} from './endless.ts';
 	import { nextDifficulty, ratingOf, roundPerformance, step, tierById } from './levels.ts';
 	import LevelBadge from './LevelBadge.svelte';
+	import LevelIcon from './LevelIcon.svelte';
 
 	/** Endless mode: pick difficulty, play rounds. A round scores its difficulty step; three failures end the run. */
 	/** `running` is true from the start of a run until the menu shows again; the page drops its title meanwhile. */
@@ -246,7 +247,7 @@
 						{#each DIFFICULTIES.filter((d) => d.level !== null) as d (d.id)}
 							<label class="level" class:on={difficulty === d.id}>
 								<input type="radio" name="difficulty" value={d.id} bind:group={difficulty} />
-								<span class="level-icon" style:--level={`var(--level-${d.id})`}><Icon name={d.icon} size={20} /></span>
+								<LevelIcon id={d.id} size={22} />
 								<span class="level-name">{d.label}</span>
 							</label>
 						{/each}
@@ -572,10 +573,6 @@
 	.level-name {
 		font-size: var(--fs-14);
 		font-weight: var(--fw-bold);
-	}
-	.level-icon {
-		display: inline-flex;
-		color: var(--level);
 	}
 	.adaptive.on,
 	.level.on {

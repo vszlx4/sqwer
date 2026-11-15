@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Icon from '#lib/ui/Icon.svelte';
+	import LevelIcon from './LevelIcon.svelte';
 	import { tierOf, type Tier } from './levels.ts';
 
 	/** A level by name and icon in its color: from a difficulty, or a fixed level itself. */
@@ -7,7 +7,7 @@
 	const t = $derived(tier ?? tierOf(difficulty ?? 1));
 </script>
 
-<span class="level-badge" style:--level={`var(--level-${t.id})`}><Icon name={t.icon} {size} /><span>{t.name}</span></span>
+<span class="level-badge"><LevelIcon id={t.id} {size} /><span>{t.name}</span></span>
 
 <style>
 	.level-badge {
@@ -16,9 +16,5 @@
 		gap: var(--space-6);
 		font-weight: var(--fw-semibold);
 		color: var(--ink);
-	}
-	.level-badge :global(svg) {
-		flex: none;
-		color: var(--level);
 	}
 </style>
