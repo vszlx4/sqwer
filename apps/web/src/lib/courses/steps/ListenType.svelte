@@ -152,7 +152,7 @@
 				const first = gone.includes(queue[0]!);
 				queue = queue.filter((w) => !gone.includes(w));
 				if (first && started && !feedback) {
-					if (queue.length) present();
+					if (queue.length) void present();
 					else waiting = true;
 				}
 				void fill();
@@ -166,12 +166,14 @@
 				if (!spare) return;
 				list[i] = spare;
 				voice.prepare([spare]);
-				if (i === index && started) present();
+				if (i === index && started) void present();
 			});
 		});
 	});
 
 	onDestroy(() => {
+		shown++;
+		clearTimeout(pending);
 		timers.forEach(clearTimeout);
 		voice.stop();
 	});
@@ -196,7 +198,7 @@
 				if (speech) voice.prepare(add);
 				if (waiting) {
 					waiting = false;
-					present();
+					void present(answers.length === 0);
 				}
 			}
 			loadError = false;
@@ -225,7 +227,7 @@
 	const left = $derived(replayLimit(replayLevel) - replays);
 
 	async function play(speed: Speed = 'normal') {
-		if (!word || feedback) return;
+		if (!word || feedback || held) return;
 		if (!speech) return flash();
 		if (!allows(speed)) return;
 		const w = word;
@@ -262,21 +264,35 @@
 		timers.push(setTimeout(() => (showWord = false), 1200));
 	}
 
-	function present() {
+	/** Bumped by every present(), so a word's delayed first play never fires for another word. */
+	let shown = 0;
+	/** Before the first word of a session: time for the screen to settle (scroll, stage) before the voice starts. */
+	const SETTLE_MS = 350;
+	const painted = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+
+	/** Puts a word on screen and plays it once the screen shows it: the voice never runs ahead of the page. */
+	async function present(first = false) {
 		feedback = null;
 		value = '';
+		held = false;
 		plays = 0;
 		replays = 0;
 		firstPlay = performance.now();
 		playing = null;
 		rating = ratingOf(word);
-		void play();
+		const turn = ++shown;
 		// While this word is shown: its slow clip and the next word.
 		if (speech) {
 			voice.prepare([word], 'slow');
 			voice.prepare(upcoming.slice(0, 1));
 		}
 		requestAnimationFrame(() => input?.focus({ preventScroll: true }));
+		await tick();
+		await painted();
+		if (first) await new Promise((r) => timers.push(setTimeout(r, SETTLE_MS)));
+		// Skipped, answered or already played by hand while the screen settled: nothing to start.
+		if (turn !== shown || feedback || over || plays) return;
+		void play();
 	}
 
 	function begin() {
@@ -286,7 +302,7 @@
 			void fill();
 			return;
 		}
-		present();
+		void present(true);
 	}
 
 	/** Graded letters as the explanation draws them: a swap or a slip reads as a changed letter. */
@@ -331,8 +347,15 @@
 		}
 	}
 
-	/** Fast mode: a full point moves on the moment it is typed; Enter only plays the word again. */
+	/** Fast mode: a full point moves on once it is typed; Enter only plays the word again. */
 	const fast = $derived(settings.fastMode);
+	/** Fast mode: how long the finished word stays on screen, marked right, before the next one. */
+	const HOLD_MS = 260;
+	/** Fast mode: a full point that is not the exact spelling (a sound-alike like to for too) waits this long for more typing. */
+	const SETTLE_TYPING_MS = 650;
+	/** Fast mode: the finished word is held on screen; keys are ignored until the next word. */
+	let held = $state(false);
+	let pending: ReturnType<typeof setTimeout> | undefined;
 	/** The word just typed right in fast mode, shown for a moment in the status row. */
 	let quick = $state<string | null>(null);
 
@@ -342,16 +365,27 @@
 	const lettersOnly = (text: string) => text.toLowerCase().replace(/[^a-z]/g, '');
 
 	function typed(next: string) {
+		if (held) return;
 		value = lettersOnly(next);
 		if (input && input.value !== value) input.value = value;
-		if (fast && started && !feedback && word && value && gradeOf(value).points === 1) void submit();
+		clearTimeout(pending);
+		if (!fast || !started || feedback || !word || !value) return;
+		const r = gradeOf(value);
+		if (r.points !== 1) return;
+		// The exact word goes at once; a sound-alike might be the start of the word still being typed.
+		if (r.kind === 'exact') void submit();
+		else {
+			const at = value;
+			pending = setTimeout(() => value === at && !feedback && void submit(), SETTLE_TYPING_MS);
+		}
 	}
 
 	/** Checks the answer. `giveUp` checks even an empty one: fast mode's Skip. */
 	let grading = false;
 	async function submit(giveUp = false) {
 		const typed = value.trim();
-		if ((!typed && !giveUp) || feedback || !word || grading) return;
+		clearTimeout(pending);
+		if ((!typed && !giveUp) || feedback || !word || grading || held) return;
 		// Sound-alikes and British spellings come with the set's data; the first answers may arrive before it.
 		if (!heardData) {
 			grading = true;
@@ -373,10 +407,16 @@
 		} else done[index] = a;
 		// Fast mode: a full point goes straight to the next word, no explanation.
 		if (fast && r.points === 1) {
+			// The last letter is painted and the word marked right before the next one replaces it.
 			const right = word;
+			const turn = shown;
+			held = true;
 			quick = right;
 			timers.push(setTimeout(() => quick === right && (quick = null), 900));
-			advance();
+			await tick();
+			await painted();
+			await new Promise((r) => timers.push(setTimeout(r, HOLD_MS)));
+			if (turn === shown && !over) advance();
 			return;
 		}
 		const slots: Slot[] = r.letters.map((l) => ({ typed: l.typed, word: l.word, mark: outcome === 'accepted' && l.mark !== 'right' ? 'variant' : SLOT[l.mark] }));
@@ -407,7 +447,7 @@
 		if (endless) {
 			voice.stop();
 			queue.shift();
-			if (queue.length) present();
+			if (queue.length) void present();
 			else {
 				feedback = null;
 				waiting = true;
@@ -417,7 +457,7 @@
 		}
 		if (index + 1 < list.length) {
 			index++;
-			present();
+			void present();
 			return;
 		}
 		// Every word answered: the review, with the missed words to practice.
@@ -451,7 +491,7 @@
 		outcomes = [];
 		reviewing = false;
 		practiceMode = true;
-		present();
+		void present();
 	}
 
 	let review: HTMLButtonElement | undefined = $state();
@@ -460,6 +500,10 @@
 	});
 
 	function onkeydown(e: KeyboardEvent) {
+		if (held) {
+			if (e.key === 'Enter' || e.key === 'Escape') e.preventDefault();
+			return;
+		}
 		if (e.key === 'Escape' && fast) {
 			e.preventDefault();
 			void submit(true);
@@ -640,6 +684,8 @@
 						oninput={(e) => typed(e.currentTarget.value)}
 						{onkeydown}
 						class="box"
+						class:held
+						readonly={held}
 						type="text"
 						name="heard"
 						autocomplete="off"
@@ -884,6 +930,12 @@
 		overflow: hidden;
 		white-space: nowrap;
 		touch-action: manipulation;
+	}
+	/* Fast mode: the finished word, held a moment in the success color before the next one. */
+	input.box.held {
+		border-color: var(--success);
+		color: var(--success);
+		background: var(--success-soft);
 	}
 	input.box::placeholder {
 		font-weight: var(--fw-regular);
