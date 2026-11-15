@@ -89,3 +89,10 @@ export function tierProgress(difficulty: number): number {
 	const from = t.id === 'easy' ? START : t.difficulty - 1;
 	return Math.min(1, Math.max(0, (difficulty - from) / (t.difficulty + 1 - from)));
 }
+
+/** Which way a difficulty change crossed into another level, if it did. */
+export function levelChange(from: number, to: number): 'up' | 'down' | null {
+	const a = TIERS.indexOf(tierOf(from));
+	const b = TIERS.indexOf(tierOf(to));
+	return b > a ? 'up' : b < a ? 'down' : null;
+}

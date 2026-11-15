@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import LevelIcon from './LevelIcon.svelte';
 	import StatIcon, { type StatIconName } from './StatIcon.svelte';
-	import { tierOf, tierProgress } from './levels.ts';
+	import { levelChange, tierOf, tierProgress } from './levels.ts';
 
 	export interface RunStat {
 		icon: StatIconName;
@@ -18,6 +18,20 @@
 	let { difficulty, adaptive, set, stats, extra, actions }: { difficulty: number; adaptive: boolean; set?: string; stats: RunStat[]; extra?: Snippet; actions?: Snippet } = $props();
 	const tier = $derived(tierOf(difficulty));
 	const progress = $derived(tierProgress(difficulty));
+
+	// A move into another level gets a short note under the chip; moves inside a level stay quiet.
+	const NOTE_MS = 2200;
+	let note = $state<{ text: string; key: number } | null>(null);
+	let was: number | null = null;
+	$effect(() => {
+		const now = difficulty;
+		const way = was === null ? null : levelChange(was, now);
+		was = now;
+		if (!way) return;
+		note = { text: way === 'up' ? `Level up: ${tierOf(now).name}` : `Eased to ${tierOf(now).name}`, key: Date.now() };
+		const timer = setTimeout(() => (note = null), NOTE_MS);
+		return () => clearTimeout(timer);
+	});
 </script>
 
 <div class="runbar" style:--level={`var(--level-${tier.id})`}>
@@ -32,6 +46,10 @@
 				{/if}
 			</span>
 		{/key}
+		<span class="sr-only" aria-live="polite">{note?.text ?? ''}</span>
+		{#if note}
+			{#key note.key}<span class="note" aria-hidden="true">{note.text}</span>{/key}
+		{/if}
 		{#if set}<span class="set" data-tip="Word set"><StatIcon name="set" size={14} />{set}<span class="sr-only"> words</span></span>{/if}
 	</div>
 	<ul class="stats" aria-live="polite">
@@ -55,6 +73,7 @@
 		background: var(--surface);
 	}
 	.where {
+		position: relative;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
@@ -165,9 +184,41 @@
 		opacity: 1;
 		transform: translate(-50%, 0);
 	}
+	.note {
+		position: absolute;
+		top: calc(100% + var(--space-8));
+		left: 0;
+		z-index: var(--z-overlay);
+		padding: var(--space-4) var(--space-10);
+		border-radius: var(--radius-pill);
+		border: 1px solid var(--level);
+		background: color-mix(in srgb, var(--level) 16%, var(--surface));
+		color: var(--ink);
+		font-size: var(--fs-13);
+		font-weight: var(--fw-bold);
+		white-space: nowrap;
+		pointer-events: none;
+		animation: note-out var(--dur-slow) var(--ease-out) 1.8s forwards; /* off-scale: fades as the 2.2 s note ends */
+	}
 	@media (prefers-reduced-motion: no-preference) {
 		.level {
 			animation: level-in var(--dur-slow) var(--ease-spring);
+		}
+		.note {
+			animation:
+				note-in var(--dur-base) var(--ease-spring),
+				note-out var(--dur-slow) var(--ease-out) 1.8s forwards; /* off-scale: as above */
+		}
+	}
+	@keyframes note-in {
+		from {
+			transform: translateY(-4px);
+			opacity: 0;
+		}
+	}
+	@keyframes note-out {
+		to {
+			opacity: 0;
 		}
 	}
 	@keyframes level-in {

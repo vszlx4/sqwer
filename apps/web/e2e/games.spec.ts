@@ -61,6 +61,19 @@ test('every game opens on the same menu: level, settings where it has any, how i
 	}
 });
 
+test('adaptive says so when a round moves the run into another level', async ({ page }) => {
+	test.setTimeout(120_000);
+	await page.goto('/play/falling-letters', { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: 'Start at Adaptive' }).click();
+	await expect(page.locator('.runbar .level')).toContainText('Easy');
+	await playFalling(page);
+	await expect(page.getByRole('heading', { name: 'Round 1 cleared' })).toBeVisible();
+	await page.keyboard.press('Enter');
+	await expect(page.locator('.runbar .level')).toContainText('Medium');
+	await expect(page.locator('.runbar .note')).toHaveText('Level up: Medium');
+	await expect(page.locator('.runbar .note')).toHaveCount(0, { timeout: 5000 });
+});
+
 test('an unknown game is not found', async ({ page }) => {
 	const res = await page.goto('/play/chess');
 	expect(res?.status()).toBe(404);
