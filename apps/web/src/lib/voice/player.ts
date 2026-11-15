@@ -1,11 +1,12 @@
 /*
  * The voice player for Listen and type (the page's instance: player.svelte.ts): one clip per word and speed from our server (routes/voice), decoded once and kept for
  * the last MEMORY words. Each word has a state the screens read. A word the server has no clip for is missing and is
- * not asked for again; a failed fetch is an error, retried only when the word is played again.
+ * not asked for again; a failed fetch is an error, retried only when the word is played again. Words are fetched
+ * FETCHES at a time, the word in play at once, so it never waits behind the look-ahead in the browser or on the server.
  */
 
 import { SvelteMap } from 'svelte/reactivity';
-import { clipUrl, isSpeakable, type Speed } from './clip.ts';
+import { NEED_HEADER, NEED_RANK, clipUrl, isSpeakable, type Need, type Speed } from './clip.ts';
 import { outline, type ClipShape } from './shape.ts';
 
 export type { Speed } from './clip.ts';
@@ -20,6 +21,10 @@ export const MEMORY = 64;
 export const FADE = 0.012;
 /** Clips start this far ahead of the audio clock, so the first samples are never cut and the start time is exact. */
 export const LEAD = 0.03;
+/** Look-ahead requests at once. Browsers send six at a time to a server; the rest wait in the order they were made. */
+export const FETCHES = 2;
+/** A clip that has not arrived by then is an error; playing the word again asks once more. */
+export const CLIP_TIMEOUT_MS = 45_000;
 /** Longest wait for a suspended context to resume before a clip is scheduled anyway. */
 const RESUME_MS = 400;
 
@@ -54,6 +59,13 @@ export class Player {
 	#playing: { source: AudioBufferSourceNode; gain: GainNode; start: number; length: number } | null = null;
 	/** Bumped by every say() and stop(), so a clip that arrives late does not play over a newer one. */
 	#turn = 0;
+	/** Clip requests on the way. */
+	#sending = 0;
+	/** Requests waiting for a turn, by key. */
+	#queued = new Map<string, { need: Need; seq: number; go: () => void }>();
+	/** How soon each word being fetched is wanted; say() can raise it before its request is queued. */
+	#wanted = new Map<string, Need>();
+	#seq = 0;
 
 	get supported(): boolean {
 		return typeof AudioContext !== 'undefined' && typeof fetch !== 'undefined';
@@ -87,28 +99,91 @@ export class Player {
 		return this.#version;
 	}
 
-	async #fetch(word: string, speed: Speed, again = true): Promise<ArrayBuffer | 'missing' | null> {
-		const version = await this.#versionOf();
-		if (!version) return null;
-		const res = await fetch(clipUrl(version, word, speed)).catch(() => null);
-		if (!res) return null;
-		if (res.status === 410 && again) {
-			this.#version = null;
-			return this.#fetch(word, speed, false);
+	/** Waits for a turn to send; the word in play goes at once. Resolves with how soon it is wanted by then. */
+	#turnToSend(key: string): Promise<Need> {
+		const need = this.#wanted.get(key) ?? 'soon';
+		if (need === 'now' || this.#sending < FETCHES) {
+			this.#sending++;
+			return Promise.resolve(need);
 		}
-		if (res.status === 404) return 'missing';
-		return res.ok ? res.arrayBuffer() : null;
+		return new Promise((resolve) => {
+			const entry = { need, seq: ++this.#seq, go: () => resolve(entry.need) };
+			this.#queued.set(key, entry);
+		});
 	}
 
-	/** A word's clip, fetched and decoded once. Null when there is none. */
-	clip(text: string, speed: Speed = 'normal'): Promise<AudioBuffer | null> {
+	/** A request finished: the most wanted of those waiting goes next. */
+	#sent() {
+		this.#sending--;
+		let next: [string, { need: Need; seq: number; go: () => void }] | null = null;
+		for (const e of this.#queued) if (!next || NEED_RANK[e[1].need] < NEED_RANK[next[1].need] || (e[1].need === next[1].need && e[1].seq < next[1].seq)) next = e;
+		if (!next || this.#sending >= FETCHES) return;
+		this.#queued.delete(next[0]);
+		this.#sending++;
+		next[1].go();
+	}
+
+	/** Moves a waiting request up; the word in play is sent at once. */
+	#hurry(key: string, need: Need) {
+		const was = this.#wanted.get(key);
+		if (!was || NEED_RANK[need] >= NEED_RANK[was]) return;
+		this.#wanted.set(key, need);
+		const q = this.#queued.get(key);
+		if (!q) return;
+		q.need = need;
+		if (need !== 'now') return;
+		this.#queued.delete(key);
+		this.#sending++;
+		q.go();
+	}
+
+	async #fetch(word: string, speed: Speed, need: Need): Promise<ArrayBuffer | 'missing' | null> {
+		const key = `${speed}:${word}`;
+		this.#wanted.set(key, need);
+		try {
+			const version = await this.#versionOf();
+			if (!version) return null;
+			const sendAs = await this.#turnToSend(key);
+			try {
+				return await this.#get(version, word, speed, sendAs);
+			} finally {
+				this.#sent();
+			}
+		} finally {
+			this.#wanted.delete(key);
+		}
+	}
+
+	async #get(version: string, word: string, speed: Speed, need: Need, again = true): Promise<ArrayBuffer | 'missing' | null> {
+		const abort = new AbortController();
+		const timer = setTimeout(() => abort.abort(), CLIP_TIMEOUT_MS);
+		try {
+			const res = await fetch(clipUrl(version, word, speed), { headers: { [NEED_HEADER]: need }, signal: abort.signal });
+			if (res.status === 410 && again) {
+				this.#version = null;
+				const next = await this.#versionOf();
+				return next ? this.#get(next, word, speed, need, false) : null;
+			}
+			if (res.status === 404) return 'missing';
+			return res.ok ? await res.arrayBuffer() : null;
+		} catch {
+			// Network failure or timeout.
+			return null;
+		} finally {
+			clearTimeout(timer);
+		}
+	}
+
+	/** A word's clip, fetched and decoded once. Null when there is none. `need`: how soon it plays (see clip.ts). */
+	clip(text: string, speed: Speed = 'normal', need: Need = 'soon'): Promise<AudioBuffer | null> {
 		const word = norm(text);
 		const key = `${speed}:${word}`;
 		const kept = this.#clips.get(key);
 		if (kept) {
-			// Used again: newest in memory.
+			// Used again: newest in memory, and sooner if it is still waiting to be asked for.
 			this.#clips.delete(key);
 			this.#clips.set(key, kept);
+			this.#hurry(key, need);
 			return kept;
 		}
 		if (!this.supported || !isSpeakable(word) || this.#missing.has(key)) {
@@ -118,7 +193,7 @@ export class Player {
 		const mark = (s: WordState) => speed === 'normal' && this.states.get(word) !== 'playing' && this.states.set(word, s);
 		mark('loading');
 		const clip = (async () => {
-			const body = await this.#fetch(word, speed);
+			const body = await this.#fetch(word, speed, need);
 			if (body === 'missing') {
 				this.#missing.add(key);
 				if (speed === 'normal') this.states.set(word, 'missing');
@@ -150,16 +225,16 @@ export class Player {
 		}
 	}
 
-	/** Fetches words ahead of time, so each plays without a wait. */
+	/** Fetches words ahead of time, so each plays without a wait. Slow clips come after every normal one. */
 	prepare(words: readonly string[], speed: Speed = 'normal') {
-		for (const w of words) void this.clip(w, speed);
+		for (const w of words) void this.clip(w, speed, speed === 'slow' ? 'later' : 'soon');
 	}
 
 	/** Plays a word, fading in and out so it does not click. */
 	async say(text: string, speed: Speed = 'normal'): Promise<Said> {
 		const word = norm(text);
 		const turn = ++this.#turn;
-		const buffer = await this.clip(word, speed);
+		const buffer = await this.clip(word, speed, 'now');
 		const g = this.#deps.graph();
 		if (!buffer || !g) return this.state(word) === 'missing' ? 'missing' : 'error';
 		if (turn !== this.#turn) return 'stopped';
