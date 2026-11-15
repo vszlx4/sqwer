@@ -75,16 +75,24 @@ test('the Voice page shows the choice and its cost, then the generator with sets
 	await signIn(page);
 	await page.goto('/account/voice');
 	await expect(page.getByRole('heading', { level: 1, name: 'Voice' })).toBeVisible();
-	const supertonic = page.locator('.choice', { has: page.getByRole('heading', { name: 'Supertonic' }) });
-	await expect(supertonic).toContainText('129 MB, once');
-	await expect(supertonic).toContainText('for every list');
-	await expect(supertonic).toContainText('on a recent laptop');
+	// Standard is the default; Enhanced is opt-in, its costs behind Details.
+	await expect(page.getByRole('radio', { name: /^Standard/ })).toBeChecked();
+	const enhanced = page.getByRole('radio', { name: /^Enhanced/ });
+	await expect(enhanced).not.toBeChecked();
+	await expect(page.locator('.choice', { hasText: 'Enhanced' })).toContainText('A 129 MB download');
+	await page.getByText('Details', { exact: true }).click();
+	const details = page.locator('details.more').first();
+	await expect(details).toContainText('129 MB, once');
+	await expect(details).toContainText('for every list');
+	await expect(details).toContainText('on a recent laptop');
 	await accessible(page);
 
-	await page.getByRole('button', { name: 'Use Supertonic' }).click();
+	await enhanced.check();
 	await expect(page.getByRole('heading', { name: 'Making clips' })).toBeVisible();
+	await expect(enhanced).toBeChecked();
 	expect(settings()).toMatchObject({ voice: 'supertonic', paused: false, mode: 'low' });
 	await expect(page.getByRole('status').first()).toContainText('SQWER_VOICE=pause');
+	await page.getByText(/^\d+ sets$/).click();
 	await expect(page.getByRole('heading', { name: 'Lessons' })).toBeVisible();
 
 	await page.getByRole('button', { name: 'Pause' }).click();
@@ -116,7 +124,7 @@ test('the Voice page shows the choice and its cost, then the generator with sets
 	// The account menu follows the generator while clips are still to make.
 	await page.reload();
 	await page.getByRole('button', { name: /Account menu/ }).click();
-	const menu = page.getByRole('region', { name: 'Voice clips' });
+	const menu = page.getByRole('region', { name: 'Enhanced voice' });
 	await expect(menu).toContainText('Paused');
 	await menu.getByRole('button', { name: 'Resume' }).click();
 	await expect.poll(() => settings().paused).toBe(false);
@@ -127,7 +135,7 @@ test('the Voice page shows the choice and its cost, then the generator with sets
 test('the Listen and type menu shows the set’s clips and makes it next', async ({ page }) => {
 	await signIn(page);
 	await page.goto('/play/listen');
-	const panel = page.locator('.voice', { hasText: 'Supertonic voice' });
+	const panel = page.locator('.voice', { hasText: 'Enhanced voice' });
 	await expect(panel).toContainText('words of Lessons ready');
 	await page.getByRole('combobox').selectOption('legal');
 	await expect(panel).toContainText('words of Legal ready');
@@ -141,5 +149,5 @@ test('the Listen and type menu shows the set’s clips and makes it next', async
 	saveSettings({ ...settings(), voice: 'standard', first: null });
 	await page.reload();
 	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
-	await expect(page.locator('.voice', { hasText: 'Supertonic voice' })).toHaveCount(0);
+	await expect(page.locator('.voice', { hasText: 'Enhanced voice' })).toHaveCount(0);
 });

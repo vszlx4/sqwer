@@ -8,17 +8,19 @@
 		/** A section whose action cannot be undone, such as deleting the account. */
 		danger?: boolean;
 		id?: string;
+		/** A solid glyph before the title. */
+		icon?: Snippet;
 		aside?: Snippet;
 		children: Snippet;
 	}
-	let { title, description, danger = false, id, aside, children }: Props = $props();
+	let { title, description, danger = false, id, icon, aside, children }: Props = $props();
 	const uid = $props.id();
 	const headingId = $derived(id ? `${id}-title` : `section-${uid}`);
 </script>
 
 <section class="setting" class:danger {id} aria-labelledby={headingId}>
 	<div class="about">
-		<h2 id={headingId}>{title}</h2>
+		<h2 id={headingId} class:with-icon={!!icon}>{@render icon?.()}{title}</h2>
 		{#if description}<p>{description}</p>{/if}
 		{@render aside?.()}
 	</div>
@@ -47,6 +49,11 @@
 	h2 {
 		font-size: var(--fs-20);
 		line-height: var(--lh-base);
+	}
+	h2.with-icon {
+		display: flex;
+		align-items: center;
+		gap: var(--space-10);
 	}
 	.about p {
 		max-width: 40ch;

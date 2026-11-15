@@ -22,8 +22,8 @@ export const LEGAL_DOCUMENTS = {
 		ref: 'SQW-LGL-002',
 		title: 'Privacy Policy',
 		href: '/privacy',
-		version: '2.8',
-		effectiveIso: '2026-11-14',
+		version: '2.9',
+		effectiveIso: '2026-11-15',
 		summary: 'What personal data sqwer processes, why, on what legal basis, for how long, with whom, and your rights.'
 	},
 	cookies: {
@@ -66,4 +66,4 @@ export type LegalKey = keyof typeof LEGAL_DOCUMENTS;
 export const ACCEPTANCE_VERSION = `terms-${LEGAL_DOCUMENTS.terms.version}+privacy-${LEGAL_DOCUMENTS.privacy.version}`;
 
 /** Most recent effective date across all documents (ISO 8601), shown in the legal center. */
-export const LEGAL_UPDATED = '2026-11-14';
+export const LEGAL_UPDATED = '2026-11-15';

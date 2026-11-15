@@ -2,9 +2,10 @@
 	import { onMount } from 'svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import VoiceBar from './VoiceBar.svelte';
+	import VoiceIcon from './VoiceIcon.svelte';
 	import { fetchBrief, formatDuration, percent, sendVoice, timeLeft, type VoiceAction, type VoiceBrief } from './status.ts';
 
-	/** Supertonic's progress in the account menu while clips are still to make: pause or resume, Low or Active. */
+	/** The Enhanced voice's progress in the account menu while clips are still to make: pause or resume, Low or Active. */
 	let { initial }: { initial: VoiceBrief } = $props();
 
 	// svelte-ignore state_referenced_locally
@@ -40,12 +41,12 @@
 </script>
 
 {#if !done}
-	<section class="voice" aria-label="Voice clips">
+	<section class="voice" aria-label="Enhanced voice">
 		<div class="head">
-			<a href="/account/voice">Voice clips</a>
+			<a href="/account/voice"><VoiceIcon name="enhanced" size={14} /> Enhanced voice</a>
 			<span>{line}</span>
 		</div>
-		<VoiceBar made={v.made} total={v.total} label="Voice clips made" />
+		<VoiceBar made={v.made} total={v.total} label="Enhanced clips made" />
 		<div class="controls">
 			<button type="button" class="ctl" disabled={busy} onclick={() => send({ action: v.paused ? 'resume' : 'pause' })}>
 				<Icon name={v.paused ? 'play' : 'pause'} size={14} />
@@ -75,6 +76,10 @@
 		font-size: var(--fs-13);
 	}
 	.head a {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-6);
+		flex: none;
 		font-weight: var(--fw-semibold);
 		color: var(--ink);
 	}

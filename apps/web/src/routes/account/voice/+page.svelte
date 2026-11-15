@@ -9,12 +9,12 @@
 	let { data }: PageProps = $props();
 </script>
 
-<Seo title="Voice" description="Choose the voice for Listen and type and follow how its clips are made." noindex />
+<Seo title="Voice" description="Choose Standard or Enhanced for Listen and type and follow how its clips are made." noindex />
 
 <div class="page">
 	<header class="page-head">
 		<h1>Voice</h1>
-		<p>The voice that reads words in Listen and type, and the clips this computer makes for it.</p>
+		<p>How words sound in Listen and type.</p>
 	</header>
 
 	<section class="device">
