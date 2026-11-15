@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { levelChange, tierProgress, batchPerformance, difficultyOf, GAIN, LOSS, migrateChoice, nextDifficulty, PAR, ratingOf, ratingStep, roundPerformance, step, TIERS, tierOf } from './levels.ts';
+import { nightmareDepth, levelChange, tierProgress, batchPerformance, difficultyOf, GAIN, LOSS, migrateChoice, nextDifficulty, PAR, ratingOf, ratingStep, roundPerformance, step, TIERS, tierOf } from './levels.ts';
 
 describe('levels', () => {
 	it('name every difficulty, with Nightmare open-ended', () => {
@@ -69,6 +69,8 @@ describe('levels', () => {
 		expect(tierProgress(5)).toBe(0);
 		expect(tierProgress(6)).toBeCloseTo(0.5);
 		expect(tierProgress(30)).toBe(1);
+		expect(tierProgress(12)).toBeCloseTo(0.5);
+		expect(tierProgress(13)).toBe(0);
 	});
 
 	it('tell a move into another level from a move inside one', () => {
@@ -76,5 +78,9 @@ describe('levels', () => {
 		expect(levelChange(2.9, 3.1)).toBe('up');
 		expect(levelChange(5.2, 4.8)).toBe('down');
 		expect(levelChange(12, 30)).toBeNull();
+	});
+
+	it('mark depth past Nightmare in bands of two steps, three at most', () => {
+		expect([10.9, 11, 12.9, 13, 15, 17, 40].map(nightmareDepth)).toEqual([0, 0, 0, 1, 2, 3, 3]);
 	});
 });
