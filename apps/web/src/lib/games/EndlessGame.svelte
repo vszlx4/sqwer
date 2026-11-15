@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { stopSmoothScroll } from '#lib/motion/smooth-scroll.ts';
 	import Echo from '#lib/courses/steps/Echo.svelte';
 	import FallingGame from '#lib/courses/steps/FallingGame.svelte';
 	import KeyHunt from '#lib/courses/steps/KeyHunt.svelte';
@@ -31,7 +32,8 @@
 	} from './endless.ts';
 
 	/** Endless mode: pick difficulty, play rounds. Round score = level; three failures end the run. */
-	let { game }: { game: GameInfo } = $props();
+	/** `running` is true from the start of a run until the menu shows again; the page drops its title meanwhile. */
+	let { game, running = $bindable(false) }: { game: GameInfo; running?: boolean } = $props();
 
 	let phase = $state<'setup' | 'loading' | 'playing' | 'between' | 'over'>('setup');
 	/** Listen and type: the run's missed words, practiced unscored after Stop. */
@@ -65,6 +67,18 @@
 			adaptiveLevel = saved.level;
 			best = saved.best;
 		}
+	});
+
+	// Every screen change starts at the top: the menu's scroll position never carries into a run or its results.
+	let shown = '';
+	$effect(() => {
+		const screen = `${phase}:${practicing ? 'practice' : ''}`;
+		running = phase !== 'setup';
+		if (shown && screen !== shown) {
+			stopSmoothScroll();
+			window.scrollTo({ top: 0, behavior: 'instant' });
+		}
+		shown = screen;
 	});
 
 	const choice = $derived(DIFFICULTIES.find((d) => d.id === difficulty)!);
