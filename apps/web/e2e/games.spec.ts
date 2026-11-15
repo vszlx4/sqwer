@@ -25,7 +25,7 @@ test('endless games are listed in practice and play round after round at the cho
 	// Ending the run shows the totals and keeps the best score.
 	await page.getByRole('button', { name: 'End the run' }).click();
 	await expect(page.getByRole('heading', { name: 'Run complete' })).toBeVisible();
-	await expect(page.locator('.totals')).toContainText('Score2');
+	await expect(page.locator('.run-result .points')).toHaveText('2');
 	await page.goto('/exams');
 	await expect(page.locator('#games').getByRole('link', { name: /Falling words/ })).toContainText('Best 2');
 });
@@ -82,8 +82,12 @@ test('Listen and type: endless words, the explanation in place, Stop with statis
 
 	await page.getByRole('button', { name: 'Stop' }).click();
 	await expect(page.getByRole('heading', { name: 'Run complete' })).toBeVisible();
-	await expect(page.getByRole('heading', { name: 'Words to practice' })).toBeVisible();
-	await expect(page.getByText('you typed zqzq')).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'To practice' })).toBeVisible();
+	await expect(page.locator('.misses li').first()).toHaveAttribute('title', 'You typed zqzq');
+	// The results fit the first screen and pass axe.
+	const bottom = await page.locator('.run-result').evaluate((e) => e.getBoundingClientRect().bottom);
+	expect(bottom).toBeLessThanOrEqual(page.viewportSize()!.height);
+	expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
 });
 
 /** A short 440 Hz tone as a 16-bit mono WAV, standing in for a word's clip. */
