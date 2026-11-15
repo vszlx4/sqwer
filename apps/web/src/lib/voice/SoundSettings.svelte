@@ -3,6 +3,7 @@
 	import { saveSettings, settings } from '#lib/settings.svelte.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import { sound } from './audio.svelte.ts';
+	import VoiceIcon from './VoiceIcon.svelte';
 	import { voice, type Said } from './player.svelte.ts';
 
 	/** Listen and type on this device: voice volume and a test word, words shown instead of said, fast mode. Saved on the device. */
@@ -30,7 +31,7 @@
 </script>
 
 <fieldset class="sound" class:compact>
-	<legend>Listen and type on this device</legend>
+	<legend>{#if !compact}<VoiceIcon name="device" size={20} />{/if}Listen and type on this device</legend>
 	<div class="row">
 		<span class="name"><Icon name={pct === 0 ? 'mute' : 'volume'} size={18} /> Voice volume</span>
 		<span class="slider"><WakeSlider value={pct} onChange={(v) => voice.setVolume(v / 100)} step={5} ariaLabel="Voice volume" formatValue={(v) => `${v}%`} /></span>
@@ -53,7 +54,7 @@
 		/>
 		<span>
 			<span class="name">Show words instead of sound</span>
-			<span class="note">Each word appears for a moment and is typed from memory. For when sound is not an option.</span>
+			<span class="note">Each word shows for a moment; type it from memory.</span>
 		</span>
 	</label>
 	<label class="row check">
@@ -67,7 +68,7 @@
 		/>
 		<span>
 			<span class="name">Fast mode</span>
-			<span class="note">A right word moves on the moment it is typed, with no Enter. Enter plays the word again; Esc skips it.</span>
+			<span class="note">A right word moves on without Enter. Enter replays, Esc skips.</span>
 		</span>
 	</label>
 </fieldset>
@@ -82,6 +83,9 @@
 		min-width: 0;
 	}
 	legend {
+		display: flex;
+		align-items: center;
+		gap: var(--space-10);
 		padding: 0;
 		margin-bottom: var(--space-8);
 		font-weight: var(--fw-semibold);

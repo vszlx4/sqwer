@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { formatNumber } from '#lib/i18n/format.ts';
 	import VoiceBar from './VoiceBar.svelte';
+	import VoiceIcon from './VoiceIcon.svelte';
 	import { fetchVoice, formatDuration, percent, sendVoice, type VoiceStatus } from './status.ts';
 
 	/**
-	 * Listen and type menu: how much of the chosen word set has Supertonic clips, the time left at the recent pace, and
-	 * "make this set now". Shown only on the machine running the copy, with Supertonic chosen.
+	 * Listen and type menu: how much of the chosen word set has Enhanced clips, the time left at the recent pace, and
+	 * "make this set now". Shown only on the machine running the copy, with Enhanced chosen.
 	 */
 	let { set }: { set: string } = $props();
 
@@ -43,22 +44,22 @@
 {#if v && p}
 	<div class="voice" aria-live="polite">
 		<p class="line">
-			<b>Supertonic voice</b>
-			{#if p.made >= p.total}
-				· every word of {p.name} is ready.
-			{:else}
-				· {words(p.made)} of {words(p.total)} words of {p.name} ready ({percent(p.made, p.total)}%){#if p.leftMs !== null}, {formatDuration(p.leftMs)} left{/if}.
-			{/if}
+			<VoiceIcon name="enhanced" size={18} />
+			<b>Enhanced voice</b>
+			<span class="figure" title={p.leftMs !== null && p.made < p.total ? `${formatDuration(p.leftMs)} left` : undefined}>
+				{p.made >= p.total ? 'Ready' : `${percent(p.made, p.total)}%`}
+			</span>
 		</p>
 		{#if p.made < p.total}
-			<VoiceBar made={p.made} total={p.total} label={`Supertonic clips for ${p.name}`} />
+			<VoiceBar made={p.made} total={p.total} label={`Enhanced clips for ${p.name}`} />
 			<p class="note">
+				{words(p.made)} of {words(p.total)} words of {p.name} ready{#if p.leftMs !== null}, {formatDuration(p.leftMs)} left{/if}.
 				{#if v.first === set}
 					Being made now, in active mode.
 				{:else if v.paused}
-					Making clips is paused; resume it in <a href="/account/voice">Voice settings</a>.
+					Paused in <a href="/account/voice">Voice settings</a>.
 				{/if}
-				Words not ready yet are read in the Standard voice.
+				The rest play in Standard.
 			</p>
 			{#if v.first !== set}
 				<button type="button" class="btn" disabled={busy} onclick={makeNow}>{busy ? 'Starting…' : 'Make this set now'}</button>
@@ -84,8 +85,18 @@
 		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
+	.line {
+		display: flex;
+		align-items: center;
+		gap: var(--space-8);
+		width: 100%;
+	}
 	.line b {
 		color: var(--ink);
+	}
+	.figure {
+		margin-left: auto;
+		font-variant-numeric: tabular-nums;
 	}
 	.note {
 		font-size: var(--fs-13);

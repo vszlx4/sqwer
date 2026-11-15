@@ -601,7 +601,7 @@
 	</p>
 	<p>
 		19.2. The listening exercises play a recording of each word, made on sqwer's own server from sqwer's word lists by
-		one of two open speech models: Kokoro, the Standard voice, or Supertonic. Fetching a recording sends only the word,
+		one of two open speech models: Kokoro for the Standard voice, the default, or Supertonic for the Enhanced voice. Fetching a recording sends only the word,
 		the voice and the speed, which are not linked to you or your account, and nothing is sent to any speech service.
 		When a recording cannot be played, the word is shown on screen instead; no voice built into your device is used.
 	</p>
@@ -624,7 +624,8 @@
 				<tr><th scope="col">Version</th><th scope="col">Effective</th><th scope="col">Changes</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>2.8</td><td>{formatDay(doc.effectiveIso)}</td><td>Listening exercises: two voices, the word shown instead of a device voice, and word memory and clarity ratings kept in your browser.</td></tr>
+				<tr><td>2.9</td><td>{formatDay(doc.effectiveIso)}</td><td>Listening exercises: the two voices are named Standard and Enhanced.</td></tr>
+				<tr><td>2.8</td><td>{formatDay('2026-11-14')}</td><td>Listening exercises: two voices, the word shown instead of a device voice, and word memory and clarity ratings kept in your browser.</td></tr>
 				<tr><td>2.7</td><td>{formatDay('2026-11-08')}</td><td>Finished tests count toward the streak, as lessons do.</td></tr>
 				<tr><td>2.6</td><td>{formatDay('2026-11-03')}</td><td>Summary wording updated.</td></tr>
 				<tr><td>2.5</td><td>{formatDay('2026-11-03')}</td><td>Listening exercises play recordings of each word made on sqwer's own server.</td></tr>
