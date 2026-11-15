@@ -87,7 +87,7 @@ test('the Voice page shows the choice and its cost, then the generator with sets
 	await expect(details).toContainText('on a recent laptop');
 	await accessible(page);
 
-	await enhanced.check();
+	await page.locator('.choice', { hasText: 'Enhanced' }).click();
 	await expect(page.getByRole('heading', { name: 'Making clips' })).toBeVisible();
 	await expect(enhanced).toBeChecked();
 	expect(settings()).toMatchObject({ voice: 'supertonic', paused: false, mode: 'low' });
