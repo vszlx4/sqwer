@@ -1,5 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import { DATA_DIR } from '#lib/server/config.ts';
+import { warmVoice } from '#lib/server/voice.ts';
 import { nudgeVoiceGenerator } from '#lib/server/voice/background.ts';
 import { checkClips } from '#lib/server/voice/health.ts';
 import { isLocalRequest } from '#lib/server/voice/local.ts';
@@ -20,11 +21,13 @@ const setParam = (url: URL) => {
 	return set && SET_ID.test(set) ? set : undefined;
 };
 
-/** Voice status: `?version` for the clip addresses (anyone), the details for the machine running the copy, only the voice in use for anyone else. */
+/** Voice status: `?version` for the clip addresses (anyone; it also loads the model), the details for the machine running the copy, only the voice in use for anyone else. */
 export const GET: RequestHandler = async (event) => {
 	const headers = { 'Cache-Control': 'no-store' };
 	if (event.url.searchParams.has('version')) {
 		const voice = activeVoice(readSettings(DATA_DIR));
+		// A player is starting: load Standard now (Supertonic falls back to it for words not made yet).
+		warmVoice();
 		return json({ voice, version: voiceVersion(voice) } satisfies VoiceVersion, { headers });
 	}
 	if (!isLocalRequest(event)) return json({ local: false, voice: activeVoice(readSettings(DATA_DIR)) } satisfies VoiceRemote, { headers });
