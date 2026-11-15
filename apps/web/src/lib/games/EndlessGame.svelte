@@ -92,6 +92,7 @@
 	const settings = $derived(roundSettings(game.id, level));
 	/** The word set in play, named as in the menu. */
 	const setName = $derived(source === 'levels' ? 'Graded words' : (WORD_LISTS.find((l) => l.id === source)?.name ?? ''));
+	const hasSettings = $derived(game.id === 'listen' || game.id === 'race' || game.id === 'falling-words' || game.id === 'echo');
 	const usesWords = $derived(game.id === 'race' || game.id === 'falling-words' || game.id === 'listen' || game.id === 'echo');
 
 	async function load(at: number) {
@@ -212,57 +213,45 @@
 
 <div class="endless">
 	{#if phase === 'setup'}
-		<div class="setup">
-			<aside class="rules" aria-labelledby="rules-title">
-				<h2 id="rules-title">How a run works</h2>
-				{#if continuous}
-				<ol>
-					<li><b>Word after word.</b> It plays until you press Stop; there are no rounds or tries.</li>
-					<li><b>Adapts as you go.</b> Adaptive climbs when you get words right on the first play and eases when you miss them, with no top.</li>
-					<li><b>Score.</b> Harder words score more. Stop whenever you like to see your statistics.</li>
-				</ol>
-				{:else}
-				<ol>
-					<li><b>Round after round.</b> Each round is one game, from Easy up to Nightmare and past it.</li>
-					<li><b>{STRIKES} tries.</b> A failed round uses one; the run ends when they are gone.</li>
-					<li><b>Score.</b> A cleared round scores more the harder it is.</li>
-				</ol>
-				{/if}
-				<p class="record">
-					{#if best}Best run <b>{best}&nbsp;points</b>{:else}No run yet{/if}
-				</p>
-			</aside>
-
-			<section class="difficulty" aria-labelledby="difficulty-title">
-				<h2 id="difficulty-title">Difficulty</h2>
+		<!-- Three panels for every game: how it works, the level, and the game's own settings. -->
+		<div class="setup" class:bare={!hasSettings}>
+			<section class="panel pick" aria-labelledby="level-title">
+				<h2 id="level-title">Level</h2>
 				<fieldset>
-					<legend class="sr-only">Choose the difficulty</legend>
-					{#each DIFFICULTIES.filter((d) => d.level === null) as d (d.id)}
-						<label class="adaptive" class:on={difficulty === d.id}>
-							<input type="radio" name="difficulty" value={d.id} bind:group={difficulty} />
-							<span class="mark" aria-hidden="true"></span>
-							<span class="adaptive-text">
-								<span class="adaptive-title">{d.label} <span class="tag">Recommended</span></span>
-								<span class="adaptive-note">{d.note} Next start: <LevelBadge difficulty={adaptiveLevel} size={14} />.</span>
-							</span>
-						</label>
-					{/each}
-					<p class="or">Or a fixed level</p>
+					<legend class="sr-only">Choose the level</legend>
+					<label class="adaptive" class:on={difficulty === 'adaptive'}>
+						<input type="radio" name="difficulty" value="adaptive" bind:group={difficulty} />
+						<StatIcon name="adaptive" size={22} />
+						<span class="adaptive-text">
+							<span class="adaptive-title">Adaptive <span class="tag">Recommended</span></span>
+							<span class="adaptive-note">Next start <LevelBadge difficulty={adaptiveLevel} size={14} /></span>
+						</span>
+					</label>
 					<div class="levels">
 						{#each DIFFICULTIES.filter((d) => d.level !== null) as d (d.id)}
-							<label class="level" class:on={difficulty === d.id}>
+							<label class="level" class:on={difficulty === d.id} style:--level={`var(--level-${d.id})`}>
 								<input type="radio" name="difficulty" value={d.id} bind:group={difficulty} />
-								<LevelIcon id={d.id} size={22} />
+								<LevelIcon id={d.id} size={18} />
 								<span class="level-name">{d.label}</span>
 							</label>
 						{/each}
 					</div>
 				</fieldset>
+				<p class="chosen" aria-live="polite">{choice.note}</p>
+				{#if loadError}<p class="source-note" role="alert">The words could not be loaded. Check your connection and start again.</p>{/if}
+				<button type="button" class="btn btn-primary btn-lg start" onclick={begin}>
+					Start at {tierById(difficulty)?.name ?? 'Adaptive'} <Icon name="arrow" size={18} />
+				</button>
+			</section>
+
+			{#if hasSettings}
+			<section class="panel tune" aria-labelledby="tune-title">
+				<h2 id="tune-title">Settings</h2>
 				{#if usesWords}
 					<label class="source">
-						<span class="source-label">Words</span>
+						<span class="source-label"><StatIcon name="set" size={14} /> Words</span>
 						<select bind:value={source}>
-							<option value="levels">By level (recommended)</option>
+							<option value="levels">Graded words (recommended)</option>
 							{#each ['English', 'Themed'] as group (group)}
 								<optgroup label={group}>
 									{#each WORD_LISTS.filter((l) => l.group === group) as l (l.id)}
@@ -277,12 +266,29 @@
 					{/if}
 				{/if}
 				{#if game.id === 'listen'}<SoundSettings compact /><ListenVoice set={source === 'levels' ? 'course' : source} />{/if}
-				{#if loadError}<p class="source-note" role="alert">The words could not be loaded. Check your connection and start again.</p>{/if}
-				<p class="chosen" aria-live="polite">{choice.level === null ? (continuous ? 'Adapts to you as you play.' : 'Adapts to you after every round.') : choice.note}</p>
-				<button type="button" class="btn btn-primary btn-lg start" onclick={begin}>
-					Start at {tierById(difficulty)?.name ?? 'Adaptive'} <Icon name="arrow" size={18} />
-				</button>
 			</section>
+			{/if}
+
+			<aside class="panel guide" aria-labelledby="rules-title">
+				<h2 id="rules-title">How it works</h2>
+				{#if continuous}
+					<ol>
+						<li><b>Word after word</b> until you press Stop. No rounds, no tries.</li>
+						<li><b>Adaptive climbs</b> when you get words right on the first play, eases when you miss, and has no top.</li>
+						<li><b>Harder words score more.</b> Stop any time for your statistics.</li>
+					</ol>
+				{:else}
+					<ol>
+						<li><b>Round after round</b>, from Easy to Nightmare and past it.</li>
+						<li><b>{STRIKES} tries.</b> A missed round uses one; the run ends when they are gone.</li>
+						<li><b>Harder rounds score more.</b></li>
+					</ol>
+				{/if}
+				<p class="record">
+					<StatIcon name="score" size={14} />
+					{#if best}Best run <b>{best}&nbsp;points</b>{:else}No run yet{/if}
+				</p>
+			</aside>
 		</div>
 	{:else if continuous}
 		{#if phase === 'playing'}
@@ -434,54 +440,67 @@
 	}
 	.setup {
 		display: grid;
-		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
-		gap: clamp(var(--space-20), 4vw, var(--space-48));
-		align-items: start;
+		grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 0.85fr);
+		gap: var(--space-16);
+		align-items: stretch;
 	}
-	h2 {
-		font-size: var(--fs-24);
-	}
-	.rules {
-		padding-top: var(--space-4);
-	}
-	.rules ol {
+	.panel {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-16);
-		margin: var(--space-16) 0 0;
+		gap: var(--space-12);
+		min-width: 0;
+		padding: var(--space-20);
+		border-radius: var(--radius);
+		border: 1px solid var(--line);
+		background: var(--surface);
+	}
+	h2 {
+		font-size: var(--fs-18);
+	}
+	.guide {
+		background: transparent;
+	}
+	.guide ol {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-12);
+		margin: 0;
 		padding: 0;
 		list-style: none;
 		counter-reset: rule;
 	}
-	.rules li {
+	.guide li {
 		position: relative;
-		padding-left: var(--space-40);
-		font-size: var(--fs-15);
+		padding-left: var(--space-32);
+		font-size: var(--fs-14);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
 		counter-increment: rule;
 	}
-	.rules li::before {
+	.guide li::before {
 		content: counter(rule);
 		position: absolute;
 		left: 0;
-		top: 0;
+		top: var(--space-2);
 		display: grid;
 		place-items: center;
-		width: 24px;
-		height: 24px;
+		width: 20px;
+		height: 20px;
 		border-radius: var(--radius);
 		background: var(--surface-2);
 		color: var(--ink);
-		font-size: var(--fs-13);
+		font-size: var(--fs-12);
 		font-weight: var(--fw-bold);
 	}
-	.rules b {
+	.guide b {
 		color: var(--ink);
 	}
 	.record {
-		margin-top: var(--space-24);
-		padding-top: var(--space-16);
+		display: flex;
+		align-items: center;
+		gap: var(--space-6);
+		margin-top: auto;
+		padding-top: var(--space-12);
 		border-top: 1px solid var(--line);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
@@ -490,19 +509,10 @@
 		color: var(--ink);
 		font-variant-numeric: tabular-nums;
 	}
-	.difficulty {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-16);
-		padding: clamp(var(--space-20), 3vw, var(--space-32));
-		border-radius: var(--radius);
-		border: 1px solid var(--line);
-		background: var(--surface);
-	}
 	fieldset {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-10);
+		gap: var(--space-8);
 		margin: 0;
 		padding: 0;
 		border: 0;
@@ -516,6 +526,8 @@
 	.adaptive,
 	.level {
 		position: relative;
+		display: flex;
+		align-items: center;
 		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -534,26 +546,13 @@
 		outline-offset: 2px;
 	}
 	.adaptive {
-		display: flex;
-		align-items: flex-start;
 		gap: var(--space-12);
-		padding: var(--space-16) var(--space-16);
-	}
-	.mark {
-		flex-shrink: 0;
-		width: 18px;
-		height: 18px;
-		margin-top: var(--space-2);
-		border-radius: 50%;
-		border: 1.5px solid var(--ink-3);
-	}
-	.adaptive.on .mark {
-		border: 5px solid var(--ink);
+		padding: var(--space-10) var(--space-12);
 	}
 	.adaptive-text {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-4);
+		gap: var(--space-2);
 	}
 	.adaptive-title {
 		display: flex;
@@ -562,63 +561,60 @@
 		font-weight: var(--fw-bold);
 	}
 	.tag {
-		padding: 1px var(--space-8);
+		padding: 1px var(--space-6);
 		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
-		font-size: var(--fs-12);
+		font-size: var(--fs-11);
 		font-weight: var(--fw-bold);
 	}
 	.adaptive-note {
-		font-size: var(--fs-14);
-		line-height: var(--lh-body);
-		color: var(--ink-2);
-	}
-	.or {
-		margin-top: var(--space-6);
+		display: flex;
+		align-items: center;
+		gap: var(--space-6);
 		font-size: var(--fs-13);
-		font-weight: var(--fw-semibold);
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	.levels {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); /* off-scale: fits "Nightmare" with its icon */
 		gap: var(--space-6);
 	}
 	.level {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: var(--space-2);
-		padding: var(--space-10) var(--space-6);
-		text-align: center;
+		gap: var(--space-8);
+		padding: var(--space-8) var(--space-10);
 	}
 	.level-name {
 		font-size: var(--fs-14);
-		font-weight: var(--fw-bold);
+		font-weight: var(--fw-semibold);
 	}
 	.adaptive.on,
 	.level.on {
 		border-color: var(--ink);
 		background: var(--surface-2);
 	}
+	.level.on {
+		border-color: var(--level);
+		background: color-mix(in srgb, var(--level) 12%, var(--bg));
+	}
 	.source {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--space-10);
+		display: grid;
+		gap: var(--space-6);
 		font-size: var(--fs-14);
 	}
 	.source-label {
+		display: flex;
+		align-items: center;
+		gap: var(--space-6);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-semibold);
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	.source select {
 		padding: var(--space-8) var(--space-10);
 		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
-		background: var(--surface);
+		background: var(--bg);
 		color: var(--ink);
 		font-size: var(--fs-14);
 	}
@@ -632,29 +628,29 @@
 		text-underline-offset: 2px;
 	}
 	.chosen {
-		min-height: 1.5em;
-		font-size: var(--fs-14);
+		min-height: 3em;
+		font-size: var(--fs-13);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.start {
-		align-self: flex-start;
+		margin-top: auto;
+		justify-content: center;
+	}
+	.setup.bare {
+		grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+	}
+	@media (max-width: 1100px) {
+		.setup {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.setup:not(.bare) .guide {
+			grid-column: 1 / -1;
+		}
 	}
 	@media (max-width: 760px) {
 		.setup {
 			grid-template-columns: 1fr;
-		}
-		/* On narrow screens the choice and the start button come first. */
-		.difficulty {
-			order: -1;
-		}
-	}
-	@media (max-width: 560px) {
-		.levels {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-		.start {
-			align-self: stretch;
-			justify-content: center;
 		}
 	}
 	.arena {
