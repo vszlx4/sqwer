@@ -18,20 +18,21 @@
 	import {
 		DIFFICULTIES,
 		LETTERS,
-		MAX_LEVEL,
 		STRIKES,
-		levelName,
 		loadRecords,
-		nextLevel,
 		roundSettings,
 		saveRecord,
+		startDifficulty,
 		wordsForLevel,
 		type DifficultyId,
 		type GameInfo,
 		type WordSource
 	} from './endless.ts';
+	import { nextDifficulty, ratingOf, roundPerformance, step, tierById } from './levels.ts';
+	import LevelBadge from './LevelBadge.svelte';
+	import LevelIcon from './LevelIcon.svelte';
 
-	/** Endless mode: pick difficulty, play rounds. Round score = level; three failures end the run. */
+	/** Endless mode: pick difficulty, play rounds. A round scores its difficulty step; three failures end the run. */
 	/** `running` is true from the start of a run until the menu shows again; the page drops its title meanwhile. */
 	let { game, running = $bindable(false) }: { game: GameInfo; running?: boolean } = $props();
 
@@ -41,9 +42,11 @@
 	let difficulty = $state<DifficultyId>('adaptive');
 	let source = $state<WordSource>('levels');
 	let loadError = $state(false);
-	let adaptiveLevel = $state(3);
+	/** Where adaptive difficulty starts the next run (levels.ts); saved as its rating. */
+	let adaptiveLevel = $state(startDifficulty(undefined));
 	let best = $state(0);
-	let level = $state(3);
+	/** The difficulty in play: a fixed level's, or the adaptive one as it moves. */
+	let level = $state(startDifficulty(undefined));
 	let round = $state(0);
 	let words = $state<string[]>([]);
 	let cleared = $state(0);
@@ -64,7 +67,7 @@
 		if (saved) {
 			difficulty = saved.difficulty;
 			if (saved.source && isWordListId(saved.source)) source = saved.source;
-			adaptiveLevel = saved.level;
+			adaptiveLevel = startDifficulty(saved);
 			best = saved.best;
 		}
 	});
@@ -103,17 +106,19 @@
 		phase = 'playing';
 	}
 
-	/** Word pools per level, loaded once a run. */
+	/** Word pools per difficulty step, loaded once a run. */
 	const pools = new Map<number, Promise<string[]>>();
 	function poolFor(at: number): Promise<string[]> {
-		let p = pools.get(at);
+		const key = step(at);
+		let p = pools.get(key);
 		if (!p) {
-			p = wordsForLevel(at, source);
-			p.catch(() => pools.delete(at));
-			pools.set(at, p);
+			p = wordsForLevel(key, source);
+			p.catch(() => pools.delete(key));
+			pools.set(key, p);
 		}
 		return p;
 	}
+	const save = () => saveRecord(game.id, { best, rating: ratingOf(adaptiveLevel), difficulty, source });
 
 	function begin() {
 		if (continuous) {
@@ -139,10 +144,10 @@
 	}
 
 	function done(r: StepResult) {
-		const next = choice.level === null ? nextLevel(level, r.passed) : level;
+		const next = choice.level === null ? nextDifficulty(level, roundPerformance(r.passed, r.accuracy)) : level;
 		if (r.passed) {
 			cleared++;
-			score += level;
+			score += step(level);
 			topLevel = Math.max(topLevel, level);
 		} else strikes++;
 		last = { passed: r.passed, summary: r.summary, level, next };
@@ -152,7 +157,7 @@
 			best = score;
 			newBest = true;
 		}
-		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
+		save();
 		phase = ended ? 'over' : 'between';
 		requestAnimationFrame(() => nextButton?.focus());
 	}
@@ -161,7 +166,7 @@
 		stats = summarize(all);
 		level = at;
 		if (choice.level === null) adaptiveLevel = at;
-		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
+		save();
 	}
 
 	/** Ends a continuous run and shows its statistics. */
@@ -172,7 +177,7 @@
 			best = score;
 			newBest = true;
 		}
-		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
+		save();
 		phase = 'over';
 		requestAnimationFrame(() => nextButton?.focus());
 	}
@@ -185,7 +190,7 @@
 			best = score;
 			newBest = true;
 		}
-		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
+		save();
 		last = { passed: false, summary: `You ended the run after ${round} ${round === 1 ? 'round' : 'rounds'}.`, level, next: level };
 		phase = 'over';
 		requestAnimationFrame(() => nextButton?.focus());
@@ -208,14 +213,14 @@
 				{#if continuous}
 				<ol>
 					<li><b>Word after word.</b> It plays until you press Stop; there are no rounds or tries.</li>
-					<li><b>Adapts as you go.</b> The level moves up when you get words right and eases when you miss them.</li>
-					<li><b>Score.</b> Each right word scores its level. Stop whenever you like to see your statistics.</li>
+					<li><b>Adapts as you go.</b> Adaptive climbs when you get words right on the first play and eases when you miss them, with no top.</li>
+					<li><b>Score.</b> Harder words score more. Stop whenever you like to see your statistics.</li>
 				</ol>
 				{:else}
 				<ol>
-					<li><b>Round after round.</b> Each round is one game at a level from 1 to {MAX_LEVEL}.</li>
+					<li><b>Round after round.</b> Each round is one game, from Easy up to Nightmare and past it.</li>
 					<li><b>{STRIKES} tries.</b> A failed round uses one; the run ends when they are gone.</li>
-					<li><b>Score.</b> A cleared round scores its level, so harder rounds count for more.</li>
+					<li><b>Score.</b> A cleared round scores more the harder it is.</li>
 				</ol>
 				{/if}
 				<p class="record">
@@ -233,7 +238,7 @@
 							<span class="mark" aria-hidden="true"></span>
 							<span class="adaptive-text">
 								<span class="adaptive-title">{d.label} <span class="tag">Recommended</span></span>
-								<span class="adaptive-note">{d.note} Next start: level {adaptiveLevel}.</span>
+								<span class="adaptive-note">{d.note} Next start: <LevelBadge difficulty={adaptiveLevel} size={14} />.</span>
 							</span>
 						</label>
 					{/each}
@@ -242,8 +247,8 @@
 						{#each DIFFICULTIES.filter((d) => d.level !== null) as d (d.id)}
 							<label class="level" class:on={difficulty === d.id}>
 								<input type="radio" name="difficulty" value={d.id} bind:group={difficulty} />
+								<LevelIcon id={d.id} size={22} />
 								<span class="level-name">{d.label}</span>
-								<span class="level-num">Level {d.level}</span>
 							</label>
 						{/each}
 					</div>
@@ -270,14 +275,14 @@
 				{#if loadError}<p class="source-note" role="alert">The words could not be loaded. Check your connection and start again.</p>{/if}
 				<p class="chosen" aria-live="polite">{choice.level === null ? (continuous ? 'Adapts to you as you play.' : 'Adapts to you after every round.') : choice.note}</p>
 				<button type="button" class="btn btn-primary btn-lg start" onclick={begin}>
-					Start at level {startLevel} <Icon name="arrow" size={18} />
+					Start at {tierById(difficulty)?.name ?? 'Adaptive'} <Icon name="arrow" size={18} />
 				</button>
 			</section>
 		</div>
 	{:else if continuous}
 		{#if phase === 'playing'}
 			<div class="hud">
-				<span><small>Level</small><b>{level}</b> {levelName(level)}</span>
+				<span><small>Level</small><LevelBadge difficulty={level} /></span>
 				<span><small>Words</small><b>{stats.words}</b></span>
 				<span><small>Right</small><b>{stats.accuracy}%</b></span>
 				<span><small>Streak</small><b>{stats.streak}</b></span>
@@ -299,7 +304,7 @@
 					<div><dt>Score</dt><dd>{stats.score}</dd></div>
 					<div><dt>Right</dt><dd>{stats.accuracy}%</dd></div>
 					<div><dt>Best streak</dt><dd>{stats.bestStreak}</dd></div>
-					<div><dt>Highest level</dt><dd>{stats.topLevel || '–'}</dd></div>
+					<div><dt>Highest level</dt><dd>{#if stats.words}<LevelBadge difficulty={stats.topLevel} size={22} />{:else}–{/if}</dd></div>
 					<div><dt>Exact</dt><dd>{stats.exact}</dd></div>
 					<div><dt>Accepted</dt><dd>{stats.accepted}</dd></div>
 					<div><dt>Close</dt><dd>{stats.close}</dd></div>
@@ -326,7 +331,7 @@
 		{/if}
 	{:else}
 		<div class="hud" aria-live="polite">
-			<span><small>Level</small><b>{level}</b> {levelName(level)}</span>
+			<span><small>Level</small><LevelBadge difficulty={level} /></span>
 			<span><small>Round</small><b>{round}</b></span>
 			<span><small>Score</small><b>{score}</b></span>
 			<span class="strikes" aria-label={`${STRIKES - strikes} of ${STRIKES} tries left`}>
@@ -370,7 +375,7 @@
 					<dl class="totals">
 						<div><dt>Score</dt><dd>{score}</dd></div>
 						<div><dt>Rounds cleared</dt><dd>{cleared}</dd></div>
-						<div><dt>Highest level</dt><dd>{topLevel || '–'}</dd></div>
+						<div><dt>Highest level</dt><dd>{#if topLevel}<LevelBadge difficulty={topLevel} size={22} />{:else}–{/if}</dd></div>
 					</dl>
 					<p class="best">{newBest ? 'A new best run.' : best ? `Your best run: ${best} points.` : ''}</p>
 					<div class="row">
@@ -381,11 +386,7 @@
 					</div>
 				{:else}
 					<p class="next">
-						{#if choice.level === null}
-							{last.next > last.level ? `Next round: level ${last.next}, a step harder.` : last.next < last.level ? `Next round: level ${last.next}, a step easier.` : `Next round: level ${last.next}.`}
-						{:else}
-							Next round: level {last.next}.
-						{/if}
+						Next round: <LevelBadge difficulty={last.next} />{choice.level === null && last.next > last.level ? ', a little harder' : choice.level === null && last.next < last.level ? ', a little easier' : ''}.
 						{STRIKES - strikes} {STRIKES - strikes === 1 ? 'try' : 'tries'} left.
 					</p>
 					<div class="row">
@@ -572,11 +573,6 @@
 	.level-name {
 		font-size: var(--fs-14);
 		font-weight: var(--fw-bold);
-	}
-	.level-num {
-		font-size: var(--fs-12);
-		color: var(--ink-3);
-		font-variant-numeric: tabular-nums;
 	}
 	.adaptive.on,
 	.level.on {

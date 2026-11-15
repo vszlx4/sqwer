@@ -73,8 +73,8 @@ describe('round', () => {
 		expect(swap(r, 0, 'five').words[0]).toBe('one');
 	});
 
-	it('limits replays by level, and counts slow plays from level 5', () => {
-		expect([null, 1, 4, 5, 8, 9, 12].map(replayLimit)).toEqual([Infinity, Infinity, Infinity, 3, 3, 1, 1]);
+	it('limits replays by level, and counts slow plays from Hard', () => {
+		expect([null, 1, 4, 4.9, 5, 8, 9, 12, 14].map(replayLimit)).toEqual([Infinity, Infinity, Infinity, Infinity, 3, 3, 1, 1, 0]);
 		expect(canReplay(9, 0, 'normal')).toBe(true);
 		expect(canReplay(9, 1, 'normal')).toBe(false);
 		expect(canReplay(3, 99, 'slow')).toBe(true);
