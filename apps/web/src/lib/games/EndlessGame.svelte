@@ -465,13 +465,15 @@
 				</SkeletonRegion>
 			</div>
 		{:else if phase === 'playing'}
+			<!-- Every game fills the rest of the screen; the falling games keep their timing at any height. -->
+			<div class="arena">
 			{#key round}
 				{#if game.id === 'race'}
 					<Race pool={LETTERS} focus="" {words} count={settings.count!} pacerWpm={settings.pacerWpm!} oncomplete={done} />
 				{:else if game.id === 'falling-words'}
-					<FallingGame items="words" pool={LETTERS} focus="" {words} target={settings.target!} pace={settings.pace} oncomplete={done} />
+					<FallingGame items="words" pool={LETTERS} focus="" {words} target={settings.target!} pace={settings.pace} fill oncomplete={done} />
 				{:else if game.id === 'falling-letters'}
-					<FallingGame items="letters" pool={LETTERS} focus="" target={settings.target!} pace={settings.pace} oncomplete={done} />
+					<FallingGame items="letters" pool={LETTERS} focus="" target={settings.target!} pace={settings.pace} fill oncomplete={done} />
 				{:else if game.id === 'echo'}
 					<Echo pool={LETTERS} start={settings.start!} target={settings.target!} showMs={settings.showMs} {words} oncomplete={done} />
 				{:else if game.id === 'listen'}
@@ -480,6 +482,7 @@
 					<KeyHunt pool={LETTERS} focus="" target={settings.target!} pace={settings.pace} oncomplete={done} />
 				{/if}
 			{/key}
+			</div>
 		{:else if last && phase === 'over'}
 			<RunResult
 				summary={last.summary}

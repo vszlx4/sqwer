@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fallScale, FLOOR, HEIGHT, TOP } from './falling.ts';
 	import { claimTyping, releaseFocus } from '#lib/ui/typing-focus.ts';
 	import { onDestroy, untrack } from 'svelte';
 	import { activityWords, seeded, shuffle } from '../generate.ts';
@@ -12,10 +13,12 @@
 		target: number;
 		/** Adaptive pace: below 1 falls more slowly, above 1 more quickly. */
 		pace?: number;
+		/** Endless runs: the field takes the height it is given, falling as fast in time as the lesson field. */
+		fill?: boolean;
 		oncomplete: (r: StepResult) => void;
 	}
 
-	let { items, pool, focus, words, target, pace: tempo = 1, oncomplete }: Props = $props();
+	let { items, pool, focus, words, target, pace: tempo = 1, fill = false, oncomplete }: Props = $props();
 
 	interface Drop {
 		id: number;
@@ -30,8 +33,10 @@
 		y: number;
 	}
 
-	const HEIGHT = 420;
-	const GROUND = HEIGHT - 46;
+	let fieldHeight = $state(HEIGHT);
+	const height = $derived(fill ? Math.max(HEIGHT, fieldHeight) : HEIGHT);
+	const GROUND = $derived(height - FLOOR);
+	const scale = $derived(fallScale(height));
 	const LIVES = 5;
 	const rand = seeded(Date.now() % 100000);
 	// Each attempt is a new component, so the content is chosen once from the initial settings.
@@ -78,7 +83,7 @@
 		const lastDrop = drops[drops.length - 1];
 		if (lastDrop && Math.abs(lastDrop.x - x) < 0.15) x = x > 0.5 ? x - 0.3 : x + 0.3;
 		const base = items === 'letters' ? 62 : 34;
-		drops = [...drops, { id: nextId++, text, x, y: -40, speed: base * tempo * (1 + pace * 0.9) * (0.9 + rand() * 0.2) }];
+		drops = [...drops, { id: nextId++, text, x, y: -TOP, speed: base * tempo * (1 + pace * 0.9) * (0.9 + rand() * 0.2) }];
 	}
 
 	function start() {
@@ -111,7 +116,7 @@
 		let lost = 0;
 		const moved: Drop[] = [];
 		for (const d of drops) {
-			const y = d.y + d.speed * dt;
+			const y = d.y + d.speed * scale * dt;
 			if (y >= GROUND) lost++;
 			else moved.push({ ...d, y });
 		}
@@ -210,7 +215,7 @@
 <svelte:window {onkeydown} />
 <svelte:document {onvisibilitychange} />
 
-<div class="game">
+<div class="game" class:fill>
 	<div class="hud">
 		<span class="lives" aria-label={`${lives} of ${LIVES} lives left`}>
 			{#each Array.from({ length: LIVES }) as _, i (i)}<span class="life" class:lost={i >= lives}></span>{/each}
@@ -219,7 +224,7 @@
 		<span class="score"><b>{cleared}</b> / {target} cleared</span>
 	</div>
 
-	<div class="field" class:shake style:height={`${HEIGHT}px`} aria-hidden={phase === 'playing'}>
+	<div class="field" class:shake style:height={fill ? null : `${HEIGHT}px`} bind:clientHeight={fieldHeight} aria-hidden={phase === 'playing'}>
 		{#each drops as d (d.id)}
 			<span class="drop" class:word={items === 'words'} style:left={`${d.x * 100}%`} style:transform={`translate(-50%, ${d.y}px)`}>
 				<span class="text">{#if items === 'words' && buffer && d.text.startsWith(buffer)}<b>{buffer}</b><span class="rest">{d.text.slice(buffer.length)}</span>{:else}{d.text}{/if}</span>
@@ -258,6 +263,10 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-12);
+	}
+	.fill .field {
+		flex: 1;
+		min-height: 420px; /* off-scale: the lesson field's height, the least a run gets */
 	}
 	.hud {
 		display: flex;
