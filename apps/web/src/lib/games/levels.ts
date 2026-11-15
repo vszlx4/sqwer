@@ -81,3 +81,11 @@ const OLD_IDS: Record<string, TierId> = { gentle: 'easy', steady: 'medium', bris
 
 /** A saved choice from before the rename: old ids map to the level at the same difficulty. */
 export const migrateChoice = (id: string): TierId | 'adaptive' => (id === 'adaptive' ? 'adaptive' : (OLD_IDS[id] ?? 'easy'));
+
+/** How far a difficulty is through its level, 0 to 1; Nightmare has no end, so it shows full. */
+export function tierProgress(difficulty: number): number {
+	const t = tierOf(difficulty);
+	if (t.id === 'nightmare') return 1;
+	const from = t.id === 'easy' ? START : t.difficulty - 1;
+	return Math.min(1, Math.max(0, (difficulty - from) / (t.difficulty + 1 - from)));
+}

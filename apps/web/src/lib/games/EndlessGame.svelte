@@ -31,6 +31,8 @@
 	import { nextDifficulty, ratingOf, roundPerformance, step, tierById } from './levels.ts';
 	import LevelBadge from './LevelBadge.svelte';
 	import LevelIcon from './LevelIcon.svelte';
+	import RunBar from './RunBar.svelte';
+	import StatIcon from './StatIcon.svelte';
 
 	/** Endless mode: pick difficulty, play rounds. A round scores its difficulty step; three failures end the run. */
 	/** `running` is true from the start of a run until the menu shows again; the page drops its title meanwhile. */
@@ -87,6 +89,8 @@
 	const choice = $derived(DIFFICULTIES.find((d) => d.id === difficulty)!);
 	const startLevel = $derived(choice.level ?? adaptiveLevel);
 	const settings = $derived(roundSettings(game.id, level));
+	/** The word set in play, named as in the menu. */
+	const setName = $derived(source === 'levels' ? 'Graded words' : (WORD_LISTS.find((l) => l.id === source)?.name ?? ''));
 	const usesWords = $derived(game.id === 'race' || game.id === 'falling-words' || game.id === 'listen' || game.id === 'echo');
 
 	async function load(at: number) {
@@ -282,16 +286,26 @@
 	{:else if continuous}
 		{#if phase === 'playing'}
 			<div class="hud">
-				<span><small>Level</small><LevelBadge difficulty={level} /></span>
-				<span><small>Words</small><b>{stats.words}</b></span>
-				<span><small>Right</small><b>{stats.accuracy}%</b></span>
-				<span><small>Streak</small><b>{stats.streak}</b></span>
-				<span><small>Score</small><b>{stats.score}</b></span>
-				<button type="button" class="btn stop" onclick={stop}><Icon name="flag" size={16} /> Stop</button>
+				<RunBar
+					difficulty={level}
+					adaptive={choice.level === null}
+					set={setName}
+					stats={[
+						{ icon: 'words', label: 'Words', value: stats.words },
+						{ icon: 'right', label: 'Right', value: `${stats.accuracy}%` },
+						{ icon: 'streak', label: 'Streak', value: stats.streak },
+						{ icon: 'score', label: 'Score', value: stats.score }
+					]}
+				>
+					{#snippet actions()}<button type="button" class="btn stop" onclick={stop}><Icon name="flag" size={16} /> Stop</button>{/snippet}
+				</RunBar>
 			</div>
-			{#key round}
-				<ListenType pool={LETTERS} focus="" set={source === 'levels' ? 'course' : source} feed={{ level, adaptive: choice.level === null, words: poolFor, onanswer: answered }} />
-			{/key}
+			<!-- Listen and type fills the rest of the screen, its stage centred in it. -->
+			<div class="arena">
+				{#key round}
+					<ListenType pool={LETTERS} focus="" set={source === 'levels' ? 'course' : source} feed={{ level, adaptive: choice.level === null, words: poolFor, onanswer: answered }} />
+				{/key}
+			</div>
 		{:else if practicing}
 			<!-- The run's missed words, once more and unscored; then back to the run's results. -->
 			<ListenType pool={LETTERS} focus="" words={practicing} count={practicing.length} target={0} practice set={source === 'levels' ? 'course' : source} oncomplete={() => (practicing = null)} />
@@ -330,15 +344,23 @@
 			</section>
 		{/if}
 	{:else}
-		<div class="hud" aria-live="polite">
-			<span><small>Level</small><LevelBadge difficulty={level} /></span>
-			<span><small>Round</small><b>{round}</b></span>
-			<span><small>Score</small><b>{score}</b></span>
-			<span class="strikes" aria-label={`${STRIKES - strikes} of ${STRIKES} tries left`}>
-				<small>Tries</small>
-				{#each Array.from({ length: STRIKES }) as _, i (i)}<span class="strike" class:used={i < strikes}></span>{/each}
-			</span>
-			<span class="mode">{choice.level === null ? 'Adaptive difficulty' : 'Fixed difficulty'}</span>
+		<div class="hud">
+			<RunBar
+				difficulty={level}
+				adaptive={choice.level === null}
+				set={usesWords ? setName : undefined}
+				stats={[
+					{ icon: 'round', label: 'Round', value: round },
+					{ icon: 'score', label: 'Score', value: score }
+				]}
+			>
+				{#snippet extra()}
+					<li class="tries" data-tip="Tries left">
+						{#each Array.from({ length: STRIKES }) as _, i (i)}<span class="try" class:used={i >= STRIKES - strikes}><StatIcon name="tries" size={16} /></span>{/each}
+						<span class="sr-only">{STRIKES - strikes} of {STRIKES} tries left</span>
+					</li>
+				{/snippet}
+			</RunBar>
 		</div>
 
 		{#if phase === 'loading'}
@@ -634,47 +656,33 @@
 			justify-content: center;
 		}
 	}
-	.hud {
+	.arena {
+		flex: 1;
 		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--space-8) var(--space-24);
-		padding: var(--space-10) var(--space-16);
-		border-radius: var(--radius);
-		border: 1px solid var(--line);
-		background: var(--surface);
-		font-size: var(--fs-14);
-		color: var(--ink-2);
-		font-variant-numeric: tabular-nums;
+		flex-direction: column;
 	}
-	.hud > span {
+	.arena > :global(.game) {
+		flex: 1;
+	}
+	.arena :global(.game > .stage) {
+		flex: 1;
+	}
+	.arena :global(.game > .stage > .layer) {
+		align-self: center;
+	}
+	.tries {
+		gap: var(--space-2) !important;
+	}
+	.try {
 		display: inline-flex;
-		align-items: baseline;
-		gap: var(--space-6);
-	}
-	.hud small {
-		font-size: var(--fs-12);
-		color: var(--ink-3);
-	}
-	.hud b {
-		font-size: var(--fs-18);
-		color: var(--ink);
-	}
-	.strikes {
-		align-items: center !important;
-	}
-	.strike {
-		width: 12px;
-		height: 12px;
-		border-radius: var(--radius);
-		background: var(--ink);
+		color: var(--life);
 		transition: opacity var(--dur-base) var(--ease-out);
 	}
-	.strike.used {
-		opacity: 0.15;
+	.try.used {
+		color: var(--ink-3);
+		opacity: 0.35;
 	}
 	.stop {
-		margin-left: auto;
 		min-height: 36px;
 		padding: 0 var(--space-12);
 		font-size: var(--fs-14);
@@ -714,11 +722,6 @@
 		.totals.stats {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
-	}
-	.mode {
-		margin-left: auto;
-		font-weight: var(--fw-semibold);
-		color: var(--ink);
 	}
 	.loading {
 		padding: var(--space-24) 0;

@@ -78,7 +78,7 @@ test('Listen and type: endless words, the explanation in place, Stop with statis
 	await expect(page.getByRole('list', { name: 'Word 2' })).toBeVisible();
 	await expect(input).toBeFocused();
 	await expect(page.locator('.marks .status-mark').first()).toHaveAttribute('data-status', 'failed');
-	await expect(page.locator('.hud')).toContainText('Words1');
+	await expect(page.locator('.hud')).toContainText(/1\s*Words/);
 
 	await page.getByRole('button', { name: 'Stop' }).click();
 	await expect(page.getByRole('heading', { name: 'Run complete' })).toBeVisible();
@@ -253,7 +253,7 @@ test('Listen and type fast mode moves on the moment a word is typed right, and E
 	const word = (await page.locator('.player .shown').textContent())!.trim();
 	await page.keyboard.type(word);
 	// No Enter: the next word is up and the answer box is empty again.
-	await expect(page.locator('.hud')).toContainText('Words1');
+	await expect(page.locator('.hud')).toContainText(/1\s*Words/);
 	await expect(input).toHaveValue('');
 	await expect(page.locator('#listen-grade')).toHaveCount(0);
 
@@ -268,7 +268,7 @@ test('Listen and type fast mode moves on the moment a word is typed right, and E
 	// Esc skips a word it cannot get, and shows what it was.
 	await page.keyboard.press('Escape');
 	await expect(page.locator('#listen-grade')).toContainText('Not quite');
-	await expect(page.locator('.hud')).toContainText('Words2');
+	await expect(page.locator('.hud')).toContainText(/2\s*Words/);
 });
 
 test('the Listen and type answer box takes letters only', async ({ page }) => {
