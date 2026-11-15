@@ -18,6 +18,10 @@ export const MEMORY = 64;
 
 /** Fade length for starts and stops, in seconds: long enough not to click, short enough not to be heard. */
 export const FADE = 0.012;
+/** Clips start this far ahead of the audio clock, so the first samples are never cut and the start time is exact. */
+export const LEAD = 0.03;
+/** Longest wait for a suspended context to resume before a clip is scheduled anyway. */
+const RESUME_MS = 400;
 
 /** What the player needs from the page: the audio graph and the volume setting. */
 export interface PlayerDeps {
@@ -161,20 +165,26 @@ export class Player {
 		if (turn !== this.#turn) return 'stopped';
 		this.#halt();
 		const { ctx } = g;
-		if (ctx.state === 'suspended') void ctx.resume().catch(() => {});
+		// A suspended clock stands still: start times taken from it would be stale once it runs, so wait for it.
+		if (ctx.state === 'suspended') {
+			await Promise.race([ctx.resume().catch(() => {}), new Promise((r) => setTimeout(r, RESUME_MS))]);
+			if (turn !== this.#turn) return 'stopped';
+		}
 		g.voice.gain.value = this.#deps.volume();
 		const source = ctx.createBufferSource();
 		const gain = ctx.createGain();
 		source.buffer = buffer;
 		source.connect(gain).connect(g.voice);
-		const now = ctx.currentTime;
-		gain.gain.setValueAtTime(0, now);
-		gain.gain.linearRampToValueAtTime(1, now + FADE);
-		this.#playing = { source, gain, start: now, length: buffer.duration };
+		const at = ctx.currentTime + LEAD;
+		gain.gain.setValueAtTime(0, at);
+		gain.gain.linearRampToValueAtTime(1, at + FADE);
+		// Screens follow what is heard: the output's own delay (large on Bluetooth) moves the start the waveform uses.
+		const heardAt = at + (ctx.outputLatency || ctx.baseLatency || 0);
+		this.#playing = { source, gain, start: heardAt, length: buffer.duration };
 		this.states.set(word, 'playing');
 		const ended = await new Promise<boolean>((resolve) => {
 			source.onended = () => resolve(this.#playing?.source === source);
-			source.start(now);
+			source.start(at);
 		});
 		if (this.#playing?.source === source) this.#playing = null;
 		if (this.states.get(word) === 'playing') this.states.set(word, 'ready');

@@ -288,6 +288,9 @@ test('Listen and type fast mode moves on the moment a word is typed right, and E
 	await expect(input).toBeFocused();
 	const word = (await page.locator('.player .shown').textContent())!.trim();
 	await page.keyboard.type(word);
+	// The whole word stays on screen, marked right, before the next one takes its place.
+	await expect(input).toHaveValue(word);
+	await expect(input).toHaveClass(/held/);
 	// No Enter: the next word is up and the answer box is empty again.
 	await expect(page.locator('.hud')).toContainText(/1\s*Words/);
 	await expect(input).toHaveValue('');

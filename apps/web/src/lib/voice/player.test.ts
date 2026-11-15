@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { FADE, MEMORY, Player } from './player.ts';
+import { FADE, MEMORY, Player, LEAD } from './player.ts';
 
 /* A fake audio graph: clips "play" until the test ends them; gains record their ramps. */
 class FakeParam {
@@ -183,6 +183,34 @@ describe('voice player', () => {
 		expect(calls).toEqual([`/voice/v1/auto/normal/${name(MEMORY)}`, `/voice/v1/auto/normal/${name(1)}`]);
 	});
 
+	it('times the waveform by what is heard: the start ahead of the clock plus the output delay', async () => {
+		(ctx as unknown as { outputLatency: number }).outputLatency = 0.2;
+		const v = player();
+		void v.say('house');
+		await tick();
+		ctx.currentTime = 10 + LEAD + 0.1;
+		expect(v.progress()).toBe(0);
+		ctx.currentTime = 10 + LEAD + 0.2 + 0.25;
+		expect(v.progress()).toBeCloseTo(0.5);
+	});
+
+	it('waits for a suspended clock before scheduling a clip', async () => {
+		ctx.state = 'suspended';
+		let resumed!: () => void;
+		ctx.resume = () => new Promise<void>((r) => (resumed = () => { ctx.state = 'running'; ctx.currentTime = 12; r(); }));
+		const v = player();
+		const said = v.say('house');
+		await tick();
+		expect(ctx.sources[0]?.started ?? false).toBe(false);
+		resumed();
+		await tick();
+		await tick();
+		expect(ctx.sources[0]!.started).toBe(true);
+		expect(ctx.gains.at(-1)!.gain.ramps[0]).toEqual(['set', 0, 12 + LEAD]);
+		v.stop();
+		expect(await said).toBe('stopped');
+	});
+
 	it('fades in, and fades out before stopping', async () => {
 		const v = player();
 		const said = v.say('house');
@@ -190,8 +218,8 @@ describe('voice player', () => {
 		const src = ctx.sources[0]!;
 		const fade = ctx.gains.at(-1)!.gain;
 		expect(fade.ramps.slice(0, 2)).toEqual([
-			['set', 0, 10],
-			['ramp', 1, 10 + FADE]
+			['set', 0, 10 + LEAD],
+			['ramp', 1, 10 + LEAD + FADE]
 		]);
 		v.stop();
 		expect(fade.ramps.at(-1)).toEqual(['ramp', 0, 10 + FADE]);
