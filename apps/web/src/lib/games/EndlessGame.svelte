@@ -32,6 +32,7 @@
 	import LevelBadge from './LevelBadge.svelte';
 	import LevelIcon from './LevelIcon.svelte';
 	import RunBar from './RunBar.svelte';
+	import RunResult from './RunResult.svelte';
 	import StatIcon from './StatIcon.svelte';
 
 	/** Endless mode: pick difficulty, play rounds. A round scores its difficulty step; three failures end the run. */
@@ -310,38 +311,34 @@
 			<!-- The run's missed words, once more and unscored; then back to the run's results. -->
 			<ListenType pool={LETTERS} focus="" words={practicing} count={practicing.length} target={0} practice set={source === 'levels' ? 'course' : source} oncomplete={() => (practicing = null)} />
 		{:else}
-			<section class="result" aria-labelledby="round-title">
-				<span class="badge" aria-hidden="true"><Icon name="flag" size={26} /></span>
-				<h2 id="round-title">Run complete</h2>
-				<p>{stats.words ? `${stats.words} ${stats.words === 1 ? 'word' : 'words'} in ${duration(seconds)}.` : 'You stopped before the first word.'}</p>
-				<dl class="totals stats">
-					<div><dt>Score</dt><dd>{stats.score}</dd></div>
-					<div><dt>Right</dt><dd>{stats.accuracy}%</dd></div>
-					<div><dt>Best streak</dt><dd>{stats.bestStreak}</dd></div>
-					<div><dt>Highest level</dt><dd>{#if stats.words}<LevelBadge difficulty={stats.topLevel} size={22} />{:else}–{/if}</dd></div>
-					<div><dt>Exact</dt><dd>{stats.exact}</dd></div>
-					<div><dt>Accepted</dt><dd>{stats.accepted}</dd></div>
-					<div><dt>Close</dt><dd>{stats.close}</dd></div>
-					<div><dt>Missed</dt><dd>{stats.missed}</dd></div>
-					<div><dt>Plays per word</dt><dd>{stats.plays || '–'}</dd></div>
-				</dl>
-				{#if stats.misses.length}
-					<div class="misses">
-						<h3>Words to practice</h3>
-						<ul>
-							{#each stats.misses as m, i (i)}<li><b>{m.word}</b> <span>you typed {m.typed}</span></li>{/each}
-						</ul>
-						<button type="button" class="btn" onclick={() => (practicing = [...new Set(stats.misses.map((m) => m.word))])}>Practice these words</button>
-					</div>
-				{/if}
-				<p class="best">{newBest ? 'A new best run.' : best ? `Your best run: ${best} points.` : ''}</p>
-				<div class="row">
-					<button bind:this={nextButton} type="button" class="btn btn-primary btn-lg" onclick={begin}>
-						<Icon name="repeat" size={18} /> Play again
-					</button>
+			<RunResult
+				summary={stats.words ? `${stats.words} ${stats.words === 1 ? 'word' : 'words'} in ${duration(seconds)}.` : 'You stopped before the first word.'}
+				score={stats.score}
+				{best}
+				{newBest}
+				top={stats.words ? stats.topLevel : 0}
+				stats={[
+					{ icon: 'right', label: 'Right', value: `${stats.accuracy}%` },
+					{ icon: 'streak', label: 'Best streak', value: stats.bestStreak },
+					{ icon: 'plays', label: 'Plays per word', value: stats.plays || '–' },
+					{ icon: 'time', label: 'Time', value: duration(seconds) }
+				]}
+				split={[
+					{ label: 'Exact', count: stats.exact, color: '--success' },
+					{ label: 'Accepted', count: stats.accepted, color: '--info' },
+					{ label: 'Close', count: stats.close, color: '--reward' },
+					{ label: 'Missed', count: stats.missed, color: '--error' }
+				]}
+				misses={stats.misses}
+			>
+				{#snippet actions()}
+					<button bind:this={nextButton} type="button" class="btn btn-primary btn-lg" onclick={begin}><Icon name="repeat" size={18} /> Play again</button>
+					{#if stats.misses.length}
+						<button type="button" class="btn btn-lg" onclick={() => (practicing = [...new Set(stats.misses.map((m) => m.word))])}>Practice these words</button>
+					{/if}
 					<button type="button" class="btn btn-lg" onclick={() => (phase = 'setup')}>Change difficulty</button>
-				</div>
-			</section>
+				{/snippet}
+			</RunResult>
 		{/if}
 	{:else}
 		<div class="hud">
@@ -386,6 +383,23 @@
 					<KeyHunt pool={LETTERS} focus="" target={settings.target!} pace={settings.pace} oncomplete={done} />
 				{/if}
 			{/key}
+		{:else if last && phase === 'over'}
+			<RunResult
+				summary={last.summary}
+				{score}
+				{best}
+				{newBest}
+				top={topLevel}
+				stats={[
+					{ icon: 'round', label: 'Rounds cleared', value: cleared },
+					{ icon: 'tries', label: 'Rounds played', value: round }
+				]}
+			>
+				{#snippet actions()}
+					<button bind:this={nextButton} type="button" class="btn btn-primary btn-lg" onclick={begin}><Icon name="repeat" size={18} /> Play again</button>
+					<button type="button" class="btn btn-lg" onclick={() => (phase = 'setup')}>Change difficulty</button>
+				{/snippet}
+			</RunResult>
 		{:else if last}
 			<section class="result" class:passed={last.passed} aria-labelledby="round-title">
 				<span class="badge" aria-hidden="true"><Icon name={phase === 'over' ? 'flag' : last.passed ? 'check' : 'restart'} size={26} /></span>
@@ -393,20 +407,7 @@
 					{phase === 'over' ? 'Run complete' : last.passed ? `Round ${round} cleared` : `Round ${round} missed`}
 				</h2>
 				<p>{last.summary}</p>
-				{#if phase === 'over'}
-					<dl class="totals">
-						<div><dt>Score</dt><dd>{score}</dd></div>
-						<div><dt>Rounds cleared</dt><dd>{cleared}</dd></div>
-						<div><dt>Highest level</dt><dd>{#if topLevel}<LevelBadge difficulty={topLevel} size={22} />{:else}–{/if}</dd></div>
-					</dl>
-					<p class="best">{newBest ? 'A new best run.' : best ? `Your best run: ${best} points.` : ''}</p>
-					<div class="row">
-						<button bind:this={nextButton} type="button" class="btn btn-primary btn-lg" onclick={begin}>
-							<Icon name="repeat" size={18} /> Play again
-						</button>
-						<button type="button" class="btn btn-lg" onclick={() => (phase = 'setup')}>Change difficulty</button>
-					</div>
-				{:else}
+				{#if phase !== 'over'}
 					<p class="next">
 						Next round: <LevelBadge difficulty={last.next} />{choice.level === null && last.next > last.level ? ', a little harder' : choice.level === null && last.next < last.level ? ', a little easier' : ''}.
 						{STRIKES - strikes} {STRIKES - strikes === 1 ? 'try' : 'tries'} left.
@@ -687,42 +688,6 @@
 		padding: 0 var(--space-12);
 		font-size: var(--fs-14);
 	}
-	.totals.stats {
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: var(--space-16) var(--space-32);
-	}
-	.misses {
-		width: min(100%, var(--w-form));
-		margin-top: var(--space-8);
-		text-align: left;
-	}
-	.misses h3 {
-		font-size: var(--fs-15);
-		color: var(--ink);
-	}
-	.misses ul {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--space-6) var(--space-16);
-		margin: var(--space-8) 0 0;
-		padding: 0;
-		list-style: none;
-		font-size: var(--fs-14);
-		color: var(--ink-3);
-	}
-	.misses .btn {
-		margin-top: var(--space-12);
-	}
-	.misses b {
-		font-family: var(--font-mono);
-		color: var(--ink);
-	}
-	@media (max-width: 560px) {
-		.totals.stats {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-	}
 	.loading {
 		padding: var(--space-24) 0;
 		font-size: var(--fs-20);
@@ -760,28 +725,6 @@
 		color: var(--ink-2);
 		line-height: var(--lh-body);
 		text-wrap: pretty;
-	}
-	.totals {
-		display: flex;
-		gap: var(--space-32);
-		margin-top: var(--space-4);
-	}
-	.totals div {
-		display: flex;
-		flex-direction: column;
-	}
-	.totals dt {
-		font-size: var(--fs-13);
-		color: var(--ink-2);
-	}
-	.totals dd {
-		font-size: var(--fs-32);
-		font-weight: var(--fw-bold);
-		font-variant-numeric: tabular-nums;
-	}
-	.best {
-		font-weight: var(--fw-semibold);
-		color: var(--ink) !important;
 	}
 	.row {
 		display: flex;
