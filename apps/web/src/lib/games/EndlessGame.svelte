@@ -216,7 +216,7 @@
 		<!-- Three panels for every game: how it works, the level, and the game's own settings. -->
 		<div class="setup" class:bare={!hasSettings}>
 			<section class="panel pick" aria-labelledby="level-title">
-				<h2 id="level-title">Level</h2>
+				<h2 id="level-title" class="title"><span class="title-icon" aria-hidden="true"><StatIcon name="levels" size={16} /></span>Level</h2>
 				<fieldset>
 					<legend class="sr-only">Choose the level</legend>
 					<label class="adaptive" class:on={difficulty === 'adaptive'}>
@@ -246,7 +246,7 @@
 
 			{#if hasSettings}
 			<section class="panel tune" aria-labelledby="tune-title">
-				<h2 id="tune-title">Settings</h2>
+				<h2 id="tune-title" class="title"><span class="title-icon" aria-hidden="true"><StatIcon name="settings" size={16} /></span>Settings</h2>
 				{#if usesWords}
 					<label class="source">
 						<span class="source-label"><StatIcon name="set" size={14} /> Words</span>
@@ -270,7 +270,7 @@
 			{/if}
 
 			<aside class="panel guide" aria-labelledby="rules-title">
-				<h2 id="rules-title">How it works</h2>
+				<h2 id="rules-title" class="title"><span class="title-icon" aria-hidden="true"><StatIcon name="guide" size={16} /></span>How it works</h2>
 				{#if continuous}
 					<ol>
 						<li><b>Word after word</b> until you press Stop. No rounds, no tries.</li>
@@ -456,6 +456,21 @@
 	}
 	h2 {
 		font-size: var(--fs-18);
+	}
+	.title {
+		display: flex;
+		align-items: center;
+		gap: var(--space-10);
+	}
+	/* Panel titles carry the games area's hue on a tint. */
+	.title-icon {
+		display: grid;
+		place-items: center;
+		width: 28px;
+		height: 28px;
+		border-radius: var(--radius);
+		background: var(--reward-soft);
+		color: var(--reward);
 	}
 	.guide {
 		background: transparent;
