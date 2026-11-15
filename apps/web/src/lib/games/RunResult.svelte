@@ -139,7 +139,6 @@
 		font-weight: var(--fw-bold);
 		line-height: var(--lh-tight);
 		font-variant-numeric: tabular-nums;
-		letter-spacing: -0.02em;
 	}
 	.unit {
 		font-size: var(--fs-18);
