@@ -12,7 +12,7 @@ test('endless games are listed in practice and play round after round at the cho
 	await expect(page).toHaveURL(/\/play\/falling-words$/);
 
 	// The difficulty is chosen before the run starts.
-	await expect(page.getByRole('heading', { name: 'Difficulty', exact: true })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
 	await page.locator('.level', { hasText: 'Easy' }).click();
 	await expect(page.getByRole('radio', { name: 'Easy', exact: true })).toBeChecked();
 	await page.getByRole('button', { name: 'Start at Easy' }).click();
@@ -40,6 +40,25 @@ test('a run starts at the top and fills the first screen; the footer waits below
 	await expect(page.getByRole('heading', { level: 1 })).toHaveClass(/sr-only/);
 	const footerTop = await page.locator('footer').evaluate((f) => f.getBoundingClientRect().top);
 	expect(footerTop).toBeGreaterThanOrEqual(900);
+});
+
+test('every game opens on the same menu: level, settings where it has any, how it works', async ({ page }) => {
+	test.setTimeout(120_000);
+	for (const width of [1440, 375]) {
+		await page.setViewportSize({ width, height: 900 });
+		for (const game of ['race', 'falling-words', 'falling-letters', 'echo', 'listen', 'keyhunt']) {
+			await page.goto(`/play/${game}`, { waitUntil: 'networkidle' });
+			await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
+			await expect(page.getByRole('heading', { name: 'How it works' })).toBeVisible();
+			await expect(page.getByRole('heading', { name: 'Settings' })).toHaveCount(['falling-letters', 'keyhunt'].includes(game) ? 0 : 1);
+			await expect(page.getByRole('radio')).toHaveCount(7);
+			await expect(page.getByRole('button', { name: /^Start at/ })).toBeVisible();
+			expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `${game} at ${width}`).toBe(true);
+			if (width === 1440 && (game === 'listen' || game === 'keyhunt')) {
+				expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+			}
+		}
+	}
 });
 
 test('an unknown game is not found', async ({ page }) => {

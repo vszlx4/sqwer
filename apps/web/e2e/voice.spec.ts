@@ -140,6 +140,6 @@ test('the Listen and type menu shows the set’s clips and makes it next', async
 	// Back on Standard, the panel goes away and the clips stay.
 	saveSettings({ ...settings(), voice: 'standard', first: null });
 	await page.reload();
-	await expect(page.getByRole('heading', { name: 'Difficulty', exact: true })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
 	await expect(page.locator('.voice', { hasText: 'Supertonic voice' })).toHaveCount(0);
 });
