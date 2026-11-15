@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount, tick, untrack } from 'svelte';
+	import { beforeNavigate, pushState } from '$app/navigation';
+	import { page } from '$app/state';
 	import { stopSmoothScroll } from '#lib/motion/smooth-scroll.ts';
 	import Echo from '#lib/courses/steps/Echo.svelte';
 	import FallingGame from '#lib/courses/steps/FallingGame.svelte';
@@ -75,16 +77,93 @@
 		}
 	});
 
-	// Every screen change starts at the top: the menu's scroll position never carries into a run or its results.
+	// A run has its own history entry: Back (or Change difficulty) leaves it for the menu, where it was scrolled.
+	// Every other screen change starts at the top, so the menu's position never carries into a run.
+	let menuY = 0;
 	let shown = '';
 	$effect(() => {
 		const screen = `${phase}:${practicing ? 'practice' : ''}`;
 		running = phase !== 'setup';
-		if (shown && screen !== shown) {
+		// The menu's own position is put back by toMenu(), after the swap.
+		if (shown && screen !== shown && phase !== 'setup') {
 			stopSmoothScroll();
 			window.scrollTo({ top: 0, behavior: 'instant' });
 		}
 		shown = screen;
+	});
+
+	/** Swaps screens in a cross-fade where the browser has view transitions and motion is allowed. */
+	function swap(change: () => void, after?: () => void) {
+		if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			change();
+			void tick().then(after);
+			return;
+		}
+		document.startViewTransition(async () => {
+			change();
+			await tick();
+			after?.();
+		});
+	}
+
+	/** Puts the page back at `y` and keeps it there for a moment, so a late restore elsewhere cannot move it; any input of
+	 *  the player's own (wheel, key, touch, pointer) ends the hold at once. */
+	let stopHold = () => {};
+	// Leaving the page ends any hold, so it never pulls the next page around.
+	beforeNavigate(() => stopHold());
+	onDestroy(() => stopHold());
+	function holdScroll(y: number, ms = 1200) {
+		stopSmoothScroll();
+		const until = performance.now() + ms;
+		const events = ['wheel', 'keydown', 'touchstart', 'pointerdown'] as const;
+		let done = false;
+		const end = () => {
+			done = true;
+			for (const t of events) window.removeEventListener(t, end);
+		};
+		for (const t of events) window.addEventListener(t, end, { passive: true });
+		stopHold = end;
+		// A timer, not frames: frames stall in background tabs, and the hold must outlast a late restore there too.
+		const step = () => {
+			if (done) return;
+			if (Math.abs(window.scrollY - y) > 1) window.scrollTo({ top: y, behavior: 'instant' });
+			if (performance.now() < until) setTimeout(step, 40);
+			else end();
+		};
+		step();
+	}
+
+	/** Keeps what a run scored when it is left before its results. */
+	function settle() {
+		if (phase === 'setup' || phase === 'over') return;
+		if (continuous) score = stats.score;
+		if (score > best) best = score;
+		save();
+	}
+
+	/** Back to the menu: through history when the run has its entry, so Back and the button agree. */
+	function leave() {
+		if (page.state.run === game.id) history.back();
+		else toMenu();
+	}
+	function toMenu() {
+		settle();
+		swap(
+			() => {
+				practicing = null;
+				phase = 'setup';
+			},
+			() => holdScroll(menuY)
+		);
+	}
+	$effect(() => {
+		const inRun = page.state.run === game.id;
+		untrack(() => {
+			// Back out of a run: the menu. Forward into a run that is over (or one that failed to load): step back to
+			// the menu's own entry, so history never holds two menus.
+			if (!inRun && phase !== 'setup') toMenu();
+			else if (inRun && phase === 'setup') history.back();
+		});
 	});
 
 	const choice = $derived(DIFFICULTIES.find((d) => d.id === difficulty)!);
@@ -127,6 +206,18 @@
 	const save = () => saveRecord(game.id, { best, rating: ratingOf(adaptiveLevel), difficulty, source });
 
 	function begin() {
+		if (phase === 'setup') {
+			menuY = window.scrollY;
+			// The run's screen and its history entry arrive together, so the effect above never sees one without the other.
+			return swap(() => {
+				start();
+				pushState('', { run: game.id });
+			});
+		}
+		start();
+	}
+
+	function start() {
 		if (continuous) {
 			// The click allows audio, so the first word can play by itself once it is ready.
 			void sound.unlock();
@@ -342,7 +433,7 @@
 					{#if stats.misses.length}
 						<button type="button" class="btn btn-lg" onclick={() => (practicing = [...new Set(stats.misses.map((m) => m.word))])}>Practice these words</button>
 					{/if}
-					<button type="button" class="btn btn-lg" onclick={() => (phase = 'setup')}>Change difficulty</button>
+					<button type="button" class="btn btn-lg" onclick={leave}>Change difficulty</button>
 				{/snippet}
 			</RunResult>
 		{/if}
@@ -403,7 +494,7 @@
 			>
 				{#snippet actions()}
 					<button bind:this={nextButton} type="button" class="btn btn-primary btn-lg" onclick={begin}><Icon name="repeat" size={18} /> Play again</button>
-					<button type="button" class="btn btn-lg" onclick={() => (phase = 'setup')}>Change difficulty</button>
+					<button type="button" class="btn btn-lg" onclick={leave}>Change difficulty</button>
 				{/snippet}
 			</RunResult>
 		{:else if last}
