@@ -30,6 +30,18 @@ test('endless games are listed in practice and play round after round at the cho
 	await expect(page.locator('#games').getByRole('link', { name: /Falling words/ })).toContainText('Best 2');
 });
 
+test('a run starts at the top and fills the first screen; the footer waits below', async ({ page }) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await page.goto('/play/falling-letters', { waitUntil: 'networkidle' });
+	await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+	await page.getByRole('button', { name: /^Start/ }).click();
+	await expect(page.locator('.endless > .hud')).toBeVisible();
+	await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+	await expect(page.getByRole('heading', { level: 1 })).toHaveClass(/sr-only/);
+	const footerTop = await page.locator('footer').evaluate((f) => f.getBoundingClientRect().top);
+	expect(footerTop).toBeGreaterThanOrEqual(900);
+});
+
 test('an unknown game is not found', async ({ page }) => {
 	const res = await page.goto('/play/chess');
 	expect(res?.status()).toBe(404);
