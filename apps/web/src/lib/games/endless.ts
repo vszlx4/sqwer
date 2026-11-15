@@ -1,10 +1,11 @@
 import type { WordListId } from '@sqwer/content';
 import type { IconName } from '#lib/ui/Icon.svelte';
 import { letterWords } from '#lib/wordlists.ts';
+import { difficultyOf, migrateChoice, ratingOf, START, step, TIERS, type TierId } from './levels.ts';
 
 /*
- * Endless mode: course games in rounds, levels 1-12. Adaptive difficulty moves the level up on clears and
- * down on failures. Three failures end the run.
+ * Endless mode: course games in rounds at a difficulty from levels.ts, fixed or adaptive (no cap). Three failures
+ * end the run. "level" below is that difficulty: 1 and up, fixed levels at 2, 4 … 12.
  */
 
 export const GAME_IDS = ['race', 'falling-words', 'falling-letters', 'echo', 'listen', 'keyhunt'] as const;
@@ -28,42 +29,30 @@ export const GAMES: GameInfo[] = [
 
 export const gameById = (id: string) => GAMES.find((g) => g.id === id) ?? null;
 
-/** The difficulty chosen before a run: adaptive, or one fixed level. */
+/** The difficulty chosen before a run: adaptive, or one of the fixed levels (levels.ts). */
 export const DIFFICULTIES = [
-	{ id: 'adaptive', label: 'Adaptive', level: null, note: 'Starts where you left off, rises after each cleared round and eases after a failed one.' },
-	{ id: 'gentle', label: 'Gentle', level: 2, note: 'Short, very common words and a relaxed pace.' },
-	{ id: 'steady', label: 'Steady', level: 4, note: 'Everyday words at a comfortable speed.' },
-	{ id: 'brisk', label: 'Brisk', level: 6, note: 'Longer everyday words and a quicker pace.' },
-	{ id: 'fast', label: 'Fast', level: 8, note: 'Less common words and a fast pace.' },
-	{ id: 'expert', label: 'Expert', level: 10, note: 'Long, less frequent words at full speed.' },
-	{ id: 'master', label: 'Master', level: 12, note: 'Rare and technical words from the full dictionary, which includes mature words, at top speed.' }
-] as const;
-export type DifficultyId = (typeof DIFFICULTIES)[number]['id'];
+	{ id: 'adaptive', label: 'Adaptive', level: null, icon: 'gauge', note: 'Starts where you left off, climbs as you play well and eases when you miss. It has no top.' },
+	...TIERS.map((t) => ({ id: t.id, label: t.name, level: t.difficulty, icon: t.icon, note: t.note }))
+] as const satisfies readonly { id: string; label: string; level: number | null; icon: IconName; note: string }[];
+export type DifficultyId = 'adaptive' | TierId;
 
-export const MIN_LEVEL = 1;
-export const MAX_LEVEL = 12;
 /** Failed rounds that end a run. */
 export const STRIKES = 3;
-
-/** The level after a round, with adaptive difficulty. */
-export const nextLevel = (level: number, passed: boolean) => Math.min(MAX_LEVEL, Math.max(MIN_LEVEL, level + (passed ? 1 : -1)));
-
-/** A short name for a level, for the round summary. */
-export function levelName(level: number): string {
-	return level <= 2 ? 'Gentle' : level <= 4 ? 'Steady' : level <= 6 ? 'Brisk' : level <= 8 ? 'Fast' : level <= 10 ? 'Expert' : 'Master';
-}
 
 /** Where a run's words come from: the levelled tiers, or one word list throughout. */
 export type WordSource = 'levels' | WordListId;
 
-/** Words per level from the frequency tiers, rarer and longer at higher levels. Tiers load at run start. */
-export async function wordsForLevel(level: number, source: WordSource = 'levels'): Promise<string[]> {
+/** Words per difficulty step from the frequency tiers, rarer and longer higher up. Tiers load at run start. */
+export async function wordsForLevel(difficulty: number, source: WordSource = 'levels'): Promise<string[]> {
+	const level = step(difficulty);
 	if (source !== 'levels') {
 		// Shorter words first; the whole list once the level allows it or the short ones run thin.
 		const all = await letterWords(source);
 		const short = all.filter((w) => w.length <= 3 + level);
 		return short.length >= 30 ? short : all;
 	}
+	// Past Nightmare the rare words only get longer.
+	if (level >= 14) return letterWords('english-450k', (w) => w.length >= 10 && w.length <= 16);
 	if (level >= 12) return letterWords('english-450k', (w) => w.length >= 8 && w.length <= 14);
 	if (level >= 11) return letterWords('english-25k', (w) => w.length >= 6 && w.length <= 12);
 	const { STARTER_WORDS, EVERYDAY_WORDS, FLUENT_WORDS, ADVANCED_WORDS } = await import('@sqwer/content/sets');
@@ -90,25 +79,25 @@ export interface RoundSettings {
 	showMs?: number;
 }
 
-/** Settings for one round of a game at a level. */
+/** Settings for one round of a game at a difficulty; no top, so past Nightmare everything keeps tightening. */
 export function roundSettings(game: GameId, level: number): RoundSettings {
-	const L = Math.min(MAX_LEVEL, Math.max(MIN_LEVEL, level));
+	const L = Math.max(START, level);
 	switch (game) {
 		case 'race':
-			return { pacerWpm: 20 + 8 * L, count: 10 + L };
+			return { pacerWpm: Math.round(20 + 8 * L), count: Math.round(10 + L) };
 		case 'falling-words':
-			return { target: 8 + L, pace: 0.75 + 0.06 * L };
+			return { target: Math.round(8 + L), pace: 0.75 + 0.06 * L };
 		case 'falling-letters':
-			return { target: 12 + 2 * L, pace: 0.75 + 0.07 * L };
+			return { target: Math.round(12 + 2 * L), pace: 0.75 + 0.07 * L };
 		case 'echo': {
-			// Only the word length, the word set and how long each letter is shown change.
+			// Only the word length, the word set and how long each letter is shown change; a letter stays at least 160 ms.
 			const start = 2 + Math.ceil(L / 2);
-			return { start, target: start + 1, showMs: Math.round(1400 - (L - 1) * 90) };
+			return { start, target: start + 1, showMs: Math.max(160, Math.round(1400 - (L - 1) * 90)) };
 		}
 		case 'listen':
 			return { count: 6, target: L <= 4 ? 4 : 5 };
 		case 'keyhunt':
-			return { target: 12 + 2 * L, pace: 0.75 + 0.06 * L };
+			return { target: Math.round(12 + 2 * L), pace: 0.75 + 0.06 * L };
 	}
 }
 
@@ -117,20 +106,33 @@ const KEY = 'sqwer:endless';
 export interface EndlessRecord {
 	/** Highest score of a run. */
 	best: number;
-	/** The level adaptive difficulty reached last time. */
-	level: number;
+	/** Where the adaptive rating stood after the last run (levels.ts). */
+	rating: number;
 	difficulty: DifficultyId;
 	/** Word source of the last run; levelled when missing. */
 	source?: WordSource;
 }
 
+/** A saved record, from before the rating (a level 1-12 and the old level ids) or after. */
+type SavedRecord = Omit<EndlessRecord, 'rating' | 'difficulty'> & { rating?: number; level?: number; difficulty: string };
+
+function upgrade(r: SavedRecord): EndlessRecord {
+	if (typeof r.rating === 'number') return { ...r, rating: Math.max(0, r.rating), difficulty: r.difficulty as DifficultyId };
+	const { level, ...rest } = r;
+	return { ...rest, rating: ratingOf(level ?? 3), difficulty: migrateChoice(r.difficulty) };
+}
+
 export function loadRecords(): Partial<Record<GameId, EndlessRecord>> {
 	try {
-		return JSON.parse(localStorage.getItem(KEY) ?? '{}');
+		const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<Record<GameId, SavedRecord>>;
+		return Object.fromEntries(Object.entries(saved).flatMap(([id, r]) => (r ? [[id, upgrade(r)]] : [])));
 	} catch {
 		return {};
 	}
 }
+
+/** Adaptive difficulty a run starts at: where the last one left off, or the middle of Easy. */
+export const startDifficulty = (record: EndlessRecord | undefined) => difficultyOf(record?.rating ?? ratingOf(TIERS[0].difficulty));
 
 export function saveRecord(game: GameId, record: EndlessRecord) {
 	try {

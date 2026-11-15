@@ -6,20 +6,20 @@ const seq = (...values: number[]) => {
 	return () => values[i++ % values.length];
 };
 
-const pts = (...p: number[]) => p.map((points) => ({ points }));
-
 describe('batchLevel', () => {
-	it('rises after a batch with enough points and eases after a weak one', () => {
-		expect(batchLevel(3, pts(1, 1, 1, 1, 0, 0), true)).toBe(4);
-		expect(batchLevel(3, pts(1, 1, 1, 0, 0, 0), true)).toBe(2);
-		expect(batchLevel(3, pts(1, 1, 1, 0.5, 0.5, 0), true)).toBe(4);
-		expect(batchLevel(3, pts(1, 1, 1, 0.5, 0, 0), true)).toBe(2);
+	const batch = (...p: number[]) => p.map((points) => ({ points, plays: 1 }));
+	it('climbs after a strong batch, more the stronger, and eases after a weak one', () => {
+		const all = batchLevel(3, batch(1, 1, 1, 1, 1, 1), true);
+		const most = batchLevel(3, batch(1, 1, 1, 1, 1, 0), true);
+		expect(all).toBeGreaterThan(most);
+		expect(most).toBeGreaterThan(3);
+		expect(batchLevel(3, batch(1, 1, 1, 0, 0, 0), true)).toBeLessThan(3);
 	});
 
-	it('keeps a fixed level and stays within the levels', () => {
-		expect(batchLevel(6, pts(0, 0, 0, 0, 0, 0), false)).toBe(6);
-		expect(batchLevel(12, pts(1, 1, 1, 1, 1, 1), true)).toBe(12);
-		expect(batchLevel(1, pts(0, 0, 0, 0, 0, 0), true)).toBe(1);
+	it('keeps a fixed level, goes past Nightmare and never under the start', () => {
+		expect(batchLevel(6, batch(0, 0, 0, 0, 0, 0), false)).toBe(6);
+		expect(batchLevel(12, batch(1, 1, 1, 1, 1, 1), true)).toBeGreaterThan(12);
+		expect(batchLevel(1, batch(0, 0, 0, 0, 0, 0), true)).toBe(1);
 	});
 });
 

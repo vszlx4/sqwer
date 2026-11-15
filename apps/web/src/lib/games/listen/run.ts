@@ -1,9 +1,9 @@
 /*
  * Listen and type in endless mode: one word after another until the player stops. Answers are judged in hidden
- * batches of six by points (score.ts), and a batch moves the adaptive level the way a round does in the other games.
+ * batches of six by points (score.ts), and a batch moves the adaptive rating the way a round does in the other games.
  */
 
-import { nextLevel, roundSettings } from '../endless.ts';
+import { batchPerformance, nextDifficulty, step } from '../levels.ts';
 import { isRight, pointsOf, type Answer } from './score.ts';
 
 export type { Answer, Outcome } from './score.ts';
@@ -12,10 +12,9 @@ export type { Answer, Outcome } from './score.ts';
 export const BATCH = 6;
 /** Words fetched ahead of the one in play, so each plays without a wait. */
 export const LOOKAHEAD = 3;
-/** The level after a batch: up when it scored enough points, down when not; fixed difficulty keeps it. */
-export function batchLevel(level: number, batch: readonly Pick<Answer, 'points'>[], adaptive: boolean): number {
-	if (!adaptive) return level;
-	return nextLevel(level, pointsOf(batch) >= roundSettings('listen', level).target!);
+/** The difficulty after a batch: the adaptive rating moves by how well it went (levels.ts); fixed keeps it. */
+export function batchLevel(level: number, batch: readonly Pick<Answer, 'points' | 'plays'>[], adaptive: boolean): number {
+	return adaptive ? nextDifficulty(level, batchPerformance(batch)) : level;
 }
 
 export interface RunStats {
@@ -29,7 +28,7 @@ export interface RunStats {
 	points: number;
 	streak: number;
 	bestStreak: number;
-	/** Each word scores its level times its points. */
+	/** Each word scores its difficulty step times its points. */
 	score: number;
 	topLevel: number;
 	/** Plays per word on average, the first one included. */
@@ -47,7 +46,7 @@ export function summarize(answers: readonly Answer[]): RunStats {
 	for (const a of answers) {
 		plays += a.plays;
 		topLevel = Math.max(topLevel, a.level);
-		score += a.level * a.points;
+		score += step(a.level) * a.points;
 		if (!isRight(a.outcome)) streak = 0;
 		else {
 			streak++;
