@@ -5,19 +5,27 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+	let running = $state(false);
 </script>
 
 <Seo title={`${data.game.title}: endless mode`} description={`${data.game.summary} Played in endless rounds with adaptive difficulty.`} />
 
-<Breadcrumbs items={[{ href: '/exams', label: 'Practice' }, { href: '/exams#games', label: 'Endless games' }, { href: `/play/${data.game.id}`, label: data.game.title }]} />
+{#if !running}
+	<Breadcrumbs items={[{ href: '/exams', label: 'Practice' }, { href: '/exams#games', label: 'Endless games' }, { href: `/play/${data.game.id}`, label: data.game.title }]} />
+{/if}
 
-<div class="play">
-	<header>
-		<p class="kicker">Endless mode</p>
-		<h1>{data.game.title}</h1>
-		<p class="summary">{data.game.summary}</p>
-	</header>
-	{#key data.game.id}<EndlessGame game={data.game} />{/key}
+<!-- During a run the game owns the first screen: no title, and the footer stays below the fold. -->
+<div class="play" class:running>
+	{#if running}
+		<h1 class="sr-only">{data.game.title}</h1>
+	{:else}
+		<header>
+			<p class="kicker">Endless mode</p>
+			<h1>{data.game.title}</h1>
+			<p class="summary">{data.game.summary}</p>
+		</header>
+	{/if}
+	{#key data.game.id}<EndlessGame game={data.game} bind:running />{/key}
 </div>
 
 <style>
@@ -25,6 +33,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-24);
+	}
+	.running {
+		min-height: calc(100dvh - var(--header-h) - var(--main-top) - var(--main-bottom));
+	}
+	.running > :global(.endless) {
+		flex: 1;
 	}
 	.kicker {
 		font-size: var(--fs-14);

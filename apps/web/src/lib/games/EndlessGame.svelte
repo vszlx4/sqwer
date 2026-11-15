@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount, tick, untrack } from 'svelte';
+	import { beforeNavigate, pushState } from '$app/navigation';
+	import { page } from '$app/state';
+	import { stopSmoothScroll } from '#lib/motion/smooth-scroll.ts';
 	import Echo from '#lib/courses/steps/Echo.svelte';
 	import FallingGame from '#lib/courses/steps/FallingGame.svelte';
 	import KeyHunt from '#lib/courses/steps/KeyHunt.svelte';
@@ -17,21 +20,26 @@
 	import {
 		DIFFICULTIES,
 		LETTERS,
-		MAX_LEVEL,
 		STRIKES,
-		levelName,
 		loadRecords,
-		nextLevel,
 		roundSettings,
 		saveRecord,
+		startDifficulty,
 		wordsForLevel,
 		type DifficultyId,
 		type GameInfo,
 		type WordSource
 	} from './endless.ts';
+	import { nextDifficulty, ratingOf, roundPerformance, step, tierById } from './levels.ts';
+	import LevelBadge from './LevelBadge.svelte';
+	import LevelIcon from './LevelIcon.svelte';
+	import RunBar from './RunBar.svelte';
+	import RunResult from './RunResult.svelte';
+	import StatIcon from './StatIcon.svelte';
 
-	/** Endless mode: pick difficulty, play rounds. Round score = level; three failures end the run. */
-	let { game }: { game: GameInfo } = $props();
+	/** Endless mode: pick difficulty, play rounds. A round scores its difficulty step; three failures end the run. */
+	/** `running` is true from the start of a run until the menu shows again; the page drops its title meanwhile. */
+	let { game, running = $bindable(false) }: { game: GameInfo; running?: boolean } = $props();
 
 	let phase = $state<'setup' | 'loading' | 'playing' | 'between' | 'over'>('setup');
 	/** Listen and type: the run's missed words, practiced unscored after Stop. */
@@ -39,9 +47,11 @@
 	let difficulty = $state<DifficultyId>('adaptive');
 	let source = $state<WordSource>('levels');
 	let loadError = $state(false);
-	let adaptiveLevel = $state(3);
+	/** Where adaptive difficulty starts the next run (levels.ts); saved as its rating. */
+	let adaptiveLevel = $state(startDifficulty(undefined));
 	let best = $state(0);
-	let level = $state(3);
+	/** The difficulty in play: a fixed level's, or the adaptive one as it moves. */
+	let level = $state(startDifficulty(undefined));
 	let round = $state(0);
 	let words = $state<string[]>([]);
 	let cleared = $state(0);
@@ -62,14 +72,106 @@
 		if (saved) {
 			difficulty = saved.difficulty;
 			if (saved.source && isWordListId(saved.source)) source = saved.source;
-			adaptiveLevel = saved.level;
+			adaptiveLevel = startDifficulty(saved);
 			best = saved.best;
 		}
+	});
+
+	// A run has its own history entry: Back (or Change difficulty) leaves it for the menu, where it was scrolled.
+	// Every other screen change starts at the top, so the menu's position never carries into a run.
+	let menuY = 0;
+	let shown = '';
+	$effect(() => {
+		const screen = `${phase}:${practicing ? 'practice' : ''}`;
+		running = phase !== 'setup';
+		// The menu's own position is put back by toMenu(), after the swap.
+		if (shown && screen !== shown && phase !== 'setup') {
+			stopSmoothScroll();
+			window.scrollTo({ top: 0, behavior: 'instant' });
+		}
+		shown = screen;
+	});
+
+	/** Swaps screens in a cross-fade where the browser has view transitions and motion is allowed. */
+	function swap(change: () => void, after?: () => void) {
+		if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			change();
+			void tick().then(after);
+			return;
+		}
+		document.startViewTransition(async () => {
+			change();
+			await tick();
+			after?.();
+		});
+	}
+
+	/** Puts the page back at `y` and keeps it there for a moment, so a late restore elsewhere cannot move it; any input of
+	 *  the player's own (wheel, key, touch, pointer) ends the hold at once. */
+	let stopHold = () => {};
+	// Leaving the page ends any hold, so it never pulls the next page around.
+	beforeNavigate(() => stopHold());
+	onDestroy(() => stopHold());
+	function holdScroll(y: number, ms = 1200) {
+		stopSmoothScroll();
+		const until = performance.now() + ms;
+		const events = ['wheel', 'keydown', 'touchstart', 'pointerdown'] as const;
+		let done = false;
+		const end = () => {
+			done = true;
+			for (const t of events) window.removeEventListener(t, end);
+		};
+		for (const t of events) window.addEventListener(t, end, { passive: true });
+		stopHold = end;
+		// A timer, not frames: frames stall in background tabs, and the hold must outlast a late restore there too.
+		const step = () => {
+			if (done) return;
+			if (Math.abs(window.scrollY - y) > 1) window.scrollTo({ top: y, behavior: 'instant' });
+			if (performance.now() < until) setTimeout(step, 40);
+			else end();
+		};
+		step();
+	}
+
+	/** Keeps what a run scored when it is left before its results. */
+	function settle() {
+		if (phase === 'setup' || phase === 'over') return;
+		if (continuous) score = stats.score;
+		if (score > best) best = score;
+		save();
+	}
+
+	/** Back to the menu: through history when the run has its entry, so Back and the button agree. */
+	function leave() {
+		if (page.state.run === game.id) history.back();
+		else toMenu();
+	}
+	function toMenu() {
+		settle();
+		swap(
+			() => {
+				practicing = null;
+				phase = 'setup';
+			},
+			() => holdScroll(menuY)
+		);
+	}
+	$effect(() => {
+		const inRun = page.state.run === game.id;
+		untrack(() => {
+			// Back out of a run: the menu. Forward into a run that is over (or one that failed to load): step back to
+			// the menu's own entry, so history never holds two menus.
+			if (!inRun && phase !== 'setup') toMenu();
+			else if (inRun && phase === 'setup') history.back();
+		});
 	});
 
 	const choice = $derived(DIFFICULTIES.find((d) => d.id === difficulty)!);
 	const startLevel = $derived(choice.level ?? adaptiveLevel);
 	const settings = $derived(roundSettings(game.id, level));
+	/** The word set in play, named as in the menu. */
+	const setName = $derived(source === 'levels' ? 'Graded words' : (WORD_LISTS.find((l) => l.id === source)?.name ?? ''));
+	const hasSettings = $derived(game.id === 'listen' || game.id === 'race' || game.id === 'falling-words' || game.id === 'echo');
 	const usesWords = $derived(game.id === 'race' || game.id === 'falling-words' || game.id === 'listen' || game.id === 'echo');
 
 	async function load(at: number) {
@@ -89,19 +191,33 @@
 		phase = 'playing';
 	}
 
-	/** Word pools per level, loaded once a run. */
+	/** Word pools per difficulty step, loaded once a run. */
 	const pools = new Map<number, Promise<string[]>>();
 	function poolFor(at: number): Promise<string[]> {
-		let p = pools.get(at);
+		const key = step(at);
+		let p = pools.get(key);
 		if (!p) {
-			p = wordsForLevel(at, source);
-			p.catch(() => pools.delete(at));
-			pools.set(at, p);
+			p = wordsForLevel(key, source);
+			p.catch(() => pools.delete(key));
+			pools.set(key, p);
 		}
 		return p;
 	}
+	const save = () => saveRecord(game.id, { best, rating: ratingOf(adaptiveLevel), difficulty, source });
 
 	function begin() {
+		if (phase === 'setup') {
+			menuY = window.scrollY;
+			// The run's screen and its history entry arrive together, so the effect above never sees one without the other.
+			return swap(() => {
+				start();
+				pushState('', { run: game.id });
+			});
+		}
+		start();
+	}
+
+	function start() {
 		if (continuous) {
 			// The click allows audio, so the first word can play by itself once it is ready.
 			void sound.unlock();
@@ -125,10 +241,10 @@
 	}
 
 	function done(r: StepResult) {
-		const next = choice.level === null ? nextLevel(level, r.passed) : level;
+		const next = choice.level === null ? nextDifficulty(level, roundPerformance(r.passed, r.accuracy)) : level;
 		if (r.passed) {
 			cleared++;
-			score += level;
+			score += step(level);
 			topLevel = Math.max(topLevel, level);
 		} else strikes++;
 		last = { passed: r.passed, summary: r.summary, level, next };
@@ -138,7 +254,7 @@
 			best = score;
 			newBest = true;
 		}
-		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
+		save();
 		phase = ended ? 'over' : 'between';
 		requestAnimationFrame(() => nextButton?.focus());
 	}
@@ -147,7 +263,7 @@
 		stats = summarize(all);
 		level = at;
 		if (choice.level === null) adaptiveLevel = at;
-		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
+		save();
 	}
 
 	/** Ends a continuous run and shows its statistics. */
@@ -158,7 +274,7 @@
 			best = score;
 			newBest = true;
 		}
-		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
+		save();
 		phase = 'over';
 		requestAnimationFrame(() => nextButton?.focus());
 	}
@@ -171,7 +287,7 @@
 			best = score;
 			newBest = true;
 		}
-		saveRecord(game.id, { best, level: adaptiveLevel, difficulty, source });
+		save();
 		last = { passed: false, summary: `You ended the run after ${round} ${round === 1 ? 'round' : 'rounds'}.`, level, next: level };
 		phase = 'over';
 		requestAnimationFrame(() => nextButton?.focus());
@@ -188,57 +304,45 @@
 
 <div class="endless">
 	{#if phase === 'setup'}
-		<div class="setup">
-			<aside class="rules" aria-labelledby="rules-title">
-				<h2 id="rules-title">How a run works</h2>
-				{#if continuous}
-				<ol>
-					<li><b>Word after word.</b> It plays until you press Stop; there are no rounds or tries.</li>
-					<li><b>Adapts as you go.</b> The level moves up when you get words right and eases when you miss them.</li>
-					<li><b>Score.</b> Each right word scores its level. Stop whenever you like to see your statistics.</li>
-				</ol>
-				{:else}
-				<ol>
-					<li><b>Round after round.</b> Each round is one game at a level from 1 to {MAX_LEVEL}.</li>
-					<li><b>{STRIKES} tries.</b> A failed round uses one; the run ends when they are gone.</li>
-					<li><b>Score.</b> A cleared round scores its level, so harder rounds count for more.</li>
-				</ol>
-				{/if}
-				<p class="record">
-					{#if best}Best run <b>{best}&nbsp;points</b>{:else}No run yet{/if}
-				</p>
-			</aside>
-
-			<section class="difficulty" aria-labelledby="difficulty-title">
-				<h2 id="difficulty-title">Difficulty</h2>
+		<!-- Three panels for every game: how it works, the level, and the game's own settings. -->
+		<div class="setup" class:bare={!hasSettings}>
+			<section class="panel pick" aria-labelledby="level-title">
+				<h2 id="level-title" class="title"><span class="title-icon" aria-hidden="true"><StatIcon name="levels" size={16} /></span>Level</h2>
 				<fieldset>
-					<legend class="sr-only">Choose the difficulty</legend>
-					{#each DIFFICULTIES.filter((d) => d.level === null) as d (d.id)}
-						<label class="adaptive" class:on={difficulty === d.id}>
-							<input type="radio" name="difficulty" value={d.id} bind:group={difficulty} />
-							<span class="mark" aria-hidden="true"></span>
-							<span class="adaptive-text">
-								<span class="adaptive-title">{d.label} <span class="tag">Recommended</span></span>
-								<span class="adaptive-note">{d.note} Next start: level {adaptiveLevel}.</span>
-							</span>
-						</label>
-					{/each}
-					<p class="or">Or a fixed level</p>
+					<legend class="sr-only">Choose the level</legend>
+					<label class="adaptive" class:on={difficulty === 'adaptive'}>
+						<input type="radio" name="difficulty" value="adaptive" bind:group={difficulty} />
+						<StatIcon name="adaptive" size={22} />
+						<span class="adaptive-text">
+							<span class="adaptive-title">Adaptive <span class="tag">Recommended</span></span>
+							<span class="adaptive-note">Next start <LevelBadge difficulty={adaptiveLevel} size={14} /></span>
+						</span>
+					</label>
 					<div class="levels">
 						{#each DIFFICULTIES.filter((d) => d.level !== null) as d (d.id)}
-							<label class="level" class:on={difficulty === d.id}>
+							<label class="level" class:on={difficulty === d.id} style:--level={`var(--level-${d.id})`}>
 								<input type="radio" name="difficulty" value={d.id} bind:group={difficulty} />
+								<LevelIcon id={d.id} size={18} />
 								<span class="level-name">{d.label}</span>
-								<span class="level-num">Level {d.level}</span>
 							</label>
 						{/each}
 					</div>
 				</fieldset>
+				<p class="chosen" aria-live="polite">{choice.note}</p>
+				{#if loadError}<p class="source-note" role="alert">The words could not be loaded. Check your connection and start again.</p>{/if}
+				<button type="button" class="btn btn-primary btn-lg start" onclick={begin}>
+					Start at {tierById(difficulty)?.name ?? 'Adaptive'} <Icon name="arrow" size={18} />
+				</button>
+			</section>
+
+			{#if hasSettings}
+			<section class="panel tune" aria-labelledby="tune-title">
+				<h2 id="tune-title" class="title"><span class="title-icon" aria-hidden="true"><StatIcon name="settings" size={16} /></span>Settings</h2>
 				{#if usesWords}
 					<label class="source">
-						<span class="source-label">Words</span>
+						<span class="source-label"><StatIcon name="set" size={14} /> Words</span>
 						<select bind:value={source}>
-							<option value="levels">By level (recommended)</option>
+							<option value="levels">Graded words (recommended)</option>
 							{#each ['English', 'Themed'] as group (group)}
 								<optgroup label={group}>
 									{#each WORD_LISTS.filter((l) => l.group === group) as l (l.id)}
@@ -253,73 +357,104 @@
 					{/if}
 				{/if}
 				{#if game.id === 'listen'}<SoundSettings compact /><ListenVoice set={source === 'levels' ? 'course' : source} />{/if}
-				{#if loadError}<p class="source-note" role="alert">The words could not be loaded. Check your connection and start again.</p>{/if}
-				<p class="chosen" aria-live="polite">{choice.level === null ? (continuous ? 'Adapts to you as you play.' : 'Adapts to you after every round.') : choice.note}</p>
-				<button type="button" class="btn btn-primary btn-lg start" onclick={begin}>
-					Start at level {startLevel} <Icon name="arrow" size={18} />
-				</button>
 			</section>
+			{/if}
+
+			<aside class="panel guide" aria-labelledby="rules-title">
+				<h2 id="rules-title" class="title"><span class="title-icon" aria-hidden="true"><StatIcon name="guide" size={16} /></span>How it works</h2>
+				{#if continuous}
+					<ol>
+						<li><b>Word after word</b> until you press Stop. No rounds, no tries.</li>
+						<li><b>Adaptive climbs</b> when you get words right on the first play, eases when you miss, and has no top.</li>
+						<li><b>Harder words score more.</b> Stop any time for your statistics.</li>
+					</ol>
+				{:else}
+					<ol>
+						<li><b>Round after round</b>, from Easy to Nightmare and past it.</li>
+						<li><b>{STRIKES} tries.</b> A missed round uses one; the run ends when they are gone.</li>
+						<li><b>Harder rounds score more.</b></li>
+					</ol>
+				{/if}
+				<p class="record">
+					<StatIcon name="score" size={14} />
+					{#if best}Best run <b>{best}&nbsp;points</b>{:else}No run yet{/if}
+				</p>
+			</aside>
 		</div>
 	{:else if continuous}
 		{#if phase === 'playing'}
 			<div class="hud">
-				<span><small>Level</small><b>{level}</b> {levelName(level)}</span>
-				<span><small>Words</small><b>{stats.words}</b></span>
-				<span><small>Right</small><b>{stats.accuracy}%</b></span>
-				<span><small>Streak</small><b>{stats.streak}</b></span>
-				<span><small>Score</small><b>{stats.score}</b></span>
-				<button type="button" class="btn stop" onclick={stop}><Icon name="flag" size={16} /> Stop</button>
+				<RunBar
+					difficulty={level}
+					adaptive={choice.level === null}
+					set={setName}
+					stats={[
+						{ icon: 'words', label: 'Words', value: stats.words },
+						{ icon: 'right', label: 'Right', value: `${stats.accuracy}%` },
+						{ icon: 'streak', label: 'Streak', value: stats.streak },
+						{ icon: 'score', label: 'Score', value: stats.score }
+					]}
+				>
+					{#snippet actions()}<button type="button" class="btn stop" onclick={stop}><Icon name="flag" size={16} /> Stop</button>{/snippet}
+				</RunBar>
 			</div>
-			{#key round}
-				<ListenType pool={LETTERS} focus="" set={source === 'levels' ? 'course' : source} feed={{ level, adaptive: choice.level === null, words: poolFor, onanswer: answered }} />
-			{/key}
+			<!-- Listen and type fills the rest of the screen, its stage centred in it. -->
+			<div class="arena">
+				{#key round}
+					<ListenType pool={LETTERS} focus="" set={source === 'levels' ? 'course' : source} feed={{ level, adaptive: choice.level === null, words: poolFor, onanswer: answered }} />
+				{/key}
+			</div>
 		{:else if practicing}
 			<!-- The run's missed words, once more and unscored; then back to the run's results. -->
 			<ListenType pool={LETTERS} focus="" words={practicing} count={practicing.length} target={0} practice set={source === 'levels' ? 'course' : source} oncomplete={() => (practicing = null)} />
 		{:else}
-			<section class="result" aria-labelledby="round-title">
-				<span class="badge" aria-hidden="true"><Icon name="flag" size={26} /></span>
-				<h2 id="round-title">Run complete</h2>
-				<p>{stats.words ? `${stats.words} ${stats.words === 1 ? 'word' : 'words'} in ${duration(seconds)}.` : 'You stopped before the first word.'}</p>
-				<dl class="totals stats">
-					<div><dt>Score</dt><dd>{stats.score}</dd></div>
-					<div><dt>Right</dt><dd>{stats.accuracy}%</dd></div>
-					<div><dt>Best streak</dt><dd>{stats.bestStreak}</dd></div>
-					<div><dt>Highest level</dt><dd>{stats.topLevel || '–'}</dd></div>
-					<div><dt>Exact</dt><dd>{stats.exact}</dd></div>
-					<div><dt>Accepted</dt><dd>{stats.accepted}</dd></div>
-					<div><dt>Close</dt><dd>{stats.close}</dd></div>
-					<div><dt>Missed</dt><dd>{stats.missed}</dd></div>
-					<div><dt>Plays per word</dt><dd>{stats.plays || '–'}</dd></div>
-				</dl>
-				{#if stats.misses.length}
-					<div class="misses">
-						<h3>Words to practice</h3>
-						<ul>
-							{#each stats.misses as m, i (i)}<li><b>{m.word}</b> <span>you typed {m.typed}</span></li>{/each}
-						</ul>
-						<button type="button" class="btn" onclick={() => (practicing = [...new Set(stats.misses.map((m) => m.word))])}>Practice these words</button>
-					</div>
-				{/if}
-				<p class="best">{newBest ? 'A new best run.' : best ? `Your best run: ${best} points.` : ''}</p>
-				<div class="row">
-					<button bind:this={nextButton} type="button" class="btn btn-primary btn-lg" onclick={begin}>
-						<Icon name="repeat" size={18} /> Play again
-					</button>
-					<button type="button" class="btn btn-lg" onclick={() => (phase = 'setup')}>Change difficulty</button>
-				</div>
-			</section>
+			<RunResult
+				summary={stats.words ? `${stats.words} ${stats.words === 1 ? 'word' : 'words'} in ${duration(seconds)}.` : 'You stopped before the first word.'}
+				score={stats.score}
+				{best}
+				{newBest}
+				top={stats.words ? stats.topLevel : 0}
+				stats={[
+					{ icon: 'right', label: 'Right', value: `${stats.accuracy}%` },
+					{ icon: 'streak', label: 'Best streak', value: stats.bestStreak },
+					{ icon: 'plays', label: 'Plays per word', value: stats.plays || '–' },
+					{ icon: 'time', label: 'Time', value: duration(seconds) }
+				]}
+				split={[
+					{ label: 'Exact', count: stats.exact, color: '--success' },
+					{ label: 'Accepted', count: stats.accepted, color: '--info' },
+					{ label: 'Close', count: stats.close, color: '--reward' },
+					{ label: 'Missed', count: stats.missed, color: '--error' }
+				]}
+				misses={stats.misses}
+			>
+				{#snippet actions()}
+					<button bind:this={nextButton} type="button" class="btn btn-primary btn-lg" onclick={begin}><Icon name="repeat" size={18} /> Play again</button>
+					{#if stats.misses.length}
+						<button type="button" class="btn btn-lg" onclick={() => (practicing = [...new Set(stats.misses.map((m) => m.word))])}>Practice these words</button>
+					{/if}
+					<button type="button" class="btn btn-lg" onclick={leave}>Change difficulty</button>
+				{/snippet}
+			</RunResult>
 		{/if}
 	{:else}
-		<div class="hud" aria-live="polite">
-			<span><small>Level</small><b>{level}</b> {levelName(level)}</span>
-			<span><small>Round</small><b>{round}</b></span>
-			<span><small>Score</small><b>{score}</b></span>
-			<span class="strikes" aria-label={`${STRIKES - strikes} of ${STRIKES} tries left`}>
-				<small>Tries</small>
-				{#each Array.from({ length: STRIKES }) as _, i (i)}<span class="strike" class:used={i < strikes}></span>{/each}
-			</span>
-			<span class="mode">{choice.level === null ? 'Adaptive difficulty' : 'Fixed difficulty'}</span>
+		<div class="hud">
+			<RunBar
+				difficulty={level}
+				adaptive={choice.level === null}
+				set={usesWords ? setName : undefined}
+				stats={[
+					{ icon: 'round', label: 'Round', value: round },
+					{ icon: 'score', label: 'Score', value: score }
+				]}
+			>
+				{#snippet extra()}
+					<li class="tries" data-tip="Tries left">
+						{#each Array.from({ length: STRIKES }) as _, i (i)}<span class="try" class:used={i >= STRIKES - strikes}><StatIcon name="tries" size={16} /></span>{/each}
+						<span class="sr-only">{STRIKES - strikes} of {STRIKES} tries left</span>
+					</li>
+				{/snippet}
+			</RunBar>
 		</div>
 
 		{#if phase === 'loading'}
@@ -330,13 +465,15 @@
 				</SkeletonRegion>
 			</div>
 		{:else if phase === 'playing'}
+			<!-- Every game fills the rest of the screen; the falling games keep their timing at any height. -->
+			<div class="arena">
 			{#key round}
 				{#if game.id === 'race'}
 					<Race pool={LETTERS} focus="" {words} count={settings.count!} pacerWpm={settings.pacerWpm!} oncomplete={done} />
 				{:else if game.id === 'falling-words'}
-					<FallingGame items="words" pool={LETTERS} focus="" {words} target={settings.target!} pace={settings.pace} oncomplete={done} />
+					<FallingGame items="words" pool={LETTERS} focus="" {words} target={settings.target!} pace={settings.pace} fill oncomplete={done} />
 				{:else if game.id === 'falling-letters'}
-					<FallingGame items="letters" pool={LETTERS} focus="" target={settings.target!} pace={settings.pace} oncomplete={done} />
+					<FallingGame items="letters" pool={LETTERS} focus="" target={settings.target!} pace={settings.pace} fill oncomplete={done} />
 				{:else if game.id === 'echo'}
 					<Echo pool={LETTERS} start={settings.start!} target={settings.target!} showMs={settings.showMs} {words} oncomplete={done} />
 				{:else if game.id === 'listen'}
@@ -345,6 +482,24 @@
 					<KeyHunt pool={LETTERS} focus="" target={settings.target!} pace={settings.pace} oncomplete={done} />
 				{/if}
 			{/key}
+			</div>
+		{:else if last && phase === 'over'}
+			<RunResult
+				summary={last.summary}
+				{score}
+				{best}
+				{newBest}
+				top={topLevel}
+				stats={[
+					{ icon: 'round', label: 'Rounds cleared', value: cleared },
+					{ icon: 'tries', label: 'Rounds played', value: round }
+				]}
+			>
+				{#snippet actions()}
+					<button bind:this={nextButton} type="button" class="btn btn-primary btn-lg" onclick={begin}><Icon name="repeat" size={18} /> Play again</button>
+					<button type="button" class="btn btn-lg" onclick={leave}>Change difficulty</button>
+				{/snippet}
+			</RunResult>
 		{:else if last}
 			<section class="result" class:passed={last.passed} aria-labelledby="round-title">
 				<span class="badge" aria-hidden="true"><Icon name={phase === 'over' ? 'flag' : last.passed ? 'check' : 'restart'} size={26} /></span>
@@ -352,26 +507,9 @@
 					{phase === 'over' ? 'Run complete' : last.passed ? `Round ${round} cleared` : `Round ${round} missed`}
 				</h2>
 				<p>{last.summary}</p>
-				{#if phase === 'over'}
-					<dl class="totals">
-						<div><dt>Score</dt><dd>{score}</dd></div>
-						<div><dt>Rounds cleared</dt><dd>{cleared}</dd></div>
-						<div><dt>Highest level</dt><dd>{topLevel || '–'}</dd></div>
-					</dl>
-					<p class="best">{newBest ? 'A new best run.' : best ? `Your best run: ${best} points.` : ''}</p>
-					<div class="row">
-						<button bind:this={nextButton} type="button" class="btn btn-primary btn-lg" onclick={begin}>
-							<Icon name="repeat" size={18} /> Play again
-						</button>
-						<button type="button" class="btn btn-lg" onclick={() => (phase = 'setup')}>Change difficulty</button>
-					</div>
-				{:else}
+				{#if phase !== 'over'}
 					<p class="next">
-						{#if choice.level === null}
-							{last.next > last.level ? `Next round: level ${last.next}, a step harder.` : last.next < last.level ? `Next round: level ${last.next}, a step easier.` : `Next round: level ${last.next}.`}
-						{:else}
-							Next round: level {last.next}.
-						{/if}
+						Next round: <LevelBadge difficulty={last.next} />{choice.level === null && last.next > last.level ? ', a little harder' : choice.level === null && last.next < last.level ? ', a little easier' : ''}.
 						{STRIKES - strikes} {STRIKES - strikes === 1 ? 'try' : 'tries'} left.
 					</p>
 					<div class="row">
@@ -396,54 +534,82 @@
 	}
 	.setup {
 		display: grid;
-		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
-		gap: clamp(var(--space-20), 4vw, var(--space-48));
-		align-items: start;
+		grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 0.85fr);
+		gap: var(--space-16);
+		align-items: stretch;
 	}
-	h2 {
-		font-size: var(--fs-24);
-	}
-	.rules {
-		padding-top: var(--space-4);
-	}
-	.rules ol {
+	.panel {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-16);
-		margin: var(--space-16) 0 0;
+		gap: var(--space-12);
+		min-width: 0;
+		padding: var(--space-20);
+		border-radius: var(--radius);
+		border: 1px solid var(--line);
+		background: var(--surface);
+	}
+	h2 {
+		font-size: var(--fs-18);
+	}
+	.title {
+		display: flex;
+		align-items: center;
+		gap: var(--space-10);
+	}
+	/* Panel titles carry the games area's hue on a tint. */
+	.title-icon {
+		display: grid;
+		place-items: center;
+		width: 28px;
+		height: 28px;
+		border-radius: var(--radius);
+		background: var(--reward-soft);
+		color: var(--reward);
+	}
+	.guide {
+		background: transparent;
+	}
+	.guide ol {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-12);
+		margin: 0;
 		padding: 0;
 		list-style: none;
 		counter-reset: rule;
 	}
-	.rules li {
+	.guide li {
 		position: relative;
-		padding-left: var(--space-40);
-		font-size: var(--fs-15);
+		padding-left: var(--space-32);
+		font-size: var(--fs-14);
 		line-height: var(--lh-body);
 		color: var(--ink-2);
 		counter-increment: rule;
 	}
-	.rules li::before {
+	.guide li::before {
 		content: counter(rule);
 		position: absolute;
 		left: 0;
-		top: 0;
+		top: var(--space-2);
 		display: grid;
 		place-items: center;
-		width: 24px;
-		height: 24px;
+		width: 20px;
+		height: 20px;
 		border-radius: var(--radius);
 		background: var(--surface-2);
 		color: var(--ink);
-		font-size: var(--fs-13);
+		font-size: var(--fs-12);
 		font-weight: var(--fw-bold);
 	}
-	.rules b {
+	.guide b {
 		color: var(--ink);
 	}
 	.record {
-		margin-top: var(--space-24);
-		padding-top: var(--space-16);
+		display: flex;
+		align-items: center;
+		gap: var(--space-6);
+		margin-top: auto;
+		padding-top: var(--space-12);
 		border-top: 1px solid var(--line);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
@@ -452,19 +618,10 @@
 		color: var(--ink);
 		font-variant-numeric: tabular-nums;
 	}
-	.difficulty {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-16);
-		padding: clamp(var(--space-20), 3vw, var(--space-32));
-		border-radius: var(--radius);
-		border: 1px solid var(--line);
-		background: var(--surface);
-	}
 	fieldset {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-10);
+		gap: var(--space-8);
 		margin: 0;
 		padding: 0;
 		border: 0;
@@ -478,6 +635,8 @@
 	.adaptive,
 	.level {
 		position: relative;
+		display: flex;
+		align-items: center;
 		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
 		background: var(--bg);
@@ -496,26 +655,13 @@
 		outline-offset: 2px;
 	}
 	.adaptive {
-		display: flex;
-		align-items: flex-start;
 		gap: var(--space-12);
-		padding: var(--space-16) var(--space-16);
-	}
-	.mark {
-		flex-shrink: 0;
-		width: 18px;
-		height: 18px;
-		margin-top: var(--space-2);
-		border-radius: 50%;
-		border: 1.5px solid var(--ink-3);
-	}
-	.adaptive.on .mark {
-		border: 5px solid var(--ink);
+		padding: var(--space-10) var(--space-12);
 	}
 	.adaptive-text {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-4);
+		gap: var(--space-2);
 	}
 	.adaptive-title {
 		display: flex;
@@ -524,68 +670,60 @@
 		font-weight: var(--fw-bold);
 	}
 	.tag {
-		padding: 1px var(--space-8);
+		padding: 1px var(--space-6);
 		border-radius: var(--radius);
 		background: var(--accent);
 		color: var(--on-accent);
-		font-size: var(--fs-12);
+		font-size: var(--fs-11);
 		font-weight: var(--fw-bold);
 	}
 	.adaptive-note {
-		font-size: var(--fs-14);
-		line-height: var(--lh-body);
-		color: var(--ink-2);
-	}
-	.or {
-		margin-top: var(--space-6);
+		display: flex;
+		align-items: center;
+		gap: var(--space-6);
 		font-size: var(--fs-13);
-		font-weight: var(--fw-semibold);
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	.levels {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); /* off-scale: fits "Nightmare" with its icon */
 		gap: var(--space-6);
 	}
 	.level {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: var(--space-2);
-		padding: var(--space-10) var(--space-6);
-		text-align: center;
+		gap: var(--space-8);
+		padding: var(--space-8) var(--space-10);
 	}
 	.level-name {
 		font-size: var(--fs-14);
-		font-weight: var(--fw-bold);
-	}
-	.level-num {
-		font-size: var(--fs-12);
-		color: var(--ink-3);
-		font-variant-numeric: tabular-nums;
+		font-weight: var(--fw-semibold);
 	}
 	.adaptive.on,
 	.level.on {
 		border-color: var(--ink);
 		background: var(--surface-2);
 	}
+	.level.on {
+		border-color: var(--level);
+		background: color-mix(in srgb, var(--level) 12%, var(--bg));
+	}
 	.source {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--space-10);
+		display: grid;
+		gap: var(--space-6);
 		font-size: var(--fs-14);
 	}
 	.source-label {
+		display: flex;
+		align-items: center;
+		gap: var(--space-6);
 		font-size: var(--fs-13);
 		font-weight: var(--fw-semibold);
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 	.source select {
 		padding: var(--space-8) var(--space-10);
 		border-radius: var(--radius);
 		border: 1px solid var(--line-strong);
-		background: var(--surface);
+		background: var(--bg);
 		color: var(--ink);
 		font-size: var(--fs-14);
 	}
@@ -599,116 +737,61 @@
 		text-underline-offset: 2px;
 	}
 	.chosen {
-		min-height: 1.5em;
-		font-size: var(--fs-14);
+		min-height: 3em;
+		font-size: var(--fs-13);
+		line-height: var(--lh-body);
 		color: var(--ink-2);
 	}
 	.start {
-		align-self: flex-start;
+		margin-top: auto;
+		justify-content: center;
+	}
+	.setup.bare {
+		grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+	}
+	@media (max-width: 1100px) {
+		.setup {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.setup:not(.bare) .guide {
+			grid-column: 1 / -1;
+		}
 	}
 	@media (max-width: 760px) {
 		.setup {
 			grid-template-columns: 1fr;
 		}
-		/* On narrow screens the choice and the start button come first. */
-		.difficulty {
-			order: -1;
-		}
 	}
-	@media (max-width: 560px) {
-		.levels {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-		.start {
-			align-self: stretch;
-			justify-content: center;
-		}
-	}
-	.hud {
+	.arena {
+		flex: 1;
 		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--space-8) var(--space-24);
-		padding: var(--space-10) var(--space-16);
-		border-radius: var(--radius);
-		border: 1px solid var(--line);
-		background: var(--surface);
-		font-size: var(--fs-14);
-		color: var(--ink-2);
-		font-variant-numeric: tabular-nums;
+		flex-direction: column;
 	}
-	.hud > span {
+	.arena > :global(.game) {
+		flex: 1;
+	}
+	.arena :global(.game > .stage) {
+		flex: 1;
+	}
+	.arena :global(.game > .stage > .layer) {
+		align-self: center;
+	}
+	.tries {
+		gap: var(--space-2) !important;
+	}
+	.try {
 		display: inline-flex;
-		align-items: baseline;
-		gap: var(--space-6);
-	}
-	.hud small {
-		font-size: var(--fs-12);
-		color: var(--ink-3);
-	}
-	.hud b {
-		font-size: var(--fs-18);
 		color: var(--ink);
-	}
-	.strikes {
-		align-items: center !important;
-	}
-	.strike {
-		width: 12px;
-		height: 12px;
-		border-radius: var(--radius);
-		background: var(--ink);
 		transition: opacity var(--dur-base) var(--ease-out);
 	}
-	.strike.used {
-		opacity: 0.15;
+	.try.used {
+		color: var(--ink-3);
+		opacity: 0.35;
 	}
 	.stop {
-		margin-left: auto;
 		min-height: 36px;
 		padding: 0 var(--space-12);
 		font-size: var(--fs-14);
-	}
-	.totals.stats {
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: var(--space-16) var(--space-32);
-	}
-	.misses {
-		width: min(100%, var(--w-form));
-		margin-top: var(--space-8);
-		text-align: left;
-	}
-	.misses h3 {
-		font-size: var(--fs-15);
-		color: var(--ink);
-	}
-	.misses ul {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--space-6) var(--space-16);
-		margin: var(--space-8) 0 0;
-		padding: 0;
-		list-style: none;
-		font-size: var(--fs-14);
-		color: var(--ink-3);
-	}
-	.misses .btn {
-		margin-top: var(--space-12);
-	}
-	.misses b {
-		font-family: var(--font-mono);
-		color: var(--ink);
-	}
-	@media (max-width: 560px) {
-		.totals.stats {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-	}
-	.mode {
-		margin-left: auto;
-		font-weight: var(--fw-semibold);
-		color: var(--ink);
 	}
 	.loading {
 		padding: var(--space-24) 0;
@@ -747,28 +830,6 @@
 		color: var(--ink-2);
 		line-height: var(--lh-body);
 		text-wrap: pretty;
-	}
-	.totals {
-		display: flex;
-		gap: var(--space-32);
-		margin-top: var(--space-4);
-	}
-	.totals div {
-		display: flex;
-		flex-direction: column;
-	}
-	.totals dt {
-		font-size: var(--fs-13);
-		color: var(--ink-2);
-	}
-	.totals dd {
-		font-size: var(--fs-32);
-		font-weight: var(--fw-bold);
-		font-variant-numeric: tabular-nums;
-	}
-	.best {
-		font-weight: var(--fw-semibold);
-		color: var(--ink) !important;
 	}
 	.row {
 		display: flex;

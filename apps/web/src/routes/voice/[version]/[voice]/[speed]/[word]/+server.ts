@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { readFile } from 'node:fs/promises';
-import { isSpeakable } from '#lib/voice/clip.ts';
+import { NEED_HEADER, isSpeakable, needOf } from '#lib/voice/clip.ts';
 import { networkOf } from '#lib/server/bot/risk.ts';
 import { DATA_DIR } from '#lib/server/config.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
@@ -34,14 +34,14 @@ export const GET: RequestHandler = async (event) => {
 		if (mp3) return new Response(new Uint8Array(mp3), { headers: { ...SAFE, 'Content-Type': 'audio/mpeg', 'Cache-Control': KEEP, 'X-Voice': 'supertonic' } });
 	}
 
-	// Standard (Kokoro): rendered per word and speed on first request; rendering is rate-limited.
+	// Standard (Kokoro): rendered per word and speed on first request, the word in play first; rendering is rate-limited.
 	if (!hasStandardClip(word, speed)) {
 		const ip = addressOf(event) ?? 'unknown';
 		if (!rateLimit(`voice:${ip}`, 300, TEN_MINUTES).ok || !rateLimit(`voice:net:${networkOf(ip)}`, 1_500, TEN_MINUTES).ok) {
 			error(429, 'Too many words at once. Try again in a few minutes.');
 		}
 	}
-	const wav = await clip(word, speed).catch((e: unknown) => {
+	const wav = await clip(word, speed, needOf(event.request.headers.get(NEED_HEADER))).catch((e: unknown) => {
 		console.error(JSON.stringify({ kind: 'voice', word, speed, error: e instanceof Error ? e.message : String(e) }));
 		error(503, 'The voice is not available right now.');
 	});

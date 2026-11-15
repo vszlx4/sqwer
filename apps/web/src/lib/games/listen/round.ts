@@ -1,8 +1,8 @@
 /*
  * A Listen and type round as plain state, so screens only render it: intro → listening → answered → (next word |
  * review) → done. Lessons play a fixed list and pass by points; a practice round of missed words is ungraded.
- * Replays are unlimited in lessons and at endless levels 1-4, then three per word (5-8) and one (9-12); from level 5
- * the slow clip counts as a replay.
+ * Replays are unlimited in lessons and in endless Easy and Medium, then three per word (Hard, Expert), one (Insane,
+ * Nightmare) and none deep past Nightmare; once limited, the slow clip counts as a replay.
  */
 
 import { accuracyOf, passed, pointsOf, type Answer } from './score.ts';
@@ -75,13 +75,14 @@ export function result(r: Round): RoundResult {
 
 export type Speed = 'normal' | 'slow';
 
-/** Replays allowed per word: lessons (level null) and levels 1-4 unlimited, 5-8 three, 9-12 one. */
+/** Replays allowed per word: lessons (level null) and up to Medium unlimited, then three, one from Insane, none deep in Nightmare. */
 export function replayLimit(level: number | null): number {
-	if (level === null || level <= 4) return Infinity;
-	return level <= 8 ? 3 : 1;
+	if (level === null || level < 5) return Infinity;
+	if (level < 9) return 3;
+	return level < 14 ? 1 : 0;
 }
 
-/** Whether a slow play counts against the replays (from level 5). */
+/** Whether a slow play counts against the replays (once replays are limited). */
 export const slowCounts = (level: number | null) => level !== null && level >= 5;
 
 /** Whether the word may be played again at this speed. The first play of a word is free. */

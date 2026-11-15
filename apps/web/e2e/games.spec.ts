@@ -12,22 +12,110 @@ test('endless games are listed in practice and play round after round at the cho
 	await expect(page).toHaveURL(/\/play\/falling-words$/);
 
 	// The difficulty is chosen before the run starts.
-	await expect(page.getByRole('heading', { name: 'Difficulty', exact: true })).toBeVisible();
-	await page.locator('.level', { hasText: 'Gentle' }).click();
-	await expect(page.getByRole('radio', { name: /Gentle/ })).toBeChecked();
-	await page.getByRole('button', { name: 'Start at level 2' }).click();
-	await expect(page.locator('.hud')).toContainText('Gentle');
+	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
+	await page.locator('.level', { hasText: 'Easy' }).click();
+	await expect(page.getByRole('radio', { name: 'Easy', exact: true })).toBeChecked();
+	await page.getByRole('button', { name: 'Start at Easy' }).click();
+	await expect(page.locator('.endless > .hud')).toContainText('Easy');
 
 	await playFalling(page);
 	await expect(page.getByRole('heading', { name: 'Round 1 cleared' })).toBeVisible();
-	await expect(page.getByText('Next round: level 2.')).toBeVisible();
+	await expect(page.locator('.next')).toContainText('Next round: Easy.');
 
 	// Ending the run shows the totals and keeps the best score.
 	await page.getByRole('button', { name: 'End the run' }).click();
 	await expect(page.getByRole('heading', { name: 'Run complete' })).toBeVisible();
-	await expect(page.locator('.totals')).toContainText('Score2');
+	await expect(page.locator('.run-result .points')).toHaveText('2');
 	await page.goto('/exams');
 	await expect(page.locator('#games').getByRole('link', { name: /Falling words/ })).toContainText('Best 2');
+});
+
+test('a run starts at the top and fills the first screen; the footer waits below', async ({ page }) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await page.goto('/play/falling-letters', { waitUntil: 'networkidle' });
+	await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+	await page.getByRole('button', { name: /^Start/ }).click();
+	await expect(page.locator('.endless > .hud')).toBeVisible();
+	await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+	await expect(page.getByRole('heading', { level: 1 })).toHaveClass(/sr-only/);
+	const footerTop = await page.locator('footer').evaluate((f) => f.getBoundingClientRect().top);
+	expect(footerTop).toBeGreaterThanOrEqual(900);
+});
+
+test('every game opens on the same menu: level, settings where it has any, how it works', async ({ page }) => {
+	test.setTimeout(120_000);
+	for (const width of [1440, 375]) {
+		await page.setViewportSize({ width, height: 900 });
+		for (const game of ['race', 'falling-words', 'falling-letters', 'echo', 'listen', 'keyhunt']) {
+			await page.goto(`/play/${game}`, { waitUntil: 'networkidle' });
+			await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
+			await expect(page.getByRole('heading', { name: 'How it works' })).toBeVisible();
+			await expect(page.getByRole('heading', { name: 'Settings' })).toHaveCount(['falling-letters', 'keyhunt'].includes(game) ? 0 : 1);
+			await expect(page.getByRole('radio')).toHaveCount(7);
+			await expect(page.getByRole('button', { name: /^Start at/ })).toBeVisible();
+			expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `${game} at ${width}`).toBe(true);
+			if (width === 1440 && (game === 'listen' || game === 'keyhunt')) {
+				expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+			}
+		}
+	}
+});
+
+test('adaptive says so when a round moves the run into another level', async ({ page }) => {
+	test.setTimeout(120_000);
+	await page.goto('/play/falling-letters', { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: 'Start at Adaptive' }).click();
+	await expect(page.locator('.runbar .level')).toContainText('Easy');
+	await playFalling(page);
+	await expect(page.getByRole('heading', { name: 'Round 1 cleared' })).toBeVisible();
+	await page.keyboard.press('Enter');
+	await expect(page.locator('.runbar .level')).toContainText('Medium');
+	await expect(page.locator('.runbar .note')).toHaveText('Level up: Medium');
+	await expect(page.locator('.runbar .note')).toHaveCount(0, { timeout: 5000 });
+});
+
+test('Back retraces the journey: run → its menu → Practice, each where it was scrolled', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/exams', { waitUntil: 'networkidle' });
+	await page.locator('#games').scrollIntoViewIfNeeded();
+	const practiceY = await page.evaluate(() => Math.round(window.scrollY));
+	await page.locator('#games').getByRole('link', { name: /Key hunt/ }).click();
+	await expect(page).toHaveURL(/\/play\/keyhunt$/);
+	// The arrival scroll can land late under load: scroll until the menu sits at 200.
+	await expect.poll(() => page.evaluate(() => (window.scrollTo(0, 200), Math.round(window.scrollY)))).toBe(200);
+	// Clicked from the page, so the menu stays where it was scrolled (a Playwright click scrolls the button into view);
+	// the position at the click is the one Back must return to.
+	const menuY = await page.getByRole('button', { name: /^Start at/ }).evaluate((b: HTMLButtonElement) => {
+		const y = Math.round(window.scrollY);
+		b.click();
+		return y;
+	});
+	await expect(page.locator('.runbar')).toBeVisible();
+
+	await page.goBack();
+	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
+	await expect(page).toHaveURL(/\/play\/keyhunt$/);
+	await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBe(menuY);
+
+	// Forward does not bring a left run back.
+	await page.goForward();
+	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
+	await expect(page.locator('.runbar')).toHaveCount(0);
+
+	await page.goBack();
+	await expect(page).toHaveURL(/\/exams$/);
+	await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBeGreaterThan(practiceY - 10);
+});
+
+test('Change difficulty on the results goes back to the menu the same way Back does', async ({ page }) => {
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: /^Start at/ }).click();
+	await page.getByRole('button', { name: 'Stop' }).click();
+	await page.getByRole('button', { name: 'Change difficulty' }).click();
+	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
+	// The run's entry is gone: one more Back leaves the game.
+	await page.goBack();
+	await expect(page).not.toHaveURL(/\/play\/listen$/);
 });
 
 test('an unknown game is not found', async ({ page }) => {
@@ -37,7 +125,7 @@ test('an unknown game is not found', async ({ page }) => {
 
 test('Listen and type: endless words, the explanation in place, Stop with statistics', async ({ page }) => {
 	await page.goto('/play/listen');
-	await page.getByRole('button', { name: /Start at level/ }).click();
+	await page.getByRole('button', { name: /^Start at/ }).click();
 
 	// Endless: no ready screen, count-in, goal or tries.
 	const input = page.getByTestId('listen-input');
@@ -66,12 +154,16 @@ test('Listen and type: endless words, the explanation in place, Stop with statis
 	await expect(page.getByRole('list', { name: 'Word 2' })).toBeVisible();
 	await expect(input).toBeFocused();
 	await expect(page.locator('.marks .status-mark').first()).toHaveAttribute('data-status', 'failed');
-	await expect(page.locator('.hud')).toContainText('Words1');
+	await expect(page.locator('.hud')).toContainText(/1\s*Words/);
 
 	await page.getByRole('button', { name: 'Stop' }).click();
 	await expect(page.getByRole('heading', { name: 'Run complete' })).toBeVisible();
-	await expect(page.getByRole('heading', { name: 'Words to practice' })).toBeVisible();
-	await expect(page.getByText('you typed zqzq')).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'To practice' })).toBeVisible();
+	await expect(page.locator('.misses li').first()).toHaveAttribute('title', 'You typed zqzq');
+	// The results fit the first screen and pass axe.
+	const bottom = await page.locator('.run-result').evaluate((e) => e.getBoundingClientRect().bottom);
+	expect(bottom).toBeLessThanOrEqual(page.viewportSize()!.height);
+	expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
 });
 
 /** A short 440 Hz tone as a 16-bit mono WAV, standing in for a word's clip. */
@@ -111,7 +203,7 @@ test('Listen and type plays each word from its clip, and Slow from its own', asy
 		};
 	});
 	await page.goto('/play/listen', { waitUntil: 'networkidle' });
-	await page.getByRole('button', { name: /Start at level/ }).click();
+	await page.getByRole('button', { name: /^Start at/ }).click();
 
 	await expect.poll(() => page.evaluate(() => (window as unknown as { played: number }).played)).toBeGreaterThan(0);
 	expect(asked.some((p) => /^\/voice\/[0-9a-f]{10}\/auto\/normal\/[a-z'-]+$/.test(p))).toBe(true);
@@ -141,7 +233,7 @@ test('Listen and type plays a test word from the sound settings', async ({ page 
 test('Listen and type says so when the voice keeps failing, and shows the words', async ({ page }) => {
 	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ status: 503, body: 'down' }));
 	await page.goto('/play/listen', { waitUntil: 'networkidle' });
-	await page.getByRole('button', { name: /Start at level/ }).click();
+	await page.getByRole('button', { name: /^Start at/ }).click();
 	await expect(page.locator('.player .shown')).toHaveText(/^[a-z'-]+$/);
 	await page.getByRole('button', { name: 'Play the word again' }).click();
 	await expect(page.locator('.state')).toContainText('The voice is not answering. Words are shown instead.');
@@ -150,7 +242,7 @@ test('Listen and type says so when the voice keeps failing, and shows the words'
 test('Listen and type shows the words instead when sound is turned off in settings', async ({ page }) => {
 	await page.goto('/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('checkbox', { name: /Show words instead of sound/ }).check();
-	await page.getByRole('button', { name: /Start at level/ }).click();
+	await page.getByRole('button', { name: /^Start at/ }).click();
 	await expect(page.locator('.player .shown')).toHaveText(/^[a-z'-]+$/);
 	await expect(page.getByRole('button', { name: 'Slow' })).toHaveCount(0);
 	await page.reload({ waitUntil: 'networkidle' });
@@ -160,7 +252,7 @@ test('Listen and type shows the words instead when sound is turned off in settin
 test('Listen and type: a missed word is practiced unscored after Stop, then the review leads back to the run', async ({ page }) => {
 	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav() }));
 	await page.goto('/play/listen', { waitUntil: 'networkidle' });
-	await page.getByRole('button', { name: /Start at level/ }).click();
+	await page.getByRole('button', { name: /^Start at/ }).click();
 	const input = page.getByTestId('listen-input');
 	await expect(input).toBeEnabled();
 	// The first word is up once it has played.
@@ -192,8 +284,8 @@ test('Listen and type: a missed word is practiced unscored after Stop, then the 
 test('Listen and type limits replays at high levels', async ({ page }) => {
 	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.15) }));
 	await page.goto('/play/listen', { waitUntil: 'networkidle' });
-	await page.getByText('Expert', { exact: true }).click();
-	await page.getByRole('button', { name: /Start at level 10/ }).click();
+	await page.getByText('Insane', { exact: true }).click();
+	await page.getByRole('button', { name: 'Start at Insane' }).click();
 	await expect(page.locator('.state')).toContainText('1 replay left');
 	const again = page.getByRole('button', { name: 'Play the word again' });
 	await expect(again).toBeEnabled();
@@ -214,9 +306,11 @@ test('Listen and type does not count a play that was not heard', async ({ page }
 		return route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.15) });
 	});
 	await page.goto('/play/listen', { waitUntil: 'networkidle' });
-	await page.getByText('Expert', { exact: true }).click();
-	await page.getByRole('button', { name: /Start at level 10/ }).click();
+	await page.getByText('Insane', { exact: true }).click();
+	await page.getByRole('button', { name: 'Start at Insane' }).click();
 	await expect.poll(() => failed).toBeGreaterThan(0);
+	// The first play, made once the word is on screen, fails too: the word is shown instead.
+	await expect(page.locator('.player .shown')).toBeVisible();
 	const again = page.getByRole('button', { name: 'Play the word again' });
 	await expect(again).toBeEnabled();
 	down = false;
@@ -234,14 +328,17 @@ test('Listen and type fast mode moves on the moment a word is typed right, and E
 	await page.goto('/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('checkbox', { name: /Fast mode/ }).check();
 	await page.getByRole('checkbox', { name: /Show words instead of sound/ }).check();
-	await page.getByRole('button', { name: /Start at level/ }).click();
+	await page.getByRole('button', { name: /^Start at/ }).click();
 
 	const input = page.getByTestId('listen-input');
 	await expect(input).toBeFocused();
 	const word = (await page.locator('.player .shown').textContent())!.trim();
 	await page.keyboard.type(word);
+	// The whole word stays on screen, marked right, before the next one takes its place.
+	await expect(input).toHaveValue(word);
+	await expect(input).toHaveClass(/held/);
 	// No Enter: the next word is up and the answer box is empty again.
-	await expect(page.locator('.hud')).toContainText('Words1');
+	await expect(page.locator('.hud')).toContainText(/1\s*Words/);
 	await expect(input).toHaveValue('');
 	await expect(page.locator('#listen-grade')).toHaveCount(0);
 
@@ -256,13 +353,13 @@ test('Listen and type fast mode moves on the moment a word is typed right, and E
 	// Esc skips a word it cannot get, and shows what it was.
 	await page.keyboard.press('Escape');
 	await expect(page.locator('#listen-grade')).toContainText('Not quite');
-	await expect(page.locator('.hud')).toContainText('Words2');
+	await expect(page.locator('.hud')).toContainText(/2\s*Words/);
 });
 
 test('the Listen and type answer box takes letters only', async ({ page }) => {
 	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.1) }));
 	await page.goto('/play/listen', { waitUntil: 'networkidle' });
-	await page.getByRole('button', { name: /Start at level/ }).click();
+	await page.getByRole('button', { name: /^Start at/ }).click();
 	const input = page.getByTestId('listen-input');
 	await expect(input).toBeEnabled();
 	await expect(page.locator('.state')).toContainText('Heard');

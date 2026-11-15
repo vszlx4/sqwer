@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { FADE, MEMORY, Player } from './player.ts';
+import { CLIP_TIMEOUT_MS, FADE, FETCHES, MEMORY, Player, LEAD } from './player.ts';
 
 /* A fake audio graph: clips "play" until the test ends them; gains record their ramps. */
 class FakeParam {
@@ -183,6 +183,34 @@ describe('voice player', () => {
 		expect(calls).toEqual([`/voice/v1/auto/normal/${name(MEMORY)}`, `/voice/v1/auto/normal/${name(1)}`]);
 	});
 
+	it('times the waveform by what is heard: the start ahead of the clock plus the output delay', async () => {
+		(ctx as unknown as { outputLatency: number }).outputLatency = 0.2;
+		const v = player();
+		void v.say('house');
+		await tick();
+		ctx.currentTime = 10 + LEAD + 0.1;
+		expect(v.progress()).toBe(0);
+		ctx.currentTime = 10 + LEAD + 0.2 + 0.25;
+		expect(v.progress()).toBeCloseTo(0.5);
+	});
+
+	it('waits for a suspended clock before scheduling a clip', async () => {
+		ctx.state = 'suspended';
+		let resumed!: () => void;
+		ctx.resume = () => new Promise<void>((r) => (resumed = () => { ctx.state = 'running'; ctx.currentTime = 12; r(); }));
+		const v = player();
+		const said = v.say('house');
+		await tick();
+		expect(ctx.sources[0]?.started ?? false).toBe(false);
+		resumed();
+		await tick();
+		await tick();
+		expect(ctx.sources[0]!.started).toBe(true);
+		expect(ctx.gains.at(-1)!.gain.ramps[0]).toEqual(['set', 0, 12 + LEAD]);
+		v.stop();
+		expect(await said).toBe('stopped');
+	});
+
 	it('fades in, and fades out before stopping', async () => {
 		const v = player();
 		const said = v.say('house');
@@ -190,8 +218,8 @@ describe('voice player', () => {
 		const src = ctx.sources[0]!;
 		const fade = ctx.gains.at(-1)!.gain;
 		expect(fade.ramps.slice(0, 2)).toEqual([
-			['set', 0, 10],
-			['ramp', 1, 10 + FADE]
+			['set', 0, 10 + LEAD],
+			['ramp', 1, 10 + LEAD + FADE]
 		]);
 		v.stop();
 		expect(fade.ramps.at(-1)).toEqual(['ramp', 0, 10 + FADE]);
@@ -219,5 +247,92 @@ describe('voice player', () => {
 		expect(v.volume).toBe(1);
 		v.setVolume(-1);
 		expect(v.volume).toBe(0);
+	});
+});
+
+describe('voice player fetch order', () => {
+	/* Clip requests stay open until the test answers them. */
+	let open: { url: string; need: string | null; signal: AbortSignal | null; done: () => void }[];
+	beforeEach(() => {
+		open = [];
+		vi.stubGlobal('fetch', (url: string, init?: RequestInit) => {
+			if (url === '/api/voice?version') return Promise.resolve(Response.json({ voice: 'standard', version: 'v1' }));
+			return new Promise<Response>((resolve, reject) => {
+				const signal = init?.signal ?? null;
+				signal?.addEventListener('abort', () => reject(signal.reason));
+				open.push({ url, need: new Headers(init?.headers).get('X-Voice-Need'), signal, done: () => resolve(new Response(new Uint8Array(8))) });
+			});
+		});
+	});
+	const sent = () => open.map((o) => `${o.url.split('/').slice(-2).join('/')}:${o.need}`);
+	const settle = async () => {
+		for (let i = 0; i < 5; i++) await tick();
+	};
+
+	it('sends FETCHES look-ahead words at a time, in order', async () => {
+		const v = player();
+		v.prepare(['one', 'two', 'three', 'four']);
+		await settle();
+		expect(FETCHES).toBe(2);
+		expect(sent()).toEqual(['normal/one:soon', 'normal/two:soon']);
+		open[0]!.done();
+		await settle();
+		expect(sent()).toEqual(['normal/one:soon', 'normal/two:soon', 'normal/three:soon']);
+	});
+
+	it('sends the word in play at once, ahead of the look-ahead waiting', async () => {
+		const v = player();
+		v.prepare(['one', 'two', 'three', 'four']);
+		void v.say('four');
+		await settle();
+		expect(sent()).toEqual(['normal/one:soon', 'normal/two:soon', 'normal/four:now']);
+		// "four" went past the limit: the next look-ahead word waits for two requests to finish.
+		open[0]!.done();
+		await settle();
+		expect(sent()).toHaveLength(3);
+		open[1]!.done();
+		await settle();
+		expect(sent().at(-1)).toBe('normal/three:soon');
+		v.stop();
+	});
+
+	it('asks for a word in play that is not prepared yet at once', async () => {
+		const v = player();
+		v.prepare(['one', 'two']);
+		void v.say('five');
+		await settle();
+		expect(sent()).toEqual(['normal/one:soon', 'normal/two:soon', 'normal/five:now']);
+		v.stop();
+	});
+
+	it('puts slow clips after every normal word', async () => {
+		const v = player();
+		v.prepare(['one', 'two']);
+		v.prepare(['one'], 'slow');
+		v.prepare(['three']);
+		await settle();
+		open[0]!.done();
+		await settle();
+		expect(sent().at(-1)).toBe('normal/three:soon');
+		open[1]!.done();
+		await settle();
+		expect(sent().at(-1)).toBe('slow/one:later');
+	});
+
+	it('gives up on a clip that does not arrive and asks again on the next play', async () => {
+		vi.useFakeTimers();
+		try {
+			const v = player();
+			const said = v.say('house');
+			await vi.advanceTimersByTimeAsync(0);
+			expect(sent()).toEqual(['normal/house:now']);
+			await vi.advanceTimersByTimeAsync(CLIP_TIMEOUT_MS);
+			expect(await said).toBe('error');
+			void v.clip('house');
+			await vi.advanceTimersByTimeAsync(0);
+			expect(sent()).toEqual(['normal/house:now', 'normal/house:soon']);
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 });

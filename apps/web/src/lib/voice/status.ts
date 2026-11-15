@@ -8,6 +8,9 @@ import { formatNumber } from '#lib/i18n/format.ts';
 export type VoiceId = 'standard' | 'supertonic';
 export type VoiceMode = 'low' | 'active';
 
+/** What players see. Ids stay as they are: settings, clip folders and addresses use them. */
+export const VOICE_NAME: Record<VoiceId, string> = { standard: 'Standard', supertonic: 'Enhanced' };
+
 export interface VoiceSetStatus {
 	id: string;
 	name: string;

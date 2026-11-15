@@ -209,6 +209,21 @@
 	--strength-weak: var(--error);
 	--strength-fair: var(--amber);
 	--strength-strong: var(--success);
+	/* Endless levels, Easy to Nightmare (lib/games/levels.ts): calm to alarming. Text-safe; pair with color-mix tints. */
+	--level-easy: var(--lime-ink);
+	--level-medium: var(--cyan-ink);
+	--level-hard: var(--amber-ink);
+	--level-expert: var(--orange-ink);
+	--level-insane: var(--error);
+	--level-nightmare: var(--violet-ink);
+	/* Voice screens (lib/voice/VoiceIcon.svelte): the two voices, then the section titles. Text-safe; tint with color-mix. */
+	--voice-standard: var(--cyan-ink);
+	--voice-enhanced: var(--violet-ink);
+	--voice-device: var(--ink);
+	--voice-clips: var(--amber-ink);
+	--voice-sets: var(--orange-ink);
+	--voice-health: var(--success);
+	--voice-unclear: var(--error);
 
 	/* Result chart series. */
 	--chart-wpm: var(--cyan-ink);
