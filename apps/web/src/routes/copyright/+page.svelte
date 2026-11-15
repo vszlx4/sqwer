@@ -223,7 +223,7 @@
 	<p>
 		13.2. The English 25k and English 450k lists are drawn from general dictionaries. Like any dictionary, they include
 		profanity, slurs, sexual and other age-restricted words. These lists are marked “mature” where you choose them. Endless
-		mode draws from the 25k list at level 11 and from the 450k list at level 12 (Master).
+		mode draws from the 25k list as a run reaches Nightmare, and from the 450k list deeper into Nightmare.
 	</p>
 	<p>
 		13.3. Words in the lists are shown at random, only as typing practice. Their presence is not a statement, an

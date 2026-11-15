@@ -31,9 +31,9 @@ export const gameById = (id: string) => GAMES.find((g) => g.id === id) ?? null;
 
 /** The difficulty chosen before a run: adaptive, or one of the fixed levels (levels.ts). */
 export const DIFFICULTIES = [
-	{ id: 'adaptive', label: 'Adaptive', level: null, icon: 'gauge', note: 'Starts where you left off, climbs as you play well and eases when you miss. It has no top.' },
-	...TIERS.map((t) => ({ id: t.id, label: t.name, level: t.difficulty, icon: t.icon, note: t.note }))
-] as const satisfies readonly { id: string; label: string; level: number | null; icon: IconName; note: string }[];
+	{ id: 'adaptive', label: 'Adaptive', level: null, note: 'Starts where you left off, climbs as you play well and eases when you miss. It has no top.' },
+	...TIERS.map((t) => ({ id: t.id, label: t.name, level: t.difficulty, note: t.note }))
+] as const satisfies readonly { id: string; label: string; level: number | null; note: string }[];
 export type DifficultyId = 'adaptive' | TierId;
 
 /** Failed rounds that end a run. */
