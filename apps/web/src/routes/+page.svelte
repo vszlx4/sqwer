@@ -18,7 +18,6 @@
 	import { partKeys, partLessons, ROWS } from '#lib/landing/partKeys.ts';
 	import RankTimeline from '#lib/landing/RankTimeline.svelte';
 	import { heroTakeover } from '#lib/landing/takeover.ts';
-	import Finale from '#lib/landing/Finale.svelte';
 	import CurvedLoop from '#lib/bits/CurvedLoop.svelte';
 	import TextPressure from '#lib/bits/TextPressure.svelte';
 	import { parallax, reveal, stagger } from '#lib/motion/actions.ts';
@@ -124,8 +123,6 @@
 	const next = $derived(ready && courses.loaded ? learnerNextStep() : null);
 	const returning = $derived(next !== null && next.stage !== 'welcome');
 	const cta = $derived(returning && next ? { href: next.href, label: next.action } : { href: '/start', label: 'Get started' });
-	// The last word of the page asks newcomers to start now.
-	const finaleCta = $derived(returning ? cta : { href: '/start', label: 'Start now' });
 
 	// A returning learner's button changes label and moves down under the resume line once progress loads; the
 	// takeover measures the button, so measure again after that render.
@@ -365,10 +362,6 @@
 			</div>
 		</div>
 	</section>
-
-	<!-- The close: the name and the way in. -->
-	<Finale cta={finaleCta} />
-
 </div>
 
 <style>
