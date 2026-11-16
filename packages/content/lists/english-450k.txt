@@ -107231,7 +107231,6 @@ disquisitor
 disquisitorial
 disquisitory
 disquixote
-Disraeli
 disrange
 disrank
 disranked
@@ -192453,16 +192452,6 @@ ispaghula
 ispaghulas
 ispravnik
 ispraynik
-Israel
-Israeli
-Israelis
-Israelite
-israelites
-Israeliteship
-Israelitic
-Israelitish
-Israelitism
-Israelitize
 Issachar
 issanguila
 Issedoi
