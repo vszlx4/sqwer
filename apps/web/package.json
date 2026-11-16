@@ -44,7 +44,7 @@
 	},
 	"dependencies": {
 		"@breezystack/lamejs": "^1.2.7",
-		"@electric-sql/pglite": "^0.5.15",
+		"@electric-sql/pglite": "^0.5.16",
 		"@fontsource-variable/geist-mono": "^5.3.0",
 		"@sqwer/content": "*",
 		"@sqwer/engine": "*",
