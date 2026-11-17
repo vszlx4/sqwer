@@ -281,6 +281,56 @@ test('Listen and type: a missed word is practiced unscored after Stop, then the 
 	await expect(page.getByRole('heading', { name: 'Run complete' })).toBeVisible();
 });
 
+test('Listen and type: practicing many missed words keeps the stage in its frame', async ({ page }) => {
+	test.setTimeout(120_000);
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.05) }));
+	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: /^Start at/ }).click();
+	const input = page.getByTestId('listen-input');
+	const misses = 30;
+	for (let i = 0; i < misses; i++) {
+		await expect(page.getByRole('list', { name: `Word ${i + 1}` })).toBeVisible();
+		await expect(page.locator('.state')).toContainText('Heard');
+		await page.keyboard.type('zqzq');
+		await expect(page.getByRole('button', { name: 'Check' })).toBeEnabled();
+		await page.keyboard.press('Enter');
+		await expect(page.getByRole('button', { name: 'Continue' })).toBeFocused();
+		await page.keyboard.press('Enter');
+	}
+	await page.getByRole('button', { name: 'Stop' }).click();
+	await page.getByRole('button', { name: 'Practice these words' }).click();
+	await expect(page.getByText(/not scored/)).toBeVisible();
+	await page.getByRole('button', { name: /^Start/ }).click();
+	await expect(input).toBeEnabled();
+
+	const fits = () =>
+		page.evaluate(() => {
+			const stage = document.querySelector('.stage')!.getBoundingClientRect();
+			const inside = (s: string) => {
+				const r = document.querySelector(s)!.getBoundingClientRect();
+				return r.left >= stage.left - 1 && r.right <= stage.right + 1;
+			};
+			return document.documentElement.scrollWidth <= window.innerWidth && inside('.marks') && inside('.player') && inside('.answer');
+		});
+	expect(await fits()).toBe(true);
+	// Missed words repeat at most once in practice.
+	const total = Number((await page.getByText(/^0 \/ \d+ words$/).textContent())!.match(/\/ (\d+)/)![1]);
+	expect(total).toBeGreaterThan(20);
+	expect(await page.locator('.marks li').count()).toBe(12);
+	// Practice is not scored: the bar follows the words answered, not a goal.
+	const bar = page.getByRole('progressbar');
+	await expect(bar).toHaveAttribute('aria-valuenow', '0');
+	await page.keyboard.type('zqzq');
+	await page.keyboard.press('Enter');
+	await expect(bar).toHaveAttribute('aria-valuenow', String(Math.round(100 / total)));
+	expect(await fits()).toBe(true);
+	await page.screenshot({ path: 'test-results/listen-practice-many.png' });
+	await page.setViewportSize({ width: 375, height: 812 });
+	await expect.poll(fits).toBe(true);
+	await page.screenshot({ path: 'test-results/listen-practice-many-phone.png' });
+});
+
 test('Listen and type limits replays at high levels', async ({ page }) => {
 	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.15) }));
 	await page.goto('/play/listen', { waitUntil: 'networkidle' });

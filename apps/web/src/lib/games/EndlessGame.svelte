@@ -406,7 +406,9 @@
 			</div>
 		{:else if practicing}
 			<!-- The run's missed words, once more and unscored; then back to the run's results. -->
-			<ListenType pool={LETTERS} focus="" words={practicing} count={practicing.length} target={0} practice set={source === 'levels' ? 'course' : source} oncomplete={() => (practicing = null)} />
+			<div class="arena">
+				<ListenType pool={LETTERS} focus="" words={practicing} count={practicing.length} target={0} practice set={source === 'levels' ? 'course' : source} oncomplete={() => (practicing = null)} />
+			</div>
 		{:else}
 			<RunResult
 				summary={stats.words ? `${stats.words} ${stats.words === 1 ? 'word' : 'words'} in ${duration(seconds)}.` : 'You stopped before the first word.'}
