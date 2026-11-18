@@ -32,8 +32,9 @@ jobs:
       - run: npm ci
         env:
           SQWER_VOICE: skip
+      # Moderate and above fail, apart from the reviewed exceptions in scripts/audit.mjs.
       - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=moderate
+        run: node scripts/audit.mjs
       - name: Type check
         run: npm run check -w web
       - name: Unit tests
