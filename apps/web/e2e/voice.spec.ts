@@ -121,15 +121,13 @@ test('the Voice page shows the choice and its cost, then the generator with sets
 	await page.getByLabel('Disk limit for clips').selectOption('off');
 	await expect.poll(() => settings().diskLimit).toBeNull();
 
-	// The account menu follows the generator while clips are still to make.
+	// The account menu follows the generator in one line while clips are still to make; its controls stay here.
 	await page.reload();
 	await page.getByRole('button', { name: /Account menu/ }).click();
-	const menu = page.getByRole('region', { name: 'Enhanced voice' });
-	await expect(menu).toContainText('Paused');
-	await menu.getByRole('button', { name: 'Resume' }).click();
-	await expect.poll(() => settings().paused).toBe(false);
-	await menu.getByRole('button', { name: 'Low' }).click();
-	await expect.poll(() => settings().mode).toBe('low');
+	const status = page.getByRole('link', { name: /^Enhanced voice: Paused/ });
+	await expect(status).toBeVisible();
+	await status.click();
+	await expect(page).toHaveURL(/\/account\/sound$/);
 });
 
 test('the Listen and type menu shows the set’s clips and makes it next', async ({ page }) => {

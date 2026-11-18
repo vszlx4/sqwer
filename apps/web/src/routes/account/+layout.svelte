@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import Avatar from '#lib/account/Avatar.svelte';
 	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
-	import { ACCOUNT_GROUPS, ACCOUNT_LINKS } from '#lib/site/links.ts';
+	import { ACCOUNT_GROUPS, accountSection } from '#lib/site/links.ts';
 	import Icon from '#lib/ui/Icon.svelte';
 	import type { LayoutProps } from './$types';
 
@@ -10,10 +10,11 @@
 	let { data, children }: LayoutProps = $props();
 
 	const path = $derived(page.url.pathname);
-	const current = $derived(ACCOUNT_LINKS.find((t) => t.href === path));
+	const current = $derived(accountSection(path));
 	const setup = $derived(path === '/account/setup');
 	const p = $derived(data.profile);
 	const user = $derived(page.data.user);
+	const groups = $derived(ACCOUNT_GROUPS.map((g) => ({ ...g, links: g.links.filter((l) => !l.admin || user?.isAdmin) })).filter((g) => g.links.length));
 
 	let open = $state(false);
 	$effect(() => {
@@ -41,23 +42,18 @@
 				<Icon name="chevron" size={16} />
 			</button>
 			<nav id="account-nav" class:open aria-label="Account sections">
-				{#each ACCOUNT_GROUPS as g (g.label)}
+				{#each groups as g (g.label)}
 					<div class="group">
 						<p class="group-label" id={`nav-${g.label}`}>{g.label}</p>
 						<ul aria-labelledby={`nav-${g.label}`}>
 							{#each g.links as l (l.href)}
 								<li>
-									<a href={l.href} aria-current={path === l.href ? 'page' : undefined}><Icon name={l.icon} size={17} /> {l.label}</a>
+									<a href={l.href} aria-current={current?.href === l.href ? (path === l.href ? 'page' : 'true') : undefined}><Icon name={l.icon} size={17} /> {l.label}</a>
 								</li>
 							{/each}
 						</ul>
 					</div>
 				{/each}
-				<ul class="elsewhere">
-					<li><a href="/practice/history"><Icon name="history" size={17} /> History</a></li>
-					{#if p.isPublic}<li><a href={`/u/${p.username}`}><Icon name="arrow" size={17} /> Public profile</a></li>{/if}
-					{#if user?.isAdmin}<li><a href="/admin/analytics"><Icon name="chart" size={17} /> Site analytics</a></li>{/if}
-				</ul>
 			</nav>
 		</aside>
 		<div class="content">
@@ -141,10 +137,6 @@
 		padding: 0;
 		list-style: none;
 	}
-	.elsewhere {
-		padding-top: var(--space-12);
-		border-top: 1px solid var(--line);
-	}
 	nav a {
 		display: flex;
 		align-items: center;
@@ -169,7 +161,7 @@
 		outline: 2px solid var(--ink);
 		outline-offset: 1px;
 	}
-	nav a[aria-current='page'] {
+	nav a[aria-current] {
 		background: var(--ink);
 		color: var(--bg);
 		font-weight: var(--fw-semibold);
@@ -223,9 +215,6 @@
 			display: grid;
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: var(--space-16) var(--space-12);
-		}
-		.elsewhere {
-			grid-column: 1 / -1;
 		}
 	}
 	@media (max-width: 420px) {

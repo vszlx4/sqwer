@@ -32,7 +32,7 @@
 	const exportHref = $derived.by(() => {
 		const q = new URLSearchParams(page.url.search);
 		q.delete('after');
-		return `/admin/analytics/export?${q}`;
+		return `/account/admin/analytics/export?${q}`;
 	});
 	/** Short, readable details of an event's properties. */
 	const details = (props: Record<string, unknown> | null) =>

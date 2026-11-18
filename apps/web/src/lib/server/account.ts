@@ -5,7 +5,7 @@ import { invalidateLeaderboards } from './progress.ts';
 import { fieldErrors, readProfilePart, type ProfileInput, type ProfilePart } from './validation.ts';
 
 export function requireUser(locals: App.Locals, url: URL) {
-	if (!locals.user) redirect(303, `/signin?redirectTo=${encodeURIComponent(url.pathname)}`);
+	if (!locals.user) redirect(303, `/signin?redirectTo=${encodeURIComponent(url.pathname + url.search)}`);
 	return locals.user;
 }
 

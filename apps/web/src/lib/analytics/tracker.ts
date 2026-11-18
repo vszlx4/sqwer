@@ -111,7 +111,7 @@ function endPage(beacon = false) {
 
 /** A page was opened (first load or navigation). */
 export function trackPage(url: { pathname: string; searchParams: { get(name: string): string | null } }, route: string | null) {
-	if (!consent.granted || url.pathname.startsWith('/admin')) return;
+	if (!consent.granted || url.pathname.startsWith('/account/admin')) return;
 	if (current) {
 		endPage();
 		current = null;

@@ -41,7 +41,7 @@
 <div class="panels">
 	<SettingsSection title="Sign-in" flush>
 		<SettingRow label="Email address" hint={`Private. To change it, write to ${CONTACT_EMAIL} from this address.`} wide>
-			<span class="value">{data.account.email}</span>
+			<span class="value">{data.account!.email}</span>
 		</SettingRow>
 		<SettingRow label="Password" hint={successFor('password') ?? 'Changing it signs out your other devices.'}>
 			{#if !changing}<button class="btn" type="button" onclick={() => (changing = true)}>Change password</button>{/if}

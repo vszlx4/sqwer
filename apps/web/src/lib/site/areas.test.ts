@@ -8,7 +8,7 @@ describe('areas', () => {
 		expect(areaFor('/learn/home-row-1')).toBe('learn');
 		expect(areaFor('/practice')).toBe('practice');
 		expect(areaFor('/practice/test/timed')).toBe('practice');
-		expect(areaFor('/practice/history')).toBe('practice');
+		expect(areaFor('/account/history')).toBeNull();
 		expect(areaFor('/competitive')).toBe('competitive');
 		expect(areaFor('/competitive/test')).toBe('competitive');
 		expect(areaFor('/practice/finger-map/session')).toBe('map');

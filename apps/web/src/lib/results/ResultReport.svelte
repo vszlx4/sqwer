@@ -182,7 +182,7 @@
 		{#if record.exam !== 'competitive' && record.exam !== 'finger-speed'}
 			<a class="btn" href="/competitive/test" data-sveltekit-reload><Icon name="trophy" size={16} /> Play ranked</a>
 		{/if}
-		<a class="link-arrow all" href="/practice/history">View all results <Icon name="arrow" size={16} /></a>
+		<a class="link-arrow all" href="/account/history">View all results <Icon name="arrow" size={16} /></a>
 	</div>
 </section>
 

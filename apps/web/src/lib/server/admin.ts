@@ -21,8 +21,8 @@ export function requireAdmin(locals: App.Locals, url: URL, opts: { mfa?: boolean
 	}
 	if (opts.mfa !== false) {
 		const next = encodeURIComponent(url.pathname + url.search);
-		if (!locals.user.totpEnabledAt) redirect(303, `/admin/2fa/setup?next=${next}`);
-		if (!mfaFresh(locals)) redirect(303, `/admin/2fa?next=${next}`);
+		if (!locals.user.totpEnabledAt) redirect(303, `/account/admin/2fa/setup?next=${next}`);
+		if (!mfaFresh(locals)) redirect(303, `/account/admin/2fa?next=${next}`);
 	}
 	return locals.user;
 }

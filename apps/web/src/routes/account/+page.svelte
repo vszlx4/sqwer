@@ -18,7 +18,7 @@
 	const level = $derived(user?.level ?? null);
 	const tier = $derived(tierFor(user?.best ?? null));
 	const pace = $derived(user?.pace ?? null);
-	const since = $derived(formatDate(data.account.createdAt, { month: 'long', year: 'numeric' }));
+	const since = $derived(formatDate(data.account!.createdAt, { month: 'long', year: 'numeric' }));
 	const fmt = (n: number) => formatNumber(n);
 
 	const next = $derived(courses.loaded && courses.nextLesson ? lessonById(courses.nextLesson) : null);
@@ -46,7 +46,7 @@
 			{ icon: 'trophy', title: 'Ranked test', line: user?.best ? `Best ${Math.round(user.best)} WPM` : 'Sets your speed rank', href: '/competitive/test', reload: true }
 		];
 		if (!data.fingerMap.count) out.push({ icon: 'hand', title: 'Map your fingers', line: 'Guidance that fits how you type', href: '/practice/finger-map' });
-		else out.push({ icon: 'history', title: 'History', line: 'Results and replays', href: '/practice/history' });
+		else out.push({ icon: 'history', title: 'History', line: 'Results and replays', href: '/account/history' });
 		return out;
 	});
 

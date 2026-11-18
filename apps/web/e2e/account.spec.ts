@@ -156,7 +156,8 @@ test('the public profile is visible and the email address is not', async ({ page
 	await solveCaptcha(page);
 	await page.getByRole('button', { name: 'Sign in' }).click();
 	await expect(page).toHaveURL(/\/account$/);
-	await page.getByRole('link', { name: 'Public profile' }).click();
+	await page.goto('/account/profile');
+	await page.getByRole('link', { name: 'View public profile' }).click();
 	await expect(page.getByRole('heading', { level: 1, name: 'Test Typist' })).toBeVisible();
 	await expect(page.locator('img.photo').first()).toBeVisible();
 	await expect(page.locator('body')).not.toContainText(email);
@@ -348,7 +349,7 @@ test('clears only the learning path and keeps every other kind of data', async (
 	// The course starts again; results are untouched.
 	await page.goto('/learn/start');
 	await expect(page.locator('ol.list .count')).toHaveCount(0);
-	await page.goto('/practice/history');
+	await page.goto('/account/history');
 	await expect(page.getByRole('row').nth(1)).toBeVisible();
 });
 

@@ -29,7 +29,7 @@ describe('safeRedirect', () => {
 		for (const t of ['/\t/evil.example', '/\n/evil.example', '/\r\n/evil.example', '/\\/evil.example', '/\t\\evil.example']) {
 			expect(safeRedirect(t, '/x')).toBe('/x');
 		}
-		expect(safeRedirect('/admin/analytics?range=7d#top', '/x')).toBe('/admin/analytics?range=7d#top');
+		expect(safeRedirect('/account/admin/analytics?range=7d#top', '/x')).toBe('/account/admin/analytics?range=7d#top');
 		expect(safeRedirect('/%09/evil.example', '/x')).toBe('/%09/evil.example');
 		expect(new URL(safeRedirect('/%09/evil.example', '/x'), 'https://sqwer.example').host).toBe('sqwer.example');
 	});

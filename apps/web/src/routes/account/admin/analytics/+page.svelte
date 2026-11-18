@@ -112,7 +112,7 @@
 			if (v) q.set(k, v);
 		}
 		for (const [k, v] of Object.entries(extra)) q.set(k, v);
-		return `/admin/analytics/events?${q}`;
+		return `/account/admin/analytics/events?${q}`;
 	};
 	const DEVICE_LABELS: Record<string, string> = { desktop: 'Desktop', mobile: 'Mobile', tablet: 'Tablet' };
 	const REASONS: Record<string, string> = {

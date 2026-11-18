@@ -99,7 +99,7 @@
 			completed test earns XP toward your account level: longer, faster and more accurate tests earn more.
 		</p>
 		<nav class="shortcuts" aria-label="Practice tools">
-			<a href="/practice/history"><Icon name="history" size={16} /> History and replays</a>
+			<a href="/account/history"><Icon name="history" size={16} /> History and replays</a>
 			<a href="/practice/finger-map"><Icon name="hand" size={16} /> Finger map</a>
 			<a href="/competitive"><Icon name="trophy" size={16} /> Competitive</a>
 			<a href="#games"><Icon name="play" size={16} /> Endless games</a>

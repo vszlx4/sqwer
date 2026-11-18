@@ -45,7 +45,7 @@ test('getting started leads a typist through the placement test to a recommended
 	await page.goto('/start');
 	await expect(page.getByRole('heading', { name: /^Begin at chapter \d+/ })).toBeVisible();
 
-	await page.goto('/practice/history');
+	await page.goto('/account/history');
 	await page.getByRole('row').nth(1).getByRole('link').click();
 	await expect(page.getByRole('heading', { name: 'Placement test' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Play the replay' })).toBeVisible();
@@ -56,12 +56,14 @@ test('the old journey address leads to getting started', async ({ page }) => {
 	await expect(page).toHaveURL(/\/start$/);
 });
 
-test('old practice addresses lead to their new place', async ({ request }) => {
+test('old addresses lead to their new place', async ({ request }) => {
 	for (const [from, to] of [
 		['/exams', '/practice'],
 		['/play/listen', '/practice/play/listen'],
 		['/map/session', '/practice/finger-map/session'],
-		['/history', '/practice/history'],
+		['/history', '/account/history'],
+		['/practice/history/abc', '/account/history/abc'],
+		['/admin/analytics?range=7d', '/account/admin/analytics?range=7d'],
 		['/test?exam=competitive', '/competitive/test'],
 		['/about', '/how-it-works']
 	]) {

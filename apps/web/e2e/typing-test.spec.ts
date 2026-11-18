@@ -54,7 +54,7 @@ test('Tab restarts a test in progress with new words and records the attempt', a
 	await page.keyboard.press('Tab');
 	await expect(page.getByTestId('counter')).toHaveText('30');
 	expect(await visibleWords(page)).not.toEqual(before);
-	await page.goto('/practice/history');
+	await page.goto('/account/history');
 	await expect(page.getByText('Not completed').first()).toBeVisible();
 });
 
@@ -89,7 +89,7 @@ test('Tab on the results page starts a new test without deleting the result', as
 	await page.keyboard.press('Tab');
 	await expect(page.getByTestId('typing-input')).toBeAttached();
 	await expect(page.getByTestId('counter')).toHaveText('0/10');
-	await page.goto('/practice/history');
+	await page.goto('/account/history');
 	await expect(page.getByRole('cell', { name: 'Completed' }).first()).toBeVisible();
 });
 
