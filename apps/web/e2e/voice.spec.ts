@@ -73,8 +73,8 @@ test('only the machine running the copy sees or changes the voice settings', asy
 test('the Voice page shows the choice and its cost, then the generator with sets and the health check', async ({ page }) => {
 	test.setTimeout(120_000);
 	await signIn(page);
-	await page.goto('/account/voice');
-	await expect(page.getByRole('heading', { level: 1, name: 'Voice' })).toBeVisible();
+	await page.goto('/account/sound');
+	await expect(page.getByRole('heading', { level: 1, name: 'Sound and voice' })).toBeVisible();
 	// Standard is the default; Enhanced is opt-in, its costs behind Details.
 	await expect(page.getByRole('radio', { name: /^Standard/ })).toBeChecked();
 	const enhanced = page.getByRole('radio', { name: /^Enhanced/ });

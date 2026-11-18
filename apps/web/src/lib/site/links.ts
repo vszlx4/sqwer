@@ -1,3 +1,4 @@
+import type { IconName } from '#lib/ui/Icon.svelte';
 import type { Area } from './areas.ts';
 import type { BranchedMenuSection } from '#lib/bits/BranchedMenu.svelte';
 
@@ -25,15 +26,48 @@ export const NAV_LINKS = [
 	{ href: '/competitive', label: 'Competitive', icon: 'trophy', area: 'competitive', description: 'Speed tiers and leaderboards' }
 ] as const satisfies readonly { href: string; label: string; icon: string; area: Area; description: string }[];
 
-/** Account pages, listed once and shared by the account menu and the account section. */
-export const ACCOUNT_LINKS = [
-	{ href: '/account', label: 'Overview' },
-	{ href: '/account/profile', label: 'Profile' },
-	{ href: '/account/statistics', label: 'Statistics' },
-	{ href: '/account/security', label: 'Security' },
-	{ href: '/account/voice', label: 'Voice' },
-	{ href: '/account/data', label: 'Your data' }
-] as const;
+export interface AccountLink {
+	href: string;
+	label: string;
+	icon: IconName;
+	/** Also listed in the account menu. */
+	menu: boolean;
+}
+
+/** Account pages by group, listed once for the account sidebar; `menu` pages also show in the account menu. */
+export const ACCOUNT_GROUPS: readonly { label: string; links: readonly AccountLink[] }[] = [
+	{
+		label: 'You',
+		links: [
+			{ href: '/account', label: 'Overview', icon: 'gauge', menu: true },
+			{ href: '/account/profile', label: 'Profile', icon: 'user', menu: true },
+			{ href: '/account/privacy', label: 'Privacy', icon: 'eye', menu: false }
+		]
+	},
+	{
+		label: 'Learning',
+		links: [
+			{ href: '/account/course', label: 'Course', icon: 'route', menu: false },
+			{ href: '/account/statistics', label: 'Statistics', icon: 'chart', menu: true }
+		]
+	},
+	{
+		label: 'Settings',
+		links: [
+			{ href: '/account/preferences', label: 'Preferences', icon: 'keyboard', menu: true },
+			{ href: '/account/sound', label: 'Sound and voice', icon: 'volume', menu: false }
+		]
+	},
+	{
+		label: 'Account',
+		links: [
+			{ href: '/account/security', label: 'Security', icon: 'shield', menu: true },
+			{ href: '/account/data', label: 'Your data', icon: 'download', menu: false }
+		]
+	}
+];
+
+export const ACCOUNT_LINKS: readonly AccountLink[] = ACCOUNT_GROUPS.flatMap((g) => g.links);
 
 /** Footer columns, each drawn as a branched menu: the product by area, help, then every legal document, the legal
  *  center first. Account pages live in the account menu. */

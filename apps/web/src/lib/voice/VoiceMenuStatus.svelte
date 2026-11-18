@@ -43,7 +43,7 @@
 {#if !done}
 	<section class="voice" aria-label="Enhanced voice">
 		<div class="head">
-			<a href="/account/voice"><VoiceIcon name="enhanced" size={14} /> Enhanced voice</a>
+			<a href="/account/sound"><VoiceIcon name="enhanced" size={14} /> Enhanced voice</a>
 			<span>{line}</span>
 		</div>
 		<VoiceBar made={v.made} total={v.total} label="Enhanced clips made" />

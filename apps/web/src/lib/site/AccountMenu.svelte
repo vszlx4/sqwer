@@ -138,7 +138,7 @@
 			{#if user.voice}<VoiceMenuStatus initial={user.voice} />{/if}
 			<nav aria-label="Account">
 				{#if user.profile}
-					{#each ACCOUNT_LINKS as link (link.href)}
+					{#each ACCOUNT_LINKS.filter((l) => l.menu) as link (link.href)}
 						<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
 					{/each}
 					<a href="/practice/history" aria-current={page.url.pathname === '/practice/history' ? 'page' : undefined}>History</a>

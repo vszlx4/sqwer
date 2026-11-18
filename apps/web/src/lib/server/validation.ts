@@ -126,6 +126,24 @@ export function readProfileForm(form: FormData) {
 	});
 }
 
+/** Profile fields by the account page that edits them; together they cover every profile field. */
+export const PROFILE_PARTS = {
+	profile: ['displayName', 'username', 'headline', 'pronouns', 'bio', 'avatarColor', 'banner'],
+	course: ['experience', 'goal', 'targetWpm', 'platform'],
+	privacy: ['isPublic', 'showRank', 'showStats', 'showStreak', 'showOnLeaderboard']
+} as const satisfies Record<string, readonly (keyof ProfileInput)[]>;
+export type ProfilePart = keyof typeof PROFILE_PARTS;
+
+const SWITCHES = new Set<string>(PROFILE_PARTS.privacy);
+
+/** One page's fields from the form over the saved profile; fields of other pages stay as saved. */
+export function readProfilePart(form: FormData, saved: ProfileInput, part: ProfilePart) {
+	const values: Record<string, unknown> = {};
+	for (const fields of Object.values(PROFILE_PARTS)) for (const key of fields) values[key] = saved[key];
+	for (const key of PROFILE_PARTS[part]) values[key] = SWITCHES.has(key) ? form.get(key) === 'on' : (form.get(key) ?? '');
+	return profileSchema.safeParse(values);
+}
+
 /**
  * Same-site relative redirects only, resolved like a browser (tab/newline ignored, `\` as `/`), so
  * `/\t/evil.example` fails. Off-site or control characters fall back.

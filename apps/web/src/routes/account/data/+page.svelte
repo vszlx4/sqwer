@@ -3,13 +3,13 @@
 	import { invalidateAll } from '$app/navigation';
 	import { DATA_CATEGORIES, type DataCategory } from '#lib/data/categories.ts';
 	import { forgetLocal } from '#lib/data/local.ts';
+	import PageHead from '#lib/account/PageHead.svelte';
+	import SettingRow from '#lib/account/SettingRow.svelte';
 	import SettingsSection from '#lib/account/SettingsSection.svelte';
 	import Seo from '#lib/site/Seo.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import Field from '#lib/ui/Field.svelte';
-	import RequiredNote from '#lib/ui/RequiredNote.svelte';
 	import type { PageProps } from './$types';
-	import { formatDateTime } from '#lib/i18n/format.ts';
 
 	let { data, form }: PageProps = $props();
 	const errors = $derived((form?.errors ?? {}) as Record<string, string | undefined>);
@@ -50,162 +50,79 @@
 
 <Seo title="Your data" description="Export or delete your sqwer account data." noindex />
 
-<div class="page">
-	<header class="page-head">
-		<h1>Your data</h1>
-		<p>What sqwer keeps for your account, and how to download it, clear part of it or delete it all.</p>
-	</header>
+<PageHead title="Your data" line="What sqwer keeps for your account. Download it, clear part of it or delete it all." />
 
-	<SettingsSection title="Sync" description="While you are signed in, your finger map, results and progress are saved to your account and kept in step on every device.">
-		<p class="text">
-			{#if data.fingerMap.count}
-				Your account holds {data.fingerMap.count} tagged keystrokes, last updated
-				{formatDateTime(data.fingerMap.updatedAt!, { dateStyle: 'medium', timeStyle: 'short' })}. While you
-				are signed in, changes to your finger map are saved to your account automatically.
-			{:else}
-				Your account does not hold any finger map data yet. While you are signed in, your finger map is saved to your
-				account automatically.
-			{/if}
-		</p>
+<div class="panels">
+	<SettingsSection title="Download" flush>
+		<SettingRow label="All your data" hint="One JSON file: profile, picture, results, progress, finger map, statistics, devices and activity.">
+			<a class="btn" href="/account/export" download><Icon name="download" size={16} /> Download my data</a>
+		</SettingRow>
 	</SettingsSection>
 
-	<SettingsSection
-		title="Clear part of your data"
-		description="Each kind of data can be cleared on its own; everything else stays exactly as it is. Clearing is permanent and applies to every device: copies kept in a browser are discarded on its next visit. Copies in backups disappear within 14 days."
-	>
-		{#if cleared}
-			<p class="form-alert success" role="status">{title(cleared)} cleared. Everything else is unchanged.</p>
-		{/if}
-		<ul class="categories">
-			{#each DATA_CATEGORIES as c (c.id)}
-				{@const n = data.counts[c.id]}
-				<li>
-					<div class="category">
-						<div class="about">
-							<h3>{c.title}</h3>
-							<p class="summary">{c.summary}</p>
-							<p class="count">{n ? COUNT_TEXT[c.id](n) : 'Nothing stored'}</p>
-						</div>
-						{#if clearing !== c.id}
-							<button class="btn" type="button" disabled={!n} onclick={() => (clearing = c.id)} aria-label={`Clear ${c.title.toLowerCase()}`}>Clear</button>
-						{/if}
+	<SettingsSection title="Stored data" description="Clear one kind; the rest stays. Permanent, on every device." flush>
+		{#if cleared}<p class="form-alert success inset-alert" role="status">{title(cleared)} cleared. Everything else is unchanged.</p>{/if}
+		{#each DATA_CATEGORIES as c (c.id)}
+			{@const n = data.counts[c.id]}
+			<section class="category" aria-label={c.title}>
+			<SettingRow label={c.title} hint={n ? COUNT_TEXT[c.id](n) : 'Nothing stored'}>
+				{#if clearing !== c.id}
+					<button class="btn" type="button" disabled={!n} onclick={() => (clearing = c.id)} aria-label={`Clear ${c.title.toLowerCase()}`}>Clear</button>
+				{/if}
+			</SettingRow>
+			{#if clearing === c.id}
+				<form method="POST" action="?/clear" class="confirm" use:enhance={onClear} novalidate>
+					<p class="effect">{c.summary}</p>
+					<p class="effect"><b>After clearing:</b> {c.effect}</p>
+					<input type="hidden" name="category" value={c.id} />
+					<Field label="Password" name="password" type="password" autocomplete="current-password" required error={clearError} />
+					<div class="buttons">
+						<button class="btn btn-danger" type="submit" disabled={busy}>{busy ? 'Clearing…' : `Clear ${c.title.toLowerCase()}`}</button>
+						<button class="btn" type="button" onclick={() => (clearing = null)}>Cancel</button>
 					</div>
-					{#if clearing === c.id}
-						<form method="POST" action="?/clear" class="confirm" use:enhance={onClear} novalidate>
-							<p class="effect"><b>What happens:</b> {c.effect}</p>
-							<input type="hidden" name="category" value={c.id} />
-							<Field label="Password" name="password" type="password" autocomplete="current-password" required error={clearError} />
-							<div class="row">
-								<button class="btn btn-danger" type="submit" disabled={busy}>{busy ? 'Clearing…' : `Clear ${c.title.toLowerCase()}`}</button>
-								<button class="btn" type="button" onclick={() => (clearing = null)}>Cancel</button>
-							</div>
-						</form>
-					{/if}
-				</li>
-			{/each}
-		</ul>
+				</form>
+			{/if}
+			</section>
+		{/each}
 	</SettingsSection>
 
-	<SettingsSection title="Download your data" description="A copy of everything sqwer stores about your account, as one JSON file.">
-		<p class="text">
-			Your email address, profile, profile picture, examination results, course progress, finger map, usage statistics,
-			signed-in devices, security activity and which recovery codes have been used.
-		</p>
-		<a class="btn start" href="/account/export" download><Icon name="download" size={16} /> Download my data</a>
-	</SettingsSection>
-
-	<SettingsSection title="Delete your account" danger description="Permanent. Everything stored with your account is removed and cannot be recovered.">
-		<p class="text">
-			Deleting your account permanently removes everything stored with it: profile, profile picture, examination results,
-			course progress, finger map, usage statistics, recovery codes, signed-in devices and security activity. Copies in
-			backups disappear within 14 days. This cannot be undone. Data stored only in this browser is not affected.
-		</p>
+	<SettingsSection title="Delete account" danger flush>
+		<SettingRow label="Delete your account" hint="Removes everything stored with it. Backups clear within 14 days. Can't be undone.">
+			{#if !(confirming || form?.errors)}
+				<button class="btn" type="button" onclick={() => (confirming = true)}>Delete my account</button>
+			{/if}
+		</SettingRow>
 		{#if confirming || form?.errors}
-			<form method="POST" action="?/delete" class="form" use:enhance novalidate>
-				<RequiredNote />
+			<form method="POST" action="?/delete" class="confirm" use:enhance novalidate>
+				<p class="effect">Data kept only in this browser is not affected.</p>
 				<Field label="Password" name="password" type="password" autocomplete="current-password" required error={errors.password} />
 				<Field label="Type DELETE to confirm" name="confirm" autocomplete="off" required error={errors.confirm} />
-				<div class="row">
+				<div class="buttons">
 					<button class="btn btn-danger" type="submit">Permanently delete my account</button>
 					<button class="btn" type="button" onclick={() => (confirming = false)}>Cancel</button>
 				</div>
 			</form>
-		{:else}
-			<button class="btn start" type="button" onclick={() => (confirming = true)}>Delete my account</button>
 		{/if}
 	</SettingsSection>
 </div>
 
 <style>
-	.page-head {
-		margin-bottom: var(--space-8);
-	}
-	.page-head p {
-		margin-top: var(--space-6);
-		max-width: 64ch;
-		color: var(--ink-2);
-	}
-	h1 {
-		font-size: var(--fs-title);
-	}
-	.start {
-		align-self: flex-start;
-	}
-	.text {
-		max-width: var(--w-text);
-		font-size: var(--fs-15);
-		line-height: var(--lh-body);
-		color: var(--ink-2);
-	}
-	.form {
-		width: 100%;
-		max-width: var(--w-form);
-	}
-	.categories {
-		width: 100%;
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		border-radius: var(--radius);
-		border: 1px solid var(--line);
-		background: var(--surface);
-	}
-	.categories li {
-		padding: var(--space-16) var(--space-16);
-	}
-	.categories li + li {
-		border-top: 1px solid var(--line);
-	}
-	.category {
+	.panels {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
+		flex-direction: column;
 		gap: var(--space-16);
 	}
-	.about h3 {
-		font-size: var(--fs-16);
-		font-weight: var(--fw-semibold);
+	.category + .category {
+		border-top: 1px solid var(--line);
 	}
-	.summary {
-		max-width: var(--w-narrow);
-		margin-top: var(--space-2);
-		font-size: var(--fs-14);
-		line-height: var(--lh-body);
-		color: var(--ink-2);
-	}
-	.count {
-		margin-top: var(--space-4);
-		font-size: var(--fs-13);
-		font-weight: var(--fw-semibold);
-		color: var(--ink-3);
-		font-variant-numeric: tabular-nums;
+	.inset-alert {
+		margin: var(--space-16) var(--space-20) 0;
 	}
 	.confirm {
-		max-width: var(--w-form);
-		margin-top: var(--space-12);
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-12);
+		max-width: calc(var(--w-form) + 2 * var(--space-20)); /* off-scale: form width plus the row padding */
+		padding: 0 var(--space-20) var(--space-20);
 	}
 	.effect {
 		font-size: var(--fs-14);
@@ -215,13 +132,7 @@
 	.effect b {
 		color: var(--ink);
 	}
-	@media (max-width: 560px) {
-		.category {
-			flex-direction: column;
-			align-items: flex-start;
-		}
-	}
-	.row {
+	.buttons {
 		display: flex;
 		gap: var(--space-8);
 		flex-wrap: wrap;

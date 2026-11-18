@@ -12,7 +12,8 @@ const MOVED: readonly (readonly [from: string, to: string])[] = [
 	['/play', '/practice/play'],
 	['/map', '/practice/finger-map'],
 	['/history', '/practice/history'],
-	['/about', '/how-it-works']
+	['/about', '/how-it-works'],
+	['/account/voice', '/account/sound']
 ];
 
 /** Paths without a page, and the list they belong to. */
