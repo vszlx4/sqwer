@@ -28,7 +28,7 @@ async function tagChars(page: Page, count: number, digit = '4') {
 }
 
 test.beforeEach(async ({ page }) => {
-	await page.goto('/map');
+	await page.goto('/practice/finger-map');
 	await page.evaluate(() => new Promise((r) => { const req = indexedDB.deleteDatabase('sqwer'); req.onsuccess = req.onerror = req.onblocked = () => r(null); }));
 	await page.reload();
 });
@@ -42,7 +42,7 @@ test('maps fingers, saves them, and exports a valid profile', async ({ page }) =
 	await expect(page.locator('.meta')).toContainText(/new entr/);
 
 	await page.keyboard.press('Escape');
-	await expect(page).toHaveURL(/\/map\?saved=\d+/);
+	await expect(page).toHaveURL(/\/practice\/finger-map\?saved=\d+/);
 	await expect(page.getByRole('status')).toContainText('saved to your finger map');
 
 	await page.reload();
@@ -57,7 +57,7 @@ test('maps fingers, saves them, and exports a valid profile', async ({ page }) =
 });
 
 test('wrong keys are not tagged and backspace undoes a tag', async ({ page }) => {
-	await page.goto('/map/session');
+	await page.goto('/practice/finger-map/session');
 	await expect(page.locator('.ch.current')).toBeVisible();
 	const prompt = await promptText(page);
 	const wrong = prompt[0] === 'q' ? 'z' : 'q';

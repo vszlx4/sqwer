@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { json } from '@sveltejs/kit';
+import { json, redirect } from '@sveltejs/kit';
 import { sequence, type Handle, type HandleServerError, type ServerInit } from '@sveltejs/kit/hooks';
 import { checkConfiguration } from '#lib/server/config-check.ts';
 import { checkBody } from '#lib/server/body-limits.ts';
@@ -14,6 +14,7 @@ import { startAnalyticsMaintenance } from '#lib/server/analytics/maintenance.ts'
 import { startVoiceGenerator } from '#lib/server/voice/background.ts';
 import { DEFAULT_LOCALE, LOCALES } from '#lib/i18n/locales.ts';
 import { areaFor } from '#lib/site/areas.ts';
+import { redirectFor } from '#lib/site/redirects.ts';
 
 /** Background upkeep, once per server process: analytics totals and retention, Supertonic clips when chosen. */
 export const init: ServerInit = () => {
@@ -41,6 +42,14 @@ export const handleError: HandleServerError = (input) => {
 		})
 	);
 	return { message: 'Internal Error', id };
+};
+
+/** Moved pages (lib/site/redirects.ts): an old address goes to the new one. Thrown, so data requests get it too. */
+const moved: Handle = ({ event, resolve }) => {
+	const method = event.request.method;
+	const location = method === 'GET' || method === 'HEAD' ? redirectFor(event.url) : null;
+	if (location) redirect(308, location);
+	return resolve(event);
 };
 
 /** Request bodies are limited per route (lib/server/body-limits.ts) before anything reads them. */
@@ -147,4 +156,4 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
-export const handle = sequence(securityHeaders, bodyLimits, proxyCheck, apiGuard, locale, authenticate);
+export const handle = sequence(securityHeaders, moved, bodyLimits, proxyCheck, apiGuard, locale, authenticate);

@@ -13,7 +13,7 @@
 	kicker="How it works"
 	title="Built around your hands, not a textbook."
 	lede="sqwer is a place to learn and practice typing: a course of short lessons and games, examinations that measure your progress, and a finger map of your own technique. This page explains how each part works, how results are calculated and how your data is handled."
-	crumbs={[{ href: '/about', label: 'How it works' }]}
+	crumbs={[{ href: '/how-it-works', label: 'How it works' }]}
 >
 	<h2>The course</h2>
 	<p>
@@ -46,7 +46,7 @@
 	</figure>
 
 	<h2>Finger mapping</h2>
-	<p>Many experienced typists depart from the standard technique. The <a href="/map">finger map</a> records your actual technique:</p>
+	<p>Many experienced typists depart from the standard technique. The <a href="/practice/finger-map">finger map</a> records your actual technique:</p>
 	<ul>
 		<li>You type short prompts selected to cover the keys that have not yet been mapped.</li>
 		<li>
@@ -59,7 +59,7 @@
 	<p>
 		Each entry records the neighboring keys, which allows sqwer to detect <strong>context habits</strong>: for example,
 		pressing <kbd>E</kbd> with the middle finger in most cases but with the index finger immediately after <kbd>R</kbd>.
-		Once enough keys are mapped, the <a href="/exams/finger-speed">finger speed assessment</a> uses your map to measure
+		Once enough keys are mapped, the <a href="/practice/finger-speed">finger speed assessment</a> uses your map to measure
 		each finger.
 	</p>
 	<p class="callout">

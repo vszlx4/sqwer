@@ -34,7 +34,7 @@ export const EXAMS: Exam[] = [
 		purpose: 'Establishes your starting speed and accuracy so that later progress can be measured against it.',
 		measures: ['Speed', 'Accuracy', 'Consistency'],
 		duration: '60 seconds',
-		href: '/test?exam=placement',
+		href: '/practice/test/placement',
 		preset: { mode: 'time', time: 60, punctuation: false, numbers: false, adjustable: false }
 	},
 	{
@@ -44,7 +44,7 @@ export const EXAMS: Exam[] = [
 		purpose: 'Measures speed and accuracy over a period you choose, from 15 seconds to two minutes.',
 		measures: ['Speed', 'Accuracy', 'Consistency'],
 		duration: '15 seconds to 2 minutes',
-		href: '/test?exam=timed',
+		href: '/practice/test/timed',
 		preset: { mode: 'time', time: 30, punctuation: false, numbers: false, adjustable: true }
 	},
 	{
@@ -54,7 +54,7 @@ export const EXAMS: Exam[] = [
 		purpose: 'Measures how quickly and accurately you complete a fixed passage of 25 words.',
 		measures: ['Speed', 'Accuracy', 'Completion time'],
 		duration: 'About 30 seconds',
-		href: '/test?exam=words',
+		href: '/practice/test/words',
 		preset: { mode: 'words', words: 25, punctuation: false, numbers: false, adjustable: false }
 	},
 	{
@@ -64,7 +64,7 @@ export const EXAMS: Exam[] = [
 		purpose: 'Tests capital letters, punctuation and the number row, which rely on Shift and longer reaches.',
 		measures: ['Speed', 'Accuracy'],
 		duration: '60 seconds',
-		href: '/test?exam=symbols',
+		href: '/practice/test/symbols',
 		preset: { mode: 'time', time: 60, punctuation: true, numbers: true, adjustable: false }
 	},
 	{
@@ -74,7 +74,7 @@ export const EXAMS: Exam[] = [
 		purpose: 'Measures whether your speed and accuracy hold steady over a longer passage.',
 		measures: ['Speed', 'Accuracy', 'Consistency'],
 		duration: '2 minutes',
-		href: '/test?exam=endurance',
+		href: '/practice/test/endurance',
 		preset: { mode: 'time', time: 120, punctuation: false, numbers: false, adjustable: false }
 	},
 	{
@@ -84,7 +84,7 @@ export const EXAMS: Exam[] = [
 		purpose: 'Sixty seconds of common words. Your best result with at least 92% accuracy sets your speed tier and your place on the leaderboard.',
 		measures: ['Speed', 'Accuracy'],
 		duration: '60 seconds',
-		href: '/test?exam=competitive',
+		href: '/competitive/test',
 		preset: { mode: 'time', time: 60, punctuation: false, numbers: false, adjustable: false }
 	},
 	{
@@ -94,7 +94,7 @@ export const EXAMS: Exam[] = [
 		purpose: 'Records which finger you use for each key, including habits that depend on the neighboring keys.',
 		measures: ['Key coverage', 'Non-standard fingering', 'Context habits'],
 		duration: 'Approximately 10 minutes in total; can be split into sessions',
-		href: '/map'
+		href: '/practice/finger-map'
 	},
 	{
 		id: 'finger-speed',
@@ -103,7 +103,7 @@ export const EXAMS: Exam[] = [
 		purpose: 'Measures the speed and accuracy of each finger, using your own finger map, to identify the weakest fingers.',
 		measures: ['Speed per finger', 'Accuracy per finger'],
 		duration: 'Four stages of 20 seconds',
-		href: '/exams/finger-speed'
+		href: '/practice/finger-speed'
 	}
 ];
 
@@ -114,3 +114,6 @@ export const CATEGORIES: { name: ExamCategory; description: string }[] = [
 ];
 
 export const examById = (id: string) => EXAMS.find((e) => e.id === id);
+
+/** Typing tests under Practice, at /practice/test/<id>; the competitive test lives under Competitive. */
+export const isPracticeTest = (id: string) => EXAMS.some((e) => e.id === id && !!e.preset && e.id !== 'competitive');

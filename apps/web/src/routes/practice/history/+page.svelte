@@ -33,7 +33,7 @@
 </script>
 
 <Seo title="History" description="Every test you have taken, with full results." noindex />
-<Breadcrumbs items={[{ href: '/history', label: 'History' }]} />
+<Breadcrumbs items={[{ href: '/practice', label: 'Practice' }, { href: '/practice/history', label: 'History' }]} />
 
 <div class="history">
 	<header>
@@ -52,7 +52,7 @@
 		<section class="empty">
 			<h2>No results yet</h2>
 			<p>Results appear here after your first test.</p>
-			<a class="btn btn-primary" href="/exams">Browse examinations</a>
+			<a class="btn btn-primary" href="/practice">Go to Practice</a>
 		</section>
 	{:else}
 		<dl class="summary">
@@ -96,7 +96,7 @@
 			<tbody>
 				{#each filtered.slice(0, shown) as r (r.id)}
 					<tr>
-						<td><a href={`/history/${r.id}`}>{when(r.at)}</a></td>
+						<td><a href={`/practice/history/${r.id}`}>{when(r.at)}</a></td>
 						<td>{examById(r.exam)?.title ?? r.exam}</td>
 						<td>{#if r.status === 'abandoned'}<span class="badge">Not completed</span>{:else}Completed{/if}</td>
 						<td class="num">{Math.round(r.wpm)}</td>

@@ -4,12 +4,12 @@ import { playFalling } from './play.ts';
 
 test('endless games are listed in practice and play round after round at the chosen difficulty', async ({ page }) => {
 	test.setTimeout(120_000);
-	await page.goto('/exams');
+	await page.goto('/practice');
 	const games = page.locator('#games');
 	await expect(games.getByRole('heading', { name: 'Endless games' })).toBeVisible();
 	await expect(games.getByRole('link')).toHaveCount(6);
 	await games.getByRole('link', { name: /Falling words/ }).click();
-	await expect(page).toHaveURL(/\/play\/falling-words$/);
+	await expect(page).toHaveURL(/\/practice\/play\/falling-words$/);
 
 	// The difficulty is chosen before the run starts.
 	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
@@ -26,13 +26,13 @@ test('endless games are listed in practice and play round after round at the cho
 	await page.getByRole('button', { name: 'End the run' }).click();
 	await expect(page.getByRole('heading', { name: 'Run complete' })).toBeVisible();
 	await expect(page.locator('.run-result .points')).toHaveText('2');
-	await page.goto('/exams');
+	await page.goto('/practice');
 	await expect(page.locator('#games').getByRole('link', { name: /Falling words/ })).toContainText('Best 2');
 });
 
 test('a run starts at the top and fills the first screen; the footer waits below', async ({ page }) => {
 	await page.setViewportSize({ width: 1440, height: 900 });
-	await page.goto('/play/falling-letters', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/falling-letters', { waitUntil: 'networkidle' });
 	await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
 	await page.getByRole('button', { name: /^Start/ }).click();
 	await expect(page.locator('.endless > .hud')).toBeVisible();
@@ -47,7 +47,7 @@ test('every game opens on the same menu: level, settings where it has any, how i
 	for (const width of [1440, 375]) {
 		await page.setViewportSize({ width, height: 900 });
 		for (const game of ['race', 'falling-words', 'falling-letters', 'echo', 'listen', 'keyhunt']) {
-			await page.goto(`/play/${game}`, { waitUntil: 'networkidle' });
+			await page.goto(`/practice/play/${game}`, { waitUntil: 'networkidle' });
 			await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
 			await expect(page.getByRole('heading', { name: 'How it works' })).toBeVisible();
 			await expect(page.getByRole('heading', { name: 'Settings' })).toHaveCount(['falling-letters', 'keyhunt'].includes(game) ? 0 : 1);
@@ -63,7 +63,7 @@ test('every game opens on the same menu: level, settings where it has any, how i
 
 test('adaptive says so when a round moves the run into another level', async ({ page }) => {
 	test.setTimeout(120_000);
-	await page.goto('/play/falling-letters', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/falling-letters', { waitUntil: 'networkidle' });
 	await page.getByRole('button', { name: 'Start at Adaptive' }).click();
 	await expect(page.locator('.runbar .level')).toContainText('Easy');
 	await playFalling(page);
@@ -76,11 +76,11 @@ test('adaptive says so when a round moves the run into another level', async ({ 
 
 test('Back retraces the journey: run → its menu → Practice, each where it was scrolled', async ({ page }) => {
 	await page.setViewportSize({ width: 1280, height: 800 });
-	await page.goto('/exams', { waitUntil: 'networkidle' });
+	await page.goto('/practice', { waitUntil: 'networkidle' });
 	await page.locator('#games').scrollIntoViewIfNeeded();
 	const practiceY = await page.evaluate(() => Math.round(window.scrollY));
 	await page.locator('#games').getByRole('link', { name: /Key hunt/ }).click();
-	await expect(page).toHaveURL(/\/play\/keyhunt$/);
+	await expect(page).toHaveURL(/\/practice\/play\/keyhunt$/);
 	// The arrival scroll can land late under load: scroll until the menu sits at 200.
 	await expect.poll(() => page.evaluate(() => (window.scrollTo(0, 200), Math.round(window.scrollY)))).toBe(200);
 	// Clicked from the page, so the menu stays where it was scrolled (a Playwright click scrolls the button into view);
@@ -94,7 +94,7 @@ test('Back retraces the journey: run → its menu → Practice, each where it wa
 
 	await page.goBack();
 	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
-	await expect(page).toHaveURL(/\/play\/keyhunt$/);
+	await expect(page).toHaveURL(/\/practice\/play\/keyhunt$/);
 	await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBe(menuY);
 
 	// Forward does not bring a left run back.
@@ -103,28 +103,28 @@ test('Back retraces the journey: run → its menu → Practice, each where it wa
 	await expect(page.locator('.runbar')).toHaveCount(0);
 
 	await page.goBack();
-	await expect(page).toHaveURL(/\/exams$/);
+	await expect(page).toHaveURL(/\/practice$/);
 	await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBeGreaterThan(practiceY - 10);
 });
 
 test('Change difficulty on the results goes back to the menu the same way Back does', async ({ page }) => {
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('button', { name: /^Start at/ }).click();
 	await page.getByRole('button', { name: 'Stop' }).click();
 	await page.getByRole('button', { name: 'Change difficulty' }).click();
 	await expect(page.getByRole('heading', { name: 'Level', exact: true })).toBeVisible();
 	// The run's entry is gone: one more Back leaves the game.
 	await page.goBack();
-	await expect(page).not.toHaveURL(/\/play\/listen$/);
+	await expect(page).not.toHaveURL(/\/practice\/play\/listen$/);
 });
 
 test('an unknown game is not found', async ({ page }) => {
-	const res = await page.goto('/play/chess');
+	const res = await page.goto('/practice/play/chess');
 	expect(res?.status()).toBe(404);
 });
 
 test('Listen and type: endless words, the explanation in place, Stop with statistics', async ({ page }) => {
-	await page.goto('/play/listen');
+	await page.goto('/practice/play/listen');
 	await page.getByRole('button', { name: /^Start at/ }).click();
 
 	// Endless: no ready screen, count-in, goal or tries.
@@ -202,7 +202,7 @@ test('Listen and type plays each word from its clip, and Slow from its own', asy
 			return start.apply(this, args);
 		};
 	});
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('button', { name: /^Start at/ }).click();
 
 	await expect.poll(() => page.evaluate(() => (window as unknown as { played: number }).played)).toBeGreaterThan(0);
@@ -223,7 +223,7 @@ test('Listen and type plays a test word from the sound settings', async ({ page 
 		asked.push(new URL(route.request().url()).pathname);
 		return route.fulfill({ contentType: 'audio/wav', body: wav });
 	});
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await expect(page.getByRole('slider', { name: 'Voice volume' })).toBeVisible();
 	await page.getByRole('button', { name: 'Play a test word' }).click();
 	await expect(page.getByText(/^Heard it\?/)).toBeVisible();
@@ -232,7 +232,7 @@ test('Listen and type plays a test word from the sound settings', async ({ page 
 
 test('Listen and type says so when the voice keeps failing, and shows the words', async ({ page }) => {
 	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ status: 503, body: 'down' }));
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('button', { name: /^Start at/ }).click();
 	await expect(page.locator('.player .shown')).toHaveText(/^[a-z'-]+$/);
 	await page.getByRole('button', { name: 'Play the word again' }).click();
@@ -240,7 +240,7 @@ test('Listen and type says so when the voice keeps failing, and shows the words'
 });
 
 test('Listen and type shows the words instead when sound is turned off in settings', async ({ page }) => {
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('checkbox', { name: /Show words instead of sound/ }).check();
 	await page.getByRole('button', { name: /^Start at/ }).click();
 	await expect(page.locator('.player .shown')).toHaveText(/^[a-z'-]+$/);
@@ -251,7 +251,7 @@ test('Listen and type shows the words instead when sound is turned off in settin
 
 test('Listen and type: a missed word is practiced unscored after Stop, then the review leads back to the run', async ({ page }) => {
 	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav() }));
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('button', { name: /^Start at/ }).click();
 	const input = page.getByTestId('listen-input');
 	await expect(input).toBeEnabled();
@@ -285,7 +285,7 @@ test('Listen and type: practicing many missed words keeps the stage in its frame
 	test.setTimeout(120_000);
 	await page.setViewportSize({ width: 1440, height: 900 });
 	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.05) }));
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('button', { name: /^Start at/ }).click();
 	const input = page.getByTestId('listen-input');
 	const misses = 30;
@@ -333,7 +333,7 @@ test('Listen and type: practicing many missed words keeps the stage in its frame
 
 test('Listen and type limits replays at high levels', async ({ page }) => {
 	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.15) }));
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await page.getByText('Insane', { exact: true }).click();
 	await page.getByRole('button', { name: 'Start at Insane' }).click();
 	await expect(page.locator('.state')).toContainText('1 replay left');
@@ -355,7 +355,7 @@ test('Listen and type does not count a play that was not heard', async ({ page }
 		}
 		return route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.15) });
 	});
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await page.getByText('Insane', { exact: true }).click();
 	await page.getByRole('button', { name: 'Start at Insane' }).click();
 	await expect.poll(() => failed).toBeGreaterThan(0);
@@ -375,7 +375,7 @@ test('Listen and type fast mode moves on the moment a word is typed right, and E
 		asked.push(new URL(route.request().url()).pathname);
 		return route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.1) });
 	});
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('checkbox', { name: /Fast mode/ }).check();
 	await page.getByRole('checkbox', { name: /Show words instead of sound/ }).check();
 	await page.getByRole('button', { name: /^Start at/ }).click();
@@ -408,7 +408,7 @@ test('Listen and type fast mode moves on the moment a word is typed right, and E
 
 test('the Listen and type answer box takes letters only', async ({ page }) => {
 	await page.route('**/voice/*/auto/*/*', (route) => route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.1) }));
-	await page.goto('/play/listen', { waitUntil: 'networkidle' });
+	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
 	await page.getByRole('button', { name: /^Start at/ }).click();
 	const input = page.getByTestId('listen-input');
 	await expect(input).toBeEnabled();

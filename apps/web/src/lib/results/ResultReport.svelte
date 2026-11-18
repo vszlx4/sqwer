@@ -180,9 +180,9 @@
 			<button type="button" class="btn" onclick={onrepeat}><Icon name="repeat" size={16} /> Repeat with the same words</button>
 		{/if}
 		{#if record.exam !== 'competitive' && record.exam !== 'finger-speed'}
-			<a class="btn" href="/test?exam=competitive" data-sveltekit-reload><Icon name="trophy" size={16} /> Play ranked</a>
+			<a class="btn" href="/competitive/test" data-sveltekit-reload><Icon name="trophy" size={16} /> Play ranked</a>
 		{/if}
-		<a class="link-arrow all" href="/history">View all results <Icon name="arrow" size={16} /></a>
+		<a class="link-arrow all" href="/practice/history">View all results <Icon name="arrow" size={16} /></a>
 	</div>
 </section>
 

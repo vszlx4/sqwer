@@ -170,7 +170,7 @@ test('saves usage statistics to the account and shows them on the statistics pag
 	await page.getByRole('button', { name: 'Sign in' }).click();
 	await expect(page).toHaveURL(/\/account$/);
 
-	await page.goto('/test?exam=words');
+	await page.goto('/practice/test/words');
 	await page.getByTestId('typing-input').focus();
 	const words = await page.$$eval('[data-word]', (els) => els.map((e) => e.textContent));
 	await page.keyboard.type(words.join(' '), { delay: 20 });
@@ -240,7 +240,7 @@ test('a verified placement test marks the earlier chapters complete and earns th
 	await expect(page).toHaveURL(/\/account$/);
 	const levelBefore = Number(await page.locator('.account-menu .lvl').textContent());
 
-	await page.goto('/test?exam=placement');
+	await page.goto('/practice/test/placement');
 	await page.getByTestId('typing-input').focus();
 	// Fast enough for the last chapter, typed with a person's uneven rhythm (the server checks it).
 	while ((await page.getByTestId('result-wpm').count()) === 0) {
@@ -301,7 +301,7 @@ test('clears only the learning path and keeps every other kind of data', async (
 	// The course starts again; results are untouched.
 	await page.goto('/learn/start');
 	await expect(page.locator('ol.list .count')).toHaveCount(0);
-	await page.goto('/history');
+	await page.goto('/practice/history');
 	await expect(page.getByRole('row').nth(1)).toBeVisible();
 });
 

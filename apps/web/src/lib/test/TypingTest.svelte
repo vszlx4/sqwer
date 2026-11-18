@@ -438,7 +438,7 @@
 			{:else if !fixed && poolInfo.mature}
 				<p class="list-note">{poolInfo.name} is a full dictionary list and includes profanity and other mature words. <a href="/copyright#word-lists">About the word lists</a></p>
 			{/if}
-			<a class="ranked-link" href="/test?exam=competitive" data-sveltekit-reload><Icon name="trophy" size={15} /> Play ranked</a>
+			<a class="ranked-link" href="/competitive/test" data-sveltekit-reload><Icon name="trophy" size={15} /> Play ranked</a>
 		</div>
 
 		<div class="status" aria-live="off">

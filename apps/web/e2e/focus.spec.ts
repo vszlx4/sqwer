@@ -52,7 +52,7 @@ test('in a game that listens to the whole page, a focused button does not take t
 });
 
 test('in the typing test, typing reaches the test after a click anywhere', async ({ page }) => {
-	await page.goto('/test');
+	await page.goto('/practice/test/timed');
 	const input = page.getByTestId('typing-input');
 	await expect(input).toBeFocused();
 	await page.locator('main').click({ position: { x: 5, y: 5 } });

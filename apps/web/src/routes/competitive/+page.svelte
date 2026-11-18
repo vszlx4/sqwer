@@ -13,7 +13,7 @@
 	const myTier = $derived(tierFor(data.me?.best));
 	const upcoming = $derived(nextTier(myTier));
 	const fmt = (n: number) => Math.round(n).toLocaleString('en');
-	const playHref = $derived(signedIn ? '/test?exam=competitive' : '/signin?redirectTo=%2Ftest%3Fexam%3Dcompetitive');
+	const playHref = $derived(signedIn ? '/competitive/test' : '/signin?redirectTo=%2Fcompetitive%2Ftest');
 
 	/** Progress from the start of the current tier to the next one. */
 	const toNext = $derived.by(() => {

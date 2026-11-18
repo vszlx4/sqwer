@@ -15,8 +15,8 @@
 	afterNavigate(() => menu?.close());
 
 	const HELP_LINKS = [
-		{ label: 'How it works', link: '/about' },
-		{ label: 'Questions', link: '/faq' },
+		{ label: 'How it works', link: '/how-it-works' },
+		{ label: 'FAQ', link: '/faq' },
 		{ label: 'Legal', link: '/legal' }
 	];
 
@@ -27,13 +27,13 @@
 		const next = learnerNextStep();
 		return next.stage === 'course' && next.lesson ? next : null;
 	});
-	/** Which of the three areas a page belongs to, so its link is marked as current. */
+	/** Which of the three areas a page belongs to, so its link is marked as current. Addresses start with their area. */
 	const area = $derived.by(() => {
 		const path = page.url.pathname;
-		if (path === '/test' && page.url.searchParams.get('exam') === 'competitive') return '/competitive';
-		if (path.startsWith('/competitive')) return '/competitive';
-		if (path.startsWith('/learn') || path === '/start') return '/learn';
-		if (['/exams', '/test', '/map', '/history'].some((p) => path === p || path.startsWith(`${p}/`))) return '/exams';
+		const within = (prefix: string) => path === prefix || path.startsWith(`${prefix}/`);
+		if (within('/competitive')) return '/competitive';
+		if (within('/learn') || path === '/start') return '/learn';
+		if (within('/practice')) return '/practice';
 		return null;
 	});
 	const isCurrent = (href: string) => area === href;

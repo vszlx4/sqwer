@@ -29,7 +29,7 @@
 	<div class="links">
 		<a class="btn btn-primary" href="/">Return to the home page</a>
 		{#if notFound}
-			<a class="btn" href="/exams">Browse examinations</a>
+			<a class="btn" href="/practice">Go to Practice</a>
 		{:else}
 			<button type="button" class="btn" onclick={() => location.reload()}>Try again</button>
 		{/if}

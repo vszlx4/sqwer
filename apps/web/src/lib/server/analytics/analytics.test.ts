@@ -91,6 +91,7 @@ describe('traffic sources', () => {
 describe('validation of browser events', () => {
 	it('accepts a well-formed batch', () => {
 		expect(batchSchema.safeParse({ events: [pageview(), pageview({ type: 'engagement', duration: 4000 })] }).success).toBe(true);
+		expect(batchSchema.safeParse({ events: [pageview({ route: '/practice/test/[exam=exam]' })] }).success).toBe(true);
 	});
 
 	it.each([

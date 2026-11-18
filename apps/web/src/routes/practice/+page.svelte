@@ -45,13 +45,13 @@
 
 	function status(exam: Exam): Status {
 		const locked = mounted && exam.id === 'finger-speed' && coverage < ASSESSMENT_COVERAGE;
-		if (locked) return { facts: [], action: 'Continue mapping', href: profile.samples ? '/map' : '/map/session', locked };
+		if (locked) return { facts: [], action: 'Continue mapping', href: profile.samples ? '/practice/finger-map' : '/practice/finger-map/session', locked };
 		if (exam.id === 'finger-map') {
 			const started = mounted && profile.samples > 0;
 			return {
 				facts: started ? [{ label: 'Core keys mapped', value: `${Math.round(coverage * 100)}%` }, { label: 'Entries', value: String(profile.samples) }] : [],
 				action: started ? 'Continue mapping' : 'Start mapping',
-				href: started ? '/map' : '/map/session',
+				href: started ? '/practice/finger-map' : '/practice/finger-map/session',
 				locked
 			};
 		}
@@ -89,7 +89,7 @@
 	description="Placement, speed, accuracy, endurance and technique examinations, each with a clear purpose and your own statistics."
 />
 
-<Breadcrumbs items={[{ href: '/exams', label: 'Practice' }]} />
+<Breadcrumbs items={[{ href: '/practice', label: 'Practice' }]} />
 
 <div class="exams">
 	<header class="intro">
@@ -99,9 +99,9 @@
 			completed test earns XP toward your account level: longer, faster and more accurate tests earn more.
 		</p>
 		<nav class="shortcuts" aria-label="Practice tools">
-			<a href="/history"><Icon name="history" size={16} /> History and replays</a>
-			<a href="/map"><Icon name="hand" size={16} /> Finger map</a>
-			<a href="/competitive"><Icon name="trophy" size={16} /> Competitive test</a>
+			<a href="/practice/history"><Icon name="history" size={16} /> History and replays</a>
+			<a href="/practice/finger-map"><Icon name="hand" size={16} /> Finger map</a>
+			<a href="/competitive"><Icon name="trophy" size={16} /> Competitive</a>
 			<a href="#games"><Icon name="play" size={16} /> Endless games</a>
 		</nav>
 	</header>
@@ -159,7 +159,7 @@
 		<ul class="game-list">
 			{#each GAMES as g, i (g.id)}
 				<li use:reveal={{ delay: i * 0.05 }}>
-					<a href={`/play/${g.id}`}>
+					<a href={`/practice/play/${g.id}`}>
 						<span class="game-icon" aria-hidden="true"><Icon name={g.icon} size={18} /></span>
 						<span class="game-title">{g.title}</span>
 						<span class="game-summary">{g.summary}</span>
