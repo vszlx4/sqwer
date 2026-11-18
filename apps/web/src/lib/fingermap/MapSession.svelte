@@ -134,7 +134,7 @@
 	}
 
 	function finish() {
-		goto(`/map${added ? `?saved=${added}` : ''}`);
+		goto(`/practice/finger-map${added ? `?saved=${added}` : ''}`);
 	}
 
 	// While this is on screen it has the keyboard: clicks never leave focus on a button.
@@ -193,7 +193,7 @@
 
 <div class="session">
 	<div class="top">
-		<a class="back" href="/map"><Icon name="arrow" size={16} class="flip" /> Finger map</a>
+		<a class="back" href="/practice/finger-map"><Icon name="arrow" size={16} class="flip" /> Finger map</a>
 		<div class="progress" aria-label={`Core keys mapped: ${profile.core.mapped} of ${profile.core.total}`}>
 			<span class="pct">{coverage}%</span>
 			<span class="bar"><span style:width={`${coverage}%`}></span></span>

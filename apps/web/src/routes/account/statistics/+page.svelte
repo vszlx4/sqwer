@@ -115,7 +115,7 @@
 			<div><dt>Completion rate</dt><dd>{Math.round(completionRate)}%</dd></div>
 		</dl>
 		{#if !takenExams.length}
-			<p class="empty">No tests yet. <a href="/test?exam=timed" data-sveltekit-reload>Take a timed test</a> and your figures appear here.</p>
+			<p class="empty">No tests yet. <a href="/practice/test/timed" data-sveltekit-reload>Take a timed test</a> and your figures appear here.</p>
 		{:else}
 		<table>
 			<thead>

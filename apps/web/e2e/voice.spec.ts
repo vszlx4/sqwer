@@ -134,7 +134,7 @@ test('the Voice page shows the choice and its cost, then the generator with sets
 
 test('the Listen and type menu shows the set’s clips and makes it next', async ({ page }) => {
 	await signIn(page);
-	await page.goto('/play/listen');
+	await page.goto('/practice/play/listen');
 	const panel = page.locator('.voice', { hasText: 'Enhanced voice' });
 	await expect(panel).toContainText('words of Lessons ready');
 	await page.getByRole('combobox').selectOption('legal');

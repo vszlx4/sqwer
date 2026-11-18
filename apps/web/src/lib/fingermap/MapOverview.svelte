@@ -142,7 +142,7 @@
 			</p>
 		</div>
 		<div class="intro-actions">
-			<a class="btn primary" href="/map/session" data-testid="start-mapping">
+			<a class="btn primary" href="/practice/finger-map/session" data-testid="start-mapping">
 				{empty ? 'Start mapping' : 'Continue mapping'} <Icon name="arrow" size={17} />
 			</a>
 			<label class="check">
@@ -215,7 +215,7 @@
 			<div class="map-head">
 				<h2 id="speed-title">Finger speed</h2>
 				{#if results.latest('finger-speed')}
-					<a class="btn" href="/exams/finger-speed">Retake the assessment</a>
+					<a class="btn" href="/practice/finger-speed">Retake the assessment</a>
 				{/if}
 			</div>
 			{#if results.latest('finger-speed')?.fingers}
@@ -223,7 +223,7 @@
 			{:else if profile.core.mapped / profile.core.total >= ASSESSMENT_COVERAGE}
 				<div class="speed-cta">
 					<p>Your map is ready. Measure the speed and accuracy of each finger to see where to focus your practice.</p>
-					<a class="btn btn-primary" href="/exams/finger-speed">Begin the finger assessment</a>
+					<a class="btn btn-primary" href="/practice/finger-speed">Begin the finger assessment</a>
 				</div>
 			{:else}
 				<p class="muted">

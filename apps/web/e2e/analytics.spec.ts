@@ -68,7 +68,7 @@ test.describe('consent', () => {
 		const views = () => sent.filter((e) => e.type === 'pageview').length;
 		const before = views();
 		await page.getByRole('link', { name: 'Practice', exact: true }).first().click();
-		await expect(page).toHaveURL(/\/exams$/);
+		await expect(page).toHaveURL(/\/practice$/);
 		await page.waitForTimeout(2500);
 		expect(views()).toBe(before);
 	});

@@ -24,14 +24,16 @@
 		body: string;
 		href: string;
 		action: string;
+		/** Typing tests open with a full page load. */
+		reload?: boolean;
 	}
 	const steps = $derived.by<Step[]>(() => {
 		const out: Step[] = [];
 		if (next) out.push({ icon: 'route', title: `Lesson ${next.order}: ${next.title}`, body: 'Your next lesson on the learning path.', href: `/learn/${next.id}`, action: 'Continue' });
 		else if (courses.loaded) out.push({ icon: 'route', title: 'Find your starting chapter', body: 'A one-minute placement test recommends where to begin.', href: '/learn/start', action: 'Start' });
-		out.push({ icon: 'gauge', title: 'Take a timed test', body: pace?.tests ? `Your usual pace is ${Math.round(pace.wpm ?? 0)} WPM. Every test earns XP.` : 'Thirty seconds of everyday words. Every test earns XP.', href: '/test?exam=timed', action: 'Start test' });
-		out.push({ icon: 'trophy', title: 'Play ranked', body: 'One minute at 92% accuracy or more sets your speed rank.', href: '/test?exam=competitive', action: 'Play' });
-		if (!data.fingerMap.count) out.push({ icon: 'hand', title: 'Map your fingers', body: 'Record which finger you use for each key, for guidance that fits how you type.', href: '/map', action: 'Open' });
+		out.push({ icon: 'gauge', title: 'Take a timed test', body: pace?.tests ? `Your usual pace is ${Math.round(pace.wpm ?? 0)} WPM. Every test earns XP.` : 'Thirty seconds of everyday words. Every test earns XP.', href: '/practice/test/timed', action: 'Start test', reload: true });
+		out.push({ icon: 'trophy', title: 'Play ranked', body: 'One minute at 92% accuracy or more sets your speed rank.', href: '/competitive/test', action: 'Play', reload: true });
+		if (!data.fingerMap.count) out.push({ icon: 'hand', title: 'Map your fingers', body: 'Record which finger you use for each key, for guidance that fits how you type.', href: '/practice/finger-map', action: 'Open' });
 		return out;
 	});
 </script>
@@ -50,7 +52,7 @@
 		<ul class="steps">
 			{#each steps as s, i (s.title)}
 				<li use:enter={{ i }}>
-					<a href={s.href} data-sveltekit-reload={s.href.startsWith('/test') ? '' : undefined}>
+					<a href={s.href} data-sveltekit-reload={s.reload ? '' : undefined}>
 						<span class="step-icon" aria-hidden="true"><Icon name={s.icon} size={18} /></span>
 						<span class="step-text"><b>{s.title}</b><span>{s.body}</span></span>
 						<span class="step-go">{s.action} <Icon name="arrow" size={15} /></span>
@@ -103,7 +105,7 @@
 					<b>Finger map</b>
 					<span>{data.fingerMap.count ? `${data.fingerMap.count} tagged keystrokes, saved and kept in sync.` : 'Nothing saved yet. Keystrokes you tag while signed in are saved automatically.'}</span>
 				</span>
-				<a class="row-link" href="/map">Open</a>
+				<a class="row-link" href="/practice/finger-map">Open</a>
 			</li>
 			<li>
 				<span class="state" class:ok={data.recoveryCodes > 2} class:warn={data.recoveryCodes <= 2} aria-hidden="true"><Icon name={data.recoveryCodes > 2 ? 'check' : 'info'} size={15} /></span>

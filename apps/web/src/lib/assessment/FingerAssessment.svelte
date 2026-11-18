@@ -182,7 +182,7 @@
 					<strong>{Math.round(coverage * 100)}%</strong>.
 				</p>
 				<div class="bar" aria-hidden="true"><span style:width={`${Math.min(100, (coverage / ASSESSMENT_COVERAGE) * 100)}%`}></span></div>
-				<a class="btn btn-primary" href={profile.samples ? '/map' : '/map/session'}>
+				<a class="btn btn-primary" href={profile.samples ? '/practice/finger-map' : '/practice/finger-map/session'}>
 					{profile.samples ? 'Continue mapping' : 'Start mapping'}
 				</a>
 			</section>
@@ -193,7 +193,7 @@
 					Your finger map does not assign any letters to your little, ring, middle or index fingers, so there is nothing
 					to measure. Review your finger map, then return to the assessment.
 				</p>
-				<a class="btn btn-primary" href="/map">Review your finger map</a>
+				<a class="btn btn-primary" href="/practice/finger-map">Review your finger map</a>
 			</section>
 		{:else}
 			<section class="card">

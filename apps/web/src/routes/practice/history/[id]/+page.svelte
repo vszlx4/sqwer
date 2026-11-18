@@ -18,7 +18,7 @@
 </script>
 
 <Seo title={`${title} result`} description="A saved test result." noindex />
-<Breadcrumbs items={[{ href: '/history', label: 'History' }, { href: page.url.pathname, label: title }]} />
+<Breadcrumbs items={[{ href: '/practice', label: 'Practice' }, { href: '/practice/history', label: 'History' }, { href: page.url.pathname, label: title }]} />
 
 {#if !results.loaded}
 	<SkeletonRegion label="Loading the result…">
@@ -31,7 +31,7 @@
 	<section class="missing">
 		<h1>Result not found</h1>
 		<p>This result is not stored in this browser or in your account.</p>
-		<a class="btn" href="/history">Return to history</a>
+		<a class="btn" href="/practice/history">Return to history</a>
 	</section>
 {:else if record.exam === 'finger-speed' && record.fingers}
 	<section class="assessment">

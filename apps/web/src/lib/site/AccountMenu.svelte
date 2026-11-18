@@ -141,7 +141,7 @@
 					{#each ACCOUNT_LINKS as link (link.href)}
 						<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
 					{/each}
-					<a href="/history" aria-current={page.url.pathname === '/history' ? 'page' : undefined}>History</a>
+					<a href="/practice/history" aria-current={page.url.pathname === '/practice/history' ? 'page' : undefined}>History</a>
 					{#if user.isAdmin}<a href="/admin/analytics" aria-current={page.url.pathname.startsWith('/admin') ? 'page' : undefined}>Analytics</a>{/if}
 				{:else}
 					<a href="/account/setup">Complete your profile</a>

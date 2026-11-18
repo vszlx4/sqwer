@@ -14,7 +14,7 @@ function hidden(page: Page) {
 test.describe('reduced motion', () => {
 	test.use({ reducedMotion: 'reduce' });
 
-	for (const path of ['/learn', '/exams', '/competitive']) {
+	for (const path of ['/learn', '/practice', '/competitive']) {
 		test(`${path} shows everything without scrolling`, async ({ page }) => {
 			await page.goto(path);
 			await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
@@ -23,7 +23,7 @@ test.describe('reduced motion', () => {
 	}
 
 	test('client-side views and chapter swaps appear at once', async ({ page }) => {
-		await page.goto('/exams');
+		await page.goto('/practice');
 		await page.getByRole('navigation', { name: 'Main' }).first().getByRole('link', { name: 'Learning path' }).click();
 		await expect(page).toHaveURL(/\/learn$/);
 		await page.getByRole('button', { name: /Reaching up/ }).click();
@@ -39,7 +39,7 @@ test('server-rendered views are left as rendered', async ({ page }) => {
 });
 
 test('client-side entrances finish at full opacity with no inline styles left', async ({ page }) => {
-	await page.goto('/exams');
+	await page.goto('/practice');
 	await page.getByRole('navigation', { name: 'Main' }).first().getByRole('link', { name: 'Learning path' }).click();
 	await expect(page).toHaveURL(/\/learn$/);
 	await page.getByRole('button', { name: /Reaching up/ }).click();

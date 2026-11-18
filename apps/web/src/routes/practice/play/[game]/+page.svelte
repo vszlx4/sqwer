@@ -11,7 +11,7 @@
 <Seo title={`${data.game.title}: endless mode`} description={`${data.game.summary} Played in endless rounds with adaptive difficulty.`} />
 
 {#if !running}
-	<Breadcrumbs items={[{ href: '/exams', label: 'Practice' }, { href: '/exams#games', label: 'Endless games' }, { href: `/play/${data.game.id}`, label: data.game.title }]} />
+	<Breadcrumbs items={[{ href: '/practice', label: 'Practice' }, { href: '/practice#games', label: 'Endless games' }, { href: `/practice/play/${data.game.id}`, label: data.game.title }]} />
 {/if}
 
 <!-- During a run the game owns the first screen: no title, and the footer stays below the fold. -->

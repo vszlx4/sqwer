@@ -21,7 +21,7 @@ export const LEGAL = {
  *  current link (lib/site/areas.ts). */
 export const NAV_LINKS = [
 	{ href: '/learn', label: 'Learning path', icon: 'route', area: 'learn', description: 'Lessons, games and course ranks' },
-	{ href: '/exams', label: 'Practice', icon: 'gauge', area: 'practice', description: 'Tests, finger map and history, with XP' },
+	{ href: '/practice', label: 'Practice', icon: 'gauge', area: 'practice', description: 'Tests, finger map and history, with XP' },
 	{ href: '/competitive', label: 'Competitive', icon: 'trophy', area: 'competitive', description: 'Speed tiers and leaderboards' }
 ] as const satisfies readonly { href: string; label: string; icon: string; area: Area; description: string }[];
 
@@ -42,22 +42,22 @@ export const FOOTER_SECTIONS = [
 		label: 'Learn',
 		links: [
 			{ href: '/learn', label: 'Learning path', icon: 'route' },
-			{ href: '/start', label: 'Find your level', icon: 'target' }
+			{ href: '/start', label: 'Get started', icon: 'target' }
 		]
 	},
 	{
 		label: 'Practice',
 		links: [
-			{ href: '/exams', label: 'Typing tests', icon: 'gauge' },
-			{ href: '/map', label: 'Finger map', icon: 'hand' },
-			{ href: '/history', label: 'History', icon: 'history' },
+			{ href: '/practice', label: 'Practice', icon: 'gauge' },
+			{ href: '/practice/finger-map', label: 'Finger map', icon: 'hand' },
+			{ href: '/practice/history', label: 'History', icon: 'history' },
 			{ href: '/competitive', label: 'Competitive', icon: 'trophy' }
 		]
 	},
 	{
 		label: 'Help',
 		links: [
-			{ href: '/about', label: 'How it works', icon: 'info' },
+			{ href: '/how-it-works', label: 'How it works', icon: 'info' },
 			{ href: '/faq', label: 'FAQ', icon: 'question' },
 			{ href: '/accessibility', label: 'Accessibility', icon: 'access' },
 			{ href: `mailto:${CONTACT_EMAIL}`, label: 'Contact', icon: 'mail' }
