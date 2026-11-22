@@ -172,6 +172,7 @@
 		margin-bottom: calc(-1 * var(--space-8));
 	}
 	h2 {
+		font-family: var(--font-sans);
 		font-size: var(--fs-16);
 		font-weight: var(--fw-semibold);
 		margin-bottom: var(--space-12);

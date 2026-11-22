@@ -4,6 +4,7 @@
 	import SettingsSection from '#lib/account/SettingsSection.svelte';
 	import RankEmblem from '#lib/competitive/RankEmblem.svelte';
 	import { lessonById } from '#lib/courses/catalog.ts';
+	import { localDay } from '#lib/courses/progression.ts';
 	import { courses } from '#lib/courses/store.svelte.ts';
 	import { formatDate, formatNumber } from '#lib/i18n/format.ts';
 	import { tierFor } from '#lib/progress/competitive.ts';
@@ -23,6 +24,7 @@
 
 	const next = $derived(courses.loaded && courses.nextLesson ? lessonById(courses.nextLesson) : null);
 	const lessonsDone = $derived(Object.values(courses.progress).filter((x) => x.stars > 0).length);
+	const practicedToday = $derived(courses.days.includes(localDay()));
 	const stars = $derived(Object.values(courses.progress).reduce((t, x) => t + x.stars, 0));
 
 	interface Action {
@@ -112,21 +114,21 @@
 		</dd>
 	</div>
 	<div>
-		<dt>Competitive</dt>
-		<dd class="rank">
-			<RankEmblem league={tier?.league ?? null} size={36} />
-			<span><b>{tier?.name ?? 'Unranked'}</b><span class="sub">{user?.best ? `Best ${Math.round(user.best)} WPM` : 'No ranked test yet'}</span></span>
+		<dt>Competitive <span class="glyph"><RankEmblem league={tier?.league ?? null} size={24} /></span></dt>
+		<dd>
+			<b title={tier?.name ?? 'Unranked'}>{tier?.name ?? 'Unranked'}</b>
+			<span class="sub">{user?.best ? `Best ${Math.round(user.best)} WPM` : 'No ranked test yet'}</span>
 		</dd>
 	</div>
 	<div>
-		<dt>Course</dt>
+		<dt>Course <span class="glyph"><Icon name="route" size={18} /></span></dt>
 		<dd>
 			<b>{courses.loaded ? courses.rank.rank.name : '…'}</b>
 			<span class="sub">{courses.loaded ? `${fmt(courses.rank.points)} points` : 'Loading'}</span>
 		</dd>
 	</div>
 	<div>
-		<dt>Streak</dt>
+		<dt>Streak <span class="glyph streak" class:lit={practicedToday} title={practicedToday ? 'Today counts' : 'Finish a test today to keep it'}><Icon name="flame" size={18} /></span></dt>
 		<dd>
 			<b>{courses.loaded ? `${courses.streak} ${courses.streak === 1 ? 'day' : 'days'}` : '…'}</b>
 			<span class="sub">{courses.loaded ? `${lessonsDone} lessons · ${stars} stars` : 'Loading'}</span>
@@ -192,16 +194,36 @@
 		border-left: 1px solid var(--line);
 	}
 	dt {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-8);
+		min-height: 24px;
 		font-size: var(--fs-13);
 		font-weight: var(--fw-semibold);
 		color: var(--ink-2);
+	}
+	.glyph {
+		display: grid;
+		place-items: center;
+		color: var(--ink-3);
+	}
+	.glyph.streak.lit {
+		color: var(--streak);
+	}
+	.glyph.streak.lit :global(svg) {
+		fill: currentColor;
 	}
 	dd {
 		margin: 0;
 		font-variant-numeric: tabular-nums;
 	}
+	/* One line per figure: long tier names such as Transcendent III never break. */
 	dd b {
 		display: block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 		font-size: var(--fs-18);
 	}
 	.sub {
@@ -239,11 +261,6 @@
 		height: 100%;
 		background: var(--xp-bar);
 		transform-origin: left;
-	}
-	.rank {
-		display: flex;
-		align-items: center;
-		gap: var(--space-10);
 	}
 	.grid {
 		display: grid;

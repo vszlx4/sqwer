@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import StreakBadge from '#lib/courses/StreakBadge.svelte';
 	import { enter } from '#lib/motion/actions.ts';
 	import { MIN_ACCURACY, tierFor } from '#lib/progress/competitive.ts';
 	import { examXp } from '#lib/progress/xp.ts';
@@ -71,11 +72,11 @@
 			{record.label} · {when}
 			{#if record.status === 'abandoned'}<span class="badge">Not completed</span>{/if}
 		</p>
-		{#if xp > 0 || tier}
+		{#if xp > 0 || tier || page.data.user}
 			<p class="earned">
 				{#if xp > 0}<span class="xp">+{xp} XP</span>{/if}
 				{#if tier}<span class="tier" style:--league={tier.league.colour}>{tier.name}</span>{:else if record.exam === 'competitive' && record.status === 'completed'}<span class="hint">Reach 50 WPM with {MIN_ACCURACY}% accuracy for a tier</span>{/if}
-				{#if !page.data.user}<span class="hint">Sign in to keep your XP{record.exam === 'competitive' ? ' and tier' : ''}.</span>{/if}
+				{#if page.data.user}<StreakBadge />{:else}<span class="hint">Sign in to keep your XP{record.exam === 'competitive' ? ' and tier' : ''}.</span>{/if}
 			</p>
 		{/if}
 	</header>

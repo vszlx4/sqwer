@@ -57,7 +57,9 @@
 		gap: var(--space-2);
 		min-width: 0;
 	}
+	/* Panel titles are labels, set in the text face. */
 	h2 {
+		font-family: var(--font-sans);
 		font-size: var(--fs-16);
 		font-weight: var(--fw-semibold);
 		line-height: var(--lh-base);

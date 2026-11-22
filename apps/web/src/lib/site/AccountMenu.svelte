@@ -50,13 +50,13 @@
 	});
 	const fmt = (n: number) => formatNumber(n);
 
-	/** Few, clear choices; everything else is one click away in the account sidebar. */
-	const MENU: { href: string; match: string; label: string; icon: IconName; admin?: boolean }[] = [
-		{ href: '/account', match: '/account', label: 'Account', icon: 'user' },
-		{ href: '/account/history', match: '/account/history', label: 'History', icon: 'history' },
-		{ href: '/account/preferences', match: '/account/preferences', label: 'Preferences', icon: 'keyboard' },
-		{ href: '/account/admin/analytics', match: '/account/admin/analytics', label: 'Administration', icon: 'layers', admin: true }
+	/** Settings holds every account page; administration only for admins. */
+	const MENU: { href: string; label: string; icon: IconName; admin?: boolean }[] = [
+		{ href: '/account', label: 'Settings', icon: 'settings' },
+		{ href: '/account/admin/analytics', label: 'Administration', icon: 'layers', admin: true }
 	];
+	const here = $derived(page.url.pathname);
+	const current = (href: string) => (href === '/account' ? here.startsWith('/account') && !here.startsWith('/account/admin') : !!accountSection(here)?.admin);
 
 	afterNavigate(() => {
 		open = false;
@@ -125,29 +125,28 @@
 
 	{#if open}
 		<div class="panel" id="account-menu-panel">
-			<a class="who" href={user.profile ? '/account' : '/account/setup'}>
+			<div class="who">
 				<Avatar {name} color={user.profile?.avatarColor ?? 'ink'} size={40} src={user.avatar} />
 				<span class="id">
 					<b>{name}</b>
 					<span>{user.profile ? `@${user.profile.username}` : 'Profile not set up'}</span>
 				</span>
-				<span class="rank" title={tier?.name ?? 'Unranked'}><RankEmblem league={tier?.league ?? null} size={28} /></span>
-			</a>
+				<span class="rank" title={tier?.name ?? 'Unranked'}><RankEmblem league={tier?.league ?? null} size={28} /><span class="sr-only">{tier?.name ?? 'Unranked'}</span></span>
+			</div>
 			<div class="level">
 				<div class="row">
 					<b>Level {user.level.level}</b>
-					<span>{tier?.name ?? 'Unranked'}</span>
+					<span>{fmt(user.level.xp - user.level.floor)} / {fmt(user.level.next - user.level.floor)} XP</span>
 				</div>
 				<div class="bar" role="progressbar" aria-label={`Progress to level ${user.level.level + 1}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(user.level.progress * 100)}>
 					<span style:transform={`scaleX(${user.level.progress})`}></span>
 				</div>
-				<p class="xp">{fmt(user.level.xp - user.level.floor)} / {fmt(user.level.next - user.level.floor)} XP</p>
 			</div>
 			{#if user.voice}<VoiceMenuStatus initial={user.voice} />{/if}
 			<nav aria-label="Account">
 				{#if user.profile}
 					{#each MENU.filter((l) => !l.admin || user.isAdmin) as l (l.href)}
-						<a href={l.href} aria-current={accountSection(page.url.pathname)?.href === l.match ? 'page' : undefined}><Icon name={l.icon} size={16} /> {l.label}</a>
+						<a href={l.href} aria-current={current(l.href) ? 'page' : undefined}><Icon name={l.icon} size={16} /> {l.label}</a>
 					{/each}
 				{:else}
 					<a href="/account/setup"><Icon name="user" size={16} /> Complete your profile</a>
@@ -293,13 +292,6 @@
 		align-items: center;
 		gap: var(--space-10);
 		padding: var(--space-8);
-		border-radius: var(--radius);
-		color: var(--ink);
-		text-decoration: none;
-		transition: background-color var(--dur-fast) var(--ease-out);
-	}
-	.who:hover {
-		background: var(--surface);
 	}
 	.id {
 		display: flex;
@@ -341,16 +333,11 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		color: var(--ink-2);
+		color: var(--ink-3);
+		font-variant-numeric: tabular-nums;
 	}
 	.level .bar {
 		margin-top: var(--space-6);
-	}
-	.level .xp {
-		margin-top: var(--space-4);
-		font-size: var(--fs-12);
-		color: var(--ink-3);
-		font-variant-numeric: tabular-nums;
 	}
 	nav {
 		display: flex;
@@ -387,7 +374,6 @@
 		font-weight: var(--fw-semibold);
 		background: var(--surface);
 	}
-	.who:focus-visible,
 	nav a:focus-visible,
 	.signout:focus-visible {
 		outline: 2px solid var(--ink);

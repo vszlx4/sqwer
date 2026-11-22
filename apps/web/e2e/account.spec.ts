@@ -171,6 +171,13 @@ test('privacy switches save at once and each page saves only its own fields', as
 	await page.getByRole('button', { name: 'Sign in' }).click();
 	await expect(page).toHaveURL(/\/account$/);
 
+	// The account menu is one link to the account pages; the day streak shows in tests.
+	await page.getByRole('button', { name: /Account menu/ }).click();
+	const menu = page.locator('#account-menu-panel');
+	await expect(menu.getByRole('link')).toHaveText(['Settings']);
+	await page.goto('/practice/test/timed');
+	await expect(page.getByTestId('streak')).toBeVisible();
+
 	// No save button: the switch saves, and the public link goes with it.
 	await page.goto('/account/privacy');
 	const pub = page.getByRole('switch', { name: 'Public profile' });
