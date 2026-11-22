@@ -11,24 +11,24 @@ export type VoiceMode = 'low' | 'active';
 /** What players see. Ids stay as they are: settings, clip folders and addresses use them. */
 export const VOICE_NAME: Record<VoiceId, string> = { standard: 'Standard', supertonic: 'Enhanced' };
 
+/** A set a person may choose: its words, how many have both clips, and whether and where it is chosen. */
 export interface VoiceSetStatus {
 	id: string;
 	name: string;
-	/** Clips on disk and wanted (two per word: normal and slow). */
-	made: number;
-	total: number;
+	words: number;
+	ready: number;
+	/** Place in the making order, from 0, or null when not chosen. */
+	order: number | null;
+	/** Disk for all its clips, and time to make the missing ones (this machine's pace, or a reference one). */
+	disk: number;
+	leftMs: number;
 }
 
-/** What making a group of clips costs: disk space and time at two reference speeds, or this machine's. */
-export interface VoiceCost {
-	clips: number;
-	disk: number;
-	/** Time in low mode: a recent laptop and an older server, or null when this machine's speed is known. */
-	fastMs: number;
-	slowMs: number;
-	/** This machine's time from its own recent clips, once it has made some. */
-	hereMs: number | null;
-}
+/**
+ * Where the Enhanced voice stands, one at a time: off (Standard chosen), held by SQWER_VOICE, downloading the model,
+ * making clips, paused, waiting for the charger, stopped at the disk limit, nothing chosen, ready, or waiting to start.
+ */
+export type VoicePhase = 'off' | 'skip' | 'held' | 'downloading' | 'making' | 'paused' | 'battery' | 'full' | 'empty' | 'ready' | 'starting';
 
 export interface VoiceStatus {
 	local: true;
@@ -37,44 +37,41 @@ export interface VoiceStatus {
 	/** The voice picked in the settings. */
 	chosen: VoiceId;
 	env: 'skip' | 'pause' | null;
+	phase: VoicePhase;
 	mode: VoiceMode;
 	paused: boolean;
-	first: string | null;
+	/** Clips are made on battery too. */
+	battery: boolean;
 	cores: number;
 	model: { downloaded: boolean; download: number; disk: number };
-	running: boolean;
 	word: string | null;
+	/** The set the current word is made for. */
+	making: string | null;
 	error: string | null;
 	downloading: { received: number; total: number } | null;
+	/** Wall time per clip at the recent pace, rests included, or null before any. */
 	msPerClip: number | null;
-	made: number;
-	total: number;
+	/** Words ready and wanted over the chosen sets, each word once; time to make the rest. */
+	ready: number;
+	words: number;
+	leftMs: number;
+	/** Every set, in catalog order. */
 	sets: VoiceSetStatus[];
-	cost: { core: VoiceCost; all: VoiceCost };
-	/** Most disk the clips may take, in GB, or null; what the made clips take; the generator stopped there. */
+	/** Most disk the clips may take, in GB, or null; what the clips on disk take. */
 	diskLimit: number | null;
 	clipsDisk: number;
-	full: boolean;
 	/** Words rated unclear in Listen and type on this machine, newest first. */
 	flagged: string[];
-	/** The set asked for with ?set=, counting every word it holds, shared ones included. */
-	set?: VoiceSetStatus & { leftMs: number | null };
 }
 
-/** The account menu's summary. made and total are the generator's last run (every set, or what voice:sync makes). */
+/** The account menu's summary, from the settings and the generator's last saved state. */
 export interface VoiceBrief {
 	chosen: VoiceId;
-	paused: boolean;
-	mode: VoiceMode;
-	/** A set made before the rest; made and total are then that set's. */
-	first: string | null;
-	running: boolean;
+	phase: VoicePhase;
+	ready: number;
+	words: number;
+	leftMs: number | null;
 	downloading: { received: number; total: number } | null;
-	made: number;
-	total: number;
-	msPerClip: number | null;
-	/** Stopped at the disk limit. */
-	full: boolean;
 }
 
 /** What anyone else sees. */
@@ -106,7 +103,9 @@ export type VoiceAction =
 	| { action: 'pause' }
 	| { action: 'resume' }
 	| { action: 'mode'; mode: VoiceMode }
-	| { action: 'first'; set: string }
+	| { action: 'set'; set: string; on: boolean }
+	| { action: 'next'; set: string }
+	| { action: 'battery'; on: boolean }
 	| { action: 'check'; set?: string }
 	| { action: 'limit'; gb: number | null }
 	| { action: 'flag'; word: string; on: boolean }
@@ -133,18 +132,18 @@ export async function flagWord(word: string, on: boolean): Promise<void> {
 	if (await local) await sendVoice({ action: 'flag', word: word.toLowerCase(), on }).catch(() => {});
 }
 
-export async function fetchVoice(set?: string): Promise<VoiceInfo | null> {
+export async function fetchVoice(): Promise<VoiceInfo | null> {
 	try {
-		const res = await fetch(set ? `/api/voice?set=${encodeURIComponent(set)}` : '/api/voice');
+		const res = await fetch('/api/voice');
 		return res.ok ? ((await res.json()) as VoiceInfo) : null;
 	} catch {
 		return null;
 	}
 }
 
-export async function sendVoice(body: VoiceAction, set?: string): Promise<{ status?: VoiceStatus; report?: HealthReport; error?: string }> {
+export async function sendVoice(body: VoiceAction): Promise<{ status?: VoiceStatus; report?: HealthReport; error?: string }> {
 	try {
-		const res = await fetch(set ? `/api/voice?set=${encodeURIComponent(set)}` : '/api/voice', {
+		const res = await fetch('/api/voice', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify(body)
@@ -174,5 +173,30 @@ export function formatBytes(bytes: number): string {
 
 export const percent = (made: number, total: number) => (total ? Math.floor((1000 * made) / total) / 10 : 0);
 
-/** Time left for what is not made yet, from this machine's recent pace. */
-export const timeLeft = (made: number, total: number, msPerClip: number | null) => (msPerClip ? Math.max(0, total - made) * msPerClip : null);
+/** One line for a phase, short enough for the account menu. */
+export function phaseLine(v: Pick<VoiceStatus, 'phase' | 'ready' | 'words' | 'downloading'> & { leftMs: number | null }): string {
+	switch (v.phase) {
+		case 'off':
+			return 'Off';
+		case 'skip':
+			return 'Off (SQWER_VOICE=skip)';
+		case 'held':
+			return 'Held (SQWER_VOICE=pause)';
+		case 'downloading':
+			return v.downloading ? `Downloading the model, ${percent(v.downloading.received, v.downloading.total)}%` : 'Downloading the model';
+		case 'making':
+			return `Making clips, ${percent(v.ready, v.words)}%${v.leftMs ? `, ${formatDuration(v.leftMs)} left` : ''}`;
+		case 'paused':
+			return 'Paused';
+		case 'battery':
+			return 'Waiting for the charger';
+		case 'full':
+			return 'Stopped at the disk limit';
+		case 'empty':
+			return 'No sets chosen';
+		case 'ready':
+			return 'Ready';
+		case 'starting':
+			return 'Starting';
+	}
+}

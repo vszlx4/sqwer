@@ -4,8 +4,8 @@ import { warmVoice } from '#lib/server/voice.ts';
 import { nudgeVoiceGenerator } from '#lib/server/voice/background.ts';
 import { checkClips } from '#lib/server/voice/health.ts';
 import { isLocalRequest } from '#lib/server/voice/local.ts';
-import { buildManifest, findListsDir, fullSet } from '#lib/server/voice/manifest.ts';
-import { DISK_LIMITS, activeVoice, readSettings, voiceDir, writeSettings, type DiskLimit } from '#lib/server/voice/settings.ts';
+import { buildManifest, findListsDir, isKnownSet, loadCatalog } from '#lib/server/voice/manifest.ts';
+import { DISK_LIMITS, MAX_SETS, activeVoice, readSettings, voiceDir, writeSettings, type DiskLimit } from '#lib/server/voice/settings.ts';
 import { setFlagged } from '#lib/server/voice/flagged.ts';
 import { isSpeakable } from '#lib/voice/clip.ts';
 import { forgetCounts, voiceBrief, voiceStatus } from '#lib/server/voice/status.ts';
@@ -15,11 +15,6 @@ import type { RequestHandler } from './$types';
 
 const VOICE_DIR = voiceDir(DATA_DIR);
 const SET_ID = /^[a-z0-9-]{1,40}$/;
-
-const setParam = (url: URL) => {
-	const set = url.searchParams.get('set');
-	return set && SET_ID.test(set) ? set : undefined;
-};
 
 /** Voice status: `?version` for the clip addresses (anyone; it also loads the model), the details for the machine running the copy, only the voice in use for anyone else. */
 export const GET: RequestHandler = async (event) => {
@@ -32,7 +27,7 @@ export const GET: RequestHandler = async (event) => {
 	}
 	if (!isLocalRequest(event)) return json({ local: false, voice: activeVoice(readSettings(DATA_DIR)) } satisfies VoiceRemote, { headers });
 	if (event.url.searchParams.has('brief')) return json({ local: true, brief: voiceBrief(DATA_DIR) }, { headers });
-	return json(await voiceStatus(DATA_DIR, setParam(event.url)), { headers });
+	return json(await voiceStatus(DATA_DIR), { headers });
 };
 
 function parse(body: unknown): VoiceAction | null {
@@ -46,8 +41,12 @@ function parse(body: unknown): VoiceAction | null {
 			return { action: b.action };
 		case 'mode':
 			return b.mode === 'low' || b.mode === 'active' ? { action: 'mode', mode: b.mode } : null;
-		case 'first':
-			return typeof b.set === 'string' && SET_ID.test(b.set) ? { action: 'first', set: b.set } : null;
+		case 'set':
+			return typeof b.set === 'string' && SET_ID.test(b.set) && typeof b.on === 'boolean' ? { action: 'set', set: b.set, on: b.on } : null;
+		case 'next':
+			return typeof b.set === 'string' && SET_ID.test(b.set) ? { action: 'next', set: b.set } : null;
+		case 'battery':
+			return typeof b.on === 'boolean' ? { action: 'battery', on: b.on } : null;
 		case 'check':
 			return b.set === undefined || (typeof b.set === 'string' && SET_ID.test(b.set)) ? { action: 'check', set: b.set as string | undefined } : null;
 		case 'limit':
@@ -75,7 +74,7 @@ export const POST: RequestHandler = async (event) => {
 	switch (action.action) {
 		case 'use':
 			// Switching back keeps every clip; the generator stops after the current word.
-			await writeSettings(DATA_DIR, action.voice === 'supertonic' ? { voice: 'supertonic', paused: false } : { voice: 'standard', first: null });
+			await writeSettings(DATA_DIR, action.voice === 'supertonic' ? { voice: 'supertonic', paused: false } : { voice: 'standard' });
 			break;
 		case 'pause':
 		case 'resume':
@@ -84,12 +83,18 @@ export const POST: RequestHandler = async (event) => {
 		case 'mode':
 			await writeSettings(DATA_DIR, { mode: action.mode });
 			break;
-		case 'first': {
-			if (readSettings(DATA_DIR).voice !== 'supertonic') error(409, 'Choose the Enhanced voice first.');
-			if (!fullSet(listsDir, action.set, [])) error(400, 'Unknown set.');
-			await writeSettings(DATA_DIR, { first: action.set, paused: false });
+		case 'set':
+		case 'next': {
+			if (!isKnownSet(action.set, loadCatalog(listsDir))) error(400, 'Unknown set.');
+			const rest = readSettings(DATA_DIR).sets.filter((id) => id !== action.set);
+			// Switched on: made after the others. Made next: first in line, switched on if it was not.
+			const sets = action.action === 'next' ? [action.set, ...rest] : action.on ? [...rest, action.set] : rest;
+			await writeSettings(DATA_DIR, { sets: sets.slice(0, MAX_SETS) });
 			break;
 		}
+		case 'battery':
+			await writeSettings(DATA_DIR, { battery: action.on });
+			break;
 		case 'limit':
 			await writeSettings(DATA_DIR, { diskLimit: action.gb as DiskLimit | null });
 			break;
@@ -101,13 +106,13 @@ export const POST: RequestHandler = async (event) => {
 			break;
 		case 'check': {
 			const manifest = buildManifest(listsDir);
-			const only = action.set ? fullSet(listsDir, action.set, manifest) : undefined;
-			if (only === null) error(400, 'Unknown set.');
+			const only = action.set ? loadCatalog(listsDir).find((s) => s.id === action.set) : undefined;
+			if (action.set && !only) error(400, 'Unknown set.');
 			report = await checkClips(VOICE_DIR, manifest, only);
-			forgetCounts(VOICE_DIR);
+			forgetCounts();
 			break;
 		}
 	}
 	nudgeVoiceGenerator();
-	return json({ status: await voiceStatus(DATA_DIR, setParam(url)), report }, { headers: { 'Cache-Control': 'no-store' } });
+	return json({ status: await voiceStatus(DATA_DIR), report }, { headers: { 'Cache-Control': 'no-store' } });
 };

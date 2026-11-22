@@ -2,11 +2,11 @@
 	import { formatNumber } from '#lib/i18n/format.ts';
 	import VoiceBar from './VoiceBar.svelte';
 	import VoiceIcon from './VoiceIcon.svelte';
-	import { fetchVoice, formatDuration, percent, sendVoice, type VoiceStatus } from './status.ts';
+	import { fetchVoice, formatDuration, percent, phaseLine, sendVoice, type VoiceStatus } from './status.ts';
 
 	/**
-	 * Listen and type menu: how much of the chosen word set has Enhanced clips, the time left at the recent pace, and
-	 * "make this set now". Shown only on the machine running the copy, with Enhanced chosen.
+	 * Listen and type menu: how many words of the chosen word set have Enhanced clips, and a way to make it next (switched
+	 * on when it was not). Shown only on the machine running the copy, with Enhanced chosen.
 	 */
 	let { set }: { set: string } = $props();
 
@@ -14,14 +14,13 @@
 	let busy = $state(false);
 
 	$effect(() => {
-		const id = set;
 		let stop = false;
 		let timer: ReturnType<typeof setTimeout>;
 		const tick = async () => {
-			const next = await fetchVoice(id);
+			const next = await fetchVoice();
 			if (stop) return;
 			if (next?.local) v = next;
-			timer = setTimeout(tick, next?.local && next.running ? 5000 : 30000);
+			timer = setTimeout(tick, next?.local && next.phase === 'making' ? 5000 : 30000);
 		};
 		void tick();
 		return () => {
@@ -30,15 +29,15 @@
 		};
 	});
 
-	async function makeNow() {
+	async function makeNext() {
 		busy = true;
-		const r = await sendVoice({ action: 'first', set }, set);
+		const r = await sendVoice({ action: 'next', set });
 		if (r.status) v = r.status;
 		busy = false;
 	}
 
-	const p = $derived(v?.chosen === 'supertonic' && v.set?.id === set ? v.set : null);
-	const words = (clips: number) => formatNumber(Math.floor(clips / 2));
+	const p = $derived(v?.chosen === 'supertonic' ? (v.sets.find((x) => x.id === set) ?? null) : null);
+	const first = $derived(!!v && !!p && p.order !== null && (v.making === set || v.sets.filter((x) => x.order !== null && x.ready < x.words).sort((a, b) => a.order! - b.order!)[0]?.id === set));
 </script>
 
 {#if v && p}
@@ -46,23 +45,21 @@
 		<p class="line">
 			<VoiceIcon name="enhanced" size={18} />
 			<b>Enhanced voice</b>
-			<span class="figure" title={p.leftMs !== null && p.made < p.total ? `${formatDuration(p.leftMs)} left` : undefined}>
-				{p.made >= p.total ? 'Ready' : `${percent(p.made, p.total)}%`}
-			</span>
+			<span class="figure">{p.ready >= p.words ? 'Ready' : `${percent(p.ready, p.words)}%`}</span>
 		</p>
-		{#if p.made < p.total}
-			<VoiceBar made={p.made} total={p.total} label={`Enhanced clips for ${p.name}`} />
+		{#if p.ready < p.words}
+			<VoiceBar made={p.ready} total={p.words} label={`Enhanced words ready in ${p.name}`} />
 			<p class="note">
-				{words(p.made)} of {words(p.total)} words of {p.name} ready{#if p.leftMs !== null}, {formatDuration(p.leftMs)} left{/if}.
-				{#if v.first === set}
-					Being made now, in active mode.
-				{:else if v.paused}
-					Paused in <a href="/account/sound">Sound and voice</a>.
+				{formatNumber(p.ready)} of {formatNumber(p.words)} words of {p.name} ready.
+				{#if p.order === null}
+					Not one of your Enhanced sets.
+				{:else if first}
+					{v.phase === 'making' ? `Being made now, ${formatDuration(p.leftMs)} left.` : `${phaseLine(v)}.`}
 				{/if}
 				The rest play in Standard.
 			</p>
-			{#if v.first !== set}
-				<button type="button" class="btn" disabled={busy} onclick={makeNow}>{busy ? 'Starting…' : 'Make this set now'}</button>
+			{#if !first}
+				<button type="button" class="btn" disabled={busy} onclick={makeNext}>{busy ? 'Starting…' : p.order === null ? 'Add and make next' : 'Make next'}</button>
 			{/if}
 		{/if}
 	</div>
