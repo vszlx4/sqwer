@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { DATA_CATEGORY_IDS, type DataCategory } from '#lib/data/categories.ts';
 import { clearCategory, dataCounts } from '#lib/server/data.ts';
 import { db, schema } from '#lib/server/db/index.ts';
-import { fingerMapCount, requireUser } from '#lib/server/account.ts';
+import { requireUser } from '#lib/server/account.ts';
 import { clearSessionCookie, verifyPassword } from '#lib/server/auth.ts';
 import { rateLimit } from '#lib/server/rate-limit.ts';
 import { logSecurity } from '#lib/server/security-log.ts';
@@ -13,8 +13,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const user = requireUser(locals, url);
-	const [fm, counts] = await Promise.all([fingerMapCount(user.id), dataCounts(user.id)]);
-	return { fingerMap: { count: fm.count, updatedAt: fm.updatedAt?.toISOString() ?? null }, counts };
+	return { counts: await dataCounts(user.id) };
 };
 
 /** Password check before destructive actions, rate-limited per account. */

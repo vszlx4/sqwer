@@ -1,3 +1,4 @@
+import type { IconName } from '#lib/ui/Icon.svelte';
 import type { Area } from './areas.ts';
 import type { BranchedMenuSection } from '#lib/bits/BranchedMenu.svelte';
 
@@ -17,23 +18,67 @@ export const LEGAL = {
 	webHostLocation: 'Europe'
 } as const;
 
-/** Product areas: learning, practice, competition. Finger map and history sit under practice. area colors the
+/** Product areas: learning, practice, competition. The finger map sits under practice. area colors the
  *  current link (lib/site/areas.ts). */
 export const NAV_LINKS = [
 	{ href: '/learn', label: 'Learning path', icon: 'route', area: 'learn', description: 'Lessons, games and course ranks' },
-	{ href: '/practice', label: 'Practice', icon: 'gauge', area: 'practice', description: 'Tests, finger map and history, with XP' },
+	{ href: '/practice', label: 'Practice', icon: 'gauge', area: 'practice', description: 'Tests and the finger map, with XP' },
 	{ href: '/competitive', label: 'Competitive', icon: 'trophy', area: 'competitive', description: 'Speed tiers and leaderboards' }
 ] as const satisfies readonly { href: string; label: string; icon: string; area: Area; description: string }[];
 
-/** Account pages, listed once and shared by the account menu and the account section. */
-export const ACCOUNT_LINKS = [
-	{ href: '/account', label: 'Overview' },
-	{ href: '/account/profile', label: 'Profile' },
-	{ href: '/account/statistics', label: 'Statistics' },
-	{ href: '/account/security', label: 'Security' },
-	{ href: '/account/voice', label: 'Voice' },
-	{ href: '/account/data', label: 'Your data' }
-] as const;
+export interface AccountLink {
+	href: string;
+	label: string;
+	icon: IconName;
+	/** Administrators only. */
+	admin?: boolean;
+}
+
+/** Account pages by group, listed once for the account sidebar. */
+export const ACCOUNT_GROUPS: readonly { label: string; links: readonly AccountLink[] }[] = [
+	{
+		label: 'You',
+		links: [
+			{ href: '/account', label: 'Overview', icon: 'gauge' },
+			{ href: '/account/profile', label: 'Profile', icon: 'user' },
+			{ href: '/account/privacy', label: 'Privacy', icon: 'eye' }
+		]
+	},
+	{
+		label: 'Learning',
+		links: [
+			{ href: '/account/course', label: 'Course', icon: 'route' },
+			{ href: '/account/statistics', label: 'Statistics', icon: 'chart' },
+			{ href: '/account/history', label: 'History', icon: 'history' }
+		]
+	},
+	{
+		label: 'Settings',
+		links: [
+			{ href: '/account/preferences', label: 'Preferences', icon: 'keyboard' },
+			{ href: '/account/sound', label: 'Sound and voice', icon: 'volume' }
+		]
+	},
+	{
+		label: 'Account',
+		links: [
+			{ href: '/account/security', label: 'Security', icon: 'shield' },
+			{ href: '/account/data', label: 'Your data', icon: 'download' }
+		]
+	},
+	{
+		label: 'Admin',
+		links: [{ href: '/account/admin/analytics', label: 'Administration', icon: 'layers', admin: true }]
+	}
+];
+
+export const ACCOUNT_LINKS: readonly AccountLink[] = ACCOUNT_GROUPS.flatMap((g) => g.links);
+
+/** The account section a path belongs to; the admin link covers every administration page. */
+export function accountSection(path: string): AccountLink | undefined {
+	const base = (l: AccountLink) => (l.admin ? '/account/admin' : l.href);
+	return ACCOUNT_LINKS.find((l) => (l.href === '/account' ? path === l.href : path === base(l) || path.startsWith(`${base(l)}/`)));
+}
 
 /** Footer columns, each drawn as a branched menu: the product by area, help, then every legal document, the legal
  *  center first. Account pages live in the account menu. */
@@ -50,7 +95,6 @@ export const FOOTER_SECTIONS = [
 		links: [
 			{ href: '/practice', label: 'Practice', icon: 'gauge' },
 			{ href: '/practice/finger-map', label: 'Finger map', icon: 'hand' },
-			{ href: '/practice/history', label: 'History', icon: 'history' },
 			{ href: '/competitive', label: 'Competitive', icon: 'trophy' }
 		]
 	},

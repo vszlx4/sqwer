@@ -1,4 +1,6 @@
 <script lang="ts">
+	import PageHead from '#lib/account/PageHead.svelte';
+	import SettingsSection from '#lib/account/SettingsSection.svelte';
 	import Seo from '#lib/site/Seo.svelte';
 	import Skeleton from '#lib/ui/Skeleton.svelte';
 	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
@@ -9,21 +11,18 @@
 	let { data }: PageProps = $props();
 </script>
 
-<Seo title="Voice" description="Choose Standard or Enhanced for Listen and type and follow how its clips are made." noindex />
+<Seo title="Sound and voice" description="Volume, Listen and type options and the voice that reads words on sqwer." noindex />
 
-<div class="page">
-	<header class="page-head">
-		<h1>Voice</h1>
-		<p>How words sound in Listen and type.</p>
-	</header>
+<PageHead title="Sound and voice" line="How words sound in Listen and type." />
 
-	<section class="device">
-		<SoundSettings />
-	</section>
+<div class="panels">
+	<SettingsSection title="On this device" description="Saved in this browser.">
+		<SoundSettings plain />
+	</SettingsSection>
 
 	{#await data.status}
 		<SkeletonRegion label="Counting voice clips…">
-			<Skeleton lines={3} />
+			<Skeleton height="96px" />
 			<Skeleton height="160px" />
 		</SkeletonRegion>
 	{:then status}
@@ -34,19 +33,9 @@
 </div>
 
 <style>
-	.device {
-		max-width: 64ch;
-		margin-bottom: var(--space-32);
-	}
-	.page-head {
-		margin-bottom: var(--space-8);
-	}
-	.page-head p {
-		margin-top: var(--space-6);
-		max-width: 64ch;
-		color: var(--ink-2);
-	}
-	h1 {
-		font-size: var(--fs-title);
+	.panels {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-16);
 	}
 </style>

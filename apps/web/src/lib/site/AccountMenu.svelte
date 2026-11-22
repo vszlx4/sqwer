@@ -9,7 +9,8 @@
 	import VoiceMenuStatus from '#lib/voice/VoiceMenuStatus.svelte';
 	import type { VoiceBrief } from '#lib/voice/status.ts';
 	import SignOutDialog from './SignOutDialog.svelte';
-	import { ACCOUNT_LINKS } from './links.ts';
+	import { accountSection } from './links.ts';
+	import type { IconName } from '#lib/ui/Icon.svelte';
 	import { formatNumber } from '#lib/i18n/format.ts';
 
 	/**
@@ -48,6 +49,14 @@
 		return perMinute > 0 ? Math.max(1, Math.ceil(remaining / perMinute)) : null;
 	});
 	const fmt = (n: number) => formatNumber(n);
+
+	/** Settings holds every account page; administration only for admins. */
+	const MENU: { href: string; label: string; icon: IconName; admin?: boolean }[] = [
+		{ href: '/account', label: 'Settings', icon: 'settings' },
+		{ href: '/account/admin/analytics', label: 'Administration', icon: 'layers', admin: true }
+	];
+	const here = $derived(page.url.pathname);
+	const current = (href: string) => (href === '/account' ? here.startsWith('/account') && !here.startsWith('/account/admin') : !!accountSection(here)?.admin);
 
 	afterNavigate(() => {
 		open = false;
@@ -117,19 +126,17 @@
 	{#if open}
 		<div class="panel" id="account-menu-panel">
 			<div class="who">
-				<div class="id">
-					<p class="name">{name}</p>
-					<p class="handle">{user.profile ? `@${user.profile.username}` : 'Profile not set up'}</p>
-				</div>
-				<a class="rank" href="/competitive" aria-label={tier ? `Competitive rank: ${tier.name}` : 'Competitive rank: unranked'}>
-					<RankEmblem league={tier?.league ?? null} size={40} />
-					<span>{tier?.name ?? 'Unranked'}</span>
-				</a>
+				<Avatar {name} color={user.profile?.avatarColor ?? 'ink'} size={40} src={user.avatar} />
+				<span class="id">
+					<b>{name}</b>
+					<span>{user.profile ? `@${user.profile.username}` : 'Profile not set up'}</span>
+				</span>
+				<span class="rank" title={tier?.name ?? 'Unranked'}><RankEmblem league={tier?.league ?? null} size={28} /><span class="sr-only">{tier?.name ?? 'Unranked'}</span></span>
 			</div>
 			<div class="level">
 				<div class="row">
-					<span>Level {user.level.level}</span>
-					<span class="xp">{fmt(user.level.xp - user.level.floor)} / {fmt(user.level.next - user.level.floor)} XP</span>
+					<b>Level {user.level.level}</b>
+					<span>{fmt(user.level.xp - user.level.floor)} / {fmt(user.level.next - user.level.floor)} XP</span>
 				</div>
 				<div class="bar" role="progressbar" aria-label={`Progress to level ${user.level.level + 1}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(user.level.progress * 100)}>
 					<span style:transform={`scaleX(${user.level.progress})`}></span>
@@ -138,20 +145,14 @@
 			{#if user.voice}<VoiceMenuStatus initial={user.voice} />{/if}
 			<nav aria-label="Account">
 				{#if user.profile}
-					{#each ACCOUNT_LINKS as link (link.href)}
-						<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
+					{#each MENU.filter((l) => !l.admin || user.isAdmin) as l (l.href)}
+						<a href={l.href} aria-current={current(l.href) ? 'page' : undefined}><Icon name={l.icon} size={16} /> {l.label}</a>
 					{/each}
-					<a href="/practice/history" aria-current={page.url.pathname === '/practice/history' ? 'page' : undefined}>History</a>
-					{#if user.isAdmin}<a href="/admin/analytics" aria-current={page.url.pathname.startsWith('/admin') ? 'page' : undefined}>Analytics</a>{/if}
 				{:else}
-					<a href="/account/setup">Complete your profile</a>
+					<a href="/account/setup"><Icon name="user" size={16} /> Complete your profile</a>
 				{/if}
 			</nav>
-			<div class="end">
-				<button type="button" class="signout" onclick={signOut}>
-					<Icon name="signout" size={16} /> Sign out
-				</button>
-			</div>
+			<button type="button" class="signout" onclick={signOut}><Icon name="signout" size={16} /> Sign out</button>
 		</div>
 	{/if}
 </div>
@@ -282,77 +283,77 @@
 		transform-origin: left;
 	}
 	.panel {
-		width: 280px;
-		padding: var(--space-8);
+		width: 264px;
+		padding: var(--space-6);
 	}
 	.who {
-		display: flex;
+		display: grid;
+		grid-template-columns: 40px minmax(0, 1fr) auto;
 		align-items: center;
-		justify-content: space-between;
-		gap: var(--space-12);
-		padding: var(--space-10) var(--space-10) var(--space-4);
+		gap: var(--space-10);
+		padding: var(--space-8);
 	}
 	.id {
-		min-width: 0;
-	}
-	.name {
-		font-weight: var(--fw-semibold);
-		line-height: var(--lh-base);
-		overflow-wrap: anywhere;
-	}
-	.handle {
-		font-size: var(--fs-13);
-		color: var(--ink-2);
-		overflow-wrap: anywhere;
-	}
-	.rank {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		gap: var(--space-2);
-		flex-shrink: 0;
-		max-width: 92px;
-		padding: var(--space-4);
-		border-radius: var(--radius);
-		font-size: var(--fs-12);
-		font-weight: var(--fw-semibold);
-		line-height: var(--lh-base);
-		text-align: center;
-		color: var(--ink-2);
-		text-decoration: none;
+		min-width: 0;
 	}
-	.rank:hover {
-		background: var(--surface);
-		color: var(--ink);
+	.id b,
+	.id span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.id b {
+		font-size: var(--fs-15);
+	}
+	.id span {
+		font-size: var(--fs-13);
+		color: var(--ink-2);
+	}
+	.rank {
+		display: grid;
+		place-items: center;
 	}
 	.level {
-		padding: var(--space-8) var(--space-10) var(--space-12);
+		padding: var(--space-4) var(--space-8) var(--space-12);
 		border-bottom: 1px solid var(--line);
-		margin-bottom: var(--space-6);
+		margin-bottom: var(--space-4);
 	}
 	.level .row {
 		display: flex;
 		justify-content: space-between;
 		gap: var(--space-8);
 		font-size: var(--fs-13);
-		font-weight: var(--fw-bold);
+	}
+	.level .row b {
 		color: var(--rank);
 	}
-	.level .xp {
-		font-weight: var(--fw-regular);
-		color: var(--ink-2);
+	.level .row span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--ink-3);
 		font-variant-numeric: tabular-nums;
+	}
+	.level .bar {
+		margin-top: var(--space-6);
+	}
+	nav {
+		display: flex;
+		flex-direction: column;
 	}
 	nav a,
 	.signout {
 		display: flex;
 		align-items: center;
-		gap: var(--space-8);
+		gap: var(--space-10);
 		width: 100%;
-		padding: var(--space-10) var(--space-10);
+		min-height: 36px;
+		padding: 0 var(--space-8);
 		border-radius: var(--radius);
 		font: inherit;
-		font-size: var(--fs-15);
+		font-size: var(--fs-14);
 		color: var(--ink);
 		text-align: left;
 		text-decoration: none;
@@ -360,6 +361,10 @@
 		border: 0;
 		cursor: pointer;
 		transition: background-color var(--dur-fast) var(--ease-out);
+	}
+	nav a :global(svg),
+	.signout :global(svg) {
+		color: var(--ink-2);
 	}
 	nav a:hover,
 	.signout:hover {
@@ -369,12 +374,15 @@
 		font-weight: var(--fw-semibold);
 		background: var(--surface);
 	}
-	.end {
-		margin-top: var(--space-6);
-		padding-top: var(--space-6);
-		border-top: 1px solid var(--line);
+	nav a:focus-visible,
+	.signout:focus-visible {
+		outline: 2px solid var(--ink);
+		outline-offset: -2px;
 	}
 	.signout {
+		margin-top: var(--space-4);
+		border-top: 1px solid var(--line);
+		border-radius: 0 0 var(--radius) var(--radius);
 		color: var(--ink-2);
 	}
 	@media (prefers-reduced-motion: reduce) {

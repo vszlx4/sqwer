@@ -10,8 +10,11 @@ describe('redirectFor', () => {
 		expect(to('/play/listen')).toBe('/practice/play/listen');
 		expect(to('/map?saved=3')).toBe('/practice/finger-map?saved=3');
 		expect(to('/map/session')).toBe('/practice/finger-map/session');
-		expect(to('/history/abc')).toBe('/practice/history/abc');
+		expect(to('/history/abc')).toBe('/account/history/abc');
 		expect(to('/about')).toBe('/how-it-works');
+		expect(to('/practice/history/abc?x=1')).toBe('/account/history/abc?x=1');
+		expect(to('/admin/analytics?range=7d')).toBe('/account/admin/analytics?range=7d');
+		expect(to('/account/voice')).toBe('/account/sound');
 	});
 
 	it('gives each test its own address', () => {

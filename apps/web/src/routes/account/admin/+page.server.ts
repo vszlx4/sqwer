@@ -4,5 +4,5 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	requireAdmin(locals, url);
-	redirect(303, '/admin/analytics');
+	redirect(303, '/account/admin/analytics');
 };

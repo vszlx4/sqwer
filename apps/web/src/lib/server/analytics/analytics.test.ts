@@ -322,7 +322,7 @@ describe('dashboard parameters', () => {
 });
 
 describe('administrator access', () => {
-	const url = new URL('https://sqwer.example/admin/analytics?range=7d');
+	const url = new URL('https://sqwer.example/account/admin/analytics?range=7d');
 	const as = (role: string | null, mfa: { enabled?: boolean; verifiedAgoMs?: number } = { enabled: true, verifiedAgoMs: 0 }) =>
 		({
 			user: role ? { id: 'u', email: 'a@b.c', role, totpEnabledAt: mfa.enabled ? new Date() : null } : null,
@@ -339,7 +339,7 @@ describe('administrator access', () => {
 
 	it('sends visitors to sign in and hides the pages from members', () => {
 		const r = thrown(() => requireAdmin(as(null), url));
-		expect(isRedirect(r) && r.location).toBe('/signin?redirectTo=%2Fadmin%2Fanalytics%3Frange%3D7d');
+		expect(isRedirect(r) && r.location).toBe('/signin?redirectTo=%2Faccount%2Fadmin%2Fanalytics%3Frange%3D7d');
 		const e = thrown(() => requireAdmin(as('user'), url));
 		expect(isHttpError(e) && e.status).toBe(404);
 		expect(thrown(() => requireAdmin(as('admin'), url))).toBeNull();
@@ -347,11 +347,11 @@ describe('administrator access', () => {
 
 	it('requires an authenticator app, confirmed in this session within 12 hours', () => {
 		const setup = thrown(() => requireAdmin(as('admin', { enabled: false }), url));
-		expect(isRedirect(setup) && setup.location).toBe('/admin/2fa/setup?next=%2Fadmin%2Fanalytics%3Frange%3D7d');
+		expect(isRedirect(setup) && setup.location).toBe('/account/admin/2fa/setup?next=%2Faccount%2Fadmin%2Fanalytics%3Frange%3D7d');
 		const check = thrown(() => requireAdmin(as('admin', { enabled: true }), url));
-		expect(isRedirect(check) && check.location).toBe('/admin/2fa?next=%2Fadmin%2Fanalytics%3Frange%3D7d');
+		expect(isRedirect(check) && check.location).toBe('/account/admin/2fa?next=%2Faccount%2Fadmin%2Fanalytics%3Frange%3D7d');
 		const stale = thrown(() => requireAdmin(as('admin', { enabled: true, verifiedAgoMs: 13 * 60 * 60 * 1000 }), url));
-		expect(isRedirect(stale) && stale.location).toContain('/admin/2fa?');
+		expect(isRedirect(stale) && stale.location).toContain('/account/admin/2fa?');
 		// The set-up and check pages themselves only need the role.
 		expect(thrown(() => requireAdmin(as('admin', { enabled: false }), url, { mfa: false }))).toBeNull();
 		const api = thrown(() => requireAdminApi(as('admin', { enabled: true })));

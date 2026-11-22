@@ -1,8 +1,8 @@
 import { isPracticeTest } from '#lib/exams.ts';
 
 /*
- * Permanent redirects. Every address names its place in the site: Practice pages live under /practice and the
- * competitive test under /competitive. Old links and bookmarks still arrive; parent paths without a page of
+ * Permanent redirects. Every address names its place in the site: Practice pages live under /practice, the
+ * competitive test under /competitive, history and administration under /account. Old links and bookmarks still arrive; parent paths without a page of
  * their own lead to the list they belong to.
  */
 
@@ -11,8 +11,11 @@ const MOVED: readonly (readonly [from: string, to: string])[] = [
 	['/exams', '/practice'],
 	['/play', '/practice/play'],
 	['/map', '/practice/finger-map'],
-	['/history', '/practice/history'],
-	['/about', '/how-it-works']
+	['/history', '/account/history'],
+	['/practice/history', '/account/history'],
+	['/admin', '/account/admin'],
+	['/about', '/how-it-works'],
+	['/account/voice', '/account/sound']
 ];
 
 /** Paths without a page, and the list they belong to. */

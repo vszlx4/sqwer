@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { describeDevice, hashPassword, newCode, verifyPassword } from './auth.ts';
 import { failureLimit, rateLimit, recordFailure } from './rate-limit.ts';
-import { cleanText, emailSchema, profileSchema, safeRedirect, usernameSchema } from './validation.ts';
+import { cleanText, emailSchema, PROFILE_PARTS, profileSchema, readProfilePart, safeRedirect, usernameSchema } from './validation.ts';
 
 describe('passwords', () => {
 	it('hashes with a random salt and verifies only the right password', async () => {
@@ -29,7 +29,7 @@ describe('safeRedirect', () => {
 		for (const t of ['/\t/evil.example', '/\n/evil.example', '/\r\n/evil.example', '/\\/evil.example', '/\t\\evil.example']) {
 			expect(safeRedirect(t, '/x')).toBe('/x');
 		}
-		expect(safeRedirect('/admin/analytics?range=7d#top', '/x')).toBe('/admin/analytics?range=7d#top');
+		expect(safeRedirect('/account/admin/analytics?range=7d#top', '/x')).toBe('/account/admin/analytics?range=7d#top');
 		expect(safeRedirect('/%09/evil.example', '/x')).toBe('/%09/evil.example');
 		expect(new URL(safeRedirect('/%09/evil.example', '/x'), 'https://sqwer.example').host).toBe('sqwer.example');
 	});
@@ -80,6 +80,29 @@ describe('input sanitising and validation', () => {
 		expect(ok.targetWpm).toBe(90);
 		expect(profileSchema.safeParse({ ...base, targetWpm: '999' }).success).toBe(false);
 		expect(profileSchema.safeParse({ ...base, goal: 'hacking' }).success).toBe(false);
+	});
+
+	it('saves one page of the profile and keeps the rest as saved', () => {
+		const saved = profileSchema.parse({ displayName: 'Ada', username: 'ada', bio: 'Bio', experience: 'beginner', goal: 'speed', targetWpm: 40, platform: 'pc', avatarColor: 'lime', isPublic: true, headline: 'Hi', pronouns: '', banner: 'lime', showRank: true, showStats: true, showStreak: true, showOnLeaderboard: true });
+		const keys = Object.values(PROFILE_PARTS).flat();
+		expect(new Set(keys).size).toBe(keys.length);
+		expect([...keys].sort()).toEqual(Object.keys(profileSchema.shape).sort());
+
+		// Unticked switches are absent from the form, so they turn off.
+		const privacy = new FormData();
+		privacy.set('showRank', 'on');
+		privacy.set('displayName', 'Ignored');
+		const p = readProfilePart(privacy, saved, 'privacy');
+		expect(p.success && p.data).toMatchObject({ isPublic: false, showRank: true, showStats: false, displayName: 'Ada', bio: 'Bio', targetWpm: 40 });
+
+		const course = new FormData();
+		for (const [k, v] of Object.entries({ experience: 'advanced', goal: 'accuracy', targetWpm: '95', platform: 'mac' })) course.set(k, v);
+		const c = readProfilePart(course, saved, 'course');
+		expect(c.success && c.data).toMatchObject({ experience: 'advanced', targetWpm: 95, isPublic: true, username: 'ada' });
+
+		const bad = new FormData();
+		bad.set('targetWpm', '999');
+		expect(readProfilePart(bad, saved, 'course').success).toBe(false);
 	});
 });
 

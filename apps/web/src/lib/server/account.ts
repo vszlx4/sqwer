@@ -2,10 +2,10 @@ import { redirect } from '@sveltejs/kit';
 import { and, eq, ne } from 'drizzle-orm';
 import { db, schema } from './db/index.ts';
 import { invalidateLeaderboards } from './progress.ts';
-import type { ProfileInput } from './validation.ts';
+import { fieldErrors, readProfilePart, type ProfileInput, type ProfilePart } from './validation.ts';
 
 export function requireUser(locals: App.Locals, url: URL) {
-	if (!locals.user) redirect(303, `/signin?redirectTo=${encodeURIComponent(url.pathname)}`);
+	if (!locals.user) redirect(303, `/signin?redirectTo=${encodeURIComponent(url.pathname + url.search)}`);
 	return locals.user;
 }
 
@@ -31,6 +31,17 @@ export async function saveProfile(userId: string, input: ProfileInput) {
 		.onConflictDoUpdate({ target: schema.profiles.userId, set: values });
 	// The name, picture or leaderboard choice may have changed.
 	invalidateLeaderboards();
+}
+
+/** Saves one account page's profile fields. Returns field errors, or null once saved. */
+export async function saveProfilePart(userId: string, form: FormData, part: ProfilePart): Promise<Record<string, string> | null> {
+	const saved = await getProfile(userId);
+	if (!saved) return { form: 'Complete your profile first.' };
+	const parsed = readProfilePart(form, saved as ProfileInput, part);
+	if (!parsed.success) return fieldErrors(parsed.error);
+	if (part === 'profile' && (await usernameTaken(parsed.data.username, userId))) return { username: 'This username is already taken.' };
+	await saveProfile(userId, parsed.data);
+	return null;
 }
 
 export async function fingerMapCount(userId: string) {

@@ -32,7 +32,7 @@ export interface Settings {
 	fastMode: boolean;
 }
 
-const DEFAULTS: Settings = {
+export const DEFAULTS: Settings = {
 	theme: 'light',
 	mode: 'time',
 	time: 30,
@@ -91,6 +91,13 @@ export function saveSettings() {
 	} catch {
 		// Storage can be unavailable (private mode); settings still apply for this visit.
 	}
+}
+
+/** Every preference back to its default on this device; Listen and type sound settings are kept. */
+export function resetSettings() {
+	const keep = { voiceVolume: settings.voiceVolume, showWords: settings.showWords, fastMode: settings.fastMode };
+	Object.assign(settings, structuredClone(DEFAULTS), keep);
+	saveSettings();
 }
 
 export function detectPlatform(): Platform {

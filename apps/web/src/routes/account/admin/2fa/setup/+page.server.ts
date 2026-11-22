@@ -7,14 +7,14 @@ import type { Actions, PageServerLoad } from './$types';
 
 /** Setting up the authenticator app every administrator needs. */
 const destination = (url: URL) => {
-	const next = safeRedirect(url.searchParams.get('next'), '/admin/analytics');
-	return next.startsWith('/admin') && !next.startsWith('/admin/2fa') ? next : '/admin/analytics';
+	const next = safeRedirect(url.searchParams.get('next'), '/account/admin/analytics');
+	return next.startsWith('/account/admin') && !next.startsWith('/account/admin/2fa') ? next : '/account/admin/analytics';
 };
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const user = requireAdmin(locals, url, { mfa: false });
 	// Once set up, it is only removed from the server (reset-2fa), never replaced from a session.
-	if (user.totpEnabledAt) redirect(303, `/admin/2fa?next=${encodeURIComponent(destination(url))}`);
+	if (user.totpEnabledAt) redirect(303, `/account/admin/2fa?next=${encodeURIComponent(destination(url))}`);
 	return {};
 };
 

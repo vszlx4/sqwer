@@ -142,7 +142,7 @@ test('mobile: menu navigates and nothing fixed covers the content', async ({ pag
 test('nothing scrolls sideways, from wide screens down to phones', async ({ page }) => {
 	test.setTimeout(300_000);
 	const wide: string[] = [];
-	for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/practice', '/practice/test/timed', '/practice/finger-map', '/practice/history', '/how-it-works', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup']) {
+	for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/practice', '/practice/test/timed', '/practice/finger-map', '/account/history', '/how-it-works', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup']) {
 		await page.setViewportSize({ width: 1440, height: 900 });
 		await page.goto(path);
 		for (const width of [1440, 1024, 768, 390]) {
@@ -168,7 +168,7 @@ for (const scheme of ['light', 'dark'] as const) {
 		const context = await browser.newContext({ colorScheme: scheme });
 		const page = await context.newPage();
 		const failures: string[] = [];
-		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/learn/l005', '/practice', '/practice/finger-speed', '/practice/play/race', '/practice/play/echo', '/practice/test/placement', '/competitive/test', '/practice/finger-map', '/practice/history', '/how-it-works', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password', '/missing']) {
+		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/learn/l005', '/practice', '/practice/finger-speed', '/practice/play/race', '/practice/play/echo', '/practice/test/placement', '/competitive/test', '/practice/finger-map', '/account/history', '/how-it-works', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password', '/missing']) {
 			await page.goto(path);
 			await page.waitForTimeout(300);
 			// Measure the settled page: entrance animations fade content in over a moment.

@@ -1,18 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
 	import type { LayoutProps } from './$types';
 
 	/** The administration area: breadcrumbs and the section tabs above each page. */
 	let { children }: LayoutProps = $props();
 
 	const TABS = [
-		{ href: '/admin/analytics', label: 'Overview' },
-		{ href: '/admin/analytics/events', label: 'Events' },
-		{ href: '/admin/users', label: 'Users' }
+		{ href: '/account/admin/analytics', label: 'Overview' },
+		{ href: '/account/admin/analytics/events', label: 'Events' },
+		{ href: '/account/admin/users', label: 'Users' }
 	];
 	// The authenticator pages come before the dashboard: no tabs there.
-	const gate = $derived(page.url.pathname.startsWith('/admin/2fa'));
+	const gate = $derived(page.url.pathname.startsWith('/account/admin/2fa'));
 	const current = $derived(TABS.find((t) => t.href === page.url.pathname));
 	// Tabs keep the chosen period and filters when switching views.
 	const keep = $derived.by(() => {
@@ -23,7 +22,6 @@
 	});
 </script>
 
-<Breadcrumbs items={[{ href: '/admin', label: 'Administration' }, ...(current ? [{ href: current.href, label: ({ Overview: 'Analytics', Events: 'Analytics events', Users: 'Users' } as Record<string, string>)[current.label]! }] : [])]} />
 
 <div class="admin">
 	{#if !gate}

@@ -2,16 +2,14 @@
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
 	import { EXAMS, examById } from '#lib/exams.ts';
+	import PageHead from '#lib/account/PageHead.svelte';
 	import Seo from '#lib/site/Seo.svelte';
-	import Dialog from '#lib/ui/Dialog.svelte';
 	import { usage } from '#lib/usage/store.svelte.ts';
 	import { wordHighlights } from '#lib/usage/types.ts';
 	import type { PageProps } from './$types';
 	import { formatDate, formatNumber } from '#lib/i18n/format.ts';
 
 	let { data }: PageProps = $props();
-	let confirmDelete = $state(false);
-	let message = $state<string | null>(null);
 
 	// Send this device's latest figures first, so the page includes the current visit.
 	onMount(async () => {
@@ -52,26 +50,12 @@
 	const n = (v: number) => formatNumber(Math.round(v));
 	const date = (t: number) => formatDate(t, { dateStyle: 'long' });
 
-	async function remove() {
-		await fetch('/api/usage', { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
-		await usage.reset();
-		confirmDelete = false;
-		message = 'Your usage statistics have been deleted.';
-		await invalidate('app:usage');
-	}
 </script>
 
 <Seo title="Statistics" description="How you use sqwer: time, tests and typing." noindex />
 
 <div class="stack">
-	<header class="page-head">
-		<h1>Statistics</h1>
-		<p class="lede">
-			Usage statistics recorded across {Math.max(1, data.devices)} {data.devices > 1 ? 'devices' : 'device'} since {date(u.firstSeen)}.
-			They describe how sqwer is used and do not include personal information.
-		</p>
-	</header>
-	{#if message}<p class="form-alert success" role="status">{message}</p>{/if}
+	<PageHead title="Statistics" line={`From ${Math.max(1, data.devices)} ${data.devices > 1 ? 'devices' : 'device'} since ${date(u.firstSeen)}. No personal information.`} />
 
 	<dl class="highlights">
 		<div><dt>Active time</dt><dd>{dur(u.activeMs)}</dd></div>
@@ -173,20 +157,10 @@
 		<p class="note">Speeds use words of three or more letters. The slowest and least accurate words require at least three attempts.</p>
 	</section>
 
-	<section class="manage" aria-labelledby="manage-title">
-		<h2 id="manage-title">Manage statistics</h2>
-		<p>Deleting usage statistics removes the figures above from your account and this browser. Your results history is not affected.</p>
-		<button type="button" class="btn" onclick={() => (confirmDelete = true)}>Delete usage statistics</button>
-	</section>
+	<p class="note">To clear these figures, go to <a href="/account/data">Your data</a>. Your results history is kept.</p>
 </div>
 
-<Dialog open={confirmDelete} title="Delete usage statistics?" alert onclose={() => (confirmDelete = false)}>
-	This permanently deletes the usage statistics stored in your account and in this browser.
-	{#snippet actions()}
-		<button type="button" class="btn" data-autofocus onclick={() => (confirmDelete = false)}>Cancel</button>
-		<button type="button" class="btn btn-danger" onclick={remove}>Delete statistics</button>
-	{/snippet}
-</Dialog>
+
 
 <style>
 	.stack {
@@ -194,18 +168,13 @@
 		flex-direction: column;
 		gap: var(--space-32);
 	}
-	h1 {
-		font-size: var(--fs-title);
-	}
-	.lede {
-		margin-top: var(--space-8);
-		max-width: var(--w-text);
-		font-size: var(--fs-16);
-		line-height: var(--lh-body);
-		color: var(--ink-2);
+	.stack > :global(.head) {
+		margin-bottom: calc(-1 * var(--space-8));
 	}
 	h2 {
-		font-size: var(--fs-20);
+		font-family: var(--font-sans);
+		font-size: var(--fs-16);
+		font-weight: var(--fw-semibold);
 		margin-bottom: var(--space-12);
 	}
 	/* Figures sit in one panel divided by hairlines; column counts match each group, so no cell is empty. */
@@ -295,14 +264,14 @@
 		height: 100%;
 		background: var(--chart-wpm);
 	}
-	.note,
-	.manage p {
+	.note {
 		margin-top: var(--space-10);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
-	.manage .btn {
-		margin-top: var(--space-12);
+	.note a {
+		color: var(--ink);
+		font-weight: var(--fw-semibold);
 	}
 	@media (max-width: 760px) {
 		table {

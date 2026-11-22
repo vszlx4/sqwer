@@ -131,7 +131,7 @@ test('uploads a profile picture, which then appears on the public profile', asyn
 	await expect(page.getByRole('alert')).toContainText('Confirm that you hold the rights to this image');
 	await page.getByLabel(/I took or created this image/).check();
 	await page.getByRole('button', { name: 'Save picture' }).click();
-	await expect(page.getByText('Your profile picture has been saved.')).toBeVisible();
+	await expect(page.getByText('Picture saved.')).toBeVisible();
 	await expect(page.locator('img.photo').first()).toHaveAttribute('src', /\/avatars\//);
 
 	// Files that are not images are refused by the server even if renamed.
@@ -156,10 +156,65 @@ test('the public profile is visible and the email address is not', async ({ page
 	await solveCaptcha(page);
 	await page.getByRole('button', { name: 'Sign in' }).click();
 	await expect(page).toHaveURL(/\/account$/);
+	await page.goto('/account/profile');
 	await page.getByRole('link', { name: 'View public profile' }).click();
 	await expect(page.getByRole('heading', { level: 1, name: 'Test Typist' })).toBeVisible();
 	await expect(page.locator('img.photo').first()).toBeVisible();
 	await expect(page.locator('body')).not.toContainText(email);
+});
+
+test('privacy switches save at once and each page saves only its own fields', async ({ page }) => {
+	await page.goto('/signin');
+	await page.getByLabel('Email address').fill(email);
+	await page.getByLabel('Password').fill(newPassword);
+	await solveCaptcha(page);
+	await page.getByRole('button', { name: 'Sign in' }).click();
+	await expect(page).toHaveURL(/\/account$/);
+
+	// The account menu is one link to the account pages; the day streak shows in tests.
+	await page.getByRole('button', { name: /Account menu/ }).click();
+	const menu = page.locator('#account-menu-panel');
+	await expect(menu.getByRole('link')).toHaveText(['Settings']);
+	await page.goto('/practice/test/timed');
+	await expect(page.getByTestId('streak')).toBeVisible();
+
+	// No save button: the switch saves, and the public link goes with it.
+	await page.goto('/account/privacy');
+	const pub = page.getByRole('switch', { name: 'Public profile' });
+	await expect(pub).toBeChecked();
+	await pub.uncheck();
+	await expect(page.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
+	await expect(page.getByText('Only you see your profile.')).toBeVisible();
+	await page.reload();
+	await expect(page.getByRole('switch', { name: 'Public profile' })).not.toBeChecked();
+
+	// Course changes leave privacy and the name as they are.
+	await page.goto('/account/course');
+	await expect(page.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+	await page.locator('.tile', { hasText: 'Advanced' }).click();
+	await page.getByRole('button', { name: '90', exact: true }).click();
+	await page.getByRole('button', { name: 'Save changes' }).click();
+	await expect(page.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
+	await page.reload();
+	await expect(page.getByRole('radio', { name: /^Advanced/ })).toBeChecked();
+	await expect(page.locator('output')).toContainText('90');
+
+	await page.goto('/account/privacy');
+	await expect(page.getByRole('switch', { name: 'Public profile' })).not.toBeChecked();
+	await page.getByRole('switch', { name: 'Public profile' }).check();
+	await expect(page.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
+	await page.goto('/account/profile');
+	await expect(page.getByRole('textbox', { name: 'Display name' })).toHaveValue('Test Typist');
+
+	// Preferences apply in this browser at once.
+	await page.goto('/account/preferences');
+	await page.getByRole('radio', { name: 'Dark' }).check({ force: true });
+	await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+	await page.getByRole('switch', { name: 'Live speed' }).uncheck();
+	expect(await page.evaluate(() => JSON.parse(localStorage.getItem('sqwer:settings')!).liveWpm)).toBe(false);
+	await page.getByRole('button', { name: 'Reset to defaults' }).click();
+	await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+	await expect(page.getByRole('switch', { name: 'Live speed' })).toBeChecked();
 });
 
 test('saves usage statistics to the account and shows them on the statistics page', async ({ page }) => {
@@ -186,7 +241,7 @@ test('saves usage statistics to the account and shows them on the statistics pag
 	expect(devices).toBeGreaterThanOrEqual(1);
 	expect(usage.tests.completed).toBe(1);
 	expect(usage.typing.words).toBe(words.length);
-	await expect(page.getByText(`recorded across ${devices} ${devices > 1 ? 'devices' : 'device'} since`)).toBeVisible();
+	await expect(page.getByText(`From ${devices} ${devices > 1 ? 'devices' : 'device'} since`)).toBeVisible();
 });
 
 test('a completed course lesson is saved and earns points towards the next rank', async ({ page }) => {
@@ -281,9 +336,9 @@ test('clears only the learning path and keeps every other kind of data', async (
 		localStorage.setItem(memory!, JSON.stringify({ cat: { seen: 1, due: 2, right: 1, misses: 0, last: 'exact' } }));
 		localStorage.setItem(ratings!, JSON.stringify({ cat: 2 }));
 	}, DEVICE_KEYS);
-	const row = (title: string) => page.locator('.categories li', { has: page.getByRole('heading', { name: title, exact: true }) });
-	await expect(row('Learning path').locator('.count')).toHaveText(/\d+ lessons? completed/);
-	const practiceBefore = await row('Practice results').locator('.count').textContent();
+	const row = (title: string) => page.getByRole('region', { name: title, exact: true });
+	await expect(row('Learning path').locator('.hint')).toHaveText(/\d+ lessons? completed/);
+	const practiceBefore = await row('Practice results').locator('.hint').textContent();
 	expect(practiceBefore).toMatch(/\d+ results?/);
 
 	await row('Learning path').getByRole('button', { name: 'Clear learning path' }).click();
@@ -294,14 +349,14 @@ test('clears only the learning path and keeps every other kind of data', async (
 	await row('Learning path').getByRole('button', { name: 'Clear learning path' }).click();
 
 	await expect(page.getByRole('status')).toHaveText('Learning path cleared. Everything else is unchanged.');
-	await expect(row('Learning path').locator('.count')).toHaveText('Nothing stored');
-	await expect(row('Practice results').locator('.count')).toHaveText(practiceBefore!);
+	await expect(row('Learning path').locator('.hint')).toHaveText('Nothing stored');
+	await expect(row('Practice results').locator('.hint')).toHaveText(practiceBefore!);
 	expect(await page.evaluate((keys) => keys.map((k) => localStorage.getItem(k)), DEVICE_KEYS)).toEqual([null, null]);
 
 	// The course starts again; results are untouched.
 	await page.goto('/learn/start');
 	await expect(page.locator('ol.list .count')).toHaveCount(0);
-	await page.goto('/practice/history');
+	await page.goto('/account/history');
 	await expect(page.getByRole('row').nth(1)).toBeVisible();
 });
 

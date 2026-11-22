@@ -184,7 +184,7 @@ export function sectionOf(path: string): string {
 	if (within('/learn')) return 'Courses';
 	if (within('/competitive')) return 'Competitive';
 	if (within('/practice/finger-map')) return 'Finger map';
-	if (within('/practice/history')) return 'History';
+	if (within('/account/history')) return 'History';
 	if (within('/practice/play')) return 'Games';
 	if (within('/practice')) return 'Examinations';
 	if (within('/account') || within('/u')) return 'Account';

@@ -12,6 +12,6 @@ describe('skeletonKind', () => {
 	});
 
 	it('falls back to a plain page', () => {
-		for (const path of ['/', '/learn', '/learn/start', '/practice', '/practice/finger-map', '/competitive', '/practice/history/abc']) expect(skeletonKind(path)).toBe('page');
+		for (const path of ['/', '/learn', '/learn/start', '/practice', '/practice/finger-map', '/competitive']) expect(skeletonKind(path)).toBe('page');
 	});
 });

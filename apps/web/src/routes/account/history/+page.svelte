@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { EXAMS, examById } from '#lib/exams.ts';
 	import { results } from '#lib/results/store.svelte.ts';
-	import Breadcrumbs from '#lib/site/Breadcrumbs.svelte';
+	import PageHead from '#lib/account/PageHead.svelte';
 	import Seo from '#lib/site/Seo.svelte';
 	import Skeleton from '#lib/ui/Skeleton.svelte';
 	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
@@ -33,13 +33,9 @@
 </script>
 
 <Seo title="History" description="Every test you have taken, with full results." noindex />
-<Breadcrumbs items={[{ href: '/practice', label: 'Practice' }, { href: '/practice/history', label: 'History' }]} />
 
 <div class="history">
-	<header>
-		<h1>History</h1>
-		<p class="lede">Every test you have taken, including attempts that were not completed. Select a result to view its full report and replay.</p>
-	</header>
+	<PageHead title="History" line="Every test you have taken. Open one for its full report and replay." />
 
 	{#if !results.loaded}
 		<SkeletonRegion label="Loading your results…" gap="24px">
@@ -96,7 +92,7 @@
 			<tbody>
 				{#each filtered.slice(0, shown) as r (r.id)}
 					<tr>
-						<td><a href={`/practice/history/${r.id}`}>{when(r.at)}</a></td>
+						<td><a href={`/account/history/${r.id}`}>{when(r.at)}</a></td>
 						<td>{examById(r.exam)?.title ?? r.exam}</td>
 						<td>{#if r.status === 'abandoned'}<span class="badge">Not completed</span>{:else}Completed{/if}</td>
 						<td class="num">{Math.round(r.wpm)}</td>
@@ -117,17 +113,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-32);
-	}
-	h1 {
-		font-size: var(--fs-display);
-		line-height: var(--lh-snug);
-	}
-	.lede {
-		margin-top: var(--space-12);
-		max-width: var(--w-text);
-		font-size: var(--fs-18);
-		line-height: var(--lh-body);
-		color: var(--ink-2);
 	}
 	.summary {
 		display: grid;

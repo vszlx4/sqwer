@@ -6,13 +6,13 @@ import type { Actions, PageServerLoad } from './$types';
 
 /** The authenticator check each administrator session passes before the dashboard opens. */
 const destination = (url: URL) => {
-	const next = safeRedirect(url.searchParams.get('next'), '/admin/analytics');
-	return next.startsWith('/admin') && !next.startsWith('/admin/2fa') ? next : '/admin/analytics';
+	const next = safeRedirect(url.searchParams.get('next'), '/account/admin/analytics');
+	return next.startsWith('/account/admin') && !next.startsWith('/account/admin/2fa') ? next : '/account/admin/analytics';
 };
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const user = requireAdmin(locals, url, { mfa: false });
-	if (!user.totpEnabledAt) redirect(303, `/admin/2fa/setup?next=${encodeURIComponent(destination(url))}`);
+	if (!user.totpEnabledAt) redirect(303, `/account/admin/2fa/setup?next=${encodeURIComponent(destination(url))}`);
 	if (locals.sessionMfaAt && Date.now() - locals.sessionMfaAt.getTime() < MFA_FRESH_MS) redirect(303, destination(url));
 	return {};
 };

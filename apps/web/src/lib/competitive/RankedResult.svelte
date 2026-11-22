@@ -4,6 +4,7 @@
 	import ResultReport from '#lib/results/ResultReport.svelte';
 	import type { UploadOutcome } from '#lib/results/store.svelte.ts';
 	import type { ResultRecord } from '#lib/results/types.ts';
+	import StreakBadge from '#lib/courses/StreakBadge.svelte';
 	import { enter } from '#lib/motion/actions.ts';
 	import { MIN_ACCURACY, TIERS, nextTier, tierFor, tierRange } from '#lib/progress/competitive.ts';
 	import { examXp } from '#lib/progress/xp.ts';
@@ -80,6 +81,7 @@
 			<h2 id="ranked-title">{tier?.name ?? 'Unranked'}</h2>
 			<p class="verdict" class:good={isBest}>{verdict}</p>
 			{#if tier}<p class="range">{tierRange(tier)}</p>{/if}
+			<StreakBadge />
 		</div>
 	</header>
 
@@ -187,6 +189,9 @@
 		margin-top: var(--space-2);
 		font-size: var(--fs-14);
 		color: var(--ink-3);
+	}
+	.title :global(.streak) {
+		margin-top: var(--space-10);
 	}
 	.ladder {
 		display: flex;

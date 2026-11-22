@@ -57,7 +57,7 @@
 				{#if v.first === set}
 					Being made now, in active mode.
 				{:else if v.paused}
-					Paused in <a href="/account/voice">Voice settings</a>.
+					Paused in <a href="/account/sound">Sound and voice</a>.
 				{/if}
 				The rest play in Standard.
 			</p>
