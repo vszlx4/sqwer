@@ -9,7 +9,7 @@ import { readState, runGenerator, writeState, type ClipMaker } from './generator
 import { MAX_SECONDS, checkClips, clipProblem } from './health.ts';
 import { isLocalHost, isLocalRequest, isLoopback } from './local.ts';
 import { CORE_SETS, buildManifest, findListsDir, fullSet, type VoiceSet } from './manifest.ts';
-import { encodeMp3 } from './mp3.ts';
+import { MP3_KBPS, encodeMp3 } from './mp3.ts';
 import { readSettings, voiceDir, writeSettings } from './settings.ts';
 import { CLIP_DISK_BYTES, firstId, forgetCounts, voiceBrief, voiceStatus } from './status.ts';
 
@@ -81,7 +81,7 @@ describe('voice health check', () => {
 		expect(clipProblem(0, new Uint8Array(4))).toBe('empty');
 		expect(clipProblem(3000, new TextEncoder().encode('RIFF'))).toBe('bad');
 		expect(clipProblem(20, good)).toBe('length');
-		expect(clipProblem(((MAX_SECONDS + 1) * 24000) / 8, good)).toBe('length');
+		expect(clipProblem(((MAX_SECONDS + 1) * MP3_KBPS * 1000) / 8, good)).toBe('length');
 		expect(clipProblem(3000, new TextEncoder().encode('ID3\u0004'))).toBeNull();
 	});
 
