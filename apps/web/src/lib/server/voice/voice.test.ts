@@ -77,9 +77,10 @@ describe('clip names', () => {
 		expect(fingerprint('water', 'normal')).not.toBe(fingerprint('waiter', 'normal'));
 		expect(fingerprint('water', 'normal')).toMatch(/^[0-9a-f]{32}$/);
 		expect(fingerprint('constructor', 'normal')).not.toBe(fingerprint('valueOf', 'normal'));
-		// Pinned: changing these remakes every clip on every install. Slow moved to the stretched take (issue 191).
-		expect(fingerprint('water', 'normal')).toBe('a76d8bcb9cf21581413534004097070d');
-		expect(fingerprint('water', 'slow')).toBe('38c71eb8358c36cb943b48d23496e78a');
+		// Pinned: changing these remakes every clip on every install. Slow moved to the stretched take (issue 191);
+		// 32 kbps replaced the silent 24 kbps clips (issue 248).
+		expect(fingerprint('water', 'normal')).toBe('b63ab7ce4a0593720522ecbd53fed8fb');
+		expect(fingerprint('water', 'slow')).toBe('f79071ca8b154bc6b1965a1feee3a056');
 	});
 
 	it('use respellings for words Supertonic says wrong', () => {
@@ -266,6 +267,13 @@ describe('MP3 clips', () => {
 		expect(mp3[1]! & 0xe0).toBe(0xe0);
 		expect(mp3.length).toBeGreaterThan(1000);
 		expect(mp3.length).toBeLessThan(6000);
+	});
+
+	it('keep 22.05 kHz, so the encoder never resamples the word away', () => {
+		const mp3 = encodeMp3(halveRate(Float32Array.from({ length: 44100 }, (_, i) => 0.3 * Math.sin((2 * Math.PI * 440 * i) / 44100))));
+		// Frame header: MPEG-2 (version bits 10), sample rate index 00 = 22,050 Hz.
+		expect((mp3[1]! >> 3) & 0b11).toBe(0b10);
+		expect((mp3[2]! >> 2) & 0b11).toBe(0b00);
 	});
 
 	it('cover both speeds', () => {
