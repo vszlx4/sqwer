@@ -1,7 +1,8 @@
 /*
- * Makes the missing Supertonic clips, set by set, normal then slow for each word. One generator at a time (lock file
- * with its pid); it stops after the current word when the voice is switched back, paused or aborted, and starts
- * where it left off next time, since finished clips are on disk. Progress goes to state.json for the screens.
+ * Makes the missing Supertonic clips of the chosen sets, normal then slow for each word, each word once even when
+ * two sets share it. One generator at a time (lock file with its pid); it stops after the current clip when told to,
+ * and starts where it left off next time, since finished clips are on disk. Progress, in words, goes to state.json
+ * for the screens.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -14,34 +15,60 @@ import { writeAtomic } from './supertonic.ts';
 /** Makes one clip: MP3 bytes for a word at a speed. */
 export type ClipMaker = (word: string, speed: Speed, fp: string) => Promise<Uint8Array>;
 
+/** A set's words with both clips made, of all its words. */
 export interface SetProgress {
 	id: string;
 	name: string;
-	made: number;
-	total: number;
+	ready: number;
+	words: number;
 }
 
 export interface GeneratorState {
 	running: boolean;
-	/** Clips on disk and wanted, over all sets (two per word). */
-	made: number;
-	total: number;
+	/** Words with both clips made, and words wanted, over the chosen sets (each word once). */
+	ready: number;
+	words: number;
+	/** Clips still to make. */
+	left: number;
 	sets: SetProgress[];
-	/** Rolling average of recent clips, in milliseconds. */
+	/** Wall time per clip, rests included, over recent clips: what the time left is based on. */
 	msPerClip: number | null;
 	word: string | null;
+	/** The set the current word is made for. */
+	making: string | null;
 	error: string | null;
-	/** When this run started, and the clips it has made so far. */
 	startedAt?: string;
-	fresh?: number;
-	/** The run covered every set, so made === total means nothing is missing. */
-	all?: boolean;
+	/** The chosen sets and clip format this run covered (runKey). */
+	key?: string;
+	/** Every clip of those sets is made. */
+	complete?: boolean;
 	/** The last run stopped at the disk limit (`limit` clips). */
 	full?: boolean;
 	limit?: number | null;
+	/** On battery with making on battery turned off: waiting for the charger. */
+	waiting?: 'battery' | null;
 	/** Model download in progress, before the first clip. */
 	downloading?: { received: number; total: number } | null;
 	updatedAt: string;
+}
+
+/** What a finished run stands for: the chosen sets in order and the clip format. */
+export const runKey = (sets: readonly string[]) => `${fingerprint('a', 'normal')}:${sets.join(',')}`;
+
+const SPEED_IDS = Object.keys(SPEEDS) as Speed[];
+
+/** Each word of the sets once, in making order, with the sets that hold it. */
+function plan(sets: readonly VoiceSet[]): { word: string; set: number; owners: number[] }[] {
+	const by = new Map<string, { word: string; set: number; owners: number[] }>();
+	for (const [i, s] of sets.entries()) {
+		for (const word of s.words) {
+			const hit = by.get(word);
+			if (hit) {
+				if (hit.owners.at(-1) !== i) hit.owners.push(i);
+			} else by.set(word, { word, set: i, owners: [i] });
+		}
+	}
+	return [...by.values()];
 }
 
 const lockFile = (voiceDir: string) => path.join(clipsDir(voiceDir), 'generator.lock');
@@ -111,13 +138,24 @@ export function listClips(voiceDir: string): Set<string> {
 	return out;
 }
 
-/** Clips on disk per set. */
-export function countMade(voiceDir: string, sets: readonly VoiceSet[], have = listClips(voiceDir)): SetProgress[] {
+/** Words of each set with both clips on disk. */
+export function countReady(sets: readonly VoiceSet[], have: ReadonlySet<string>): SetProgress[] {
 	return sets.map((s) => {
-		let made = 0;
-		for (const w of s.words) for (const sp of Object.keys(SPEEDS) as Speed[]) if (have.has(fingerprint(w, sp))) made++;
-		return { id: s.id, name: s.name, made, total: s.words.length * 2 };
+		let ready = 0;
+		if (have.size) for (const w of s.words) if (SPEED_IDS.every((sp) => have.has(fingerprint(w, sp)))) ready++;
+		return { id: s.id, name: s.name, ready, words: s.words.length };
 	});
+}
+
+/** Removes clips no set wants any more (an older clip format, a word dropped from a list). Returns how many. */
+export async function sweepUnwanted(voiceDir: string, wanted: (fp: string) => boolean, have = listClips(voiceDir)): Promise<number> {
+	let n = 0;
+	for (const fp of have) {
+		if (wanted(fp)) continue;
+		await rm(clipPath(voiceDir, fp), { force: true });
+		n++;
+	}
+	return n;
 }
 
 /** Removes temporary files left by a crash. */
@@ -139,78 +177,129 @@ export async function sweepPartFiles(voiceDir: string): Promise<number> {
 
 export interface RunOptions {
 	voiceDir: string;
+	/** The chosen sets, in making order, each with all its words. */
 	sets: readonly VoiceSet[];
 	make: ClipMaker;
-	/** Checked before each clip; false stops after the current one. */
-	keepGoing: () => boolean;
-	/** Set ids to make first. */
-	first?: readonly string[];
+	/** Checked before each clip: 'go', 'stop' (after the current clip), or 'battery' (wait for the charger). */
+	keepGoing: () => 'go' | 'stop' | 'battery' | Promise<'go' | 'stop' | 'battery'>;
 	onProgress?: (state: GeneratorState) => void;
-	/** How often to save state.json, in clips. */
-	saveEvery?: number;
-	/** The sets are the whole manifest. */
-	all?: boolean;
+	/** Rest after each clip, as a share of the time it took (1: rest as long as it worked). */
+	rest?: number;
+	/** How long to wait between checks for the charger. */
+	waitMs?: number;
+	/** What this run stands for (runKey), saved with the state. */
+	key?: string;
 	/** Clips on disk (any set) at which to stop: the disk limit. */
 	maxClips?: number | null;
 }
 
 export type RunResult = 'done' | 'stopped' | 'locked' | 'full';
 
-/** Makes every missing clip, or until told to stop. */
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Makes every missing clip of the chosen sets, or until told to stop. */
 export async function runGenerator(o: RunOptions): Promise<RunResult> {
 	if (!(await takeLock(o.voiceDir))) return 'locked';
-	const order = [...o.sets].sort((a, b) => Number(o.first?.includes(b.id) ?? 0) - Number(o.first?.includes(a.id) ?? 0));
 	const have = listClips(o.voiceDir);
-	const sets = countMade(o.voiceDir, order, have);
+	const words = plan(o.sets);
+	const sets: SetProgress[] = o.sets.map((s) => ({ id: s.id, name: s.name, ready: 0, words: s.words.length }));
+	let ready = 0;
+	let left = 0;
+	const todo: { word: string; set: number; owners: number[]; missing: { speed: Speed; fp: string }[] }[] = [];
+	for (const w of words) {
+		const missing = SPEED_IDS.map((speed) => ({ speed, fp: fingerprint(w.word, speed) })).filter((c) => !have.has(c.fp));
+		if (missing.length) {
+			todo.push({ ...w, missing });
+			left += missing.length;
+		} else {
+			ready++;
+			for (const i of w.owners) sets[i]!.ready++;
+		}
+	}
 	const recent: number[] = [];
 	// The last known pace stands until new clips give a fresh one.
 	const before = readState(o.voiceDir)?.msPerClip ?? null;
-	const state: GeneratorState = { running: true, made: 0, total: 0, sets, msPerClip: null, word: null, error: null, startedAt: new Date().toISOString(), fresh: 0, all: o.all ?? false, full: false, limit: o.maxClips ?? null, updatedAt: '' };
-	const save = async (force = false, every = o.saveEvery ?? 10) => {
-		state.made = sets.reduce((n, s) => n + s.made, 0);
-		state.total = sets.reduce((n, s) => n + s.total, 0);
+	const state: GeneratorState = {
+		running: true,
+		ready,
+		words: words.length,
+		left,
+		sets,
+		msPerClip: before,
+		word: null,
+		making: null,
+		error: null,
+		startedAt: new Date().toISOString(),
+		key: o.key,
+		complete: false,
+		full: false,
+		limit: o.maxClips ?? null,
+		waiting: null,
+		updatedAt: ''
+	};
+	let savedAt = 0;
+	const save = async (force = false) => {
+		state.ready = ready;
+		state.left = left;
 		state.msPerClip = recent.length ? recent.reduce((a, b) => a + b, 0) / recent.length : before;
 		state.updatedAt = new Date().toISOString();
 		o.onProgress?.(state);
-		if (force || state.made % every === 0) await writeState(o.voiceDir, state);
+		if (!force && Date.now() - savedAt < 1500) return;
+		savedAt = Date.now();
+		await writeState(o.voiceDir, state);
 	};
 	let result: RunResult = 'done';
 	try {
 		await sweepPartFiles(o.voiceDir);
 		await save(true);
-		outer: for (const [i, set] of order.entries()) {
-			for (const word of set.words) {
-				for (const speed of Object.keys(SPEEDS) as Speed[]) {
-					const fp = fingerprint(word, speed);
-					if (have.has(fp)) continue;
-					const file = clipPath(o.voiceDir, fp);
-					if (!o.keepGoing()) {
+		outer: for (const w of todo) {
+			for (const c of w.missing) {
+				for (;;) {
+					const go = await o.keepGoing();
+					if (go === 'go') break;
+					if (go === 'stop') {
 						result = 'stopped';
 						break outer;
 					}
-					if (o.maxClips != null && have.size >= o.maxClips) {
-						result = 'full';
-						state.full = true;
-						break outer;
+					if (state.waiting !== 'battery') {
+						state.waiting = 'battery';
+						state.word = null;
+						await save(true);
 					}
-					state.word = word;
-					const t = performance.now();
-					await writeAtomic(file, await o.make(word, speed, fp));
-					have.add(fp);
-					recent.push(performance.now() - t);
-					if (recent.length > 50) recent.shift();
-					sets[i]!.made++;
-					state.fresh!++;
-					await save();
+					await sleep(o.waitMs ?? 30_000);
 				}
+				if (state.waiting) {
+					state.waiting = null;
+					await save(true);
+				}
+				if (o.maxClips != null && have.size >= o.maxClips) {
+					result = 'full';
+					state.full = true;
+					break outer;
+				}
+				state.word = w.word;
+				state.making = o.sets[w.set]!.id;
+				const t = performance.now();
+				await writeAtomic(clipPath(o.voiceDir, c.fp), await o.make(w.word, c.speed, c.fp));
+				have.add(c.fp);
+				left--;
+				if (o.rest) await sleep((performance.now() - t) * o.rest);
+				recent.push(performance.now() - t);
+				if (recent.length > 50) recent.shift();
+				await save();
 			}
+			ready++;
+			for (const i of w.owners) sets[i]!.ready++;
 		}
+		state.complete = result === 'done';
 	} catch (e) {
 		state.error = e instanceof Error ? e.message : String(e);
 		throw e;
 	} finally {
 		state.running = false;
 		state.word = null;
+		state.making = null;
+		state.waiting = null;
 		await save(true).catch(() => {});
 		await releaseLock(o.voiceDir);
 	}

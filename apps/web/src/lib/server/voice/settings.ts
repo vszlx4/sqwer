@@ -12,7 +12,7 @@ export const VOICES = ['standard', 'supertonic'] as const;
 export type VoiceId = (typeof VOICES)[number];
 
 export const MODES = ['low', 'active'] as const;
-/** low: one thread at the lowest priority; active: all cores but one. */
+/** low: gentle, on the efficiency cores where there are some; active: two threads at normal priority. */
 export type GeneratorMode = (typeof MODES)[number];
 
 export interface VoiceSettings {
@@ -20,8 +20,10 @@ export interface VoiceSettings {
 	mode: GeneratorMode;
 	/** Stays paused across restarts. */
 	paused: boolean;
-	/** A set to make before the rest, in active mode; cleared once it is done. */
-	first: string | null;
+	/** Sets to make, in making order: 'course' and word list ids. Nothing else is made. */
+	sets: string[];
+	/** Keep making clips on battery power; otherwise the generator waits for the charger. */
+	battery: boolean;
 	/** Most disk the clips may take, in GB; null for no limit. The generator stops there. */
 	diskLimit: DiskLimit | null;
 }
@@ -29,7 +31,20 @@ export interface VoiceSettings {
 export const DISK_LIMITS = [1, 2, 5, 10, 20] as const;
 export type DiskLimit = (typeof DISK_LIMITS)[number];
 
-export const DEFAULT_SETTINGS: VoiceSettings = { voice: 'standard', mode: 'low', paused: false, first: null, diskLimit: null };
+/** Lessons and the two lists most tests use: about 8,400 words, some 9 hours in low mode on an M2. */
+export const DEFAULT_SETS: readonly string[] = ['course', 'english-200', 'english-1k'];
+export const MAX_SETS = 40;
+const SET_ID = /^[a-z0-9-]{1,40}$/;
+export const isSetId = (id: unknown): id is string => typeof id === 'string' && SET_ID.test(id);
+
+export const DEFAULT_SETTINGS: VoiceSettings = { voice: 'standard', mode: 'low', paused: false, sets: [...DEFAULT_SETS], battery: false, diskLimit: null };
+
+/** Saved sets, unique and well formed; a set once made first (older settings) goes to the front. */
+function readSets(saved: Partial<VoiceSettings> & { first?: unknown }): string[] {
+	const list = Array.isArray(saved.sets) ? saved.sets.filter(isSetId) : [...DEFAULT_SETS];
+	if (isSetId(saved.first)) list.unshift(saved.first);
+	return [...new Set(list)].slice(0, MAX_SETS);
+}
 
 export const voiceDir = (dataDir: string) => path.join(dataDir, 'voice');
 const settingsFile = (dataDir: string) => path.join(voiceDir(dataDir), 'settings.json');
@@ -46,7 +61,8 @@ export function readSettings(dataDir: string): VoiceSettings {
 		voice: VOICES.includes(saved.voice as VoiceId) ? (saved.voice as VoiceId) : DEFAULT_SETTINGS.voice,
 		mode: MODES.includes(saved.mode as GeneratorMode) ? (saved.mode as GeneratorMode) : DEFAULT_SETTINGS.mode,
 		paused: saved.paused === true,
-		first: typeof saved.first === 'string' && /^[a-z0-9-]{1,40}$/.test(saved.first) ? saved.first : null,
+		sets: readSets(saved),
+		battery: saved.battery === true,
 		diskLimit: DISK_LIMITS.includes(saved.diskLimit as DiskLimit) ? (saved.diskLimit as DiskLimit) : null
 	};
 }
@@ -57,7 +73,7 @@ let writes = 0;
 
 export function writeSettings(dataDir: string, change: Partial<VoiceSettings>): Promise<VoiceSettings> {
 	const job = writing.catch(() => {}).then(async () => {
-		const next = { ...readSettings(dataDir), ...change };
+		const next: VoiceSettings = { ...readSettings(dataDir), ...change };
 		const file = settingsFile(dataDir);
 		await mkdir(path.dirname(file), { recursive: true });
 		const tmp = `${file}.${process.pid}.${++writes}.part`;
@@ -81,7 +97,7 @@ export function activeVoice(settings: VoiceSettings, env: VoiceEnv = voiceEnv())
 	return env === 'skip' ? 'standard' : settings.voice;
 }
 
-/** A clip is about 2 KB, but each file takes a whole 4 KB disk block. */
+/** A clip is about 2.5 KB, but each file takes a whole 4 KB disk block. */
 export const CLIP_DISK_BYTES = 4096;
 
 /** Clips that fit in the disk limit; null for no limit. */

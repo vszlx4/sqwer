@@ -59,22 +59,25 @@ used, and nothing is in the repository: models and clips live in `apps/web/.data
 | **Standard** (Kokoro, the default) | Makes each word the first time it is played, then keeps the clip | about 90 MB, on first use | none; the first play of a word takes a moment |
 | **Enhanced** (Supertonic, opt-in) | Clearer; makes clips ahead of time in the background while the site runs | about 130 MB, when you pick it | a few hours for the lessons and the smaller lists on a recent laptop |
 
-Until a word's Enhanced clip is made, it plays in the Standard voice. Enhanced clips take about 100 MB for the
-lessons and the smaller lists, and about 3.7 GB for every list; the disk limit below applies to them. Standard clips
-are larger per word but only made for words that are played. While no clip can be played, the game shows the word
-instead.
+Until a word's Enhanced clip is made, it plays in the Standard voice. You choose the word sets Enhanced makes (the
+lessons, English 200 and English 1k to start, about 8,400 words and 70 MB); the generator makes those, in your order,
+then stops. Low mode is gentle enough to leave on (on a Mac it runs on the efficiency cores), active mode is about five
+times faster, and on battery the generator waits for the charger unless you allow it. Standard clips are larger per
+word but only made for words that are played. While no clip can be played, the game shows the word instead.
 
-Pick the voice and control the generator from the account menu or the Voice page (**Account → Voice**): pause or
-resume, low or active mode, a disk limit for Enhanced clips, and the words players rated unclear. The same controls work from the
-command line:
+Pick the voice and run the generator from **Account → Sound and voice**: one status with the words ready and the time
+left, pause or resume, speed, battery, a disk limit, the word sets, and the words players rated unclear. The same
+controls work from the command line:
 
 ```sh
-npm run voice -- status                   # voice, generator mode, clips made
+npm run voice -- status                   # voice, generator mode, words ready per chosen set
 npm run voice -- use enhanced             # or standard; Enhanced downloads its model first
 npm run voice -- pause                    # or resume
-npm run voice -- mode active              # all cores but one; low: one thread, lowest priority
+npm run voice -- mode active              # or low
+npm run voice -- add legal                # or remove; next legal makes it before the others
+npm run voice -- battery on               # keep making clips on battery power (off: wait for the charger)
 npm run voice -- limit 5                  # most disk the clips may take, in GB (1, 2, 5, 10, 20), or off
-npm run voice:sync                        # make the missing lesson and core clips now (--all: every list)
+npm run voice:sync                        # make the chosen sets now, as in active mode
 ```
 
 `SQWER_VOICE=skip` keeps the Standard voice and never makes clips ahead of time (CI uses it); `SQWER_VOICE=pause`
