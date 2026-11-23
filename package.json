@@ -27,8 +27,8 @@
 		"voice:sync": "npm run voice -w web -- sync"
 	},
 	"devDependencies": {
-		"@sveltejs/kit": "^3.1.1",
-		"vitest": "^5.1.0"
+		"@sveltejs/kit": "^3.2.0",
+		"vitest": "^5.1.1"
 	},
 	"overrides": {
 		"@esbuild-kit/core-utils": {
