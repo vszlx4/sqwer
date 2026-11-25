@@ -19,12 +19,15 @@ jobs:
           TITLE: ${{ github.event.pull_request.title }}
         run: |
           fail=0
-          # main takes releases from dev and hotfixes only; everything else goes to dev.
+          # main takes releases from dev and hotfixes only; everything else goes to dev (or v2).
           if [ "$BASE" = main ]; then
             if ! [[ "$HEAD" == dev || "$HEAD" =~ ^(fix|security)/[a-z0-9][a-z0-9-]*$ ]]; then
               echo "::error::Pull requests into main come from dev (releases) or fix/ and security/ hotfixes. Target dev instead."
               fail=1
             fi
+          # v2: dev syncs into it, and it lands in dev once finished.
+          elif [[ "$BASE" == v2 && "$HEAD" == dev || "$BASE" == dev && "$HEAD" == v2 ]]; then
+            :
           elif ! [[ "$HEAD" =~ ^(feat|fix|docs|chore|refactor|test|design|security)/[a-z0-9][a-z0-9-]*$ || "$HEAD" =~ ^dependabot/ ]]; then
             echo "::error::Branch '$HEAD' must look like feat/short-name, fix/short-name, docs/..., chore/..., refactor/..., test/..., design/..., security/...."
             fail=1

@@ -14,7 +14,26 @@ How work moves through the repository. The checks that enforce it live in `.gith
 - `dev` is where finished work lands and waits for the next release. It always builds and passes checks, but is not
   released yet. To try what is coming: `git clone -b dev https://github.com/vszlx4/sqwer.git`.
 
+- `v2` is the next major version while it is being built. It gets the same checks and review as `dev` and is never
+  deleted, so it keeps the full history after it lands. To try it: `git clone -b v2 https://github.com/vszlx4/sqwer.git`.
+
 Nothing else is long-lived.
+
+## Version 2
+
+```
+<type>/<name> ──PR──▶ v2 ◀──sync PR── dev
+                       └──final PR (squash)──▶ dev ──release PR──▶ main
+```
+
+1. **Work.** Branch from `v2` (`git switch -c feat/new-lessons origin/v2`) and open the pull request into `v2`. Squash
+   merge, as on `dev`.
+2. **Sync.** After each release, open a pull request `dev` → `v2` and merge it with a **merge commit**, so `v2` keeps
+   every fix that ships meanwhile. Resolve conflicts on a branch from `v2`, never on `dev`.
+3. **Land.** When it is done: one last sync, then a pull request `v2` → `dev`, squash merged. The next release takes it
+   to `main` like any other work. Dependabot keeps targeting `dev`; its updates reach `v2` through the syncs.
+
+`v2` never goes straight into `main`: `main` only takes releases from `dev` and hotfixes.
 
 ## Short-lived branches
 
@@ -92,6 +111,6 @@ git log --oneline --graph -8       # recent history
 ## One-time repository setup
 
 `scripts/github-setup.sh` (GitHub CLI, `gh auth login`) applies the settings that cannot be kept in files: rulesets on
-`dev` (squash only) and `main` (merge commits for releases, squash for hotfixes), both with pull request, code owner
-approval and passing `verify` and `naming`; `dev` can never be deleted or force-pushed; protected release tags, read-only workflow tokens and Dependabot alerts. Run it again after the repository goes public for secret
+`dev` (squash only) and `main` (merge commits for releases, squash for hotfixes) and `v2` (squash, merge commits for syncs), all with pull
+request, code owner approval and passing `verify` and `naming`; `dev` and `v2` can never be deleted or force-pushed; protected release tags, read-only workflow tokens and Dependabot alerts. Run it again after the repository goes public for secret
 scanning, private vulnerability reporting and collaborator-only interaction limits (renew every six months).
