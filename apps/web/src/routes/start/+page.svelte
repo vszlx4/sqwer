@@ -113,7 +113,7 @@
 					stretch you without repeating what you already know.
 				</p>
 				<div class="actions">
-					<a class="btn btn-primary btn-lg" href="/test?exam=placement">Take the placement test <Icon name="arrow" size={18} /></a>
+					<a class="btn btn-primary btn-lg" href="/practice/test/placement">Take the placement test <Icon name="arrow" size={18} /></a>
 				</div>
 				<p class="note">Prefer to decide yourself? <a href="/learn/start">Choose a chapter</a> with a short description of who it suits.</p>
 			{:else if chapter}
@@ -130,7 +130,7 @@
 					</PlacementStart>
 				</div>
 				<p class="note">
-					{#if level === 'some'}Your own fingering may hide slow habits. The <a href="/map">finger map</a> records them whenever you are ready.{:else}You can also <a href="/learn/start">choose a different chapter</a>.{/if}
+					{#if level === 'some'}Your own fingering may hide slow habits. The <a href="/practice/finger-map">finger map</a> records them whenever you are ready.{:else}You can also <a href="/learn/start">choose a different chapter</a>.{/if}
 				</p>
 			{/if}
 		</section>

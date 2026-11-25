@@ -174,7 +174,7 @@ test('a sign-in redirect never leaves the site', async ({ browser }) => {
 		expect(res.status()).toBe(303);
 		expect(new URL(res.headers().location!, ORIGIN).origin).toBe(ORIGIN);
 	}
-	const kept = await page.request.get('/signin?redirectTo=%2Fexams%3Fx%3D1', { maxRedirects: 0 });
-	expect(kept.headers().location).toBe('/exams?x=1');
+	const kept = await page.request.get('/signin?redirectTo=%2Fpractice%3Fx%3D1', { maxRedirects: 0 });
+	expect(kept.headers().location).toBe('/practice?x=1');
 	await context.close();
 });

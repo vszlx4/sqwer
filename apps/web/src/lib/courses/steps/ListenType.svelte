@@ -545,8 +545,9 @@
 	const GRADE: Record<Outcome, string> = { exact: 'Correct', accepted: 'Accepted', close: 'Close', misheard: 'Misheard', wrong: 'Not quite' };
 	/** Close answers show a check in the streak color: half right. */
 	const MARK: Record<Outcome, StatusMarkStatus> = { exact: 'done', accepted: 'done', close: 'done', misheard: 'failed', wrong: 'failed' };
-	/** Endless keeps the last few results in view; lessons show every word of the exercise. */
+	/** Endless keeps the last few results in view; lessons show every word, up to SHOWN, then a window around the current one. */
 	const RECENT = 7;
+	const SHOWN = 12;
 
 	interface Dot {
 		key: number;
@@ -554,7 +555,13 @@
 		current: boolean;
 	}
 	const dots = $derived.by((): Dot[] => {
-		if (!endless) return list.map((_, i) => ({ key: i, outcome: outcomes[i] ?? null, current: started && i === index && !outcomes[i] }));
+		if (!endless) {
+			const from = Math.max(0, Math.min(index - RECENT, list.length - SHOWN));
+			return list.slice(from, from + SHOWN).map((_, j) => {
+				const i = from + j;
+				return { key: i, outcome: outcomes[i] ?? null, current: started && i === index && !outcomes[i] };
+			});
+		}
 		const from = Math.max(0, answers.length - RECENT);
 		const done = answers.slice(from).map((a, i) => ({ key: from + i, outcome: a.outcome, current: false }));
 		return feedback ? done : [...done, { key: answers.length, outcome: null, current: started }];
@@ -569,8 +576,8 @@
 	how={speech
 		? `You will hear ${list.length} words, one at a time. Type each word and press Enter. Words that sound the same and British spellings count; a slip of one letter scores half a point. Turn your sound on.`
 		: `${settings.showWords ? 'Sound is off in your settings' : 'This browser cannot play sound'}, so each of the ${list.length} words is shown for a moment instead. Type it from memory and press Enter.`}
-	goal={`Score ${target} of ${list.length} points`}
-	progress={Math.min(1, correct / Math.max(1, target))}
+	goal={practiceMode ? `Practice ${list.length} ${list.length === 1 ? 'word' : 'words'}, not scored` : `Score ${target} of ${list.length} points`}
+	progress={practiceMode ? answered / Math.max(1, list.length) : Math.min(1, correct / Math.max(1, target))}
 	status={`${answered} / ${list.length} words`}
 	{over}
 	onstart={begin}
@@ -753,6 +760,7 @@
 	.play {
 		display: grid;
 		grid-template-rows: 20px 64px 28px 64px 132px 48px; /* off-scale: fixed rows of the stage */
+		grid-template-columns: minmax(0, 1fr);
 		align-items: center;
 		gap: var(--space-12);
 		width: min(100%, var(--w-narrow));
@@ -781,6 +789,9 @@
 		display: flex;
 		align-items: center;
 		gap: var(--space-6);
+		min-width: 0;
+		max-width: 100%;
+		overflow: hidden;
 		margin: 0;
 		padding: 0;
 		list-style: none;

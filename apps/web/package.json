@@ -2,7 +2,7 @@
 	"name": "web",
 	"private": true,
 	"license": "GPL-3.0-only",
-	"version": "1.0.0-beta.40",
+	"version": "1.0.0-beta.41",
 	"type": "module",
 	"scripts": {
 		"predev": "node scripts/voice.ts sync --check",
@@ -24,11 +24,11 @@
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.14.0",
-		"@playwright/test": "^1.64.1",
-		"@sveltejs/adapter-node": "^6.0.1",
-		"@sveltejs/kit": "^3.1.1",
+		"@playwright/test": "^1.65.1",
+		"@sveltejs/adapter-node": "^6.0.5",
+		"@sveltejs/kit": "^3.2.0",
 		"@sveltejs/vite-plugin-svelte": "^7.2.0",
-		"@tailwindcss/vite": "^4.3.4",
+		"@tailwindcss/vite": "^4.3.5",
 		"@types/node": "^26.6.6",
 		"@types/pg": "^8.23.1",
 		"@types/three": "^0.187.0",
@@ -37,14 +37,14 @@
 		"svelte-check": "^4.7.8",
 		"tailwindcss": "^4.3.3",
 		"typescript": "^7.0.2",
-		"vite": "^8.3.6"
+		"vite": "^8.3.8"
 	},
 	"imports": {
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
 		"@breezystack/lamejs": "^1.2.7",
-		"@electric-sql/pglite": "^0.5.15",
+		"@electric-sql/pglite": "^0.5.17",
 		"@fontsource-variable/geist-mono": "^5.3.0",
 		"@sqwer/content": "*",
 		"@sqwer/engine": "*",

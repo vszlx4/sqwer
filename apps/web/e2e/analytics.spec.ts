@@ -13,7 +13,7 @@ let adminSecret = '';
 
 /** Passes the authenticator check that administrator sessions need. */
 async function confirmCode(page: Page) {
-	await expect(page).toHaveURL(/\/admin\/2fa\?/);
+	await expect(page).toHaveURL(/\/account\/admin\/2fa\?/);
 	await page.getByLabel('Authenticator code').fill(await freshCode(adminSecret));
 	await page.getByRole('button', { name: 'Confirm' }).click();
 }
@@ -68,7 +68,7 @@ test.describe('consent', () => {
 		const views = () => sent.filter((e) => e.type === 'pageview').length;
 		const before = views();
 		await page.getByRole('link', { name: 'Practice', exact: true }).first().click();
-		await expect(page).toHaveURL(/\/exams$/);
+		await expect(page).toHaveURL(/\/practice$/);
 		await page.waitForTimeout(2500);
 		expect(views()).toBe(before);
 	});
@@ -92,19 +92,19 @@ test.describe('consent', () => {
 
 test.describe('dashboard access', () => {
 	test('sends visitors who are not signed in to sign in, and refuses the export', async ({ page }) => {
-		await page.goto('/admin/analytics?range=7d');
-		await expect(page).toHaveURL(/\/signin\?redirectTo=%2Fadmin%2Fanalytics%3Frange%3D7d$/);
-		const res = await page.request.get('/admin/analytics/export?range=7d');
+		await page.goto('/account/admin/analytics?range=7d');
+		await expect(page).toHaveURL(/\/signin\?redirectTo=%2Faccount%2Fadmin%2Fanalytics%3Frange%3D7d$/);
+		const res = await page.request.get('/account/admin/analytics/export?range=7d');
 		expect(res.status()).toBe(401);
 	});
 
 	test('hides the dashboard from members', async ({ page }) => {
 		await signIn(page, MEMBER);
 		await expect(page).toHaveURL(/\/account\/setup$/);
-		const res = await page.goto('/admin/analytics');
+		const res = await page.goto('/account/admin/analytics');
 		expect(res?.status()).toBe(404);
-		expect((await page.request.get('/admin/analytics/events')).status()).toBe(404);
-		expect((await page.request.get('/admin/analytics/export')).status()).toBe(403);
+		expect((await page.request.get('/account/admin/analytics/events')).status()).toBe(404);
+		expect((await page.request.get('/account/admin/analytics/export')).status()).toBe(403);
 	});
 });
 
@@ -134,9 +134,9 @@ test.describe.serial('administrator', () => {
 		await expect(page).toHaveURL(/\/account\/setup$/);
 
 		// Before the authenticator app is set up and confirmed, neither pages nor the export open.
-		expect((await page.request.get('/admin/analytics/export')).status()).toBe(403);
-		await page.goto('/admin/analytics?range=7d');
-		await expect(page).toHaveURL(/\/admin\/2fa\/setup\?next=%2Fadmin%2Fanalytics/);
+		expect((await page.request.get('/account/admin/analytics/export')).status()).toBe(403);
+		await page.goto('/account/admin/analytics?range=7d');
+		await expect(page).toHaveURL(/\/account\/admin\/2fa\/setup\?next=%2Faccount%2Fadmin%2Fanalytics/);
 		await page.getByLabel('Your password').fill('not-the-password-1');
 		await page.getByRole('button', { name: 'Continue' }).click();
 		await expect(page.getByRole('alert')).toContainText('The password is incorrect.');
@@ -157,14 +157,14 @@ test.describe.serial('administrator', () => {
 		expect(axe.violations).toEqual([]);
 
 		// Server events from this run, listed individually.
-		await page.goto('/admin/analytics/events?range=7d&event=signup_completed');
+		await page.goto('/account/admin/analytics/events?range=7d&event=signup_completed');
 		await expect(page.getByRole('status').filter({ hasText: /\d+ events?/ })).toBeVisible();
 		await expect(page.locator('tbody tr').first()).toContainText('Registration');
 
-		await page.goto('/admin/analytics/events?range=7d&event=signin_failed');
+		await page.goto('/account/admin/analytics/events?range=7d&event=signin_failed');
 		await expect(page.locator('tbody tr').first()).toContainText('reason: credentials');
 
-		await page.goto('/admin/analytics/events?range=7d&event=signin_succeeded');
+		await page.goto('/account/admin/analytics/events?range=7d&event=signin_succeeded');
 		await expect(page.locator('tbody tr').first()).toContainText('Signed in');
 
 		const download = page.waitForEvent('download');
@@ -180,9 +180,9 @@ test.describe.serial('administrator', () => {
 
 	test('pages through events with a cursor, after confirming a code in the new session', async ({ page }) => {
 		await signIn(page, ADMIN);
-		await page.goto('/admin/analytics/events?range=7d&after=garbage');
+		await page.goto('/account/admin/analytics/events?range=7d&after=garbage');
 		await confirmCode(page);
-		await expect(page).toHaveURL(/\/admin\/analytics\/events\?range=7d&after=garbage$/);
+		await expect(page).toHaveURL(/\/account\/admin\/analytics\/events\?range=7d&after=garbage$/);
 		await expect(page.getByRole('heading', { level: 1, name: 'Events' })).toBeVisible();
 	});
 
@@ -195,7 +195,7 @@ test.describe.serial('administrator', () => {
 		await expect(mp).toHaveURL(/\/account\/setup$/);
 
 		await signIn(page, ADMIN);
-		await page.goto(`/admin/users?q=${encodeURIComponent(SUSPEND.email)}`);
+		await page.goto(`/account/admin/users?q=${encodeURIComponent(SUSPEND.email)}`);
 		await confirmCode(page);
 		await expect(page.getByRole('region', { name: 'Account' })).toContainText(SUSPEND.email);
 		await page.getByLabel(/Reason, kept with the account/).fill('Testing moderation');

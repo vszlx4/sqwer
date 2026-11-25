@@ -5,7 +5,7 @@ async function visibleWords(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
-	await page.goto('/test');
+	await page.goto('/practice/test/timed');
 	await page.evaluate(() => localStorage.clear());
 	await page.reload();
 });
@@ -54,7 +54,7 @@ test('Tab restarts a test in progress with new words and records the attempt', a
 	await page.keyboard.press('Tab');
 	await expect(page.getByTestId('counter')).toHaveText('30');
 	expect(await visibleWords(page)).not.toEqual(before);
-	await page.goto('/history');
+	await page.goto('/account/history');
 	await expect(page.getByText('Not completed').first()).toBeVisible();
 });
 
@@ -89,7 +89,7 @@ test('Tab on the results page starts a new test without deleting the result', as
 	await page.keyboard.press('Tab');
 	await expect(page.getByTestId('typing-input')).toBeAttached();
 	await expect(page.getByTestId('counter')).toHaveText('0/10');
-	await page.goto('/history');
+	await page.goto('/account/history');
 	await expect(page.getByRole('cell', { name: 'Completed' }).first()).toBeVisible();
 });
 
@@ -131,10 +131,10 @@ test('a visitor without an account leaves no usage statistics or device identifi
 });
 
 test('the ranked test shows only the time and live speed, each of which can be switched off', async ({ page }) => {
-	await page.goto('/test?exam=timed');
+	await page.goto('/practice/test/timed');
 	await expect(page.getByRole('link', { name: 'Play ranked' })).toBeVisible();
 
-	await page.goto('/test?exam=competitive');
+	await page.goto('/competitive/test');
 	await expect(page.getByText(/Ranked · 60 seconds/)).toBeVisible();
 	await expect(page.getByRole('timer')).toHaveAccessibleName('60 seconds left');
 	const time = page.getByRole('group', { name: 'Live readouts' }).getByRole('button', { name: 'Time' });

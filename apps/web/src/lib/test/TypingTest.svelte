@@ -18,6 +18,7 @@
 	import Icon from '#lib/ui/Icon.svelte';
 	import { usage } from '#lib/usage/store.svelte.ts';
 	import { resolvedPlatform, saveSettings, settings } from '#lib/settings.svelte.ts';
+	import StreakBadge from '#lib/courses/StreakBadge.svelte';
 	import ConfigBar from './ConfigBar.svelte';
 	import Words from './Words.svelte';
 	import { loadWordList } from '#lib/wordlists.ts';
@@ -418,6 +419,7 @@
 				<button type="button" class="pill" aria-pressed={settings.ranked.time} onclick={() => toggleRanked('time')}><Icon name="clock" size={15} /> Time</button>
 				<button type="button" class="pill" aria-pressed={settings.ranked.speed} onclick={() => toggleRanked('speed')}><Icon name="gauge" size={15} /> Speed</button>
 			</div>
+			<StreakBadge />
 		</div>
 
 		<div class="status" aria-live="off">
@@ -438,7 +440,8 @@
 			{:else if !fixed && poolInfo.mature}
 				<p class="list-note">{poolInfo.name} is a full dictionary list and includes profanity and other mature words. <a href="/copyright#word-lists">About the word lists</a></p>
 			{/if}
-			<a class="ranked-link" href="/test?exam=competitive" data-sveltekit-reload><Icon name="trophy" size={15} /> Play ranked</a>
+			<a class="ranked-link" href="/competitive/test" data-sveltekit-reload><Icon name="trophy" size={15} /> Play ranked</a>
+			<StreakBadge />
 		</div>
 
 		<div class="status" aria-live="off">

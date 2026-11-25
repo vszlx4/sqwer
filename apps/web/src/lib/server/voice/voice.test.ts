@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { RESPELL, SPEEDS, clipPath, fingerprint, seedOf, spoken } from './clips.ts';
-import { countMade, isLocked, readState, runGenerator, takeLock, type ClipMaker } from './generator.ts';
+import { countReady, isLocked, listClips, runKey, sweepUnwanted, readState, runGenerator, takeLock, type ClipMaker } from './generator.ts';
 import { buildManifest, SET_ORDER, type VoiceSet } from './manifest.ts';
 import { encodeMp3, halveRate } from './mp3.ts';
 import { CLIP_DISK_BYTES, DEFAULT_SETTINGS, activeVoice, maxClips, readSettings, shouldGenerate, voiceDir, writeSettings } from './settings.ts';
@@ -66,7 +66,7 @@ describe('voice settings', () => {
 		expect(shouldGenerate(s, 'skip')).toBe(false);
 		expect(activeVoice(s, 'skip')).toBe('standard');
 		expect(shouldGenerate(await writeSettings(data, { paused: true }), undefined)).toBe(false);
-		expect(readSettings(data)).toEqual({ voice: 'supertonic', mode: 'low', paused: true, first: null, diskLimit: null });
+		expect(readSettings(data)).toEqual({ voice: 'supertonic', mode: 'low', paused: true, sets: ['course', 'english-200', 'english-1k'], battery: false, diskLimit: null });
 	});
 });
 
@@ -77,9 +77,10 @@ describe('clip names', () => {
 		expect(fingerprint('water', 'normal')).not.toBe(fingerprint('waiter', 'normal'));
 		expect(fingerprint('water', 'normal')).toMatch(/^[0-9a-f]{32}$/);
 		expect(fingerprint('constructor', 'normal')).not.toBe(fingerprint('valueOf', 'normal'));
-		// Pinned: changing these remakes every clip on every install. Slow moved to the stretched take (issue 191).
-		expect(fingerprint('water', 'normal')).toBe('a76d8bcb9cf21581413534004097070d');
-		expect(fingerprint('water', 'slow')).toBe('38c71eb8358c36cb943b48d23496e78a');
+		// Pinned: changing these remakes every clip on every install. Slow moved to the stretched take (issue 191);
+		// 32 kbps replaced the silent 24 kbps clips (issue 248).
+		expect(fingerprint('water', 'normal')).toBe('b63ab7ce4a0593720522ecbd53fed8fb');
+		expect(fingerprint('water', 'slow')).toBe('f79071ca8b154bc6b1965a1feee3a056');
 	});
 
 	it('use respellings for words Supertonic says wrong', () => {
@@ -127,31 +128,31 @@ describe('voice generator', () => {
 	it('makes every missing clip, normal then slow, and records progress', async () => {
 		const dir = tmp();
 		const made: string[] = [];
-		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => true })).toBe('done');
+		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => 'go' })).toBe('done');
 		expect(made).toEqual(['one/normal', 'one/slow', 'two/normal', 'two/slow', 'three/normal', 'three/slow']);
 		expect(readFileSync(clipPath(dir, fingerprint('two', 'slow')), 'utf8')).toBe('two slow');
 		const state = readState(dir)!;
-		expect(state).toMatchObject({ running: false, made: 6, total: 6, error: null });
-		expect(countMade(dir, sets).map((s) => s.made)).toEqual([4, 2]);
+		expect(state).toMatchObject({ running: false, ready: 3, words: 3, left: 0, error: null, complete: true });
+		expect(countReady(sets, listClips(dir)).map((s) => s.ready)).toEqual([2, 1]);
 	});
 
 	it('stops at the disk limit and says so', async () => {
 		const dir = tmp();
 		const made: string[] = [];
-		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => true, maxClips: 3 })).toBe('full');
+		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => 'go', maxClips: 3 })).toBe('full');
 		expect(made).toHaveLength(3);
 		expect(readState(dir)).toMatchObject({ running: false, full: true, limit: 3 });
 		// A higher limit carries on.
-		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => true, maxClips: 10 })).toBe('done');
+		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => 'go', maxClips: 10 })).toBe('done');
 		expect(made).toHaveLength(6);
 		expect(readState(dir)).toMatchObject({ full: false });
 	});
 
 	it('makes only what is missing', async () => {
 		const dir = tmp();
-		await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => true });
+		await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => 'go' });
 		const again: string[] = [];
-		await runGenerator({ voiceDir: dir, sets, make: fakeMaker(again), keepGoing: () => true });
+		await runGenerator({ voiceDir: dir, sets, make: fakeMaker(again), keepGoing: () => 'go' });
 		expect(again).toEqual([]);
 	});
 
@@ -159,26 +160,58 @@ describe('voice generator', () => {
 		const dir = tmp();
 		const made: string[] = [];
 		let budget = 3;
-		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => budget-- > 0 })).toBe('stopped');
+		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => (budget-- > 0 ? 'go' : 'stop') })).toBe('stopped');
 		expect(made).toHaveLength(3);
 		const rest: string[] = [];
-		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(rest), keepGoing: () => true })).toBe('done');
+		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker(rest), keepGoing: () => 'go' })).toBe('done');
 		expect(rest).toEqual(['two/slow', 'three/normal', 'three/slow']);
 	});
 
-	it('makes a chosen set first', async () => {
+	it('makes the sets in the order given, a shared word once, counted in both', async () => {
 		const dir = tmp();
 		const made: string[] = [];
-		await runGenerator({ voiceDir: dir, sets, make: fakeMaker(made), keepGoing: () => true, first: ['english-200'] });
-		expect(made.slice(0, 2)).toEqual(['three/normal', 'three/slow']);
+		const shared = [
+			{ id: 'english-200', name: 'English 200', words: ['three', 'one'] },
+			{ id: 'course', name: 'Lessons', words: ['one', 'two'] }
+		];
+		await runGenerator({ voiceDir: dir, sets: shared, make: fakeMaker(made), keepGoing: () => 'go', key: runKey(['english-200', 'course']) });
+		expect(made).toEqual(['three/normal', 'three/slow', 'one/normal', 'one/slow', 'two/normal', 'two/slow']);
+		expect(readState(dir)).toMatchObject({ ready: 3, words: 3, key: runKey(['english-200', 'course']), sets: [{ id: 'english-200', ready: 2, words: 2 }, { id: 'course', ready: 2, words: 2 }] });
+	});
+
+	it('rests after each clip and waits for the charger', async () => {
+		const dir = tmp();
+		const made: string[] = [];
+		const answers: ('go' | 'battery')[] = ['battery', 'go'];
+		const seen: (string | null | undefined)[] = [];
+		await runGenerator({
+			voiceDir: dir,
+			sets: [{ id: 'course', name: 'Lessons', words: ['one'] }],
+			make: fakeMaker(made),
+			keepGoing: () => answers.shift() ?? 'go',
+			waitMs: 5,
+			rest: 0.5,
+			onProgress: (s) => seen.push(s.waiting)
+		});
+		expect(made).toEqual(['one/normal', 'one/slow']);
+		expect(seen).toContain('battery');
+		expect(readState(dir)).toMatchObject({ waiting: null, complete: true });
+	});
+
+	it('removes clips no set wants', async () => {
+		const dir = tmp();
+		await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => 'go' });
+		const keep = new Set([fingerprint('one', 'normal'), fingerprint('one', 'slow')]);
+		expect(await sweepUnwanted(dir, (fp) => keep.has(fp))).toBe(4);
+		expect([...listClips(dir)].sort()).toEqual([...keep].sort());
 	});
 
 	it('runs one at a time, and takes over a lock left by a dead process', async () => {
 		const dir = tmp();
 		expect(await takeLock(dir, process.pid)).toBe(true);
-		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => true })).toBe('done');
+		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => 'go' })).toBe('done');
 		expect(await takeLock(dir, process.ppid)).toBe(true);
-		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => true })).toBe('locked');
+		expect(await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => 'go' })).toBe('locked');
 		expect(isLocked(dir)).toBe(true);
 		writeFileSync(path.join(dir, 'supertonic', 'generator.lock'), '999999');
 		expect(isLocked(dir)).toBe(false);
@@ -191,7 +224,7 @@ describe('voice generator', () => {
 		const part = `${clipPath(dir, fingerprint('one', 'normal'))}.123.part`;
 		await mkdir(path.dirname(part), { recursive: true });
 		writeFileSync(part, 'half');
-		await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => true });
+		await runGenerator({ voiceDir: dir, sets, make: fakeMaker([]), keepGoing: () => 'go' });
 		expect(existsSync(part)).toBe(false);
 	});
 
@@ -200,7 +233,7 @@ describe('voice generator', () => {
 		const broken: ClipMaker = async () => {
 			throw new Error('engine down');
 		};
-		await expect(runGenerator({ voiceDir: dir, sets, make: broken, keepGoing: () => true })).rejects.toThrow('engine down');
+		await expect(runGenerator({ voiceDir: dir, sets, make: broken, keepGoing: () => 'go' })).rejects.toThrow('engine down');
 		expect(readState(dir)?.error).toBe('engine down');
 		expect(await takeLock(dir, process.ppid)).toBe(true);
 	});
@@ -266,6 +299,13 @@ describe('MP3 clips', () => {
 		expect(mp3[1]! & 0xe0).toBe(0xe0);
 		expect(mp3.length).toBeGreaterThan(1000);
 		expect(mp3.length).toBeLessThan(6000);
+	});
+
+	it('keep 22.05 kHz, so the encoder never resamples the word away', () => {
+		const mp3 = encodeMp3(halveRate(Float32Array.from({ length: 44100 }, (_, i) => 0.3 * Math.sin((2 * Math.PI * 440 * i) / 44100))));
+		// Frame header: MPEG-2 (version bits 10), sample rate index 00 = 22,050 Hz.
+		expect((mp3[1]! >> 3) & 0b11).toBe(0b10);
+		expect((mp3[2]! >> 2) & 0b11).toBe(0b00);
 	});
 
 	it('cover both speeds', () => {

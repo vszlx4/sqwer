@@ -28,7 +28,7 @@ test('getting started leads a typist through the placement test to a recommended
 	await page.getByRole('button', { name: /I type, but not properly/ }).click();
 	await expect(page.getByRole('heading', { name: 'One minute of typing shows your level.' })).toBeVisible();
 	await page.getByRole('link', { name: 'Take the placement test' }).click();
-	await expect(page).toHaveURL(/exam=placement/);
+	await expect(page).toHaveURL(/\/practice\/test\/placement$/);
 	await expect(page.getByText('Establishes your starting speed')).toBeVisible();
 
 	await page.getByTestId('typing-input').focus();
@@ -38,14 +38,14 @@ test('getting started leads a typist through the placement test to a recommended
 	// The result now points into the course, at the chapter the placement recommends.
 	await expect(page.locator('section.next').getByRole('link', { name: /^Start lesson \d+/ })).toBeVisible();
 
-	await page.goto('/exams');
+	await page.goto('/practice');
 	const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Placement test' }) });
 	await expect(card.getByText('Attempts')).toBeVisible();
 
 	await page.goto('/start');
 	await expect(page.getByRole('heading', { name: /^Begin at chapter \d+/ })).toBeVisible();
 
-	await page.goto('/history');
+	await page.goto('/account/history');
 	await page.getByRole('row').nth(1).getByRole('link').click();
 	await expect(page.getByRole('heading', { name: 'Placement test' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Play the replay' })).toBeVisible();
@@ -54,6 +54,23 @@ test('getting started leads a typist through the placement test to a recommended
 test('the old journey address leads to getting started', async ({ page }) => {
 	await page.goto('/journey');
 	await expect(page).toHaveURL(/\/start$/);
+});
+
+test('old addresses lead to their new place', async ({ request }) => {
+	for (const [from, to] of [
+		['/exams', '/practice'],
+		['/play/listen', '/practice/play/listen'],
+		['/map/session', '/practice/finger-map/session'],
+		['/history', '/account/history'],
+		['/practice/history/abc', '/account/history/abc'],
+		['/admin/analytics?range=7d', '/account/admin/analytics?range=7d'],
+		['/test?exam=competitive', '/competitive/test'],
+		['/about', '/how-it-works']
+	]) {
+		const res = await request.get(from!, { maxRedirects: 0 });
+		expect(res.status(), from).toBe(308);
+		expect(res.headers().location, from).toBe(to);
+	}
 });
 
 const CORE: [string, string][] = [
@@ -90,7 +107,7 @@ async function seedFingerMap(page: Page, map: [string, string][]) {
 
 test('the finger speed assessment unlocks with a mapped finger map and shows per-finger results', async ({ page }) => {
 	test.setTimeout(180_000);
-	await page.goto('/exams/finger-speed');
+	await page.goto('/practice/finger-speed');
 	await expect(page.getByText('Your finger map is not ready yet')).toBeVisible();
 
 	await seedFingerMap(page, CORE);
@@ -115,7 +132,7 @@ test('the finger speed assessment unlocks with a mapped finger map and shows per
 });
 
 test('the finger speed assessment skips stages for fingers the map does not use', async ({ page }) => {
-	await page.goto('/exams/finger-speed');
+	await page.goto('/practice/finger-speed');
 	// This typist presses the ring-finger keys with their middle fingers.
 	await seedFingerMap(
 		page,

@@ -112,11 +112,7 @@
 			{/if}
 		</div>
 	</div>
-	<p class="hint">
-		PNG, JPEG or WebP. The image is cropped to a square and resized before upload, and location and camera data are
-		removed. Upload only images you have the right to use; do not upload photographs of other people without their
-		consent.
-	</p>
+	<p class="hint">PNG, JPEG or WebP. Cropped to a square; location and camera data are removed.</p>
 	{#if localError || error}<p class="error" role="alert">{localError ?? error}</p>{/if}
 </section>
 

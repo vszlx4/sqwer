@@ -57,7 +57,7 @@ export function nextStep(i: PathInput): NextStep {
 			stage: 'placement',
 			title: 'Take the placement test',
 			text: 'One minute of typing shows where in the course you should begin.',
-			href: '/test?exam=placement',
+			href: '/practice/test/placement',
 			action: 'Take the placement test',
 			lesson: null
 		};
@@ -68,7 +68,7 @@ export function nextStep(i: PathInput): NextStep {
 			stage: 'complete',
 			title: 'You have completed the course',
 			text: 'Keep your skills sharp with the examinations, or replay any lesson for more stars.',
-			href: '/exams',
+			href: '/practice',
 			action: 'Practice with examinations',
 			lesson: null
 		};

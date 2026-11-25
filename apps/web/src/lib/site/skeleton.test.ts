@@ -8,10 +8,10 @@ describe('skeletonKind', () => {
 	});
 
 	it('shapes exercises', () => {
-		for (const path of ['/learn/home-row', '/test', '/play/race', '/exams/finger-speed', '/map/session']) expect(skeletonKind(path)).toBe('exercise');
+		for (const path of ['/learn/home-row', '/practice/test/timed', '/competitive/test', '/practice/play/race', '/practice/finger-speed', '/practice/finger-map/session']) expect(skeletonKind(path)).toBe('exercise');
 	});
 
 	it('falls back to a plain page', () => {
-		for (const path of ['/', '/learn', '/learn/start', '/exams', '/competitive', '/history/abc']) expect(skeletonKind(path)).toBe('page');
+		for (const path of ['/', '/learn', '/learn/start', '/practice', '/practice/finger-map', '/competitive']) expect(skeletonKind(path)).toBe('page');
 	});
 });

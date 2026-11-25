@@ -1,61 +1,82 @@
 /*
- * Voice status for the screens. Counting clips means hashing every word of every list (900k clips), so counts are
- * kept for a few minutes and the running generator's own counts (state.json) are laid over them.
+ * Voice status for the screens. Counting means naming both clips of every word of every set (about 900k), so counts
+ * are kept for a few minutes, and the running generator's own counts (state.json) are laid over the chosen sets.
  */
 
 import { availableParallelism } from 'node:os';
 import { SPEEDS, fingerprint, type Speed } from './clips.ts';
-import { isLocked, listClips, readState } from './generator.ts';
-import { CORE_SETS, buildManifest, findListsDir, fullSet, type VoiceSet } from './manifest.ts';
-import { CLIP_DISK_BYTES, activeVoice, readSettings, voiceDir, voiceEnv } from './settings.ts';
+import { isLocked, listClips, readState, runKey, type GeneratorState } from './generator.ts';
+import { chosenSets, loadCatalog, type VoiceSet } from './manifest.ts';
+import { lastBattery, onBattery } from './power.ts';
+import { CLIP_DISK_BYTES, activeVoice, maxClips, readSettings, voiceDir, voiceEnv, type VoiceSettings } from './settings.ts';
 import { readFlagged } from './flagged.ts';
 import { SUPERTONIC_MODEL, hasModel } from './supertonic.ts';
-import type { VoiceBrief, VoiceCost, VoiceSetStatus, VoiceStatus } from '#lib/voice/status.ts';
+import type { VoiceBrief, VoicePhase, VoiceSetStatus, VoiceStatus } from '#lib/voice/status.ts';
 
 export { CLIP_DISK_BYTES } from './settings.ts';
 /** The unpacked model. */
 export const MODEL_DISK_BYTES = 240_000_000;
-/** Measured in low mode (one thread): an M2 laptop and a 2013 server CPU. */
-export const FAST_MS_PER_CLIP = 300;
-export const SLOW_MS_PER_CLIP = 1600;
+/** Wall time per clip before this machine has its own pace, measured on an M2 laptop. */
+export const REFERENCE_MS_PER_CLIP = { low: 1900, active: 350 } as const;
 
 const FRESH_MS = 5 * 60_000;
+const SPEED_IDS = Object.keys(SPEEDS) as Speed[];
 
 /** Yields to the event loop now and then during long counts. */
 const breather = () => new Promise((r) => setImmediate(r));
 
-async function count(set: VoiceSet, have: ReadonlySet<string>): Promise<VoiceSetStatus> {
-	let made = 0;
-	const speeds = Object.keys(SPEEDS) as Speed[];
-	// Nothing on disk: no need to name every clip.
-	if (have.size) for (const [i, w] of set.words.entries()) {
-		for (const sp of speeds) if (have.has(fingerprint(w, sp))) made++;
-		if (i % 5000 === 4999) await breather();
-	}
-	return { id: set.id, name: set.name, made, total: set.words.length * speeds.length };
-}
-
 interface Counts {
 	at: number;
-	sets: VoiceSetStatus[];
+	key: string;
+	/** Ready words per catalog set. */
+	ready: Map<string, number>;
+	/** Ready and wanted words over the chosen sets, each word once. */
+	union: { ready: number; words: number };
+	files: number;
 }
 
 const cache = new Map<string, { counts: Counts | null; pending: Promise<Counts> | null }>();
 
-/** Per-set counts for a data folder, recounted when older than a few minutes or after `forget`. */
-async function setCounts(dir: string): Promise<Counts> {
-	let entry = cache.get(dir);
-	if (!entry) cache.set(dir, (entry = { counts: null, pending: null }));
+async function countAll(dir: string, chosen: readonly string[]): Promise<Counts> {
+	const all = loadCatalog();
+	const have = listClips(dir);
+	const isReady = (w: string) => SPEED_IDS.every((sp) => have.has(fingerprint(w, sp)));
+	const ready = new Map<string, number>();
+	const known = new Map<string, boolean>();
+	let steps = 0;
+	const check = async (w: string) => {
+		let r = known.get(w);
+		if (r === undefined) known.set(w, (r = have.size > 0 && isReady(w)));
+		if (++steps % 5000 === 0) await breather();
+		return r;
+	};
+	for (const s of all) {
+		let n = 0;
+		for (const w of s.words) if (await check(w)) n++;
+		ready.set(s.id, n);
+	}
+	const seen = new Set<string>();
+	const union = { ready: 0, words: 0 };
+	for (const s of chosenSets(all, chosen)) {
+		for (const w of s.words) {
+			if (seen.has(w)) continue;
+			seen.add(w);
+			union.words++;
+			if (known.get(w)) union.ready++;
+		}
+	}
+	return { at: Date.now(), key: runKey(chosen), ready, union, files: have.size };
+}
+
+/** Counts for a data folder and chosen sets, recounted when older than a few minutes, after `forget`, or for new sets. */
+async function counts(dir: string, chosen: readonly string[]): Promise<Counts> {
+	const key = `${dir}\n${runKey(chosen)}`;
+	let entry = cache.get(key);
+	if (!entry) cache.set(key, (entry = { counts: null, pending: null }));
 	const e = entry;
 	const fresh = e.counts && Date.now() - e.counts.at < FRESH_MS;
 	if (!fresh && !e.pending) {
-		e.pending = (async () => {
-			const manifest = buildManifest(findListsDir());
-			const have = listClips(dir);
-			const sets: VoiceSetStatus[] = [];
-			for (const s of manifest) sets.push(await count(s, have));
-			return { at: Date.now(), sets };
-		})().then(
+		e.pending = countAll(dir, chosen).then(
 			(c) => ((e.counts = c), (e.pending = null), c),
 			(err) => ((e.pending = null), Promise.reject(err))
 		);
@@ -65,90 +86,96 @@ async function setCounts(dir: string): Promise<Counts> {
 }
 
 /** Drops the saved counts, after clips were removed or remade. */
-export function forgetCounts(dir: string): void {
-	cache.delete(dir);
-	setCache.clear();
+export function forgetCounts(): void {
+	cache.clear();
 }
 
-const setCache = new Map<string, { at: number; status: VoiceSetStatus }>();
+const isRunning = (dir: string, state: GeneratorState | null) => !!state?.running && isLocked(dir, 0);
 
-/** A set made first runs under this id, so its counts never mix with the same list's share of the manifest. */
-export const firstId = (id: string) => `first:${id}`;
-
-/** Clips made for every word of a set, words shared with earlier sets included. */
-export async function setProgress(dir: string, id: string): Promise<{ at: number; status: VoiceSetStatus } | null> {
-	const hit = setCache.get(`${dir}:${id}`);
-	if (hit && Date.now() - hit.at < 60_000) return hit;
-	const listsDir = findListsDir();
-	const set = fullSet(listsDir, id, id === 'course' ? buildManifest(listsDir) : []);
-	if (!set) return null;
-	const entry = { at: Date.now(), status: await count(set, listClips(dir)) };
-	setCache.set(`${dir}:${id}`, entry);
-	return entry;
+/** The generator's state when it belongs to these settings and is newer than the counts. */
+function liveState(state: GeneratorState | null, settings: VoiceSettings, at: number): GeneratorState | null {
+	return state && state.key === runKey(settings.sets) && Date.parse(state.updatedAt) > at && typeof state.ready === 'number' ? state : null;
 }
 
-function cost(clips: number, msPerClip: number | null): VoiceCost {
-	return {
-		clips,
-		disk: clips * CLIP_DISK_BYTES,
-		fastMs: clips * FAST_MS_PER_CLIP,
-		slowMs: clips * SLOW_MS_PER_CLIP,
-		hereMs: msPerClip ? clips * msPerClip : null
-	};
+interface PhaseInput {
+	settings: VoiceSettings;
+	env: 'skip' | 'pause' | null;
+	state: GeneratorState | null;
+	running: boolean;
+	ready: number;
+	words: number;
+	battery: boolean;
+}
+
+/** One phase, in order of what matters most. */
+export function phaseOf({ settings, env, state, running, ready, words, battery }: PhaseInput): VoicePhase {
+	if (env === 'skip') return 'skip';
+	if (settings.voice !== 'supertonic') return 'off';
+	if (env === 'pause') return 'held';
+	if (running && state?.downloading) return 'downloading';
+	if (settings.paused) return 'paused';
+	if (!settings.sets.length) return 'empty';
+	if (running && state?.waiting === 'battery') return 'battery';
+	if (running) return 'making';
+	if (state?.full && state.limit != null && state.limit === maxClips(settings)) return 'full';
+	if (words > 0 && ready >= words) return 'ready';
+	if (!settings.battery && battery) return 'battery';
+	return 'starting';
 }
 
 /** Everything the voice screens show, for the machine running the copy. */
-export async function voiceStatus(dataDir: string, set?: string): Promise<VoiceStatus> {
+export async function voiceStatus(dataDir: string): Promise<VoiceStatus> {
 	const dir = voiceDir(dataDir);
 	const settings = readSettings(dataDir);
 	const env = voiceEnv() ?? null;
 	const state = readState(dir);
-	const running = !!state?.running && isLocked(dir, 0);
-	const counts = await setCounts(dir);
-	// The generator counted its own sets when it started and keeps them current.
-	const liveAt = state ? Date.parse(state.updatedAt) : 0;
-	const live = new Map(state?.sets.map((s) => [s.id, s.made]) ?? []);
-	const sets = counts.sets.map((s) => ({ ...s, made: (liveAt > counts.at && live.get(s.id)) || s.made }));
-	// A set made first is counted apart from the manifest: its new clips go on top of the last count, until the next.
-	const firstRun = !!state?.sets.length && state.sets.every((s) => s.id.startsWith('first:'));
-	const since = firstRun && state?.startedAt && Date.parse(state.startedAt) >= counts.at ? (state.fresh ?? 0) : 0;
-	const total0 = sets.reduce((n, s) => n + s.total, 0);
-	const made = Math.min(total0, sets.reduce((n, s) => n + s.made, 0) + since);
-	const total = total0;
-	const core = sets.filter((s) => CORE_SETS.has(s.id)).reduce((n, s) => n + s.total, 0);
-	const msPerClip = state?.msPerClip ?? null;
-	const status: VoiceStatus = {
+	const running = isRunning(dir, state);
+	const c = await counts(dir, settings.sets);
+	const live = liveState(state, settings, c.at);
+	const liveSets = new Map(live?.sets.map((s) => [s.id, s.ready]) ?? []);
+	const ms = state?.msPerClip ?? REFERENCE_MS_PER_CLIP[settings.mode];
+	const order = new Map(settings.sets.map((id, i) => [id, i]));
+	const sets: VoiceSetStatus[] = loadCatalog().map((s: VoiceSet) => {
+		const ready = liveSets.get(s.id) ?? c.ready.get(s.id) ?? 0;
+		return {
+			id: s.id,
+			name: s.name,
+			words: s.words.length,
+			ready,
+			order: order.get(s.id) ?? null,
+			disk: s.words.length * SPEED_IDS.length * CLIP_DISK_BYTES,
+			leftMs: (s.words.length - ready) * SPEED_IDS.length * ms
+		};
+	});
+	const ready = live?.ready ?? c.union.ready;
+	const words = live?.words ?? c.union.words;
+	const left = live ? live.left : (words - ready) * SPEED_IDS.length;
+	const files = c.files + Math.max(0, (live?.ready ?? c.union.ready) - c.union.ready) * SPEED_IDS.length;
+	const battery = settings.voice === 'supertonic' && !settings.battery ? await onBattery() : lastBattery();
+	return {
 		local: true,
 		voice: activeVoice(settings, env ?? undefined),
 		chosen: settings.voice,
 		env,
+		phase: phaseOf({ settings, env, state, running, ready, words, battery }),
 		mode: settings.mode,
 		paused: settings.paused,
-		first: settings.first,
+		battery: settings.battery,
 		cores: availableParallelism(),
 		model: { downloaded: hasModel(dir), download: SUPERTONIC_MODEL.bytes, disk: MODEL_DISK_BYTES },
-		running,
-		word: running ? state!.word : null,
+		word: running && !state?.waiting ? (state?.word ?? null) : null,
+		making: running ? (state?.making ?? null) : null,
 		error: state?.error ?? null,
-		downloading: running ? (state!.downloading ?? null) : null,
-		msPerClip,
-		made,
-		total,
+		downloading: running ? (state?.downloading ?? null) : null,
+		msPerClip: state?.msPerClip ?? null,
+		ready,
+		words,
+		leftMs: left * ms,
 		sets,
-		cost: { core: cost(core, msPerClip), all: cost(total, msPerClip) },
 		diskLimit: settings.diskLimit,
-		clipsDisk: made * CLIP_DISK_BYTES,
-		full: !running && !!state?.full,
+		clipsDisk: files * CLIP_DISK_BYTES,
 		flagged: readFlagged(dir)
 	};
-	if (set) {
-		const p = await setProgress(dir, set);
-		if (p) {
-			const made = (liveAt > p.at && live.get(firstId(set))) || p.status.made;
-			status.set = { ...p.status, made, leftMs: msPerClip ? Math.max(0, p.status.total - made) * msPerClip : null };
-		}
-	}
-	return status;
 }
 
 /** The few facts the account menu shows, from the settings and the generator's last saved state only. */
@@ -156,17 +183,17 @@ export function voiceBrief(dataDir: string): VoiceBrief {
 	const dir = voiceDir(dataDir);
 	const settings = readSettings(dataDir);
 	const state = readState(dir);
-	const running = !!state?.running && isLocked(dir, 0);
+	const running = isRunning(dir, state);
+	const own = state?.key === runKey(settings.sets) && typeof state.ready === 'number' ? state : null;
+	const ready = own?.ready ?? 0;
+	const words = own?.words ?? 0;
+	const env = voiceEnv() ?? null;
 	return {
 		chosen: settings.voice,
-		paused: settings.paused,
-		mode: settings.mode,
-		first: settings.first,
-		running,
-		downloading: running ? (state!.downloading ?? null) : null,
-		made: state?.made ?? 0,
-		total: state?.total ?? 0,
-		msPerClip: state?.msPerClip ?? null,
-		full: !running && !!state?.full
+		phase: phaseOf({ settings, env, state, running, ready, words, battery: lastBattery() }),
+		ready,
+		words,
+		leftMs: own?.msPerClip ? own.left * own.msPerClip : null,
+		downloading: running ? (state?.downloading ?? null) : null
 	};
 }

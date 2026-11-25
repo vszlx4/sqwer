@@ -112,6 +112,6 @@ export async function checkClips(voiceDir: string, sets: readonly VoiceSet[], on
 	});
 	// Something to make again: the site's generator must not take "all made" from an earlier run.
 	const state = readState(voiceDir);
-	if (report.removed && state?.all && !isLocked(voiceDir, 0)) await writeState(voiceDir, { ...state, all: false, updatedAt: new Date().toISOString() });
+	if (report.removed && state?.complete && !isLocked(voiceDir, 0)) await writeState(voiceDir, { ...state, complete: false, updatedAt: new Date().toISOString() });
 	return report;
 }

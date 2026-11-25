@@ -2,12 +2,13 @@
 	import WakeSlider from '#lib/bits/WakeSlider.svelte';
 	import { saveSettings, settings } from '#lib/settings.svelte.ts';
 	import Icon from '#lib/ui/Icon.svelte';
+	import Switch from '#lib/ui/Switch.svelte';
 	import { sound } from './audio.svelte.ts';
 	import VoiceIcon from './VoiceIcon.svelte';
 	import { voice, type Said } from './player.svelte.ts';
 
 	/** Listen and type on this device: voice volume and a test word, words shown instead of said, fast mode. Saved on the device. */
-	let { compact = false }: { compact?: boolean } = $props();
+	let { compact = false, plain = false }: { compact?: boolean; /** Inside a titled panel: the legend is for screen readers only. */ plain?: boolean } = $props();
 
 	const pct = $derived(Math.round(settings.voiceVolume * 100));
 
@@ -31,7 +32,7 @@
 </script>
 
 <fieldset class="sound" class:compact>
-	<legend>{#if !compact}<VoiceIcon name="device" size={20} />{/if}Listen and type on this device</legend>
+	<legend class:sr-only={plain}>{#if !compact}<VoiceIcon name="device" size={20} />{/if}Listen and type on this device</legend>
 	<div class="row">
 		<span class="name"><Icon name={pct === 0 ? 'mute' : 'volume'} size={18} /> Voice volume</span>
 		<span class="slider"><WakeSlider value={pct} onChange={(v) => voice.setVolume(v / 100)} step={5} ariaLabel="Voice volume" formatValue={(v) => `${v}%`} /></span>
@@ -44,32 +45,30 @@
 		</div>
 	{/if}
 	<label class="row check">
-		<input
-			type="checkbox"
+		<span>
+			<span class="name">Show words instead of sound</span>
+			<span class="note">Each word shows for a moment; type it from memory.</span>
+		</span>
+		<Switch
 			checked={settings.showWords}
 			onchange={(e) => {
 				settings.showWords = e.currentTarget.checked;
 				saveSettings();
 			}}
 		/>
-		<span>
-			<span class="name">Show words instead of sound</span>
-			<span class="note">Each word shows for a moment; type it from memory.</span>
-		</span>
 	</label>
 	<label class="row check">
-		<input
-			type="checkbox"
+		<span>
+			<span class="name">Fast mode</span>
+			<span class="note">A right word moves on without Enter. Enter replays, Esc skips.</span>
+		</span>
+		<Switch
 			checked={settings.fastMode}
 			onchange={(e) => {
 				settings.fastMode = e.currentTarget.checked;
 				saveSettings();
 			}}
 		/>
-		<span>
-			<span class="name">Fast mode</span>
-			<span class="note">A right word moves on without Enter. Enter replays, Esc skips.</span>
-		</span>
 	</label>
 </fieldset>
 
@@ -124,15 +123,13 @@
 		color: var(--ink-2);
 	}
 	.check {
-		align-items: flex-start;
-	}
-	.check input {
-		margin-top: var(--space-4);
-		accent-color: var(--accent);
+		justify-content: space-between;
+		cursor: pointer;
 	}
 	.check > span {
 		display: grid;
 		gap: var(--space-2);
+		min-width: 0;
 	}
 	.note {
 		font-size: var(--fs-14);

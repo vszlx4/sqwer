@@ -1,9 +1,12 @@
-/* Clips as small mono MP3s: half the model's rate (44.1 → 22.05 kHz, plenty for one spoken word), 24 kbps. */
+/*
+ * Clips as small mono MP3s: half the model's rate (44.1 → 22.05 kHz, plenty for one spoken word), 32 kbps. Below 32 kbps
+ * lame resamples 22.05 kHz to 16 kHz itself, and its resampler leaves speech near silent.
+ */
 
 import { Mp3Encoder } from '@breezystack/lamejs';
 
 export const MP3_RATE = 22050;
-export const MP3_KBPS = 24;
+export const MP3_KBPS = 32;
 
 /** Low-pass taps for halving the rate: windowed sinc at a quarter of the input rate. */
 const TAPS = (() => {

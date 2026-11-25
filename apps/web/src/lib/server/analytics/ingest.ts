@@ -19,10 +19,11 @@ const eventSchema = z.object({
 	/** When it happened, in epoch milliseconds. */
 	at: z.number().int(),
 	path: z.string().max(300).regex(/^\/[^\s?#]*$/),
+	/** SvelteKit route id, param matchers included (/practice/test/[exam=exam]). */
 	route: z
 		.string()
 		.max(120)
-		.regex(/^\/[\w\-/[\]().]*$/)
+		.regex(/^\/[\w\-/[\]().=]*$/)
 		.nullable()
 		.optional(),
 	referrer: text(500).optional(),

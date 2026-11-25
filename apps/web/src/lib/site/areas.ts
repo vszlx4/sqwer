@@ -10,16 +10,15 @@ export const AREAS = {
 
 export type Area = keyof typeof AREAS;
 
+/** Most specific first: games and the finger map keep their own colors inside Practice. */
 const ROUTES: [prefix: string, area: Area][] = [
 	['/learn', 'learn'],
 	['/start', 'learn'],
 	['/journey', 'learn'],
-	['/exams', 'learn'],
-	['/test', 'practice'],
-	['/history', 'practice'],
-	['/competitive', 'competitive'],
-	['/map', 'map'],
-	['/play', 'games']
+	['/practice/play', 'games'],
+	['/practice/finger-map', 'map'],
+	['/practice', 'practice'],
+	['/competitive', 'competitive']
 ];
 
 /** Area of a path, or null for neutral pages (home, account, legal). */

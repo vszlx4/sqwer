@@ -178,15 +178,17 @@ export const usage = new UsageStore();
 
 /** Section of the site a path belongs to, for time statistics. */
 export function sectionOf(path: string): string {
+	const within = (prefix: string) => path === prefix || path.startsWith(`${prefix}/`);
 	if (path === '/') return 'Home';
-	if (path.startsWith('/start') || path.startsWith('/journey')) return 'Getting started';
-	if (path.startsWith('/learn')) return 'Courses';
-	if (path.startsWith('/competitive')) return 'Competitive';
-	if (path.startsWith('/exams') || path.startsWith('/test')) return 'Examinations';
-	if (path.startsWith('/map')) return 'Finger map';
-	if (path.startsWith('/history')) return 'History';
-	if (path.startsWith('/account') || path.startsWith('/u/')) return 'Account';
-	if (path.startsWith('/about') || path.startsWith('/faq')) return 'Learning';
+	if (within('/start') || within('/journey')) return 'Getting started';
+	if (within('/learn')) return 'Courses';
+	if (within('/competitive')) return 'Competitive';
+	if (within('/practice/finger-map')) return 'Finger map';
+	if (within('/account/history')) return 'History';
+	if (within('/practice/play')) return 'Games';
+	if (within('/practice')) return 'Examinations';
+	if (within('/account') || within('/u')) return 'Account';
+	if (within('/how-it-works') || within('/faq')) return 'Learning';
 	if (['/privacy', '/terms', '/cookies'].some((p) => path.startsWith(p))) return 'Legal';
 	return 'Other';
 }

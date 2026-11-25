@@ -13,7 +13,7 @@
 	const myTier = $derived(tierFor(data.me?.best));
 	const upcoming = $derived(nextTier(myTier));
 	const fmt = (n: number) => Math.round(n).toLocaleString('en');
-	const playHref = $derived(signedIn ? '/test?exam=competitive' : '/signin?redirectTo=%2Ftest%3Fexam%3Dcompetitive');
+	const playHref = $derived(signedIn ? '/competitive/test' : '/signin?redirectTo=%2Fcompetitive%2Ftest');
 
 	/** Progress from the start of the current tier to the next one. */
 	const toNext = $derived.by(() => {
@@ -144,12 +144,12 @@
 
 		{#if data.entries.length}
 			<ol class="podium" aria-label="Top three">
-				{#each podium as e (e.username)}
+				{#each podium as e (e.position)}
 					{@const t = tierFor(e.wpm)}
 					<li class={`place p${e.position}`}>
 						<span class="medal">{e.position}</span>
 						<Avatar name={e.displayName} color={e.avatarColor} size={e.position === 1 ? 72 : 60} src={e.avatar} />
-						{#if e.isPublic}<a class="pod-name" href={`/u/${e.username}`}>{e.displayName}</a>{:else}<span class="pod-name">{e.displayName}</span>{/if}
+						{#if e.username}<a class="pod-name" href={`/u/${e.username}`}>{e.displayName}</a>{:else}<span class="pod-name">{e.displayName}</span>{/if}
 						<span class="pod-score">{data.by === 'speed' ? `${fmt(e.wpm ?? 0)} WPM` : `${fmt(e.xp)} XP`}</span>
 						{#if t}<span class="pod-tier"><RankEmblem league={t.league} size={30} /> {t.name}</span>{/if}
 						<span class="pod-level">Level {e.level}</span>
@@ -159,11 +159,11 @@
 
 			{#if rest.length}
 				<ol class="rows">
-					{#each rest as e (e.username)}
+					{#each rest as e (e.position)}
 						{@const t = tierFor(e.wpm)}
 						<li class="row">
 							<span class="pos">{e.position}</span>
-							{#if e.isPublic}
+							{#if e.username}
 								<a class="who" href={`/u/${e.username}`}>
 									<Avatar name={e.displayName} color={e.avatarColor} size={38} src={e.avatar} />
 									<span><b>{e.displayName}</b><small>@{e.username}</small></span>

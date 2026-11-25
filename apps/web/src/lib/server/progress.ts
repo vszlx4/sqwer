@@ -82,11 +82,11 @@ export async function competitiveBest(userId: string): Promise<number | null> {
 
 export interface LeaderboardEntry {
 	position: number;
-	username: string;
+	/** Public profiles only; a private profile is listed by display name and never sends its username. */
+	username: string | null;
 	displayName: string;
 	avatarColor: string;
 	avatar: string | null;
-	isPublic: boolean;
 	level: number;
 	xp: number;
 	wpm: number | null;
@@ -117,11 +117,10 @@ async function computeLeaderboard(by: 'speed' | 'xp', limit: number): Promise<Le
 		const at = r.avatar_at ? new Date(r.avatar_at as string).getTime() : null;
 		return {
 			position: i + 1,
-			username: String(r.username),
+			username: r.is_public ? String(r.username) : null,
 			displayName: String(r.display_name),
 			avatarColor: String(r.avatar_color),
 			avatar: at ? `/avatars/${String(r.user_id)}?v=${at}` : null,
-			isPublic: Boolean(r.is_public),
 			level: levelFor(total).level,
 			xp: total,
 			wpm: r.best == null ? null : Number(r.best)

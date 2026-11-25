@@ -50,10 +50,10 @@
 		{#if placement && recommended}
 			<div class="apply">
 				<PlacementStart chapter={recommended} />
-				<a class="retake" href="/test?exam=placement">Take the placement test again</a>
+				<a class="retake" href="/practice/test/placement">Take the placement test again</a>
 			</div>
 		{:else}
-			<a class="btn btn-primary" href="/test?exam=placement">Take the placement test <Icon name="arrow" size={16} /></a>
+			<a class="btn btn-primary" href="/practice/test/placement">Take the placement test <Icon name="arrow" size={16} /></a>
 		{/if}
 	</section>
 

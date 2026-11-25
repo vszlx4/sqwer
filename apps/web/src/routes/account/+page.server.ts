@@ -13,7 +13,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		fingerMap: { count: fingerMap.count, updatedAt: fingerMap.updatedAt?.toISOString() ?? null },
 		recoveryCodes: codes,
 		sessionCount: sessions.length,
-		welcome: url.searchParams.get('welcome') === '1',
-		saved: url.searchParams.get('saved') === '1'
+		welcome: url.searchParams.get('welcome') === '1'
 	};
 };

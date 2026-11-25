@@ -1845,7 +1845,6 @@ santa
 guarantee
 leader
 diamond
-Israel
 processes
 soft
 servers
@@ -4824,7 +4823,6 @@ rainbow
 hook
 decline
 gloves
-Israeli
 medicare
 cord
 skiing

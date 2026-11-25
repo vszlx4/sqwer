@@ -1,0 +1,64 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { page } from '$app/state';
+	import FingerScores from '#lib/assessment/FingerScores.svelte';
+	import { examById } from '#lib/exams.ts';
+	import ResultReport from '#lib/results/ResultReport.svelte';
+	import { results } from '#lib/results/store.svelte.ts';
+	import Seo from '#lib/site/Seo.svelte';
+	import Skeleton from '#lib/ui/Skeleton.svelte';
+	import SkeletonRegion from '#lib/ui/SkeletonRegion.svelte';
+	import { formatDateTime } from '#lib/i18n/format.ts';
+
+	onMount(() => results.load());
+
+	const record = $derived(results.byId(page.params.id ?? ''));
+	const title = $derived(record ? (examById(record.exam)?.title ?? 'Result') : 'Result');
+</script>
+
+<Seo title={`${title} result`} description="A saved test result." noindex />
+
+{#if !results.loaded}
+	<SkeletonRegion label="Loading the result…">
+		<Skeleton width="min(360px, 80%)" height="34px" />
+		<Skeleton width="240px" height="14px" />
+		<Skeleton height="120px" />
+		<Skeleton height="clamp(160px, 28vw, 260px)" />
+	</SkeletonRegion>
+{:else if !record}
+	<section class="missing">
+		<h1>Result not found</h1>
+		<p>This result is not stored in this browser or in your account.</p>
+		<a class="btn" href="/account/history">Return to history</a>
+	</section>
+{:else if record.exam === 'finger-speed' && record.fingers}
+	<section class="assessment">
+		<h1>Finger speed assessment</h1>
+		<p class="muted">
+			{formatDateTime(record.at, { dateStyle: 'medium', timeStyle: 'short' })} · Average {Math.round(record.wpm)} WPM at
+			{Math.round(record.accuracy)}% accuracy
+		</p>
+		<FingerScores fingers={record.fingers} />
+	</section>
+{:else}
+	<ResultReport {record} />
+{/if}
+
+<style>
+	.missing,
+	.assessment {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--space-16);
+	}
+	h1 {
+		font-size: var(--fs-display);
+	}
+	.muted {
+		color: var(--ink-2);
+	}
+	.assessment :global(.scores) {
+		width: 100%;
+	}
+</style>

@@ -23,12 +23,11 @@ test('home page: one primary action above the fold, leading to getting started',
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('Stop looking down');
 	const main = page.getByRole('main');
 	const hero = main.locator('.hero');
-	// A single, specific primary action; the course is explained on the page itself. The finale repeats it.
+	// A single, specific primary action; the course is explained on the page itself.
 	await expect(hero.locator('.btn-primary')).toHaveCount(1);
 	const cta = hero.getByRole('link', { name: 'Get started' });
 	await expect(cta).toBeInViewport();
-	await expect(main.locator('.finale .btn-primary')).toHaveAttribute('href', '/start');
-	await expect(main.locator('.btn-primary')).toHaveCount(2);
+	await expect(main.locator('.btn-primary')).toHaveCount(1);
 
 	await main.getByRole('link', { name: 'See the whole course' }).click();
 	await expect(page).toHaveURL(/#road$/);
@@ -46,13 +45,13 @@ test('home page: one primary action above the fold, leading to getting started',
 });
 
 test('examination cards are single links with a recommended next step', async ({ page }) => {
-	await page.goto('/exams');
+	await page.goto('/practice');
 	const placement = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Placement test' }) });
 	await expect(placement.getByText('Recommended')).toBeVisible();
 	await expect(placement.getByRole('link')).toHaveCount(1);
 	const timed = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Timed test' }) });
 	await timed.click({ position: { x: 30, y: 30 } });
-	await expect(page).toHaveURL(/\/test\?exam=timed$/);
+	await expect(page).toHaveURL(/\/practice\/test\/timed$/);
 });
 
 test('the main navigation leads with the course; getting started is not a permanent item', async ({ page }) => {
@@ -62,7 +61,7 @@ test('the main navigation leads with the course; getting started is not a perman
 });
 
 for (const [path, heading] of [
-	['/about', 'Built around your hands'],
+	['/how-it-works', 'Built around your hands'],
 	['/faq', 'Frequently asked questions'],
 	['/privacy', 'Privacy Policy'],
 	['/terms', 'Terms and Conditions'],
@@ -113,7 +112,7 @@ test('robots.txt and the sitemap are served', async ({ request }) => {
 
 test('every page has a unique title', async ({ page }) => {
 	const titles = new Set<string>();
-	const paths = ['/', '/start', '/learn', '/learn/start', '/exams', '/test', '/map', '/about', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password'];
+	const paths = ['/', '/start', '/learn', '/learn/start', '/practice', '/practice/test/timed', '/practice/finger-map', '/how-it-works', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password'];
 	for (const path of paths) {
 		await page.goto(path);
 		await page.waitForFunction(() => document.title.length > 0);
@@ -143,7 +142,7 @@ test('mobile: menu navigates and nothing fixed covers the content', async ({ pag
 test('nothing scrolls sideways, from wide screens down to phones', async ({ page }) => {
 	test.setTimeout(300_000);
 	const wide: string[] = [];
-	for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/exams', '/test', '/map', '/history', '/about', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup']) {
+	for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/practice', '/practice/test/timed', '/practice/finger-map', '/account/history', '/how-it-works', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup']) {
 		await page.setViewportSize({ width: 1440, height: 900 });
 		await page.goto(path);
 		for (const width of [1440, 1024, 768, 390]) {
@@ -169,7 +168,7 @@ for (const scheme of ['light', 'dark'] as const) {
 		const context = await browser.newContext({ colorScheme: scheme });
 		const page = await context.newPage();
 		const failures: string[] = [];
-		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/learn/l005', '/exams', '/exams/finger-speed', '/play/race', '/play/echo', '/test?exam=placement', '/map', '/history', '/about', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password', '/missing']) {
+		for (const path of ['/', '/start', '/learn', '/learn/start', '/learn/l001', '/learn/l005', '/practice', '/practice/finger-speed', '/practice/play/race', '/practice/play/echo', '/practice/test/placement', '/competitive/test', '/practice/finger-map', '/account/history', '/how-it-works', '/faq', '/competitive', '/legal', '/privacy', '/terms', '/cookies', '/copyright', '/accessibility', '/security', '/signin', '/signup', '/reset-password', '/missing']) {
 			await page.goto(path);
 			await page.waitForTimeout(300);
 			// Measure the settled page: entrance animations fade content in over a moment.

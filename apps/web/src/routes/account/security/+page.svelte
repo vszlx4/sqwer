@@ -1,85 +1,118 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import PageHead from '#lib/account/PageHead.svelte';
 	import RecoveryCodes from '#lib/account/RecoveryCodes.svelte';
+	import SettingRow from '#lib/account/SettingRow.svelte';
 	import SettingsSection from '#lib/account/SettingsSection.svelte';
-	import Icon from '#lib/ui/Icon.svelte';
+	import { formatDateTime } from '#lib/i18n/format.ts';
+	import { PASSWORD_RULE } from '#lib/profile.ts';
+	import { CONTACT_EMAIL } from '#lib/site/links.ts';
 	import Seo from '#lib/site/Seo.svelte';
 	import ConfirmForm from '#lib/ui/ConfirmForm.svelte';
 	import Field from '#lib/ui/Field.svelte';
-	import RequiredNote from '#lib/ui/RequiredNote.svelte';
-	import { PASSWORD_RULE } from '#lib/profile.ts';
+	import Icon from '#lib/ui/Icon.svelte';
 	import type { PageProps } from './$types';
-	import { formatDateTime } from '#lib/i18n/format.ts';
 
+	/** Sign-in details, recovery codes, signed-in devices and recent activity. */
 	let { data, form }: PageProps = $props();
 	let newPassword = $state('');
+	let changing = $state(false);
+	let generating = $state(false);
 
 	const errorsFor = (action: string) =>
 		(form && form.action === action && 'errors' in form ? form.errors : {}) as Record<string, string | undefined>;
 	const successFor = (action: string) => (form && form.action === action && 'success' in form ? form.success : null);
-	const fmt = (iso: string) =>
-		formatDateTime(iso, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+	const fmt = (iso: string) => formatDateTime(iso, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+	const low = $derived(data.recoveryCodes <= 2);
+	const newCodes = $derived(form?.action === 'codes' && 'codes' in form && form.codes ? form.codes : null);
+	// Reopen a form the server sent back with errors.
+	$effect(() => {
+		if (Object.keys(errorsFor('password')).length) changing = true;
+		if (Object.keys(errorsFor('codes')).length) generating = true;
+	});
 </script>
 
 <Seo title="Security" description="Manage your sqwer password, recovery codes and signed-in devices." noindex />
 
-<div class="page">
-	<header class="page-head">
-		<h1>Security</h1>
-		<p>Your password, the recovery codes that can reset it, and where your account is signed in.</p>
-	</header>
-	{#if data.reset}<p class="form-alert success" role="status">Your password has been reset and all other devices have been signed out.</p>{/if}
+<PageHead title="Security" line="How you sign in, how you get back in, and where you are signed in." />
 
-	<SettingsSection title="Password" description="Use at least 10 characters. A short phrase of unrelated words is both strong and easy to remember. Changing it keeps you signed in here.">
-		<form method="POST" action="?/password" class="form" use:enhance novalidate>
-			{#if errorsFor('password').form}<p class="form-alert" role="alert">{errorsFor('password').form}</p>{/if}
-			{#if successFor('password')}<p class="form-alert success" role="status">{successFor('password')}</p>{/if}
-			<RequiredNote />
-			<Field label="Current password" name="currentPassword" type="password" autocomplete="current-password" required error={errorsFor('password').currentPassword} />
-			<Field label="New password" name="newPassword" type="password" autocomplete="new-password" required hint={PASSWORD_RULE} error={errorsFor('password').newPassword} strength bind:value={newPassword} />
-			<Field label="Confirm new password" name="confirmPassword" type="password" autocomplete="new-password" required matches={newPassword} error={errorsFor('password').confirmPassword} />
-			<button class="btn btn-primary" type="submit">Change password</button>
-		</form>
-	</SettingsSection>
+{#if data.reset}<p class="form-alert success top" role="status">Your password has been reset and all other devices have been signed out.</p>{/if}
 
-	<SettingsSection title="Recovery codes" description="sqwer does not send email, so these codes are the only way to reset a forgotten password. Each works once.">
-		<div class="codes-state">
-			<span class="meter" aria-hidden="true">{#each Array.from({ length: 8 }) as _, i (i)}<span class:on={i < data.recoveryCodes}></span>{/each}</span>
-			<p class="text"><strong>{data.recoveryCodes} of 8</strong> unused codes. Generating a new set replaces all existing codes.</p>
-		</div>
-		{#if form?.action === 'codes' && 'codes' in form && form.codes}
-			<RecoveryCodes codes={form.codes} email={form.email} />
-		{:else}
-			<form method="POST" action="?/codes" class="form" use:enhance novalidate>
-				{#if errorsFor('codes').form}<p class="form-alert" role="alert">{errorsFor('codes').form}</p>{/if}
-				<RequiredNote />
-				<Field label="Confirm with your password" name="password" type="password" autocomplete="current-password" required error={errorsFor('codes').password} />
-				<button class="btn" type="submit">Generate new recovery codes</button>
+<div class="panels">
+	<SettingsSection title="Sign-in" flush>
+		<SettingRow label="Email address" hint={`Private. To change it, write to ${CONTACT_EMAIL} from this address.`} wide>
+			<span class="value">{data.account!.email}</span>
+		</SettingRow>
+		<SettingRow label="Password" hint={successFor('password') ?? 'Changing it signs out your other devices.'}>
+			{#if !changing}<button class="btn" type="button" onclick={() => (changing = true)}>Change password</button>{/if}
+		</SettingRow>
+		{#if changing}
+			<form method="POST" action="?/password" class="form inset" use:enhance={() => async ({ result, update }) => {
+				await update();
+				if (result.type === 'success') {
+					changing = false;
+					newPassword = '';
+				}
+			}} novalidate>
+				{#if errorsFor('password').form}<p class="form-alert" role="alert">{errorsFor('password').form}</p>{/if}
+				<Field label="Current password" name="currentPassword" type="password" autocomplete="current-password" required error={errorsFor('password').currentPassword} />
+				<Field label="New password" name="newPassword" type="password" autocomplete="new-password" required hint={PASSWORD_RULE} error={errorsFor('password').newPassword} strength bind:value={newPassword} />
+				<Field label="Confirm new password" name="confirmPassword" type="password" autocomplete="new-password" required matches={newPassword} error={errorsFor('password').confirmPassword} />
+				<div class="buttons">
+					<button class="btn btn-primary" type="submit">Change password</button>
+					<button class="btn" type="button" onclick={() => (changing = false)}>Cancel</button>
+				</div>
 			</form>
 		{/if}
 	</SettingsSection>
 
-	<SettingsSection title="Signed-in devices" description="Every browser where your account is signed in. Sign out any you do not recognize or no longer use.">
-		{#if successFor('revoke')}<p class="form-alert success" role="status">{successFor('revoke')}</p>{/if}
-		<ul class="list">
+	<SettingsSection title="Recovery codes" description="The only way back in if you forget your password. Each works once.">
+		{#snippet action()}
+			<span class="count" class:low>{data.recoveryCodes} of 8 left</span>
+		{/snippet}
+		<span class="meter" aria-hidden="true">{#each Array.from({ length: 8 }) as _, i (i)}<span class:on={i < data.recoveryCodes} class:low></span>{/each}</span>
+		{#if low && !newCodes}<p class="warn" role="status"><Icon name="info" size={16} /> Few codes left. Make a new set and keep it somewhere safe.</p>{/if}
+		{#if newCodes}
+			<RecoveryCodes codes={newCodes} email={form && 'email' in form ? (form.email ?? '') : ''} />
+		{:else if generating}
+			<form method="POST" action="?/codes" class="form" use:enhance novalidate>
+				{#if errorsFor('codes').form}<p class="form-alert" role="alert">{errorsFor('codes').form}</p>{/if}
+				<Field label="Confirm with your password" name="password" type="password" autocomplete="current-password" required error={errorsFor('codes').password} hint="The new set replaces every code you have now." />
+				<div class="buttons">
+					<button class="btn btn-primary" type="submit">Make new codes</button>
+					<button class="btn" type="button" onclick={() => (generating = false)}>Cancel</button>
+				</div>
+			</form>
+		{:else}
+			<button class="btn start" type="button" onclick={() => (generating = true)}>Make a new set</button>
+		{/if}
+	</SettingsSection>
+
+	<SettingsSection title="Devices" description="Browsers signed in to your account." flush>
+		{#snippet action()}
+			{#if data.sessions.length > 1}
+				<ConfirmForm action="?/revokeOthers" title="Sign out all other devices?" confirmLabel="Sign out other devices" pendingLabel="Signing out…">
+					{#snippet trigger()}Sign out all others{/snippet}
+					{#snippet message()}
+						<p>Every device except this one will need to sign in again.</p>
+					{/snippet}
+				</ConfirmForm>
+			{/if}
+		{/snippet}
+		{#if successFor('revoke')}<p class="form-alert success inset-alert" role="status">{successFor('revoke')}</p>{/if}
+		<ul class="rows">
 			{#each data.sessions as s (s.id)}
 				<li>
-					<span class="list-icon" aria-hidden="true"><Icon name="system" size={17} /></span>
-					<div class="list-text">
-						<p class="device">{s.device}{#if s.current}<span class="tag">This device</span>{/if}</p>
-						<p class="when">Signed in {fmt(s.createdAt)} · Last active {fmt(s.lastSeenAt)}</p>
-					</div>
+					<span class="glyph" aria-hidden="true"><Icon name="system" size={17} /></span>
+					<span class="row-text">
+						<b>{s.device}{#if s.current}<span class="tag">This device</span>{/if}</b>
+						<span>Last active {fmt(s.lastSeenAt)} · Signed in {fmt(s.createdAt)}</span>
+					</span>
 					{#if !s.current}
-						<ConfirmForm
-							action="?/revoke"
-							title="Sign out this device?"
-							triggerLabel={`Sign out ${s.device}`}
-							confirmLabel="Sign out device"
-							pendingLabel="Signing out…"
-						>
+						<ConfirmForm action="?/revoke" title="Sign out this device?" triggerLabel={`Sign out ${s.device}`} confirmLabel="Sign out device" pendingLabel="Signing out…">
 							{#snippet trigger()}Sign out{/snippet}
 							{#snippet message()}
-								<p><strong>{s.device}</strong> will need to sign in again to use your account.</p>
+								<p><strong>{s.device}</strong> will need to sign in again.</p>
 							{/snippet}
 							{#snippet fields()}<input type="hidden" name="id" value={s.id} />{/snippet}
 						</ConfirmForm>
@@ -87,67 +120,70 @@
 				</li>
 			{/each}
 		</ul>
-		{#if data.sessions.length > 1}
-			<ConfirmForm
-				action="?/revokeOthers"
-				title="Sign out all other devices?"
-				confirmLabel="Sign out other devices"
-				pendingLabel="Signing out…"
-			>
-				{#snippet trigger()}Sign out all other devices{/snippet}
-				{#snippet message()}
-					<p>Every device except this one will need to sign in again. Use this if you signed in on a shared or lost device.</p>
-				{/snippet}
-			</ConfirmForm>
-		{/if}
 	</SettingsSection>
 
-	<SettingsSection title="Recent activity" description="Sign-ins, password changes and other events on your account. If you do not recognize one, change your password and sign out all other devices.">
+	<SettingsSection title="Activity" description="Don't recognize one? Change your password and sign out the other devices." flush>
 		{#if data.events.length}
-			<ol class="timeline">
+			<ol class="rows">
 				{#each data.events as e, i (i)}
-					<li>
-						<p class="device">{e.label}</p>
-						<p class="when">{fmt(e.at)} · {e.device}</p>
+					<li class="event">
+						<span class="dot" aria-hidden="true"></span>
+						<span class="row-text">
+							<b>{e.label}</b>
+							<span>{e.device}</span>
+						</span>
+						<time datetime={e.at}>{fmt(e.at)}</time>
 					</li>
 				{/each}
 			</ol>
 		{:else}
-			<p class="text">No security activity has been recorded yet.</p>
+			<p class="empty">No activity recorded yet.</p>
 		{/if}
 	</SettingsSection>
 </div>
 
 <style>
-	.page-head {
-		margin-bottom: var(--space-8);
+	.panels {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-16);
 	}
-	.page-head p {
-		margin-top: var(--space-6);
-		max-width: 64ch;
-		color: var(--ink-2);
+	.top {
+		margin-bottom: var(--space-16);
 	}
-	h1 {
-		font-size: var(--fs-title);
+	.value {
+		font-weight: var(--fw-semibold);
+		overflow-wrap: anywhere;
 	}
 	.form {
 		max-width: var(--w-form);
 	}
-	.form .btn {
+	.inset {
+		padding: 0 var(--space-20) var(--space-20);
+	}
+	.inset-alert {
+		margin: var(--space-16) var(--space-20) 0;
+	}
+	.buttons {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-8);
+	}
+	.start {
 		align-self: flex-start;
 	}
-	.text {
-		font-size: var(--fs-15);
-		line-height: var(--lh-body);
-		color: var(--ink-2);
+	.count {
+		padding: var(--space-2) var(--space-8);
+		border-radius: var(--radius);
+		background: var(--success-soft);
+		color: var(--success);
+		font-size: var(--fs-13);
+		font-weight: var(--fw-semibold);
+		font-variant-numeric: tabular-nums;
 	}
-	.text strong {
-		color: var(--ink);
-	}
-	.codes-state {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-8);
+	.count.low {
+		background: var(--error-soft);
+		color: var(--error);
 	}
 	.meter {
 		display: grid;
@@ -163,75 +199,98 @@
 	.meter .on {
 		background: var(--strength-strong);
 	}
-	.list {
+	.meter .on.low {
+		background: var(--error);
+	}
+	.warn {
+		display: flex;
+		align-items: center;
+		gap: var(--space-8);
+		font-size: var(--fs-14);
+		font-weight: var(--fw-semibold);
+		color: var(--error);
+	}
+	.rows {
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		border-radius: var(--radius);
-		border: 1px solid var(--line);
-		background: var(--surface);
 	}
-	.list li {
+	.rows li {
 		display: grid;
 		grid-template-columns: 36px minmax(0, 1fr) auto;
 		align-items: center;
 		gap: var(--space-16);
-		padding: var(--space-12) var(--space-16);
+		padding: var(--space-12) var(--space-20);
 	}
-	.list li + li {
+	.rows li + li {
 		border-top: 1px solid var(--line);
 	}
-	.list-icon {
+	.glyph {
 		display: grid;
 		place-items: center;
 		width: 36px;
 		height: 36px;
 		border-radius: var(--radius);
-		border: 1px solid var(--line-strong);
-		background: var(--bg);
+		background: var(--surface);
 		color: var(--ink-2);
 	}
-	.device {
+	.row-text {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		min-width: 0;
+	}
+	.row-text b {
 		display: flex;
 		align-items: center;
 		flex-wrap: wrap;
 		gap: var(--space-8);
-		font-weight: var(--fw-semibold);
+		font-size: var(--fs-15);
+	}
+	.row-text > span {
+		font-size: var(--fs-14);
+		color: var(--ink-2);
 	}
 	.tag {
 		padding: var(--space-2) var(--space-8);
 		border-radius: var(--radius);
-		background: var(--accent);
-		color: var(--on-accent);
+		background: var(--ink);
+		color: var(--bg);
 		font-size: var(--fs-12);
 		font-weight: var(--fw-semibold);
 	}
-	.when {
+	.event {
+		grid-template-columns: 12px minmax(0, 1fr) auto;
+	}
+	.dot {
+		width: 8px;
+		height: 8px;
+		border-radius: var(--radius-pill);
+		background: var(--ink-3);
+	}
+	time {
+		font-size: var(--fs-13);
+		color: var(--ink-2);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+	.empty {
+		padding: var(--space-16) var(--space-20);
 		font-size: var(--fs-14);
 		color: var(--ink-2);
 	}
-	.timeline {
-		margin: 0;
-		padding: 0 0 0 var(--space-20);
-		list-style: none;
-		border-left: 2px solid var(--line);
-	}
-	.timeline li {
-		position: relative;
-		padding: 0 0 var(--space-16) var(--space-4);
-	}
-	.timeline li:last-child {
-		padding-bottom: 0;
-	}
-	.timeline li::before {
-		content: '';
-		position: absolute;
-		left: -25px;
-		top: 6px;
-		width: 10px;
-		height: 10px;
-		border-radius: var(--radius);
-		border: 2px solid var(--bg);
-		background: var(--ink);
+	@media (max-width: 560px) {
+		.rows li {
+			grid-template-columns: minmax(0, 1fr) auto;
+		}
+		.glyph {
+			display: none;
+		}
+		.event {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.dot {
+			display: none;
+		}
 	}
 </style>
