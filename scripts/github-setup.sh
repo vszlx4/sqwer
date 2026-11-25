@@ -35,7 +35,7 @@ ruleset() { # name, json body
   echo "Ruleset '$name' applied"
 }
 
-# Shared by main and dev: PR with one code owner approval, verify and naming green. Admin bypass via PR.
+# Shared by main, dev and v2: PR with one code owner approval, verify and naming green. Admin bypass via PR.
 review='{ "type": "pull_request", "parameters": {
     "required_approving_review_count": 1,
     "dismiss_stale_reviews_on_push": true,
@@ -85,6 +85,32 @@ ruleset "Keep dev" '{
   "target": "branch",
   "enforcement": "active",
   "conditions": { "ref_name": { "include": ["refs/heads/dev"], "exclude": [] } },
+  "bypass_actors": [],
+  "rules": [ { "type": "deletion" }, { "type": "non_fast_forward" } ]
+}'
+
+# v2: the next major version, built over weeks. Squashed task PRs and dev syncs as merge commits. Not strict: a
+# dev → v2 sync can never be up to date with v2 without merging v2 back into dev.
+ruleset "Protect v2" '{
+  "name": "Protect v2",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": { "ref_name": { "include": ["refs/heads/v2"], "exclude": [] } },
+  "bypass_actors": [ { "actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "pull_request" } ],
+  "rules": [
+    { "type": "deletion" },
+    { "type": "non_fast_forward" },
+    '"${review/METHODS/\"squash\", \"merge\"}"',
+    '"$(checks false)"'
+  ]
+}'
+
+# v2 stays as the full history after it lands in dev: no deletion (auto-delete on merge included) or force push.
+ruleset "Keep v2" '{
+  "name": "Keep v2",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": { "ref_name": { "include": ["refs/heads/v2"], "exclude": [] } },
   "bypass_actors": [],
   "rules": [ { "type": "deletion" }, { "type": "non_fast_forward" } ]
 }'
