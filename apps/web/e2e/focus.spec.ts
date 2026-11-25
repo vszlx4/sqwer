@@ -30,11 +30,13 @@ test('in a lesson drill, Space types a space even after clicking a control, and 
 	await expect(hint).toBeChecked({ checked: !initially });
 	expect(await scrollY(page)).toBe(before);
 
-	// Clicking anywhere else on the page also returns the keyboard to the drill.
+	// Clicking anywhere else on the page also returns the keyboard to the drill. The click scrolls the heading into
+	// view, so the scroll is read after it.
 	await page.getByRole('heading', { level: 1 }).click();
+	const afterClick = await scrollY(page);
 	await page.keyboard.type(`${words[1]} `, { delay: 20 });
 	await expect(page.locator('.status')).toContainText('2 / ');
-	expect(await scrollY(page)).toBe(before);
+	expect(await scrollY(page)).toBe(afterClick);
 });
 
 test('in a game that listens to the whole page, a focused button does not take the keys', async ({ page }) => {

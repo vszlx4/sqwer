@@ -241,12 +241,12 @@ test('Listen and type says so when the voice keeps failing, and shows the words'
 
 test('Listen and type shows the words instead when sound is turned off in settings', async ({ page }) => {
 	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
-	await page.getByRole('checkbox', { name: /Show words instead of sound/ }).check();
+	await page.getByRole('switch', { name: /Show words instead of sound/ }).check();
 	await page.getByRole('button', { name: /^Start at/ }).click();
 	await expect(page.locator('.player .shown')).toHaveText(/^[a-z'-]+$/);
 	await expect(page.getByRole('button', { name: 'Slow' })).toHaveCount(0);
 	await page.reload({ waitUntil: 'networkidle' });
-	await expect(page.getByRole('checkbox', { name: /Show words instead of sound/ })).toBeChecked();
+	await expect(page.getByRole('switch', { name: /Show words instead of sound/ })).toBeChecked();
 });
 
 test('Listen and type: a missed word is practiced unscored after Stop, then the review leads back to the run', async ({ page }) => {
@@ -376,8 +376,8 @@ test('Listen and type fast mode moves on the moment a word is typed right, and E
 		return route.fulfill({ contentType: 'audio/wav', body: tinyWav(0.1) });
 	});
 	await page.goto('/practice/play/listen', { waitUntil: 'networkidle' });
-	await page.getByRole('checkbox', { name: /Fast mode/ }).check();
-	await page.getByRole('checkbox', { name: /Show words instead of sound/ }).check();
+	await page.getByRole('switch', { name: /Fast mode/ }).check();
+	await page.getByRole('switch', { name: /Show words instead of sound/ }).check();
 	await page.getByRole('button', { name: /^Start at/ }).click();
 
 	const input = page.getByTestId('listen-input');
